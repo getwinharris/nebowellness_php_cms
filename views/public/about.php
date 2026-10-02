@@ -2,78 +2,132 @@
     <div class="container">
         <div class="section-header">
             <span class="eyebrow serif-accent">Our Story</span>
-            <h1 class="section-title" style="margin-bottom:var(--space-sm);">About Sri Panchami Spiritual</h1>
-            <p class="lede">A sacred space dedicated to spiritual growth, inner peace, and divine connection. Serving devotees across Chennai and India with authentic spiritual products and temple guidance.</p>
+            <h1 class="section-title" style="margin-bottom:var(--space-sm);">About Nebo Lifestyle Clinic</h1>
+            <p class="lede">A holistic wellness sanctuary dedicated to naturopathy, functional medicine, and lifestyle transformation. Serving individuals and families across Kanyakumari and South India with personalised integrative health solutions.</p>
         </div>
+
         <div class="about-story-grid">
             <div class="about-story-card reveal">
-                <h3>Our Mission</h3>
-                <p>To support meaningful spiritual journeys through traditional Vedic wisdom, authentic devotional practices, and genuine spiritual products.</p>
+                <h3>The Nebo Foundation</h3>
+                <p>Nebo was born from a vision to bridge the gap between modern medical science and ancient natural healing wisdom. Founded by a team of experienced naturopaths and functional medicine practitioners, we recognise that true wellness extends beyond symptom management to address root causes through personalised, evidence-based natural therapies.</p>
             </div>
             <div class="about-story-card reveal">
                 <h3>Our Vision</h3>
-                <p>Making sacred products and trusted spiritual guidance accessible to devotees across India, from devotional jewellery and pooja samagri to temple traditions.</p>
+                <p>To be a beacon of integrative health excellence, empowering individuals to reclaim vitality and achieve sustainable wellness through personalised naturopathic care, functional nutrition, and lifestyle medicine.</p>
             </div>
         </div>
+
+        <div class="section-header" style="margin-top:var(--space-3xl);">
+            <span class="eyebrow serif-accent">The Three Pillars</span>
+            <h2 class="section-title">Roots of Our Practice</h2>
+        </div>
+
         <div class="about-feature-grid">
             <article class="about-feature-card reveal">
-                <span class="about-feature-card__icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 8v8"/><path d="M8 12h8"/></svg></span>
-                <h3>Spiritual Practice</h3>
-                <p>Thoughtful products and traditions for your devotional journey.</p>
+                <span class="about-feature-card__icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </span>
+                <h3>Evidence-Based Naturopathy</h3>
+                <p>We blend traditional natural healing practices with modern clinical research, ensuring every therapy is grounded in both ancestral wisdom and contemporary scientific validation.</p>
             </article>
+
             <article class="about-feature-card reveal">
-                <span class="about-feature-card__icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><circle cx="12" cy="12" r="3"/><path d="M12 5v2"/><path d="M12 17v2"/><path d="M5 12h2"/><path d="M17 12h2"/></svg></span>
-                <h3>Sacred Products</h3>
-                <p>Authentic rudraksha, devotional items, and spiritual jewellery.</p>
+                <span class="about-feature-card__icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </span>
+                <h3>Personalised Care</h3>
+                <p>Every individual is unique. Our functional medicine approach analyses your bio-individuality—genetics, lifestyle, environment—to design truly personalised wellness protocols.</p>
             </article>
+
             <article class="about-feature-card reveal">
-                <span class="about-feature-card__icon"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 7a5 5 0 00-3 9v4h6v-4a5 5 0 00-3-9z"/><path d="M10 18h4"/></svg></span>
-                <h3>Pooja Support</h3>
-                <p>Complete pooja samagri and ritual guidance for all occasions.</p>
+                <span class="about-feature-card__icon">
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                </span>
+                <h3>Sustainable Transformation</h3>
+                <p>Quick fixes don't last. We guide you toward lasting lifestyle changes through compassionate support, practical strategies, and continuous education.</p>
             </article>
         </div>
+
         <div class="section-header" style="margin-top:var(--space-3xl);">
-            <span class="eyebrow serif-accent">Why Sri Panchami Spiritual</span>
-            <h2 class="section-title">Faith · Trust · Tradition</h2>
-            <p class="lede">Rooted in devotion, committed to authenticity — every product and service reflects our reverence for India's spiritual heritage.</p>
+            <span class="eyebrow serif-accent">Why Choose Nebo</span>
+            <h2 class="section-title">Science · Nature · Care</h2>
+            <p class="lede">Committed to clinical excellence and compassionate healing—every consultation reflects our dedication to your wellness journey.</p>
         </div>
+
         <div class="value-strip">
             <article class="value-card reveal">
                 <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
                 </div>
-                <h3>Authenticity</h3>
-                <p>Every item sourced with devotion — authentic rudraksha, pure pooja essentials, and sacred jewellery verified for spiritual genuineness.</p>
+                <h3>Comprehensive Diagnostics</h3>
+                <p>Advanced functional assessments including metabolic panels, gut microbiome analysis, hormonal profiling, and nutritional deficiency screening reveal root causes, not just symptoms.</p>
             </article>
+
             <article class="value-card reveal">
                 <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
                 </div>
-                <h3>Spiritual Growth</h3>
-                <p>Our products are more than offerings — they are symbols of faith that help keep alive the divine traditions connecting every devotee with spirituality.</p>
+                <h3>Integrative Approach</h3>
+                <p>Our protocols seamlessly integrate naturopathy, functional nutrition, yoga therapy, mental wellness, and lifestyle medicine for holistic, multi-dimensional healing.</p>
             </article>
+
             <article class="value-card reveal">
                 <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
+                    </svg>
                 </div>
-                <h3>Devotion</h3>
-                <p>Crafted with reverence, our products support sacred rituals and deepen your connection with the divine through every offering.</p>
+                <h3>Expert Practitioners</h3>
+                <p>Our team comprises certified naturopaths, functional medicine specialists, clinical nutritionists, and yoga therapists with decades of combined clinical experience.</p>
             </article>
+
             <article class="value-card reveal">
                 <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
                 </div>
-                <h3>Community</h3>
-                <p>Fostering belonging and connection through shared spiritual experiences — bringing temples, traditions, and devotees closer together.</p>
+                <h3>Safe & Natural</h3>
+                <p>All therapies prioritise safety, using evidence-based natural interventions free from harmful side effects, always respecting your body's innate healing intelligence.</p>
             </article>
         </div>
+
+        <div class="section-header" style="margin-top:var(--space-3xl);">
+            <span class="eyebrow serif-accent">Our Commitment</span>
+            <h2 class="section-title">Your Wellness Partner</h2>
+        </div>
+
+        <div class="about-story-grid">
+            <div class="about-story-card reveal">
+                <h3>Patient-Centred Philosophy</h3>
+                <p>We see you as a whole person—not a diagnosis. Every treatment plan is co-created with you, honouring your goals, preferences, and pace of transformation.</p>
+            </div>
+            <div class="about-story-card reveal">
+                <h3>Continuous Innovation</h3>
+                <p>We stay at the forefront of integrative medicine, continuously updating our knowledge and techniques with the latest research in functional medicine, naturopathy, and nutritional science.</p>
+            </div>
+        </div>
+
         <div class="page-cta-card reveal" style="margin-top:var(--space-2xl);">
             <div>
-                <span class="page-cta-card__eyebrow">Need help?</span>
-                <h3>Send a General Enquiry</h3>
-                <p>Use the contact form for product questions, order support, temple guidance, or general store enquiries.</p>
+                <span class="page-cta-card__eyebrow">Ready to Begin?</span>
+                <h3>Book Your Wellness Consultation</h3>
+                <p>Start your journey toward vibrant health. Our team is here to guide you every step of the way with personalised, compassionate care.</p>
             </div>
-            <a class="btn btn-primary page-cta-card__button" href="/contact#contact-form">Let’s Get Connected →</a>
+            <a class="btn btn-primary page-cta-card__button" href="/contact">Schedule Consultation →</a>
         </div>
     </div>
 </section>
@@ -82,13 +136,20 @@
 {
     "@context": "https://schema.org",
     "@type": "AboutPage",
-    "name": "About Sri Panchami Spiritual",
-    "description": "Learn about Sri Panchami Spiritual — Chennai's trusted store for authentic rudraksha, pooja items, spiritual jewellery, and temple traditions.",
-    "url": "https://sripanchamispiritual.com/about",
+    "name": "About Nebo Lifestyle Clinic",
+    "description": "Learn about Nebo Lifestyle Clinic — Kanyakumari's trusted centre for naturopathy, functional medicine, nutritional therapy, and integrative wellness solutions.",
+    "url": "https://nebowellness.com/about",
     "mainEntity": {
-        "@type": "LocalBusiness",
-        "name": "Sri Panchami Spiritual",
-        "email": "support@sripanchamispiritual.com"
+        "@type": "MedicalClinic",
+        "name": "Nebo Lifestyle Clinic",
+        "email": "nebolifestyleclinic@gmail.com",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Kaliyal, Kanyakumari",
+            "addressRegion": "Tamil Nadu",
+            "addressCountry": "IN"
+        },
+        "telephone": "+91-7200182025"
     }
 }
 </script>
