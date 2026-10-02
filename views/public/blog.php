@@ -2,8 +2,8 @@
   <div class="container">
     <header class="blog-editorial__header">
       <span class="eyebrow serif-accent">Ideas, rituals and guidance</span>
-      <h1 class="page-title"><?= e($categoryName ?? 'Sri Panchami Journal') ?></h1>
-      <p>Practical spiritual guidance, astrology explainers, and thoughtful updates from our team.</p>
+      <h1 class="page-title"><?= e($categoryName ?? 'Nebo Wellness Journal') ?></h1>
+      <p>Health insights, wellness guidance, and thoughtful updates from our naturopathy team.</p>
     </header>
 
     <?php if (!empty($categories)): ?>

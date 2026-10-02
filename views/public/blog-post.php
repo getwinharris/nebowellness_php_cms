@@ -22,11 +22,11 @@
                 'dateModified' => $meta['updated_at'] ?? $meta['published_at'] ?? '',
                 'author' => [
                     '@type' => 'Person',
-                    'name' => $meta['author'] ?? 'Sri Panchami Spiritual',
+                    'name' => $meta['author'] ?? 'Nebo Wellness',
                 ],
                 'publisher' => [
                     '@type' => 'Organization',
-                    'name' => 'Sri Panchami Spiritual',
+                    'name' => 'Nebo Wellness',
                 ],
                 'mainEntityOfPage' => $schemaUrl,
             ],
