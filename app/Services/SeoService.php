@@ -44,8 +44,8 @@ final class SeoService {
     }
 
     private function defaults(string $key): array {
-        $brand = 'Sri Panchami Spiritual';
-        $desc = 'Shop authentic spiritual products, sacred jewellery, pooja items, and devotional essentials.';
+        $brand = 'Nebo Lifestyle Clinic';
+        $desc = 'Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.';
         $maps = [
             'home' => [
                 'title' => $brand . ' – Spiritual Products, Sacred Jewellery & Temple Guide',
@@ -66,14 +66,14 @@ final class SeoService {
                 'robots' => 'index, follow',
             ],
             'consult' => [
-                'title' => 'Spiritual Products & Temple Guidance',
-                'description' => 'Discover authentic spiritual products, devotional essentials, and temple guidance from Sri Panchami Spiritual.',
+                'title' => 'Wellness Consultations & Naturopathy Services',
+                'description' => 'Discover personalised naturopathy, functional medicine, and wellness consultations at Nebo Lifestyle Clinic.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
             'astrologer' => [
-                'title' => 'Spiritual Products & Temple Guidance',
-                'description' => 'Discover authentic spiritual products, devotional essentials, and temple guidance from Sri Panchami Spiritual.',
+                'title' => 'Our Wellness Consultants',
+                'description' => 'Meet our experienced naturopaths, functional medicine specialists, and wellness consultants at Nebo Lifestyle Clinic.',
                 'og_type' => 'profile',
                 'robots' => 'index, follow',
             ],

@@ -4,8 +4,8 @@
         <div class="account-content account-install">
             <header class="account-install__header">
                 <span class="eyebrow">Your account</span>
-                <h1>Install Sri Panchami Spiritual</h1>
-                <p>Keep the shop, orders, and temple guidance available from your home screen or desktop app menu.</p>
+                <h1>Install Nebo Lifestyle Clinic</h1>
+                <p>Access wellness programs, consultations, and health resources directly from your home screen or desktop.</p>
             </header>
 
             <section class="account-install__status" aria-live="polite" data-pwa-state="checking">

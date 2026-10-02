@@ -116,7 +116,7 @@ final class ConsultationService {
         if ($subject === '') return;
         try {
             (new MailQueueService($this->store))->enqueue(
-                'appointment_' . $status, $to, $subject . ' - Sri Panchami Spiritual', $body,
+                'appointment_' . $status, $to, $subject . ' - Nebo Lifestyle Clinic', $body,
                 null, ['appointment_id' => $session['id'] ?? '']
             );
         } catch (\Throwable $e) {

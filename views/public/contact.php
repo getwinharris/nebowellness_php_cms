@@ -2,14 +2,14 @@
     <div class="container container--narrow">
         <div style="text-align:center; margin-bottom:var(--space-2xl);">
             <span class="eyebrow serif-accent">Contact</span>
-            <h1 class="section-title" style="margin-bottom:var(--space-sm);">Sri Panchami Spiritual</h1>
-            <p class="lede" style="margin:0 auto;">Shop spiritual products online and contact us for product, order, temple, or general support.</p>
+            <h1 class="section-title" style="margin-bottom:var(--space-sm);">Nebo Lifestyle Clinic</h1>
+            <p class="lede" style="margin:0 auto;">Contact us for wellness consultations, program enquiries, or general support.</p>
         </div>
         <div class="contact-form-card reveal" id="contact-form" style="scroll-margin-top:110px;">
             <h2 style="font-family:var(--font-serif); text-align:center; margin:0 0 var(--space-sm);">Contact Us</h2>
-            <p style="text-align:center; color:var(--color-text-muted); margin:0 auto var(--space-lg); max-width:620px;">Use this form for product questions, order support, temple guidance, or general enquiries.</p>
+            <p style="text-align:center; color:var(--color-text-muted); margin:0 auto var(--space-lg); max-width:620px;">Use this form for consultation bookings, program enquiries, or general wellness questions.</p>
             <?php if(!empty($success)): ?>
-                <script>document.addEventListener('DOMContentLoaded',function(){showToast('Thank you. Sri Panchami Spiritual will contact you soon.','success');});</script>
+                <script>document.addEventListener('DOMContentLoaded',function(){showToast('Thank you. Nebo Lifestyle Clinic will contact you soon.','success');});</script>
             <?php endif; ?>
             <form method="post" action="/contact" class="contact-form" style="max-width:720px; margin:0 auto;">
                 <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
@@ -96,8 +96,8 @@
 {
     "@context": "https://schema.org",
     "@type": "ContactPage",
-    "name": "Contact Sri Panchami Spiritual",
-    "description": "Contact Sri Panchami Spiritual for spiritual products, order support, temple guidance, and pooja services.",
-    "url": "https://sripanchamispiritual.com/contact"
+    "name": "Contact Nebo Lifestyle Clinic",
+    "description": "Contact Nebo Lifestyle Clinic for wellness consultations, naturopathy services, and integrative health programs.",
+    "url": "https://nebowellness.com/contact"
 }
 </script>
