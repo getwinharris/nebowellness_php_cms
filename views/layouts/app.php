@@ -11,7 +11,7 @@
 <?php
 $__settings = (new \App\Services\SettingsService())->public();
 $__modules = (new \App\Services\SettingsService())->modules();
-$__logo = $__settings['logo_url'] ?? '/assets/images/logo-small.jpeg';
+$__logo = $__settings['logo_url'] ?? '/assets/images/logo-small.jpg';
 $__favicon = $__settings['favicon_url'] ?? '/assets/images/nebo-favicon.png';
 $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png';
 ?>
@@ -21,7 +21,7 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nebo Lifestyle Clinic">
-<link rel="apple-touch-icon" href="/assets/images/logo-square.jpeg">
+<link rel="apple-touch-icon" href="/assets/images/logo-square.jpg">
 <link rel="canonical" href="https://<?= e($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
 <meta property="og:type" content="<?= e($seo['og_type'] ?? 'website') ?>">
 <meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>">

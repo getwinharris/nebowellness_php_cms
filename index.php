@@ -47,10 +47,10 @@ if ($uri === '/admin/manifest.json') {
         'scope' => '/admin/',
         'display' => 'standalone',
         'background_color' => '#222222',
-        'theme_color' => '#3a0003',
+        'theme_color' => '#4472C4',
         'icons' => [
-            ['src' => '/assets/images/logo-square.jpeg', 'sizes' => '192x192', 'type' => 'image/jpeg'],
-            ['src' => '/assets/images/logo.jpeg', 'sizes' => '512x512', 'type' => 'image/jpeg'],
+            ['src' => '/assets/images/logo-192.png', 'sizes' => '192x192', 'type' => 'image/png'],
+            ['src' => '/assets/images/logo-512.png', 'sizes' => '512x512', 'type' => 'image/png'],
         ],
     ];
     header('Content-Type: application/json; charset=utf-8');
