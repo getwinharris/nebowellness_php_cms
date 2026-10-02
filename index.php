@@ -40,9 +40,9 @@ if (isset($pwaFiles[$uri])) {
 }
 if ($uri === '/admin/manifest.json') {
     $manifest = [
-        'name' => 'SPS Admin',
-        'short_name' => 'SPS Admin',
-        'description' => 'Admin panel for Sri Panchami Spiritual.',
+        'name' => 'Nebo Admin',
+        'short_name' => 'Nebo Admin',
+        'description' => 'Admin panel for Nebo Wellness.',
         'start_url' => '/admin',
         'scope' => '/admin/',
         'display' => 'standalone',

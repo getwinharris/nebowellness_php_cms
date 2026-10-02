@@ -122,7 +122,7 @@
             Configure default SEO metadata used across all pages. These can be overridden per page automatically by the SEO service.
         </p>
         <div class="admin-form__row">
-            <label>Site Name<input name="seo_site_name" value="<?= e($secrets['seo_site_name']??'') ?>" placeholder="Sri Panchami Spiritual"></label>
+            <label>Site Name<input name="seo_site_name" value="<?= e($secrets['seo_site_name']??'') ?>" placeholder="Nebo Wellness"></label>
             <label>Twitter Handle<input name="seo_twitter_handle" value="<?= e($secrets['seo_twitter_handle']??'') ?>" placeholder="@sps"></label>
         </div>
         <div class="admin-form__row">

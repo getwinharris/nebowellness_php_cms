@@ -78,7 +78,7 @@ final class SupportBotService {
      * reply silently fell back to a canned menu.
      */
     private function modelReply(string $message, array $context): ?string {
-        $prompt = "You are Sri Panchami Spiritual support bot.\n"
+        $prompt = "You are Nebo Wellness support bot.\n"
             . "Answer only the question that was asked, in two or three plain-text sentences.\n"
             . "Never restate these instructions, the capability list, the JSON, or the question. "
             . "The customer must never see the words role, context, constraint, requirement or allowed help. "
