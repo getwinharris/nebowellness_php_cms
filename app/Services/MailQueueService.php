@@ -16,10 +16,10 @@ final class MailQueueService {
      * copied from assets/css/band.css so the mail matches the site.
      */
     private const BRAND = [
-        'maroon'      => '#3a0003',
-        'maroon_deep' => '#240002',
-        'gold'        => '#d1b368',
-        'gold_light'  => '#f3e8c9',
+        'maroon'      => '#4472C4',  // Nebo blue
+        'maroon_deep' => '#2c5aa0',  // Nebo dark blue
+        'gold'        => '#70AD47',  // Nebo green
+        'gold_light'  => '#8cc069',  // Nebo light green
         'bg'          => '#faf7f0',
         'bg_alt'      => '#f7f0e4',
         'border'      => '#d8ccb7',
@@ -33,7 +33,7 @@ final class MailQueueService {
         $b = self::BRAND;
         $isAdmin = $audience === 'admin';
         $settings = (new SettingsService())->public();
-        $siteName = 'Sri Panchami Spiritual';
+        $siteName = 'Nebo Wellness';
         $siteUrl = rtrim($this->siteUrl('/'), '/');
         $logoUrl = trim((string)($settings['logo_url'] ?? ''));
         if ($logoUrl === '') $logoUrl = $siteUrl . '/assets/images/logo-square.jpeg';
@@ -87,7 +87,7 @@ final class MailQueueService {
                   . '<br><a href="' . e($siteUrl . '/admin') . '" style="color:' . $b['maroon'] . ';text-decoration:underline;">Open the admin panel</a>'
                 : '<strong style="color:' . $b['ink'] . ';font-family:' . $b['serif'] . ';font-size:14px;">' . e($siteName) . '</strong>' . $legalHtml
                   . '<br><br>Need help? Reply to this email or write to '
-                  . '<a href="mailto:support@sripanchamispiritual.com" style="color:' . $b['maroon'] . ';text-decoration:underline;">support@sripanchamispiritual.com</a>'
+                  . '<a href="mailto:nebolifestyleclinic@gmail.com" style="color:' . $b['maroon'] . ';text-decoration:underline;">nebolifestyleclinic@gmail.com</a>'
                   . '<br><a href="' . e($siteUrl) . '" style="color:' . $b['maroon'] . ';text-decoration:underline;">' . e(preg_replace('#^https?://#', '', $siteUrl)) . '</a>')
             . '</td></tr></table></td></tr>'
 
@@ -123,7 +123,7 @@ final class MailQueueService {
     /** Absolute URL for links in email; relative paths are useless in an inbox. */
     private function siteUrl(string $path = '/'): string {
         $base = rtrim((string)((require app_path('config/database.php'))['app_url'] ?? ''), '/');
-        if ($base === '') $base = 'https://sripanchamispiritual.com';
+        if ($base === '') $base = 'https://nebowellness.com';
         return $base . '/' . ltrim($path, '/');
     }
 
