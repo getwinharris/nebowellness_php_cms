@@ -1,329 +1,209 @@
 <section class="home-hero">
     <div class="container home-hero-inner">
         <div class="hero-copy">
-            <span class="eyebrow">Sacred jewellery · Pooja items · Remedies</span>
-            <h1>Authentic Spiritual Products</h1>
-            <p class="lede">Sacred jewellery, rudraksha, and pooja essentials — sourced with care and delivered across India, along with a guide to the Panchami temples.</p>
+            <span class="eyebrow">Integrative Health · Natural Healing · Lifestyle Medicine</span>
+            <h1>Where Science Meets Nature for Lifelong Wellness</h1>
+            <p class="lede">At Nebo Lifestyle Clinic, we specialise in naturopathy, functional medicine, and maternal & fertility wellness, offering personalised care for gut health, metabolic diseases, and sustainable lifestyle transformation.</p>
             <div class="hero-actions">
-                <?php if (module_on('shop')): ?>
-                <a href="/shop" class="btn btn-primary">Shop Products</a>
-                <?php endif; ?>
-            </div>
-            <div class="hero-stats">
-                <?php if (module_on('shop')): ?>
-                <div>
-                    <div class="hero-stat-value"><?= e((string)count($products)) ?></div>
-                    <div class="hero-stat-label">Products</div>
-                </div>
-                <?php endif; ?>
-                <div>
-                    <div class="hero-stat-value">Trusted</div>
-                    <div class="hero-stat-label">Sourcing</div>
-                </div>
-            </div>
-        </div>
-        <div class="hero-deity" data-varahi-slider>
-            <div class="deity-frame">
-                <?php for($slide=1;$slide<=10;$slide++): ?>
-                    <img class="varahi-slide <?= $slide===1?'is-active':'' ?>" src="/assets/images/hero/varahi/varahi-<?= str_pad((string)$slide,2,'0',STR_PAD_LEFT) ?>.webp" alt="Sri Maha Varahi Amman devotional image <?= $slide ?>" width="480" height="640" <?= $slide===1?'fetchpriority="high"':'loading="lazy"' ?>>
-                <?php endfor; ?>
-            </div>
-            <div class="varahi-dots" role="tablist" aria-label="Varahi slides">
-                <?php for($dot=1;$dot<=10;$dot++): ?>
-                    <button class="varahi-dot <?= $dot===1?'is-active':'' ?>" type="button" role="tab" aria-label="Slide <?= $dot ?>" <?= $dot===1?'aria-current="true"':'aria-current="false"' ?> data-slide="<?= $dot-1 ?>"></button>
-                <?php endfor; ?>
+                <a href="/contact" class="btn btn-primary">Book Your Consultation</a>
+                <a href="#programs" class="btn btn-secondary">Explore Our Programs</a>
             </div>
         </div>
     </div>
 </section>
-<script>
-(() => {
-    const root = document.querySelector('[data-varahi-slider]');
-    if (!root) return;
-    const slides = [...root.querySelectorAll('.varahi-slide')];
-    const dots = [...root.querySelectorAll('.varahi-dot')];
-    let index = 0, timer;
-    const show = n => {
-        slides[index].classList.remove('is-active');
-        dots[index].classList.remove('is-active');
-        dots[index].setAttribute('aria-current', 'false');
-        index = (n + slides.length) % slides.length;
-        slides[index].classList.add('is-active');
-        dots[index].classList.add('is-active');
-        dots[index].setAttribute('aria-current', 'true');
-    };
-    const play = () => {
-        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        clearInterval(timer);
-        timer = setInterval(() => show(index + 1), 5000);
-    };
-    dots.forEach(d => {
-        d.addEventListener('click', () => { show(parseInt(d.dataset.slide)); play(); });
-    });
-    root.addEventListener('mouseenter', () => clearInterval(timer));
-    root.addEventListener('mouseleave', play);
-    play();
-})();
-</script>
 
-<div class="trust-bar">
-    <div class="trust-item">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        Secure Payments
-    </div>
-    <div class="trust-item">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-        Saved Addresses
-    </div>
-    <div class="trust-item">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        Spiritual Products
-    </div>
-</div>
+<!-- About Nebo Foundation -->
+<section class="section section--alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="eyebrow serif-accent">About Us</span>
+            <h2 class="section-title">The Nebo Foundation</h2>
+            <p class="lede">Nebo Lifestyle Clinic is a flagship initiative of the Nebo Foundation, dedicated to making integrative, root-cause healthcare accessible and sustainable.</p>
+        </div>
+        <div style="max-width:900px; margin:0 auto;">
+            <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Vision</h3>
+            <p>To transform how people approach chronic disease and wellness—by combining the wisdom of naturopathy with the precision of functional medicine, all delivered through compassionate, personalized care.</p>
 
+            <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Pillars</h3>
+            <ul style="list-style:none; padding:0; margin:var(--space-md) 0;">
+                <li style="padding:var(--space-xs) 0;">✓ Gut Health & Digestive Restoration</li>
+                <li style="padding:var(--space-xs) 0;">✓ Metabolic Disease Reversal (diabetes, PCOS, thyroid, fatty liver)</li>
+                <li style="padding:var(--space-xs) 0;">✓ Lifestyle Medicine & Sustainable Habit Change</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Focus Areas -->
 <section class="section">
     <div class="container">
-        <?php
-            $cartQuantities = [];
-            foreach ($_SESSION['cart'] ?? [] as $cartItem) {
-                $cartQuantities[(string)($cartItem['slug'] ?? '')] = (int)($cartItem['qty'] ?? 0);
-            }
-            $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16));
-        ?>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-xl); flex-wrap:wrap; gap:var(--space-sm);">
-            <h2 class="section-title" style="margin:0;">Most Liked By People</h2>
-            <a href="/shop" class="btn btn-sm btn-ghost">View Shop</a>
-        </div>
-        <div class="product-grid">
-        <?php foreach(array_slice($products, 0, min(4, count($products))) as $item): ?>
-            <?php $hasOffer = !empty($item['offer_price']) && $item['offer_price'] < $item['price']; ?>
-            <?php
-                $itemSlug = trim((string)($item['slug'] ?? ''));
-                $productUrl = '/product/' . rawurlencode($itemSlug);
-                $isPurchasable = in_array((string)($item['stock_status'] ?? 'in_stock'), ['in_stock', 'active'], true);
-            ?>
-            <article class="product-card reveal">
-                <a class="product-card__image" href="<?= e($productUrl) ?>" aria-label="View <?= e($item['name']) ?>">
-                    <img src="<?= e(webp_src($item['image_url'] ?? placeholder_img($item['name']))) ?>" alt="<?= e($item['name']) ?> — Buy online at Sri Panchami Spiritual, Chennai" decoding="async">
-                    <?php if($hasOffer): ?>
-                        <span class="product-card__badge product-card__badge--sale">Sale</span>
-                    <?php endif; ?>
-                </a>
-                <div class="product-card__body">
-                    <h3><a class="product-card__title" href="<?= e($productUrl) ?>"><?= e($item['name']) ?></a></h3>
-                    <p class="product-card__desc"><?= e($item['description']) ?></p>
-                    <div class="product-card__price-row">
-                        <span class="price">₹<?= e((string)(($item['offer_price'] ?? 0) ?: ($item['price'] ?? 0))) ?></span>
-                        <?php if($hasOffer): ?>
-                            <span class="old-price">₹<?= e($item['price']) ?></span>
-                            <?php $pct = round((1 - $item['offer_price'] / ($item['price'] ?: 1)) * 100); ?>
-                            <span class="discount-pct">-<?= $pct ?>%</span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="product-card__actions">
-                        <?php if($isPurchasable): ?>
-                        <?php $inCart = (int)($cartQuantities[$itemSlug] ?? 0); ?>
-                        <div class="product-purchase" data-cart-control data-slug="<?= e($itemSlug) ?>">
-                            <form method="post" action="/cart/add">
-                                <input type="hidden" name="slug" value="<?= e($itemSlug) ?>">
-                                <input type="hidden" name="_csrf" value="<?= $csrf ?>">
-                                <input type="hidden" name="redirect" value="/checkout">
-                                <button class="btn btn-sm btn-primary" type="submit">Buy Now</button>
-                            </form>
-                            <div class="product-cart-control">
-                                <form method="post" action="/cart/add" data-cart-add <?= $inCart > 0 ? 'hidden' : '' ?>>
-                                    <input type="hidden" name="slug" value="<?= e($itemSlug) ?>">
-                                    <input type="hidden" name="_csrf" value="<?= $csrf ?>">
-                                    <input type="hidden" name="redirect" value="/">
-                                    <button class="btn btn-sm btn-outline" type="submit">Add to Cart</button>
-                                </form>
-                                <div class="product-cart-control__stepper" data-cart-stepper <?= $inCart > 0 ? '' : 'hidden' ?>>
-                                    <?php foreach (['dec' => '−', 'inc' => '+'] as $cartAction => $symbol): ?>
-                                    <?php if ($cartAction === 'inc'): ?><output data-cart-quantity aria-live="polite" aria-label="Quantity in cart for <?= e($item['name']) ?>"><?= $inCart ?></output><?php endif; ?>
-                                    <form method="post" action="/cart/update" data-cart-change>
-                                        <input type="hidden" name="slug" value="<?= e($itemSlug) ?>">
-                                        <input type="hidden" name="_csrf" value="<?= $csrf ?>">
-                                        <input type="hidden" name="action" value="<?= $cartAction ?>">
-                                        <input type="hidden" name="redirect" value="/">
-                                        <button type="submit" aria-label="<?= $cartAction === 'dec' ? 'Decrease' : 'Increase' ?> cart quantity for <?= e($item['name']) ?>"><?= $symbol ?></button>
-                                    </form>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        </div>
-                        <?php else: ?>
-                        <span class="product-card__unavailable">Out of stock</span>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </article>
-        <?php endforeach; ?>
-    </div>
-    </div>
-</section>
-
-<section class="section section--alt">
-    <div class="container">
         <div class="section-header">
-            <span class="eyebrow serif-accent">Simple · Secure · Trackable</span>
-            <h2 class="section-title">How Your Order Works</h2>
-            <p class="lede">Choose an authentic product, pay securely online, and follow the order from your account.</p>
-        </div>
-        <div class="feature-strip home-order-steps">
-            <article><span class="home-order-step">1</span><h3>Choose Products</h3><p>Browse clear product details and add the quantity you need.</p></article>
-            <article><span class="home-order-step">2</span><h3>Select an Address</h3><p>Reuse a saved address or enter a different delivery address at checkout.</p></article>
-            <article><span class="home-order-step">3</span><h3>Pay and Track</h3><p>Complete Razorpay payment and follow confirmation from My Orders.</p></article>
-        </div>
-        <div class="home-order-actions">
-            <a class="btn btn-primary" href="/shop">Browse Products</a>
-            <a class="btn btn-ghost" href="/blog/category/help">Ordering Help</a>
-        </div>
-    </div>
-</section>
-
-<?php if(!empty($temples)): ?>
-<section class="section section--alt">
-    <div class="section-header">
-        <span class="eyebrow serif-accent">Sacred Spaces · Divine Energy</span>
-        <h2 class="section-title">Panchami Temples Guide</h2>
-        <p class="lede">Explore temple guides for divine blessings, traditional pooja details, and spiritual routes around Chennai. <a href="/temples">Click here</a></p>
-    </div>
-    <div class="temple-carousel temple-carousel--single" data-temple-slider aria-label="Temple guide carousel">
-        <div class="temple-carousel-track">
-        <?php foreach(array_values($temples) as $index => $temple): ?>
-            <a class="showcase-card temple-feature-card reveal <?= $index === 0 ? 'is-active' : '' ?>" href="/temples/<?= e($temple['slug'] ?? '') ?>" aria-label="View <?= e($temple['name'] ?? 'Temple') ?>">
-                <div class="temple-feature-card__media">
-                    <?php if(!empty($temple['image_url'])): ?>
-                        <img src="<?= e(webp_src($temple['image_url'])) ?>" alt="<?= e($temple['name']) ?> — Temple guide at Sri Panchami Spiritual, Chennai" decoding="async">
-                    <?php else: ?>
-                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 21v-4a2 2 0 012-2h2a2 2 0 012 2v4"/></svg>
-                    <?php endif; ?>
-                </div>
-                <div class="temple-feature-card__body">
-                    <h2><?= e($temple['name']) ?></h2>
-                    <p><?= e($temple['description']) ?></p>
-                    <?php if(!empty($temple['address'])): ?>
-                        <p class="temple-feature-card__meta">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            <?= e($temple['address']) ?>
-                        </p>
-                    <?php endif; ?>
-                    <?php if(!empty($temple['timings'])): ?>
-                        <p class="temple-feature-card__meta">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                            <?= e($temple['timings']) ?>
-                        </p>
-                    <?php endif; ?>
-                    <span class="btn btn-sm btn-primary temple-feature-card__cta">View Details</span>
-                </div>
-            </a>
-        <?php endforeach; ?>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    var slider = document.querySelector('[data-temple-slider]');
-    if (!slider) return;
-    var slides = Array.prototype.slice.call(slider.querySelectorAll('.temple-feature-card'));
-    if (slides.length < 2) return;
-    var index = 0;
-    setInterval(function () {
-        slides[index].classList.remove('is-active');
-        index = (index + 1) % slides.length;
-        slides[index].classList.add('is-active');
-    }, 6500);
-});
-</script>
-
-<section class="section section--warm">
-    <div class="container">
-        <div class="section-header">
-            <span class="eyebrow serif-accent">Why Sri Panchami Spiritual</span>
-            <h2 class="section-title">Faith · Trust · Tradition</h2>
-            <p class="lede">Rooted in devotion, committed to authenticity — every product and service reflects our reverence for India's spiritual heritage.</p>
+            <span class="eyebrow serif-accent">What We Treat</span>
+            <h2 class="section-title">Our Focus Areas</h2>
         </div>
         <div class="value-strip">
             <article class="value-card reveal">
-            <div class="value-card__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-            </div>
-            <h3>Authenticity</h3>
-            <p>Every item sourced with devotion — authentic rudraksha, pure pooja essentials, and sacred jewellery verified for spiritual genuineness.</p>
-        </article>
-        <article class="value-card reveal">
-            <div class="value-card__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            </div>
-            <h3>Spiritual Growth</h3>
-            <p>Our products are more than offerings — they are symbols of faith that help keep alive the divine traditions connecting every devotee with spirituality.</p>
-        </article>
-        <article class="value-card reveal">
-            <div class="value-card__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <h3>Devotion</h3>
-            <p>Crafted with reverence, our products support sacred rituals and deepen your connection with the divine through every offering.</p>
-        </article>
-        <article class="value-card reveal">
-            <div class="value-card__icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            </div>
-            <h3>Community</h3>
-            <p>Fostering belonging and connection through shared spiritual experiences — bringing temples, traditions, and devotees closer together.</p>
-        </article>
-    </div>
-    <div class="page-cta-card reveal">
-        <div>
-            <span class="page-cta-card__eyebrow">Need Guidance?</span>
-            <h3>Get in Touch</h3>
-            <p>Use the contact form for product questions, order help, or temple guidance.</p>
+                <div class="value-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                </div>
+                <h3>Gut Health</h3>
+                <p>Restore balance to your digestive system with evidence-based protocols that address root causes of bloating, IBS, leaky gut, and chronic inflammation.</p>
+            </article>
+            <article class="value-card reveal">
+                <div class="value-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <h3>Metabolic Diseases</h3>
+                <p>Reverse insulin resistance, PCOS, thyroid disorders, and weight challenges through functional diagnostics and metabolic reset programs.</p>
+            </article>
+            <article class="value-card reveal">
+                <div class="value-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3>Lifestyle Transformation</h3>
+                <p>Build lasting habits with personalized nutrition, stress management, and movement plans designed for your unique biology and life stage.</p>
+            </article>
+            <article class="value-card reveal">
+                <div class="value-card__icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <h3>Maternal & Fertility Wellness</h3>
+                <p>Support preconception health, pregnancy vitality, and postpartum recovery with gentle, drug-free therapies that nurture both mother and baby.</p>
+            </article>
         </div>
-        <a class="btn btn-primary page-cta-card__button" href="/contact#contact-form">Let’s Get Connected →</a>
-    </div>
     </div>
 </section>
 
-<!-- FAQ Schema for SEO -->
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-        {
-            "@type": "Question",
-            "name": "Where can I buy original rudraksha online in Chennai?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Sri Panchami Spiritual offers certified original rudraksha beads and malas online with free shipping across India. Order online through our web store."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Can I ask for help choosing a spiritual product?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes. Contact Sri Panchami Spiritual with a product, order, or temple question and our team will help you find the appropriate information."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "What pooja items do you sell online?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "We sell a complete range of pooja samagri including brass items, dhoop sticks, agarbatti, camphor, kumkum, havan samagri, pooja thalis, and complete pooja kits for all occasions."
-            }
-        },
-        {
-            "@type": "Question",
-            "name": "Is free shipping available on spiritual products?",
-            "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Yes, we offer free shipping on all spiritual products across India. Orders are carefully packed and delivered to your doorstep."
-            }
-        }
-    ]
-}
-</script>
+<!-- Why Choose Nebo -->
+<section class="section section--warm">
+    <div class="container">
+        <div class="section-header">
+            <span class="eyebrow serif-accent">Why Nebo</span>
+            <h2 class="section-title">Why Choose Nebo Wellness?</h2>
+        </div>
+        <div class="value-strip" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+            <article class="value-card reveal">
+                <h3>Root-cause, personalized care</h3>
+                <p>Nebo identifies and resolves underlying imbalances (digestion, hormones, metabolism, stress) with protocols tailored to your history, labs, and goals—avoiding one-size-fits-all symptom masking.</p>
+            </article>
+            <article class="value-card reveal">
+                <h3>Safe, expert-led, measurable</h3>
+                <p>Drug-free, non-invasive therapies guided by certified naturopaths and functional medicine specialists, with trackable improvements in energy, digestion, hormones, and metabolic markers.</p>
+            </article>
+            <article class="value-card reveal">
+                <h3>Integrative, maternal-first, sustainable</h3>
+                <p>Combines naturopathy, nutrition, lifestyle medicine, and evidence-based testing; offers specialized preconception/pregnancy/postpartum protocols; delivers practical, culturally relevant plans you can maintain long-term.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- Programs -->
+<section class="section" id="programs">
+    <div class="container">
+        <div class="section-header">
+            <span class="eyebrow serif-accent">Our Services</span>
+            <h2 class="section-title">Our Programs</h2>
+            <p class="lede">Comprehensive wellness programs designed for sustainable health transformation</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:var(--space-xl);">
+            <article class="value-card reveal" style="padding:var(--space-xl);">
+                <h3>Gut Restoration Program</h3>
+                <p>A 6–12 week protocol combining dietary reset, probiotics, and lifestyle modifications to heal the gut lining and rebalance microbiome.</p>
+                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
+            </article>
+            <article class="value-card reveal" style="padding:var(--space-xl);">
+                <h3>Metabolic Reset</h3>
+                <p>Target insulin sensitivity, reduce visceral fat, and reverse prediabetes/PCOS with metabolic diet, yoga & exercises, necessary supplementation plans.</p>
+                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
+            </article>
+            <article class="value-card reveal" style="padding:var(--space-xl);">
+                <h3>Fertility & Preconception Wellness</h3>
+                <p>Optimize and regulate cycles, and prepare the body for conception using supplements and stress-reduction techniques.</p>
+                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
+            </article>
+            <article class="value-card reveal" style="padding:var(--space-xl);">
+                <h3>Maternal Vitality</h3>
+                <p>Support during pregnancy and post delivery with safe preparatory techniques, massage, and dietary guidance to reduce nausea, fatigue, gestational complications and childcare.</p>
+                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
+            </article>
+            <article class="value-card reveal" style="padding:var(--space-xl);">
+                <h3>Lifestyle Transformation</h3>
+                <p>A 90-day immersive program combining all therapies to build sustainable habits for long-term health.</p>
+                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- Team -->
+<section class="section section--alt">
+    <div class="container">
+        <div class="section-header">
+            <span class="eyebrow serif-accent">Expert Care</span>
+            <h2 class="section-title">Meet Our Team</h2>
+            <p class="lede">Our multidisciplinary team of certified naturopaths and wellness experts</p>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:var(--space-lg);">
+            <article class="value-card reveal" style="text-align:center;">
+                <h3 style="color:var(--color-primary);">Dr Bablin Torah</h3>
+                <p style="font-weight:600; color:var(--color-secondary);">MD Naturopathic Consultant</p>
+            </article>
+            <article class="value-card reveal" style="text-align:center;">
+                <h3 style="color:var(--color-primary);">Dr Sathyajothi</h3>
+                <p style="font-weight:600; color:var(--color-secondary);">BNYS - Yoga Mentor & Guide</p>
+            </article>
+            <article class="value-card reveal" style="text-align:center;">
+                <h3 style="color:var(--color-primary);">Dr Berslin Fency</h3>
+                <p style="font-weight:600; color:var(--color-secondary);">BNYS - Consultant Physician</p>
+            </article>
+            <article class="value-card reveal" style="text-align:center;">
+                <h3 style="color:var(--color-primary);">Dr Karthik Raj</h3>
+                <p style="font-weight:600; color:var(--color-secondary);">BNYS - Lifestyle Physician</p>
+            </article>
+            <article class="value-card reveal" style="text-align:center;">
+                <h3 style="color:var(--color-primary);">Dr Padmashree</h3>
+                <p style="font-weight:600; color:var(--color-secondary);">BNYS, FFAC, CCBE - Childbirth Educator & Maternity Wellness Consultant</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <span class="eyebrow serif-accent">Success Stories</span>
+            <h2 class="section-title">What Our Clients Say</h2>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:var(--space-xl); max-width:1000px; margin:0 auto;">
+            <article class="value-card reveal" style="padding:var(--space-xl);">
+                <p style="font-style:italic; font-size:1.1rem; line-height:1.7; margin-bottom:var(--space-md);">"After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again."</p>
+                <p style="font-weight:600; color:var(--color-primary);">— Priya S., Bengaluru</p>
+            </article>
+            <article class="value-card reveal" style="padding:var(--space-xl);">
+                <p style="font-style:italic; font-size:1.1rem; line-height:1.7; margin-bottom:var(--space-md);">"The IV nutrition and ozone therapy transformed my chronic fatigue. I can finally keep up with my kids and work without crashing."</p>
+                <p style="font-weight:600; color:var(--color-primary);">— Anjali R., Working Mother</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- Contact CTA -->
+<section class="section section--warm">
+    <div class="container">
+        <div class="page-cta-card reveal" style="text-align:center;">
+            <div>
+                <span class="page-cta-card__eyebrow">Ready to Transform Your Health?</span>
+                <h3>Book Your Consultation</h3>
+                <p>Start your journey to optimal health. Schedule a 30-minute discovery call to discuss your goals and create a personalized plan.</p>
+                <div style="margin-top:var(--space-lg);">
+                    <p><strong>📍 Location:</strong> Kaliyal, Kanyakumari, Tamilnadu, India - 629101</p>
+                    <p><strong>📞 Phone:</strong> +91-7200182025, 9585182025</p>
+                    <p><strong>📧 Email:</strong> nebolifestyleclinic@gmail.com</p>
+                </div>
+            </div>
+            <a class="btn btn-primary page-cta-card__button" href="/contact">Book Now →</a>
+        </div>
+    </div>
+</section>
