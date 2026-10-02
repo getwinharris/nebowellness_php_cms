@@ -4,27 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="format-detection" content="telephone=no">
-<title><?= e($pageTitle ?? 'Sri Panchami Spiritual') ?></title>
-<meta name="description" content="<?= e($metaDescription ?? 'Shop spiritual products, rudraksha, pooja items, sacred jewellery, and devotional essentials.') ?>">
+<title><?= e($pageTitle ?? 'Nebo Lifestyle Clinic') ?></title>
+<parameter name="description" content="<?= e($metaDescription ?? 'Naturopathy, functional medicine, and integrative wellness solutions for sustainable health transformation.') ?>">
 <meta name="robots" content="<?= e($metaRobots ?? 'index, follow') ?>">
 <?php $__seoKeywords = $seo['keywords'] ?? ''; if ($__seoKeywords !== ''): ?><meta name="keywords" content="<?= e($__seoKeywords) ?>"><?php endif; ?>
 <?php
 $__settings = (new \App\Services\SettingsService())->public();
 $__modules = (new \App\Services\SettingsService())->modules();
 $__logo = $__settings['logo_url'] ?? '/assets/images/logo-small.jpeg';
-$__favicon = $__settings['favicon_url'] ?? '/assets/images/sps-favicon.svg';
+$__favicon = $__settings['favicon_url'] ?? '/assets/images/nebo-favicon.png';
 $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png';
 ?>
 <link rel="icon" type="<?= e($__faviconMime) ?>" href="<?= e($__favicon) ?>">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#3a0003">
+<meta name="theme-color" content="#4472C4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Sri Panchami Spiritual">
+<meta name="apple-mobile-web-app-title" content="Nebo Lifestyle Clinic">
 <link rel="apple-touch-icon" href="/assets/images/logo-square.jpeg">
 <link rel="canonical" href="https://<?= e($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
 <meta property="og:type" content="<?= e($seo['og_type'] ?? 'website') ?>">
-<meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? 'Sri Panchami Spiritual') ?>">
+<meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>">
 <meta property="og:title" content="<?= e($seo['og_title'] ?? $pageTitle) ?>">
 <meta property="og:description" content="<?= e($seo['og_description'] ?? $metaDescription) ?>">
 <meta property="og:url" content="<?= e($seo['og_url'] ?? 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
@@ -255,7 +255,7 @@ echo $__palette_css;
 <noscript><link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>"></noscript>
 <?php $__secrets_org = (new \App\Services\SecretService())->all(); $__phone = $__secrets_org['phone'] ?? ''; $__telephone = $__phone !== '' ? '["' . e($__phone) . '"]' : '["+919789444037","+919789444038"]'; ?>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":["Organization","OnlineStore"],"name":"<?= e($seo['og_site_name'] ?? 'Sri Panchami Spiritual') ?>","description":"Authentic spiritual products, sacred jewellery, devotional essentials, and temple guidance.","url":"https://<?= e($_SERVER['HTTP_HOST']) ?>","telephone":<?= $__telephone ?>,"email":"support@sripanchamispiritual.com"}
+{"@context":"https://schema.org","@type":["MedicalClinic"],"name":"<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>","description":"Naturopathy, functional medicine, nutritional therapy, and integrative wellness solutions.","url":"https://<?= e($_SERVER['HTTP_HOST']) ?>","telephone":<?= $__telephone ?>,"email":"nebolifestyleclinic@gmail.com"}
 </script>
 <?php if (!empty($seo['json_ld'])): ?><?= $seo['json_ld'] ?><?php endif; ?>
 <?php
@@ -306,7 +306,7 @@ gtag('js', new Date());
 <?php $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'; ?>
 <?php $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
 <header class="site-header" id="site-header">
-    <a href="/" class="brand"><img src="<?= e($__logo) ?>" width="52" height="52" alt="Sri Panchami Spiritual logo"><span>Sri Panchami Spiritual</span></a>
+    <a href="/" class="brand"><img src="<?= e($__logo) ?>" width="52" height="52" alt="Nebo Lifestyle Clinic logo"><span>Nebo Lifestyle Clinic</span></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
@@ -416,8 +416,8 @@ if ($__flash):
     <div class="container">
         <div class="footer-grid">
             <div>
-                <span class="footer-brand">Sri Panchami Spiritual</span>
-                <p class="footer-desc">Authentic spiritual products, sacred jewellery, rudraksha, pooja items, and temple guidance.</p>
+                <span class="footer-brand">Nebo Lifestyle Clinic</span>
+                <p class="footer-desc">Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.</p>
             </div>
             <div>
                 <h4 class="footer-heading">Shop</h4>
@@ -454,7 +454,7 @@ if ($__flash):
                 </ul>
             </div>
         </div>
-        <div class="footer-bottom">&copy; <?= date('Y') ?> Sri Panchami Spiritual &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; developed with &#10084;&#65039; by <a href="https://www.instagram.com/bapxmediahub/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></div>
+        <div class="footer-bottom">&copy; <?= date('Y') ?> Nebo Lifestyle Clinic &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; developed with &#10084;&#65039; by <a href="https://www.instagram.com/bapxmediahub/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></div>
     </div>
 </footer>
 <?php endif; ?>

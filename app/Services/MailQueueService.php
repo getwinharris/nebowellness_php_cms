@@ -210,7 +210,7 @@ final class MailQueueService {
             $invoiceHtml = '<p>Invoice: <strong>' . e((string)($order['invoice_number'] ?? '')) . '</strong> — '
                 . '<a href="' . e($this->siteUrl('/account/orders/' . rawurlencode((string)($order['id'] ?? '')) . '/invoice')) . '">View invoice</a></p>';
         }
-        $subject = 'Order confirmed — Sri Panchami Spiritual';
+        $subject = 'Order confirmed — Nebo Lifestyle Clinic';
         $html = self::heading('Thank you, your order is confirmed')
             . '<p>Vanakkam ' . e((string)($order['customer_name'] ?? '')) . ', we have received your payment and are preparing your order.</p>'
             . self::details([
@@ -252,13 +252,13 @@ final class MailQueueService {
         $name = trim((string)($submission['name'] ?? ''));
         $subject = trim((string)($submission['subject'] ?? 'General enquiry'));
         $html = self::heading('We received your enquiry')
-            . '<p>Hello ' . e($name !== '' ? $name : 'there') . ', thank you for contacting Sri Panchami Spiritual. Our team will review your message and reply soon.</p>'
+            . '<p>Hello ' . e($name !== '' ? $name : 'there') . ', thank you for contacting Nebo Lifestyle Clinic. Our team will review your message and reply soon.</p>'
             . self::details([
                 'Reference' => e((string)($submission['id'] ?? '')),
                 'Subject' => e($subject),
             ])
             . self::button('Visit the store', $this->siteUrl('/shop'));
-        return $this->enqueue('contact_customer_confirmation', $to, 'We received your enquiry — Sri Panchami Spiritual', $html, null, ['contact_id' => $submission['id'] ?? '']);
+        return $this->enqueue('contact_customer_confirmation', $to, 'We received your enquiry — Nebo Lifestyle Clinic', $html, null, ['contact_id' => $submission['id'] ?? '']);
     }
 
     /**
@@ -310,7 +310,7 @@ final class MailQueueService {
         if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) return null;
         $when = date('d M Y, H:i');
         $ip = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-        return $this->enqueue('login_notification', $email, 'New sign-in to your Sri Panchami Spiritual account',
+        return $this->enqueue('login_notification', $email, 'New sign-in to your Nebo Lifestyle Clinic account',
             '<p>Hello ' . e($name !== '' ? $name : 'there') . ',</p>'
             . '<p>Your account was signed in to on <strong>' . e($when) . '</strong> (IP ' . e($ip) . ').</p>'
             . '<p>If this was you, no action is needed. If it was not, change your password immediately '

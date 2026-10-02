@@ -122,7 +122,7 @@ final class SmtpMailer {
     }
 
     private function fromName(): string {
-        return trim((string)($this->settings['mail_from_name'] ?? $this->settings['smtp_from_name'] ?? 'Sri Panchami Spiritual'));
+        return trim((string)($this->settings['mail_from_name'] ?? $this->settings['smtp_from_name'] ?? 'Nebo Lifestyle Clinic'));
     }
 
     private function mailDomain(): string {
