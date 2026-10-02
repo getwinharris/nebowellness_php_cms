@@ -16,7 +16,7 @@ final class SeoService {
     }
 
     public function page(string $key, array $overrides = []): array {
-        $host = $_SERVER['HTTP_HOST'] ?? 'sripanchamispiritual.com';
+        $host = $_SERVER['HTTP_HOST'] ?? 'nebowellness.com';
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $url = $scheme . '://' . $host . $uri;
@@ -48,20 +48,20 @@ final class SeoService {
         $desc = 'Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.';
         $maps = [
             'home' => [
-                'title' => $brand . ' – Spiritual Products, Sacred Jewellery & Temple Guide',
-                'description' => 'Shop authentic spiritual products, rudraksha, pooja items, and sacred jewellery for your devotional practice.',
+                'title' => $brand . ' – Where Science Meets Nature for Lifelong Wellness',
+                'description' => 'Naturopathy, functional medicine, and maternal & fertility wellness at Nebo Lifestyle Clinic. Personalised care for gut health, metabolic diseases, and sustainable lifestyle transformation.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
             'shop' => [
-                'title' => 'Shop Spiritual Products – Rudraksha, Pooja Items, Sacred Jewellery Online',
-                'description' => 'Browse authentic spiritual products online at ' . $brand . '. Shop rudraksha, pooja items, sacred jewellery, and more for your spiritual practice. Fast shipping across India.',
+                'title' => 'Wellness Shop – Natural Products Online',
+                'description' => 'Browse natural wellness products online at ' . $brand . '. Curated essentials to support your personalised naturopathy and lifestyle plan.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
             'product' => [
-                'title' => 'Buy Spiritual Products Online',
-                'description' => 'Browse our collection of authentic spiritual products.',
+                'title' => 'Wellness Products Online',
+                'description' => 'Browse our collection of natural wellness products.',
                 'og_type' => 'product',
                 'robots' => 'index, follow',
             ],
@@ -90,14 +90,14 @@ final class SeoService {
                 'robots' => 'index, follow',
             ],
             'about' => [
-                'title' => 'About ' . $brand . ' – Chennai\'s Trusted Spiritual Store',
-                'description' => 'Learn about ' . $brand . ', Chennai\'s trusted destination for authentic spiritual products and temple guidance since 2020.',
+                'title' => 'About ' . $brand . ' – Integrative Wellness Clinic',
+                'description' => 'Learn about ' . $brand . ', a naturopathy and functional medicine clinic in Kanyakumari offering root-cause, personalised wellness care.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
             'contact' => [
-                'title' => 'Contact ' . $brand . ' – Spiritual Products & Support',
-                'description' => 'Reach out to ' . $brand . ' for inquiries about spiritual products, temple pooja services, order support, or bulk orders. Call or email us.',
+                'title' => 'Contact ' . $brand . ' – Book Your Consultation',
+                'description' => 'Reach out to ' . $brand . ' to book a consultation or ask about gut health, metabolic, fertility, and lifestyle programs. Call or email us.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
@@ -109,25 +109,25 @@ final class SeoService {
             ],
             'cart' => [
                 'title' => 'Shopping Cart – ' . $brand,
-                'description' => 'Review your shopping cart at ' . $brand . '. Proceed to checkout for authentic spiritual products and sacred items.',
+                'description' => 'Review your shopping cart at ' . $brand . '. Proceed to checkout for natural wellness products.',
                 'og_type' => 'website',
                 'robots' => 'noindex, follow',
             ],
             'checkout' => [
                 'title' => 'Checkout – ' . $brand,
-                'description' => 'Complete your purchase at ' . $brand . '. Secure payment for spiritual products, rudraksha, pooja items, and sacred jewellery.',
+                'description' => 'Complete your purchase at ' . $brand . '. Secure payment for natural wellness products.',
                 'og_type' => 'website',
                 'robots' => 'noindex, follow',
             ],
             'privacy' => [
                 'title' => 'Privacy Policy – ' . $brand,
-                'description' => 'Read the privacy policy of ' . $brand . '. Learn how we collect, use, and protect your personal information when you use our spiritual products and support services.',
+                'description' => 'Read the privacy policy of ' . $brand . '. Learn how we collect, use, and protect your personal information when you use our clinic website and support services.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
             'terms' => [
                 'title' => 'Terms & Conditions – ' . $brand,
-                'description' => 'Read the terms and conditions of ' . $brand . '. Understand the guidelines for purchasing spiritual products and using our website.',
+                'description' => 'Read the terms and conditions of ' . $brand . '. Understand the guidelines for bookings, purchases, and using our website.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
@@ -139,7 +139,7 @@ final class SeoService {
             ],
             'register' => [
                 'title' => 'Create Account – ' . $brand,
-                'description' => 'Create your ' . $brand . ' account to save delivery addresses and order spiritual products.',
+                'description' => 'Create your ' . $brand . ' account to save delivery addresses and manage bookings and orders.',
                 'og_type' => 'website',
                 'robots' => 'noindex, follow',
             ],
@@ -163,17 +163,17 @@ final class SeoService {
             ],
             'blog' => [
                 'title' => 'Blog & Updates – ' . $brand,
-                'description' => 'Read the latest blog posts, feature updates, and spiritual guides from ' . $brand . '.',
+                'description' => 'Read the latest blog posts, wellness guides, and clinic updates from ' . $brand . '.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
-                'keywords' => 'spiritual blog, astrology articles, vedic astrology blog, rudraksha guide, pooja tips',
+                'keywords' => 'gut health, fertility wellness, functional medicine, naturopathy, lifestyle medicine',
             ],
             'blog.post' => [
                 'title' => 'Blog Post – ' . $brand,
                 'description' => 'Read articles, guides, and updates from ' . $brand . '.',
                 'og_type' => 'article',
                 'robots' => 'index, follow',
-                'keywords' => 'astrology, spirituality, vedic astrology, spiritual products',
+                'keywords' => 'gut health, fertility, naturopathy, wellness',
             ],
             'blog.category' => [
                 'title' => 'Blog Category – ' . $brand,
@@ -203,12 +203,12 @@ final class SeoService {
     public function organizationSchema(): array {
         return [
             '@context' => 'https://schema.org',
-            '@type' => ['Organization', 'OnlineStore'],
+            '@type' => ['Organization', 'MedicalClinic'],
             'name' => $this->siteName,
-            'description' => 'Authentic spiritual products, sacred jewellery, pooja essentials, and temple guidance.',
+            'description' => 'Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.',
             'url' => $this->pageUrl(''),
             'telephone' => $this->telephone,
-            'email' => 'support@sripanchamispiritual.com',
+            'email' => 'nebolifestyleclinic@gmail.com',
         ];
     }
 
@@ -267,7 +267,7 @@ final class SeoService {
             '@context' => 'https://schema.org',
             '@type' => 'AboutPage',
             'name' => 'About ' . $this->siteName,
-            'description' => 'Learn about ' . $this->siteName . ', Chennai\'s trusted destination for authentic spiritual products and temple guidance.',
+            'description' => 'Learn about ' . $this->siteName . ', a naturopathy and functional medicine clinic offering root-cause, personalised wellness care.',
             'mainEntity' => $this->organizationSchema(),
         ];
     }
@@ -277,7 +277,7 @@ final class SeoService {
             '@context' => 'https://schema.org',
             '@type' => 'ContactPage',
             'name' => 'Contact ' . $this->siteName,
-            'description' => 'Get in touch with ' . $this->siteName . ' for spiritual products, order support, and temple pooja services.',
+            'description' => 'Get in touch with ' . $this->siteName . ' to book a consultation or ask about wellness programs and bookings.',
             'mainEntity' => $this->organizationSchema(),
         ];
     }
@@ -301,7 +301,7 @@ final class SeoService {
 
     private function pageUrl(string $path): string {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'sripanchamispiritual.com';
+        $host = $_SERVER['HTTP_HOST'] ?? 'nebowellness.com';
         return $scheme . '://' . $host . '/' . ltrim($path, '/');
     }
 }

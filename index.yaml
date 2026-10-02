@@ -36,27 +36,18 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 400
+  concepts: 379
   relationships: 234
   by_type:
-    blog: 14
+    blog: 3
     controller: 12
     doc: 35
-    image: 148
+    image: 138
     route: 112
     schema: 22
     service: 48
     skill: 9
 concepts:
-  - id: "blog:benefits-of-rudraksha"
-    type: "blog"
-    title: "Benefits of Rudraksha — Types, Uses, and Spiritual Significance"
-    description: "Discover the spiritual and health benefits of Rudraksha beads. Learn about different Mukhis (faces), how to choose the right Rudraksha, and proper wearing methods for maximum benefit."
-    resource: "content/blog/posts/benefits-of-rudraksha.md"
-    tags:
-      - "spirituality"
-    filename: "benefits-of-rudraksha.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/rudraksha-benefits.jpg"
   - id: "blog:create-account"
     type: "blog"
     title: "Create and access your account"
@@ -66,42 +57,6 @@ concepts:
       - "help"
     filename: "create-account.md"
     header_image: "/assets/images/blog/create-account.webp"
-  - id: "blog:daily-rashifal-predictions-july-2026"
-    type: "blog"
-    title: "Daily Rashifal — July 2026 Horoscope Predictions for All 12 Rashis"
-    description: "Read your daily Rashi (Moon sign) horoscope predictions for July 2026. Get personalized guidance on career, love, health, and finances based on Vedic astrology planetary transits."
-    resource: "content/blog/posts/daily-rashifal-predictions-july-2026.md"
-    tags:
-      - "astrology"
-    filename: "daily-rashifal-predictions-july-2026.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/rashifal-july-2026.jpg"
-  - id: "blog:kundli-matching-for-marriage"
-    type: "blog"
-    title: "Kundli Matching for Marriage — 36 Guna Milan Explained"
-    description: "Kundli matching (Guna Milan) is the Vedic system of horoscope compatibility for marriage. Learn about the 8 categories and 36 gunas. Discover why this ancient practice matters for a harmonious married life."
-    resource: "content/blog/posts/kundli-matching-for-marriage.md"
-    tags:
-      - "astrology"
-    filename: "kundli-matching-for-marriage.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/kundli-matching.jpg"
-  - id: "blog:navagraha-remedies"
-    type: "blog"
-    title: "Navagraha Remedies — Balancing the Nine Planets for a Harmonious Life"
-    description: "The Navagraha (nine planets) influence every aspect of our lives. Learn powerful Vedic remedies to balance each planet's energy — from gemstones and mantras to donations and fasting."
-    resource: "content/blog/posts/navagraha-remedies.md"
-    tags:
-      - "spirituality"
-    filename: "navagraha-remedies.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/navagraha-remedies.jpg"
-  - id: "blog:new-features-july-2026"
-    type: "blog"
-    title: "New Features at Sri Panchami Spiritual — July 2026 Update"
-    description: "We improved saved delivery addresses, customer Help, and the shopping journey."
-    resource: "content/blog/posts/new-features-july-2026.md"
-    tags:
-      - "news"
-    filename: "new-features-july-2026.md"
-    header_image: ""
   - id: "blog:order-products"
     type: "blog"
     title: "Order products and choose a delivery address"
@@ -120,60 +75,6 @@ concepts:
       - "help"
     filename: "payments-and-orders.md"
     header_image: "/assets/images/blog/payments-and-orders.webp"
-  - id: "blog:planetary-transit-effects-2026"
-    type: "blog"
-    title: "Major Planetary Transits of 2026 — Effects on Each Rashi"
-    description: "Saturn's transit through Pisces and Jupiter's journey through Taurus define 2026's astrological landscape. Learn how major planetary movements affect your Rashi and life."
-    resource: "content/blog/posts/planetary-transit-effects-2026.md"
-    tags:
-      - "astrology"
-    filename: "planetary-transit-effects-2026.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/planetary-transits-2026.jpg"
-  - id: "blog:pooja-items-for-home"
-    type: "blog"
-    title: "Essential Pooja Items for Home — A Complete Guide to Daily Worship"
-    description: "A comprehensive guide to essential pooja items for your home altar. Learn about the significance of each item — from lamps and incense to kalash and bells — and how to use them in daily worship."
-    resource: "content/blog/posts/pooja-items-for-home.md"
-    tags:
-      - "spirituality"
-    filename: "pooja-items-for-home.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/pooja-items.jpg"
-  - id: "blog:rahu-ketu-effects-career"
-    type: "blog"
-    title: "Rahu and Ketu Effects on Career — Navigating the Nodal Influence"
-    description: "Rahu and Ketu are the lunar nodes with powerful karmic influence on your career path. Learn how these shadow planets affect professional success, job changes, and financial growth."
-    resource: "content/blog/posts/rahu-ketu-effects-career.md"
-    tags:
-      - "astrology"
-    filename: "rahu-ketu-effects-career.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/rahu-ketu-career.jpg"
-  - id: "blog:tulsi-significance-hinduism"
-    type: "blog"
-    title: "The Sacred Tulsi — Spiritual Significance and Health Benefits of Holy Basil"
-    description: "Tulsi (Holy Basil) is the most sacred plant in Hinduism. Discover its spiritual significance, health benefits, daily worship practices, and why every Hindu home should have a Tulsi plant."
-    resource: "content/blog/posts/tulsi-significance-hinduism.md"
-    tags:
-      - "spirituality"
-    filename: "tulsi-significance-hinduism.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/tulsi-significance.jpg"
-  - id: "blog:vedic-astrology-vs-western-astrology"
-    type: "blog"
-    title: "Vedic Astrology vs Western Astrology — Key Differences Explained"
-    description: "Discover the fundamental differences between Vedic (Jyotish) and Western astrology — from sidereal vs tropical zodiacs to birth chart interpretation methods. Learn which system suits your spiritual journey."
-    resource: "content/blog/posts/vedic-astrology-vs-western-astrology.md"
-    tags:
-      - "astrology"
-    filename: "vedic-astrology-vs-western-astrology.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/vedic-vs-western.jpg"
-  - id: "blog:what-is-sade-sati"
-    type: "blog"
-    title: "What Is Sade Sati? Understanding Saturn's 7.5-Year Transit and Its Effects"
-    description: "Sade Sati is Saturn's 7.5-year transit over your Moon sign. Learn about its three phases, effects on career and relationships, and powerful remedies to navigate this challenging period."
-    resource: "content/blog/posts/what-is-sade-sati.md"
-    tags:
-      - "astrology"
-    filename: "what-is-sade-sati.md"
-    header_image: "https://sripanchamispiritual.com/assets/images/blog/sade-sati.jpg"
   - id: "controller:AccountController"
     type: "controller"
     title: "AccountController"
@@ -1425,38 +1326,6 @@ concepts:
     usage_count: 1
     used_in:
       - "content/blog/posts/create-account.md"
-  - id: "image:assets/images/blog/kundli-matching.jpg"
-    type: "image"
-    title: "kundli-matching.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/kundli-matching.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "kundli-matching.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/kundli-matching-for-marriage.md"
-  - id: "image:assets/images/blog/navagraha-remedies.jpg"
-    type: "image"
-    title: "navagraha-remedies.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/navagraha-remedies.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "navagraha-remedies.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/navagraha-remedies.md"
   - id: "image:assets/images/blog/order-products.webp"
     type: "image"
     title: "order-products.webp"
@@ -1483,134 +1352,6 @@ concepts:
     usage_count: 1
     used_in:
       - "content/blog/posts/payments-and-orders.md"
-  - id: "image:assets/images/blog/planetary-transits-2026.jpg"
-    type: "image"
-    title: "planetary-transits-2026.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/planetary-transits-2026.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "planetary-transits-2026.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/planetary-transit-effects-2026.md"
-  - id: "image:assets/images/blog/pooja-items.jpg"
-    type: "image"
-    title: "pooja-items.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/pooja-items.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "pooja-items.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/pooja-items-for-home.md"
-  - id: "image:assets/images/blog/rahu-ketu-career.jpg"
-    type: "image"
-    title: "rahu-ketu-career.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/rahu-ketu-career.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "rahu-ketu-career.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/rahu-ketu-effects-career.md"
-  - id: "image:assets/images/blog/rashifal-july-2026.jpg"
-    type: "image"
-    title: "rashifal-july-2026.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/rashifal-july-2026.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "rashifal-july-2026.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/daily-rashifal-predictions-july-2026.md"
-  - id: "image:assets/images/blog/rudraksha-benefits.jpg"
-    type: "image"
-    title: "rudraksha-benefits.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/rudraksha-benefits.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "rudraksha-benefits.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/benefits-of-rudraksha.md"
-  - id: "image:assets/images/blog/sade-sati.jpg"
-    type: "image"
-    title: "sade-sati.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/sade-sati.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "sade-sati.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/what-is-sade-sati.md"
-  - id: "image:assets/images/blog/tulsi-significance.jpg"
-    type: "image"
-    title: "tulsi-significance.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/tulsi-significance.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "tulsi-significance.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/tulsi-significance-hinduism.md"
-  - id: "image:assets/images/blog/vedic-vs-western.jpg"
-    type: "image"
-    title: "vedic-vs-western.jpg"
-    description: "Referenced local image binary is missing."
-    resource: "assets/images/blog/vedic-vs-western.jpg"
-    tags:
-      - "image"
-      - "missing"
-      - "referenced"
-    filename: "vedic-vs-western.jpg"
-    mime: "image/jpeg"
-    exists: false
-    status: "missing"
-    usage_count: 1
-    used_in:
-      - "content/blog/posts/vedic-astrology-vs-western-astrology.md"
   - id: "image:assets/images/hero-temple-bg.png"
     type: "image"
     title: "hero-temple-bg.png"
@@ -1626,16 +1367,15 @@ concepts:
   - id: "image:assets/images/hero-temple-bg.webp"
     type: "image"
     title: "hero-temple-bg.webp"
-    description: "Image referenced by 3 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/hero-temple-bg.webp"
     tags:
       - "image"
       - "used"
     filename: "hero-temple-bg.webp"
     mime: "image/webp"
-    usage_count: 3
+    usage_count: 2
     used_in:
-      - "assets/css/band.css"
       - "views/public/blog-post.php"
       - "views/public/blog.php"
   - id: "image:assets/images/hero/varahi/varahi-01.png"
@@ -2332,16 +2072,15 @@ concepts:
   - id: "image:assets/images/sps-favicon.svg"
     type: "image"
     title: "sps-favicon.svg"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image with no static repository reference detected."
     resource: "assets/images/sps-favicon.svg"
     tags:
       - "image"
-      - "used"
+      - "unreferenced"
     filename: "sps-favicon.svg"
     mime: "image/svg+xml"
-    usage_count: 1
-    used_in:
-      - "views/layouts/app.php"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/temples/shiva-vishnu-temple-tnagar.jpg"
     type: "image"
     title: "shiva-vishnu-temple-tnagar.jpg"

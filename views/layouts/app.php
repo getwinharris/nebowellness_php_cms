@@ -44,13 +44,13 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <?php
 // Inline critical CSS for instant first paint — header, nav, hero, product cards, mobile nav
 $critical = '
-:root{--color-ink:#222222;--color-ink-light:#3f3f3f;--color-gold:#d1b368;--color-gold-light:#f3e8c9;--color-gold-dark:#b89440;--color-maroon:#3a0003;--color-maroon-deep:#240002;--color-accent:#7a4a35;--color-accent-light:#a67a64;--color-bg:#faf7f0;--color-bg-alt:#f7f0e4;--color-bg-warm:#f6ede4;--color-border:#d8ccb7;--color-border-light:#eadfcd;--color-text-muted:#6a6259;--color-white:#ffffff;--color-success:#2d8a4e;--color-error:#d64045;--color-rating:#d68641;--font-display:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-serif:Georgia,"Times New Roman",serif;--font-accent:"Playfair Display",Georgia,serif;--shadow-sm:0 1px 2px rgba(0,0,0,0.08);--shadow-md:0 2px 8px rgba(0,0,0,0.12);--shadow-lg:0 2px 8px rgba(0,0,0,0.12);--radius-md:8px;--radius-lg:8px;--radius-xl:8px;--radius-pill:999px;--space-xs:0.5rem;--space-sm:0.75rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem}
+:root{--color-ink:#222222;--color-ink-light:#3f3f3f;--color-gold:#70AD47;--color-gold-light:#e7f2df;--color-gold-dark:#55853a;--color-maroon:#4472C4;--color-maroon-deep:#2f5aa8;--color-accent:#70AD47;--color-accent-light:#8cc069;--color-bg:#faf7f0;--color-bg-alt:#f7f0e4;--color-bg-warm:#f6ede4;--color-border:#d8ccb7;--color-border-light:#eadfcd;--color-text-muted:#6a6259;--color-white:#ffffff;--color-success:#2d8a4e;--color-error:#d64045;--color-rating:#d68641;--font-display:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-serif:Georgia,"Times New Roman",serif;--font-accent:"Playfair Display",Georgia,serif;--shadow-sm:0 1px 2px rgba(0,0,0,0.08);--shadow-md:0 2px 8px rgba(0,0,0,0.12);--shadow-lg:0 2px 8px rgba(0,0,0,0.12);--radius-md:8px;--radius-lg:8px;--radius-xl:8px;--radius-pill:999px;--space-xs:0.5rem;--space-sm:0.75rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem}
 *,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--color-bg);color:var(--color-ink);line-height:1.55;overflow-x:hidden}
 a{color:var(--color-maroon);text-decoration:none}
 img{max-width:100%;height:auto;display:block}
-.site-header{position:relative;top:auto;z-index:100;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--space-lg);min-height:80px;padding:12px 24px;background:rgba(250,247,240,0.98);border-bottom:1px solid rgba(209,179,104,0.45);transition:box-shadow 0.25s ease}
+.site-header{position:relative;top:auto;z-index:100;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--space-lg);min-height:80px;padding:12px 24px;background:rgba(250,247,240,0.98);border-bottom:1px solid rgba(112,173,104,0.45);transition:box-shadow 0.25s ease}
 .site-header.scrolled{box-shadow:var(--shadow-md)}
 .brand{display:flex;align-items:center;gap:var(--space-xs);color:var(--color-ink);font-weight:700;font-size:1rem;text-decoration:none}
  .brand img{width:40px;height:40px;border-radius:50%;border:2px solid var(--color-gold);object-fit:cover;box-shadow:0 0 0 1px rgba(255,255,255,0.9) inset}
@@ -119,14 +119,14 @@ main{padding-bottom:0}
 .panel:hover{box-shadow:var(--shadow-md)}
 .astrologer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-xl)}
  .astrologer-card{background:var(--color-white);border:1px solid var(--color-border);border-radius:18px;overflow:hidden;transition:all 0.3s ease;box-shadow:var(--shadow-sm)}
-.astrologer-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-xl);border-color:rgba(58, 0, 3,0.65)}
-.astrologer-card__media{position:relative;aspect-ratio:3/4;overflow:hidden;background:linear-gradient(180deg,rgba(34, 34, 34,0.02),rgba(34, 34, 34,0.08)),linear-gradient(135deg,rgba(58, 0, 3,0.12),rgba(255,255,255,0.2))}
+.astrologer-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-xl);border-color:rgba(68, 114, 196,0.65)}
+.astrologer-card__media{position:relative;aspect-ratio:3/4;overflow:hidden;background:linear-gradient(180deg,rgba(34, 34, 34,0.02),rgba(34, 34, 34,0.08)),linear-gradient(135deg,rgba(68, 114, 196,0.12),rgba(255,255,255,0.2))}
  .astrologer-card__photo{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transform:scale(1.01)}
 .astrologer-card__media::after{content:\'\';position:absolute;inset:auto 0 0 0;height:42%;background:linear-gradient(180deg,rgba(18,12,8,0),rgba(18,12,8,0.28));pointer-events:none}
 .astrologer-card__media-badge{position:absolute;left:var(--space-sm);bottom:var(--space-sm);z-index:1;padding:0.3rem 0.65rem;border-radius:var(--radius-pill);background:rgba(34, 34, 34,0.78);color:var(--color-white);font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;backdrop-filter:blur(8px)}
 .astrologer-card__body--portrait{padding:var(--space-md) var(--space-md) var(--space-sm);display:grid;gap:var(--space-xs)}
 .astrologer-card__title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-sm)}
-.astrologer-card__status{padding:0.22rem 0.55rem;border-radius:var(--radius-pill);background:rgba(58, 0, 3,0.16);color:var(--color-maroon);font-size:0.64rem;font-weight:700;text-transform:uppercase;white-space:nowrap}
+.astrologer-card__status{padding:0.22rem 0.55rem;border-radius:var(--radius-pill);background:rgba(68, 114, 196,0.16);color:var(--color-maroon);font-size:0.64rem;font-weight:700;text-transform:uppercase;white-space:nowrap}
 .astrologer-card__speciality{margin:0;color:var(--color-text-muted);font-size:0.84rem}
 .astrologer-card__bio{margin:0;color:var(--color-ink);font-size:0.83rem;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .astrologer-card__meta{display:flex;flex-wrap:wrap;gap:var(--space-xs);font-size:0.72rem;color:var(--color-text-muted)}
@@ -168,7 +168,7 @@ main{padding-bottom:0}
 .footer-links li{margin-bottom:var(--space-xs)}
 .footer-links a{color:var(--color-gold-light);text-decoration:none;font-size:0.85rem}
 .footer-links a:hover{color:var(--color-white)}
-.footer-bottom{text-align:center;padding-top:var(--space-md);border-top:1px solid rgba(209,179,104,0.3);font-size:0.75rem;color:var(--color-gold-light)}
+.footer-bottom{text-align:center;padding-top:var(--space-md);border-top:1px solid rgba(112,173,104,0.3);font-size:0.75rem;color:var(--color-gold-light)}
 .flash{padding:var(--space-md);border-radius:var(--radius-md);margin-bottom:var(--space-md);font-size:0.85rem;font-weight:500}
 .flash--success{background:#e8f5ed;color:var(--color-success)}
 .flash--error{background:#fde8e9;color:var(--color-error)}
@@ -231,11 +231,11 @@ echo $critical;
 <style>
 <?php
 $__palette_semantic = [
-    '--color-primary' => ['set' => ($__settings['palette_primary'] ?? '#3A0003'), 'alias' => '--color-maroon'],
-    '--color-secondary' => ['set' => ($__settings['palette_secondary'] ?? '#D1B368'), 'alias' => '--color-gold'],
+    '--color-primary' => ['set' => ($__settings['palette_primary'] ?? '#4472C4'), 'alias' => '--color-maroon'],
+    '--color-secondary' => ['set' => ($__settings['palette_secondary'] ?? '#70AD47'), 'alias' => '--color-gold'],
     '--color-canvas' => ['set' => ($__settings['palette_canvas'] ?? '#FAF7F0'), 'alias' => '--color-bg'],
     '--color-text-primary' => ['set' => ($__settings['palette_text'] ?? '#222222'), 'alias' => '--color-ink'],
-    '--color-link' => ['set' => ($__settings['palette_link'] ?? '#3A0003'), 'alias' => ''],
+    '--color-link' => ['set' => ($__settings['palette_link'] ?? '#4472C4'), 'alias' => ''],
 ];
 $__palette_css = ':root{';
 foreach ($__palette_semantic as $__n => $__c) {
@@ -253,7 +253,7 @@ echo $__palette_css;
 @media(max-width:900px){.blog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.document-index,.blog-grid{grid-template-columns:1fr}.blog-page{padding:var(--space-2xl) 0}}
 </style>
 <noscript><link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>"></noscript>
-<?php $__secrets_org = (new \App\Services\SecretService())->all(); $__phone = $__secrets_org['phone'] ?? ''; $__telephone = $__phone !== '' ? '["' . e($__phone) . '"]' : '["+919789444037","+919789444038"]'; ?>
+<?php $__secrets_org = (new \App\Services\SecretService())->all(); $__phone = $__secrets_org['phone'] ?? ''; $__telephone = $__phone !== '' ? '["' . e($__phone) . '"]' : '["+917200182025","+919585182025"]'; ?>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":["MedicalClinic"],"name":"<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>","description":"Naturopathy, functional medicine, nutritional therapy, and integrative wellness solutions.","url":"https://<?= e($_SERVER['HTTP_HOST']) ?>","telephone":<?= $__telephone ?>,"email":"nebolifestyleclinic@gmail.com"}
 </script>
@@ -315,7 +315,7 @@ gtag('js', new Date());
         <?php if ($__modules['shop']): ?>
         <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
         <?php endif; ?>
-        <a href="/temples"<?= str_starts_with($currentPath, '/temples') ? ' aria-current="page"' : '' ?>>Temples</a>
+        <a href="/#programs">Programs</a>
         <?php if ($__modules['blog']): ?>
         <div class="nav-dropdown">
             <a href="/blog" class="nav-dropdown__trigger"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog <span class="nav-dropdown__arrow">▾</span></a>
@@ -327,7 +327,7 @@ gtag('js', new Date());
             </div>
         </div>
         <?php endif; ?>
-        <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About SPS</a>
+        <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
         <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
         <?php if(!empty($_SESSION['user'])): ?>
             <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
@@ -365,9 +365,9 @@ if ($__flash):
             <span>Shop</span>
         </a>
         <?php endif; ?>
-        <a href="/temples" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/temples') === 0 ? 'active' : '') ?>">
-            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 21v-4a2 2 0 012-2h2a2 2 0 012 2v4"/></svg>
-            <span>Temples</span>
+        <a href="/#programs" class="nav-item <?= ($currentPath === '/#programs' ? 'active' : '') ?>">
+            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Programs</span>
         </a>
         <?php if ($__modules['blog']): ?>
         <a href="/blog" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/blog') === 0 ? 'active' : '') ?>">
@@ -401,11 +401,11 @@ if ($__flash):
         <button type="button" class="support-panel__close" aria-label="Close support">×</button>
     </div>
     <div class="support-panel__body" id="support-log" aria-live="polite">
-        <p>Ask about products, orders, delivery addresses, or temple guidance.</p>
-        <?php if(empty($_SESSION['user'])): ?><p>Sign in to ask about your personal order data.</p><?php endif; ?>
+        <p>Ask about programs, consultations, wellness plans, or bookings.</p>
+        <?php if(empty($_SESSION['user'])): ?><p>Sign in to ask about your personal booking data.</p><?php endif; ?>
     </div>
     <form class="support-panel__form" id="support-form">
-        <textarea name="message" rows="3" required aria-label="Support message" placeholder="Ask about a product, order, address, or temple"></textarea>
+        <textarea name="message" rows="3" required aria-label="Support message" placeholder="Ask about a program, consultation, or booking"></textarea>
         <button class="btn btn-primary btn-sm">Send</button>
     </form>
 </section>
@@ -420,11 +420,11 @@ if ($__flash):
                 <p class="footer-desc">Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.</p>
             </div>
             <div>
-                <h4 class="footer-heading">Shop</h4>
+                <h4 class="footer-heading">Clinic</h4>
                 <ul class="footer-links">
                     <?php if ($__modules['shop']): ?><li><a href="/shop">All Products</a></li><?php endif; ?>
-                    <li><a href="/temples">Temples</a></li>
-                    <li><a href="/about">About SPS</a></li>
+                    <li><a href="/#programs">Programs</a></li>
+                    <li><a href="/about">About Nebo</a></li>
                     <?php if ($__modules['blog']): ?><li><a href="/blog">Blog</a></li><?php endif; ?>
                     <li><a href="/contact">Contact</a></li>
                     <li><a href="/terms">Terms</a></li>
@@ -434,23 +434,23 @@ if ($__flash):
             <div>
                 <h4 class="footer-heading">Explore</h4>
             <ul class="footer-links">
-                <li><a href="/temples">Temples</a></li>
+                <li><a href="/#programs">Programs</a></li>
                 <?php if ($__modules['blog']): ?>
                 <li><a href="/blog">Blog</a></li>
                 <?php foreach ($__blogCats as $__cat): ?>
                 <li><a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a></li>
                 <?php endforeach; ?>
                 <?php endif; ?>
-                <li><a href="/about">About SPS</a></li>
+                <li><a href="/about">About Nebo</a></li>
                 <li><a href="/contact">Contact</a></li>
             </ul>
             </div>
             <div>
                 <h4 class="footer-heading">Customer Support</h4>
                 <ul class="footer-links">
-                    <li><a href="tel:+919789444037">+91 97894 44037</a></li>
-                    <li><a href="tel:+919789444038">+91 97894 44038</a></li>
-                    <li><a href="mailto:support@sripanchamispiritual.com">support@sripanchamispiritual.com</a></li>
+                    <li><a href="tel:+917200182025">+91 72001 82025</a></li>
+                    <li><a href="tel:+919585182025">+91 95851 82025</a></li>
+                    <li><a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a></li>
                 </ul>
             </div>
         </div>

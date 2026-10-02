@@ -19,7 +19,7 @@ while (($line = readline()) !== false && $line !== '.') $lines[] = $line;
 $body = trim(implode("\n", $lines));
 if ($body === '' && $existing !== '') $body = trim((string)(explode('---', $existing, 3)[2] ?? ''));
 if ($body === '') { fwrite(STDERR, "Body is required.\n"); exit(1); }
-$document = "---\ntitle: {$title}\nslug: {$slug}\ncategory: help\npublished: true\npublished_at: " . date('Y-m-d') . "\nauthor: Sri Panchami Spiritual\nexcerpt: {$summary}\n---\n\n{$body}\n";
+$document = "---\ntitle: {$title}\nslug: {$slug}\ncategory: help\npublished: true\npublished_at: " . date('Y-m-d') . "\nauthor: Nebo Lifestyle Clinic\nexcerpt: {$summary}\n---\n\n{$body}\n";
 file_put_contents("{$dir}/{$slug}.md", $document, LOCK_EX);
 if ($editSlug !== '' && $editSlug !== $slug) @unlink("{$dir}/{$editSlug}.md");
 echo "Written: content/blog/posts/{$slug}.md\nURL: /blog/{$slug}\n";

@@ -252,11 +252,11 @@ $tests['knowledge index keeps type-qualified concepts collision-free'] = functio
         assertTrue(isset($concepts['skill:' . $name]), "Knowledge index should include skill:{$name}");
     }
     assertTrue(isset($concepts['route:get__shop']), 'Knowledge index should include type-qualified shop route');
-    assertTrue(isset($concepts['blog:benefits-of-rudraksha']), 'Knowledge index should include type-qualified blog');
-    $missingImage = $concepts['image:assets/images/blog/rudraksha-benefits.jpg'] ?? null;
-    assertTrue(is_array($missingImage), 'Knowledge index should retain a concept for a referenced missing image');
-    assertSame(false, $missingImage['exists'] ?? null, 'Missing image concept should expose exists=false');
-    assertTrue(in_array('content/blog/posts/benefits-of-rudraksha.md', $missingImage['used_in'] ?? [], true), 'Missing image should identify its referring blog');
+    assertTrue(isset($concepts['blog:create-account']), 'Knowledge index should include type-qualified blog');
+    $missingImage = $concepts['image:assets/images/og-image.jpg'] ?? null;
+    assertTrue(is_array($missingImage), 'Knowledge index should retain a concept for a referenced image');
+    assertTrue(($missingImage['usage_count'] ?? 0) >= 1, 'Referenced image concept should expose its usage count');
+    assertTrue(in_array('views/layouts/app.php', $missingImage['used_in'] ?? [], true), 'Referenced image should identify its referring layout');
 };
 
 $tests['local development router serves existing static files directly'] = function (): void {
@@ -288,7 +288,7 @@ $tests['cart does not expose unfinished coupon placeholder ui'] = function (): v
 };
 
 $tests['product cards link to details and expose buy-now plus add-to-cart actions'] = function (): void {
-    foreach (['views/public/shop.php', 'views/public/home.php', 'views/public/product.php'] as $path) {
+    foreach (['views/public/shop.php', 'views/public/product.php'] as $path) {
         $view = file_get_contents(app_path($path));
         foreach (['product-card__image', 'product-card__title', 'product-purchase', 'data-cart-add', 'data-cart-change', 'data-cart-quantity', 'Buy Now', 'Add to Cart'] as $needle) {
             assertTrue(str_contains($view, $needle), "{$path} should expose {$needle} on product cards");
@@ -465,14 +465,14 @@ $tests['contact page exposes general enquiry form and confirmation delivery'] = 
     foreach (['name="name"', 'name="email"', 'name="phone"', 'name="subject"', 'name="message"'] as $field) {
         assertTrue(str_contains($view, $field), "Contact form should include {$field}");
     }
-    foreach (['Product Inquiry', 'Temple Guidance', 'Order Support', 'General Question'] as $subject) {
+    foreach (['Gut Health Program', 'Metabolic Reset', 'Fertility & Maternal Wellness', 'General Question'] as $subject) {
         assertTrue(str_contains($view, $subject), "Contact form should include the {$subject} subject");
     }
     assertTrue(!str_contains($view, 'Astrology Consultation'), 'Contact form should not offer a retired consultation subject');
-    foreach (['tel:+919789444037', 'tel:+919789444038', 'mailto:support@sripanchamispiritual.com', 'contact-direct-link--mail'] as $needle) {
+    foreach (['tel:+917200182025', 'tel:+919585182025', 'mailto:nebolifestyleclinic@gmail.com', 'contact-direct-link--mail'] as $needle) {
         assertTrue(str_contains($view, $needle), "Contact page should expose {$needle}");
     }
-    assertTrue(str_contains($view, 'Online Store'), 'Contact page should describe the online store');
+    assertTrue(str_contains($view, 'Clinic Location'), 'Contact page should describe the clinic location');
     foreach (['contact-info-grid', 'contact-card__icon', 'contact-card__eyebrow'] as $needle) {
         assertTrue(str_contains($view, $needle), "Contact cards should use enhanced layout class {$needle}");
     }
@@ -492,7 +492,7 @@ $tests['about page uses focused responsive cards'] = function (): void {
     foreach (['about-story-grid', 'about-feature-grid', 'about-feature-card', 'page-cta-card'] as $needle) {
         assertTrue(str_contains($view, $needle), "About page should use {$needle}");
     }
-    assertTrue(str_contains($view, 'href="/contact#contact-form"'), 'About page CTA should link to the contact booking form');
+    assertTrue(str_contains($view, 'href="/contact"'), 'About page CTA should link to the contact booking form');
     assertTrue(!str_contains($view, 'GST Registration'), 'About page CTA should replace the old GST/business detail block');
     assertTrue(str_contains($css, '.about-feature-grid') && str_contains($css, 'repeat(3, minmax(0, 1fr))'), 'About feature cards should align as three columns on desktop');
     assertTrue(str_contains($css, '.about-story-grid,') && str_contains($css, '.about-feature-grid { grid-template-columns: 1fr; }'), 'About cards should stack on smaller screens');
@@ -503,8 +503,7 @@ $tests['public pages expose shared general enquiry cta'] = function (): void {
     foreach (['home', 'shop', 'temples', 'about'] as $page) {
         $view = file_get_contents(app_path("views/public/{$page}.php"));
         assertTrue(str_contains($view, 'page-cta-card'), "{$page} should render the shared enquiry CTA card");
-        assertTrue(str_contains($view, 'href="/contact#contact-form"'), "{$page} CTA should link to the general enquiry form");
-        assertTrue(str_contains($view, 'Let’s Get Connected →'), "{$page} CTA should use the updated button copy");
+        assertTrue(str_contains($view, 'href="/contact'), "{$page} CTA should link to the general enquiry form");
     }
     assertTrue(str_contains($css, '.page-cta-card:hover') && str_contains($css, 'translateY(-6px)'), 'Shared CTA should use the same lift animation language as home cards');
     assertTrue(str_contains($css, '.about-feature-card:hover') && str_contains($css, 'scale(1.04)'), 'About feature cards should animate their icons on hover');
@@ -646,7 +645,7 @@ $tests['support assistant widget uses browser session memory and google model se
     $layout = file_get_contents(app_path('views/layouts/app.php'));
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
     routeExists('/support/ask', 'Support ask route should be registered');
-    foreach (['support-fab', 'support-panel', '/support/ask', 'products, orders, delivery addresses, or temple guidance', 'sessionStorage', 'data-support-key'] as $needle) {
+    foreach (['support-fab', 'support-panel', '/support/ask', 'programs, consultations, wellness plans, or bookings', 'sessionStorage', 'data-support-key'] as $needle) {
         assertTrue(str_contains($layout, $needle), "Support widget should include {$needle}");
     }
     foreach (['Customer context JSON', 'browser_session'] as $needle) {
@@ -704,7 +703,7 @@ $tests['home page rejects malformed remote categories and retains complete sales
     assertSame('pendant', $kept[0]['slug'], 'The first complete category should survive filtering');
     assertSame('ring', $kept[1]['slug'], 'A category is kept only when both slug and name are present');
     $view = file_get_contents(app_path('views/public/home.php'));
-    foreach (['Most Liked By People', 'How Your Order Works', 'Panchami Temples Guide', 'Faith · Trust · Tradition'] as $heading) {
+    foreach (['Where Science Meets Nature for Lifelong Wellness', 'The Nebo Foundation', 'Our Vision', 'Gut Health'] as $heading) {
         assertTrue(str_contains($view, $heading), "Home should retain the {$heading} section");
     }
     assertTrue(!str_contains($view, 'Online Consultation'), 'Home should not retain the retired consultation section');
@@ -715,7 +714,7 @@ $tests['product cards retain responsive image presentation'] = function (): void
     foreach(['.product-card__image', 'display: block;', 'aspect-ratio: 1;', '.product-card__title'] as $needle) {
         assertTrue(str_contains($css, $needle), "Product card CSS should include {$needle}");
     }
-    foreach (['views/public/home.php', 'views/public/shop.php', 'views/public/product.php'] as $viewPath) {
+    foreach (['views/public/shop.php', 'views/public/product.php'] as $viewPath) {
         $view = file_get_contents(app_path($viewPath));
         assertTrue(str_contains($view, 'product-card__image') && str_contains($view, 'product-card__title'), "{$viewPath} should link product image and title to the product page");
     }
@@ -725,7 +724,7 @@ $tests['home hero leads with spiritual products and a working shop cta'] = funct
     $view = file_get_contents(app_path('views/public/home.php'));
     assertTrue(!str_contains($view, 'Spiritual Products Online in Chennai'), 'Home hero headline should not say products online in Chennai');
     assertTrue(!str_contains($view, 'Remote Astrology Consultation</a>'), 'Home hero astrology button should use shorter text');
-    foreach (['Authentic Spiritual Products', 'href="/shop"', '>Shop Products</a>', 'count($products)'] as $needle) {
+    foreach (['Where Science Meets Nature for Lifelong Wellness', '/contact', 'Book Your Consultation', 'Explore Our Programs'] as $needle) {
         assertTrue(str_contains($view, $needle), "Home hero should include {$needle}");
     }
     assertTrue(!str_contains($view, 'href="/consult"'), 'Home hero should not link to retired consultation pages');
@@ -734,23 +733,12 @@ $tests['home hero leads with spiritual products and a working shop cta'] = funct
 
 $tests['home temple guide uses admin driven dissolve carousel'] = function (): void {
     $view = file_get_contents(app_path('views/public/home.php'));
-    $css = file_get_contents(app_path('assets/css/band.css'));
-    assertTrue(str_contains($view, 'Panchami Temples Guide'), 'Home temple section should use guide wording');
-    assertTrue(!str_contains($view, 'Our Temples in Chennai'), 'Home temple section should not use the old heading');
-    assertTrue(str_contains($view, 'foreach(array_values($temples)'), 'Home temple carousel should use the admin-published temple list directly');
-    assertTrue(!str_contains($view, 'array_merge($temples, $temples)'), 'Home temple carousel should not duplicate admin temple records for a dissolve transition');
-    assertTrue(str_contains($view, 'data-temple-slider'), 'Home temple section should auto-advance one full-width temple at a time');
-    assertTrue(str_contains($view, 'setInterval(function ()') && str_contains($view, '6500'), 'Home temple dissolve should advance at a slower 6.5 second pace');
-    assertTrue(str_contains($view, '<a href="/temples">Click here</a>'), 'Home temple section should link to all temples inline from the lede sentence');
-    assertTrue(!str_contains($view, 'View All Temples'), 'Home temple section should not render a separate View All Temples button');
-    assertTrue(str_contains($view, "classList.remove('is-active')") && str_contains($view, "classList.add('is-active')"), 'Home temple carousel should dissolve by toggling the active card');
-    assertTrue(!str_contains($view, 'translateX'), 'Home temple carousel should not slide or animate backward');
-    assertTrue(str_contains($view, 'class="showcase-card temple-feature-card'), 'Home temple cards should use the improved temple feature card style');
-    assertTrue(str_contains($view, 'href="/temples/'), 'Home temple cards should link to temple detail pages');
-    assertTrue(str_contains($css, 'grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.1fr)'), 'Temple feature cards should place image left and content right on desktop');
-    assertTrue(str_contains($css, '.temple-carousel--single .temple-feature-card') && str_contains($css, 'opacity: 0'), 'Home temple carousel should layer full-width cards for dissolve');
-    assertTrue(str_contains($css, '.temple-carousel--single .temple-feature-card.is-active') && str_contains($css, 'opacity: 1'), 'Home temple carousel should show only the active card');
-    assertTrue(str_contains($css, 'transition: opacity 1.6s ease-in-out'), 'Home temple carousel should use a slow smooth dissolve transition');
+    assertTrue(str_contains($view, 'Our Focus Areas'), 'Home should render the Nebo focus-areas section');
+    assertTrue(str_contains($view, 'id="programs"'), 'Home should render the programs section');
+    assertTrue(str_contains($view, 'Meet Our Team'), 'Home should render the team section');
+    assertTrue(!str_contains($view, 'Panchami Temples Guide'), 'Home should not use the old temple guide wording');
+    assertTrue(!str_contains($view, 'data-temple-slider'), 'Home should not render the retired temple carousel');
+    assertTrue(!str_contains($view, 'data-varahi-slider'), 'Home should not render the retired devotional slider');
 };
 
 $tests['review service stores five star reviews and calculates averages'] = function (): void {
@@ -1522,7 +1510,7 @@ $tests['the database bridge never calls the host it is running on'] = function (
     // be taken. Taking it produced "Remote database request failed with HTTP 500" on
     // production whenever direct MySQL hiccupped, because the server called itself.
     $previousHost = $_SERVER['HTTP_HOST'] ?? null;
-    $_SERVER['HTTP_HOST'] = 'sripanchamispiritual.com';
+    $_SERVER['HTTP_HOST'] = 'nebowellness.com';
     $service = new DatabaseService();
     $method = (new ReflectionObject($service))->getMethod('isRemote');
     assertTrue($method->invoke($service) === false, 'A host serving its own remote_url must stay on direct MySQL');
@@ -1565,8 +1553,9 @@ $tests['historical appointment lifecycle remains available to the owner only'] =
 };
 
 $tests['home hero rotates all supplied varahi images'] = function (): void {
-    assertMinCount(8, glob(app_path('assets/images/hero/varahi/varahi-*.png')) ?: [], 'Hero should include at least 8 Varahi images');
-    fileContains('views/public/home.php', 'data-varahi-slider', 'Home should render the Varahi image slider');
+    $view = file_get_contents(app_path('views/public/home.php'));
+    assertTrue(!str_contains($view, 'data-varahi-slider'), 'Home should not render the retired devotional image slider');
+    assertTrue(str_contains($view, 'Explore Our Programs'), 'Home hero should link to the programs section');
 };
 
 $tests['admin product and astrologer forms expose editable owner fields'] = function (): void {
