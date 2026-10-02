@@ -1,18 +1,18 @@
 ---
 version: alpha
-name: Sri Panchami Spiritual
-description: Calm, credible interface system for a spiritual-products storefront with supporting temple guides and editorial content.
+name: Nebo Wellness
+description: Clean, professional interface system for a wellness clinic platform with consultation booking, health programs, and editorial content. Inspired by leading wellness destinations like SHA Wellness.
 colors:
-  primary: "#3a0003"
+  primary: "#4472C4"
   on-primary: "#ffffff"
-  primary-container: "#651016"
-  on-primary-container: "#f3e8c9"
-  secondary: "#7a4a35"
+  primary-container: "#6b8dd6"
+  on-primary-container: "#ffffff"
+  secondary: "#70AD47"
   on-secondary: "#ffffff"
-  secondary-container: "#a67a64"
-  on-secondary-container: "#faf7f0"
+  secondary-container: "#8cc069"
+  on-secondary-container: "#ffffff"
   tertiary: "#d1b368"
-  on-tertiary: "#3a0003"
+  on-tertiary: "#4472C4"
   tertiary-container: "#f3e8c9"
   on-tertiary-container: "#5c4315"
   neutral: "#faf7f0"
@@ -24,10 +24,10 @@ colors:
   ink: "#222222"
   ink-muted: "#6a6259"
   ink-soft: "#91877c"
-  success: "#2d8a4e"
+  success: "#70AD47"
   warning: "#e8a317"
   error: "#d64045"
-  info: "#3b82f6"
+  info: "#4472C4"
 typography:
   display:
     fontFamily: Inter
@@ -61,9 +61,9 @@ typography:
 rounded:
   xs: 4px
   sm: 8px
-  md: 8px
-  lg: 8px
-  xl: 8px
+  md: 12px
+  lg: 16px
+  xl: 20px
   pill: 999px
 spacing:
   2xs: 2px
@@ -78,23 +78,23 @@ components:
   button-primary:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.on-primary}"
-    rounded: "{rounded.sm}"
-    padding: 14px 32px
-    height: 48px
+    rounded: "{rounded.md}"
+    padding: 16px 40px
+    height: 52px
   button-primary-hover:
     backgroundColor: "{colors.primary-container}"
   button-secondary:
-    backgroundColor: "{colors.tertiary}"
-    textColor: "{colors.on-tertiary}"
-    rounded: "{rounded.sm}"
-    height: 48px
-  card-product:
+    backgroundColor: "{colors.secondary}"
+    textColor: "{colors.on-secondary}"
+    rounded: "{rounded.md}"
+    height: 52px
+  card-program:
     backgroundColor: "{colors.surface}"
-    rounded: "{rounded.sm}"
-    padding: 16px
-  card-astrologer:
+    rounded: "{rounded.lg}"
+    padding: 32px
+  card-consultant:
     backgroundColor: "{colors.on-primary}"
-    rounded: "{rounded.sm}"
+    rounded: "{rounded.lg}"
   input:
     backgroundColor: "{colors.on-primary}"
     rounded: "{rounded.sm}"
@@ -103,21 +103,28 @@ components:
 
 ## Overview
 
-Sri Panchami Spiritual is a spiritual-products storefront. The primary customer journey is discover products -> review product details -> add to cart or buy now -> manage the order. Temple guides and editorial content support that journey. This file is the canonical visual contract for everything customer-facing in `views/` and `assets/css/band.css`.
+Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for everything customer-facing in `views/` and `assets/css/band.css`.
 
-Commercial references such as Deiveegaa are used to audit product clarity, imagery, pricing, policies, testimonials, FAQs, and checkout visibility. Do not copy their visual identity or unverified product claims; use the comparison to expose missing commerce information and interaction wiring.
+Design inspiration from SHA Wellness (shawellness.com) informs the use of:
+- Clean, spacious card layouts with clear separation
+- Professional medical team showcases with credentials
+- Prominent program/service cards with clear CTAs
+- Statistics and proof points displayed prominently
+- Testimonial sections with credibility markers
+- Section dividers and contained content blocks
+- Sophisticated use of whitespace and hierarchy
 
 Keep the existing PHP templates, routes, forms, and hosted MySQL-backed behavior. Design changes must not scaffold a second frontend.
 
 ## Colors
 
-- **Primary -- deep maroon (`#3a0003`):** headers, primary buttons, price, active nav state. `on-primary` is white; `primary-container` (`#651016`) is the maroon-active/pressed state.
-- **Secondary -- warm brown (`#7a4a35`):** supporting accent, links-on-dark, secondary emphasis.
-- **Tertiary -- muted gold (`#d1b368`):** secondary buttons, active underline, eyebrow labels, dividers. `on-tertiary` is maroon text for contrast.
+- **Primary -- professional blue (`#4472C4`):** headers, primary buttons, active nav state, key actions. `on-primary` is white; `primary-container` (`#6b8dd6`) is the blue-active/pressed state. Inspired by medical/wellness trust colors.
+- **Secondary -- wellness green (`#70AD47`):** supporting accent, success states, nature/health emphasis, secondary CTAs. Represents natural healing and vitality.
+- **Tertiary -- muted gold (`#d1b368`):** tertiary buttons, active underline, eyebrow labels, subtle dividers.
 - **Surface (`#faf7f0`) / surface-container (`#f6ede4`):** canvas and warm alternate-section background. Never pure white as a page background; white (`on-primary`) is reserved for cards and inputs so they read as raised above the canvas.
 - **Outline / outline-variant:** hairline borders only -- no heavy strokes.
 - **Ink / ink-muted / ink-soft:** body text hierarchy from primary copy down to placeholders.
-- Success, warning, error, info are semantic exceptions -- they may break the earthy palette when, and only when, they communicate order/payment/form state.
+- Success uses green (#70AD47), warning, error, info are semantic exceptions for state communication.
 
 ## Typography
 
@@ -175,7 +182,14 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 ## Components
 
-- **Header:** warm-neutral (`rgba(250,247,240,0.98)`), ~`80px` tall, non-sticky, hairline bottom border (`rgba(209,179,104,0.45)`), compact logo, centered primary nav with a gold active underline, right-aligned account/cart actions.
+- **Header:** warm-neutral (`rgba(250,247,240,0.98)`), ~`80px` tall, non-sticky, hairline bottom border, compact logo, centered primary nav with blue active state, right-aligned account/cart actions.
+- **Hero (SHA-inspired):** Clean, centered headline with professional subtext. Use actual wellness imagery. Primary action prominently displayed. Desktop text is center-aligned. Mobile uses one column with compact image and clear CTA.
+- **Program Cards (SHA-style):** White cards (`16px` radius), generous padding (`32px`), clear program name as heading, brief description, key benefits as bullets, prominent CTA. Use 3-column desktop / 2 tablet / 1 mobile grid with equal heights.
+- **Statistics Section (SHA-inspired):** Display measurable outcomes and proof points (e.g., "95% client satisfaction", "12 years experience"). Use large numbers with descriptive labels. Clean 4-column desktop / 2 mobile layout on subtle background.
+- **Team/Consultant Cards (SHA-style):** Professional photo, name, credentials (MD, BNYS, etc.), specialization, experience. White cards with `16px` radius. Include brief bio and "Book Consultation" CTA. Equal-height grid layout.
+- **Testimonial Cards:** Client quote, name, location/condition treated. Use subtle card styling with quotation marks. Include credibility markers. Carousel or grid layout.
+- **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
+- **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
 - **Navigation:** the linked brand mark and name are the sole home control. Do not repeat a separate Home item in desktop or mobile navigation.
 - **Mobile commerce tray:** after the cart becomes non-empty, show one fixed maroon tray above the bottom navigation with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
 - **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep the cart tray above the bottom navigation and keep support clear of both controls.
