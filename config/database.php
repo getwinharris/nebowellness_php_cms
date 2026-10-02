@@ -5,7 +5,7 @@ $envValue = static function (string $key, string $default = '') use ($fileEnv): 
     if ($runtime !== false && $runtime !== null && $runtime !== '') return (string)$runtime;
     return (string)($fileEnv[$key] ?? $default);
 };
-$appUrl = rtrim($envValue('APP_URL', 'https://sripanchamispiritual.com'), '/');
+$appUrl = rtrim($envValue('APP_URL', 'https://nebowellness.com'), '/');
 return [
     'app_url' => $appUrl,
     'host' => $envValue('BAPX_MYSQL_HOST'),

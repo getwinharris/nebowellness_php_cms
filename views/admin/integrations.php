@@ -122,7 +122,7 @@
             Configure default SEO metadata used across all pages. These can be overridden per page automatically by the SEO service.
         </p>
         <div class="admin-form__row">
-            <label>Site Name<input name="seo_site_name" value="<?= e($secrets['seo_site_name']??'') ?>" placeholder="Sri Panchami Spiritual"></label>
+            <label>Site Name<input name="seo_site_name" value="<?= e($secrets['seo_site_name']??'') ?>" placeholder="Nebo Wellness"></label>
             <label>Twitter Handle<input name="seo_twitter_handle" value="<?= e($secrets['seo_twitter_handle']??'') ?>" placeholder="@sps"></label>
         </div>
         <div class="admin-form__row">
@@ -152,8 +152,8 @@
             <label>From Email<input name="mail_from_email" value="<?= e($secrets['mail_from_email']??'') ?>" placeholder="support@sripanchamispiritual.com"></label>
         </div>
         <div class="admin-form__row">
-            <label>From Name<input name="mail_from_name" value="<?= e($secrets['mail_from_name']??'Sri Panchami Spiritual') ?>" placeholder="Sri Panchami Spiritual"></label>
-            <label>Admin Notification Email<input name="admin_notification_email" value="<?= e($secrets['admin_notification_email']??'') ?>" placeholder="sripanchamispiritual@gmail.com"></label>
+            <label>From Name<input name="mail_from_name" value="<?= e($secrets['mail_from_name']??'Nebo Wellness') ?>" placeholder="Nebo Wellness"></label>
+            <label>Admin Notification Email<input name="admin_notification_email" value="<?= e($secrets['admin_notification_email']??'') ?>" placeholder="nebolifestyleclinic@gmail.com"></label>
         </div>
         <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">
             <strong>Hostinger mailbox:</strong> host <code>smtp.hostinger.com</code>,

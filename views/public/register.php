@@ -6,7 +6,7 @@
     <div class="auth-form-container">
         <div class="auth-card">
             <h1>Create Account</h1>
-            <p>Join Sri Panchami Spiritual today</p>
+            <p>Join Nebo Wellness today</p>
             <form method="post" action="/register" class="auth-form">
                 <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
                 <input type="hidden" name="_csrf" value="<?= $csrf ?>">

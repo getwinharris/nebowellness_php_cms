@@ -1816,7 +1816,7 @@ $tests['blog uses an editorial index and readable markdown article surface'] = f
     $index = file_get_contents(app_path('views/public/blog.php'));
     $article = file_get_contents(app_path('views/public/blog-post.php'));
     $css = file_get_contents(app_path('assets/css/band.css'));
-    foreach (['Sri Panchami Journal', 'blog-card--featured', 'blog-card__media', 'Read article'] as $needle) {
+    foreach (['Nebo Wellness Journal', 'blog-card--featured', 'blog-card__media', 'Read article'] as $needle) {
         assertTrue(str_contains($index, $needle), "Blog index should include {$needle}");
     }
     assertTrue(str_contains($article, "\$schemaBase . '/blog'"), 'Article breadcrumbs should use the canonical blog URL');

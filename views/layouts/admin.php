@@ -5,7 +5,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= e($pageTitle ?? 'Admin') ?> — Sri Panchami Spiritual</title>
+<title><?= e($pageTitle ?? 'Admin') ?> — Nebo Wellness</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -60,7 +60,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <div class="admin-shell">
     <aside class="admin-sidebar" id="admin-sidebar">
         <div class="admin-sidebar__brand">
-            <span>Sri Panchami Spiritual</span>
+            <span>Nebo Wellness</span>
             <small>Admin Panel</small>
         </div>
         <nav class="admin-sidebar__nav" id="admin-nav">

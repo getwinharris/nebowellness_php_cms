@@ -1,10 +1,10 @@
 ---
-title: Sri Panchami Spiritual Web Application
-description: PHP/MySQL storefront, consultation booking, blog, customer account, and owner administration for shared hosting.
+title: Nebo Wellness Web Application
+description: PHP/MySQL wellness clinic platform with consultation booking, blog, customer accounts, and admin panel for shared hosting.
 category: root
 ---
 
-# Sri Panchami Spiritual
+# Nebo Wellness
 
 PHP 8.2 web application for small PHP hosting with a `public_html` deployment. It uses
 server-rendered PHP templates, hosted MySQL as the primary runtime store, Markdown
@@ -130,11 +130,11 @@ do not replace browser validation.
 
 ## Deployment
 
-`bapxmediahub/bapXphpAiBackend` is the deployment repository. The one-time Hostinger
-Git integration tracks `main`; changes merged to `main` are pulled to the live site.
-After merge, verify the deployed revision and live route health—merge status alone is
-not deployment proof. See `docs/README.md`, `docs/deployment-hostinger.md`, `AGENTS.md`,
-and `docs/systematic-map.mmd` for the verified navigation and operating contracts.
+`getwinharris/nebowellness_php_cms` is the deployment repository. The one-time Hostinger
+Git integration tracks `main`; changes merged to `main` are pulled to the live site at
+https://nebowellness.com/. After merge, verify the deployed revision and live route health—merge
+status alone is not deployment proof. See `docs/README.md`, `docs/deployment-hostinger.md`,
+`AGENTS.md`, and `docs/systematic-map.mmd` for the verified navigation and operating contracts.
 
 Use plain Git locally. Pushing `codex/**`, `fix/**`, or `feat/**` can create a PR via
 `.github/workflows/branch-pr.yml`; `.github/workflows/ci.yml` validates PRs and pushes

@@ -24,7 +24,7 @@
                     <?php if(!empty($logo_url)): ?>
                         <img src="<?= e($logo_url) ?>" alt="Logo" style="max-width:120px; max-height:60px; object-fit:contain;">
                     <?php else: ?>
-                        <span style="color:rgba(255,255,255,0.5); font-size:0.85rem; font-family:var(--font-serif);">Sri Panchami Spiritual</span>
+                        <span style="color:rgba(255,255,255,0.5); font-size:0.85rem; font-family:var(--font-serif);">Nebo Wellness</span>
                     <?php endif; ?>
                 </div>
             </div>
