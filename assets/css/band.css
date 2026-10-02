@@ -5,7 +5,7 @@
 [hidden] { display: none !important; }
 
 :root {
-    /* Design.md public interface palette */
+    /* Design.md public interface palette - Updated for Nebo Wellness */
     --color-ink: #222222;
     --color-ink-light: #3f3f3f;
     --color-gold: #d1b368;
@@ -13,12 +13,23 @@
     --color-gold-dark: #a98a43;
     --color-cream: #faf7f0;
     --color-parchment: #f7f0e4;
-    --color-maroon: #3a0003;
-    --color-maroon-deep: #240002;
-    --color-maroon-light: #651016;
-    --color-accent: #7a4a35;
-    --color-accent-light: #a67a64;
-    --color-accent-hover: #9a6a55;
+
+    /* Nebo Primary Colors from Logo */
+    --color-blue: #4472C4;
+    --color-blue-light: #6b8dd6;
+    --color-blue-dark: #2c5aa0;
+    --color-green: #70AD47;
+    --color-green-light: #8cc069;
+    --color-green-dark: #5a8e38;
+
+    /* Updated primary/secondary using Nebo colors */
+    --color-maroon: #4472C4;           /* Primary blue */
+    --color-maroon-deep: #2c5aa0;      /* Dark blue */
+    --color-maroon-light: #6b8dd6;     /* Light blue */
+    --color-accent: #70AD47;           /* Primary green */
+    --color-accent-light: #8cc069;     /* Light green */
+    --color-accent-hover: #5a8e38;     /* Dark green */
+
     --color-bg-warm: #f6ede4;
     --color-bg: #faf7f0;
     --color-bg-alt: #f7f0e4;
@@ -27,13 +38,13 @@
     --color-text-muted: #6a6259;
     --color-text-light: #91877c;
     --color-white: #ffffff;
-    --color-success: #2d8a4e;
+    --color-success: #70AD47;          /* Use green for success */
     --color-success-light: #e8f5ed;
     --color-warning: #e8a317;
     --color-warning-light: #fef7e6;
     --color-error: #d64045;
     --color-error-light: #fde8e9;
-    --color-info: #3b82f6;
+    --color-info: #4472C4;             /* Use blue for info */
     --color-info-light: #eff6ff;
     --color-rating: #d68641;
 
@@ -41,15 +52,15 @@
        These are aliases onto the palette above -- same hex values,
        named by function instead of hue so components can be described
        declaratively (see /Design.md). */
-    --color-primary: var(--color-maroon);
+    --color-primary: var(--color-blue);
     --color-on-primary: var(--color-white);
-    --color-primary-container: var(--color-maroon-light);
-    --color-on-primary-container: var(--color-gold-light);
-    --color-secondary: var(--color-accent);
+    --color-primary-container: var(--color-blue-light);
+    --color-on-primary-container: var(--color-white);
+    --color-secondary: var(--color-green);
     --color-on-secondary: var(--color-white);
-    --color-secondary-container: var(--color-accent-light);
+    --color-secondary-container: var(--color-green-light);
     --color-tertiary: var(--color-gold);
-    --color-on-tertiary: var(--color-maroon);
+    --color-on-tertiary: var(--color-blue);
     --color-tertiary-container: var(--color-gold-light);
     --color-surface: var(--color-bg);
     --color-surface-container: var(--color-bg-alt);
@@ -57,7 +68,7 @@
     --color-outline-variant: var(--color-border-light);
 
     /* Gradients */
-    --gradient-gold: var(--color-maroon);
+    --gradient-gold: var(--color-blue);
     --gradient-divine: var(--color-bg-alt);
 
     /* Elevation scale -- tonal-first, shadow-second (Material 3 style):
@@ -217,10 +228,10 @@ label { cursor: pointer; }
 .btn-sm { padding: 0.55rem 1.3rem; font-size: 0.85rem; }
 .btn-lg { padding: 1.1rem 2.8rem; font-size: 1.05rem; }
 .btn-block { width: 100%; }
-.btn:disabled { 
-    opacity: 0.6; 
-    cursor: not-allowed; 
-    transform: none !important; 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
     background: var(--color-bg-alt) !important;
 }
 
@@ -573,14 +584,14 @@ nav a:hover { color: var(--color-maroon); }
 }
 
 .hero-actions { display: flex; gap: var(--space-md); flex-wrap: wrap; }
-.home-hero .btn-outline { 
-    border-color: var(--color-white); 
+.home-hero .btn-outline {
+    border-color: var(--color-white);
     color: var(--color-white);
     background: rgba(255,255,255,0.08);
     backdrop-filter: blur(10px);
 }
-.home-hero .btn-outline:hover { 
-    background: var(--color-white); 
+.home-hero .btn-outline:hover {
+    background: var(--color-white);
     color: var(--color-maroon-deep);
     transform: translateY(-3px);
 }
@@ -641,17 +652,17 @@ nav a:hover { color: var(--color-maroon); }
     height: 1px;
     background: var(--gradient-gold);
 }
-.hero-stat-value { 
-    font-family: var(--font-accent); 
-    font-size: 2rem; 
-    color: var(--color-gold); 
+.hero-stat-value {
+    font-family: var(--font-accent);
+    font-size: 2rem;
+    color: var(--color-gold);
     font-weight: 700;
     letter-spacing: -0.02em;
 }
-.hero-stat-label { 
-    font-size: 0.7rem; 
-    color: rgba(255,255,255,0.7); 
-    text-transform: uppercase; 
+.hero-stat-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
     letter-spacing: 0.12em;
     margin-top: var(--space-2xs);
 }
@@ -2606,12 +2617,12 @@ tr:hover td { background: var(--color-bg-alt); }
     height: 3px;
     background: var(--gradient-gold);
 }
-.trust-item { 
-    display: flex; 
-    align-items: center; 
-    gap: var(--space-sm); 
-    font-size: 0.95rem; 
-    color: var(--color-text-muted); 
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
     transition: all var(--transition-base);
     padding: var(--space-sm) var(--space-md);
     border-radius: var(--radius-md);
@@ -2638,8 +2649,8 @@ tr:hover td { background: var(--color-bg-alt); }
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
 }
-.trust-item span:first-child { 
-    font-size: 1.5rem; 
+.trust-item span:first-child {
+    font-size: 1.5rem;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
@@ -2756,7 +2767,7 @@ tr:hover td { background: var(--color-bg-alt); }
 @media (max-width: 767px) {
     .site-header .menu-toggle { display: block; }
     nav:not(.open) { display: none; }
-    
+
     .site-header {
         grid-template-columns: 48px 1fr 48px;
         padding: var(--space-sm) var(--space-md);
@@ -2770,15 +2781,15 @@ tr:hover td { background: var(--color-bg-alt); }
     .brand img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
     .brand span { display: none; }
     .header-actions { display: flex; }
-    
+
     main { padding: var(--space-md); padding-bottom: calc(64px + var(--space-md)); }
     main.home-main { padding: 0 0 calc(64px + var(--space-md)); }
-    
+
     .section { padding: 48px 16px; }
     .section-header { margin-bottom: var(--space-xl); }
     .section-title { font-size: clamp(1.3rem, 4vw, 1.6rem); }
     .section-title::before, .section-title::after { font-size: 0.9rem; }
-    
+
     .home-hero { width: 100vw; min-height: auto; margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); padding: 40px 16px 56px; gap: var(--space-md); }
     .home-hero h1 { font-size: clamp(1.6rem, 5vw, 2rem); }
     .lede { font-size: 0.9rem; margin-bottom: var(--space-lg); }
@@ -2786,7 +2797,7 @@ tr:hover td { background: var(--color-bg-alt); }
     .hero-actions .btn { width: 100%; }
     .hero-stats { margin-top: var(--space-md); flex-wrap: wrap; }
     .hero-stat-value { font-size: 1.3rem; }
-    
+
     .product-grid { grid-template-columns: 1fr; gap: var(--space-md); }
      .product-card { border-radius: var(--radius-lg); }
     .product-card__body { padding: var(--space-md); }
@@ -2795,13 +2806,13 @@ tr:hover td { background: var(--color-bg-alt); }
     .product-card__actions .btn-ghost { width: auto; flex: 0 0 auto; height: 30px; min-height: 30px; padding: 0 0.6rem; }
     .product-card__buy-form, .product-card__add-form { min-width: 0; }
     .product-card__actions .product-card__form { width: auto; flex: 0 0 auto; margin-left: auto; }
-    
+
     .category-section { padding-left: var(--space-md); padding-right: var(--space-md); }
     .category-grid { grid-template-columns: repeat(2, minmax(0, 128px)); justify-content: center; gap: var(--space-md); }
     .category-img-wrap { width: 76px; height: 76px; margin: 0 auto var(--space-xs); border-radius: 50%; }
     .category-card h3 { font-size: 0.75rem; }
     .category-card p { display: none; }
-    
+
      .astrologers-page { padding-top: var(--space-md) !important; }
      .astrologers-page .container { width: calc(100vw - 2rem); max-width: calc(100vw - 2rem); padding: 0; }
      .astrologers-hero { margin-bottom: var(--space-lg); }
@@ -2855,13 +2866,13 @@ tr:hover td { background: var(--color-bg-alt); }
      .not-found-mark { min-height: 160px; }
      .not-found-actions { justify-content: center; }
      .not-found-actions .btn { width: 100%; }
-    
+
     .feature-strip { grid-template-columns: repeat(2, 1fr); gap: var(--space-md); }
     .feature-strip article { padding: var(--space-md); border-radius: var(--radius-lg); }
     .feature-strip article .icon { width: 28px; height: 28px; margin-bottom: var(--space-xs); }
     .feature-strip article h3 { font-size: 0.8rem; }
     .feature-strip article p { font-size: 0.7rem; }
-    
+
      .showcase-grid { grid-template-columns: 1fr; gap: var(--space-md); }
      .temple-scroll { grid-auto-columns: minmax(82vw, 1fr); gap: var(--space-md); padding-left: var(--space-sm); padding-right: var(--space-sm); scroll-snap-type: x mandatory; }
      .showcase-card { border-radius: var(--radius-lg); padding: var(--space-md); }
@@ -2878,20 +2889,20 @@ tr:hover td { background: var(--color-bg-alt); }
      .temple-slide__media img { min-height: 190px; }
      .temple-slide__copy { text-align: center; }
      .temple-slide__address { justify-content: center; text-align: left; }
-     
+
      .auth-card { padding: var(--space-lg); border-radius: var(--radius-lg); }
      .auth-card h1 { font-size: 1.4rem; }
      .auth-page { min-height: auto; }
-    
+
     .form-group input, .form-group select, .form-group textarea { min-height: 48px; font-size: 1rem; }
     .btn { min-height: 48px; }
     .btn-sm { min-height: 40px; }
-    
+
     .account-layout { padding: var(--space-md); }
     .account-nav { padding: var(--space-sm); margin-bottom: var(--space-md); display: flex; flex-wrap: wrap; gap: var(--space-xs); }
     .account-nav a { padding: var(--space-sm) var(--space-md); font-size: 0.85rem; flex: 1; text-align: center; }
     .account-content { padding: var(--space-md); }
-    
+
       .cart-item { grid-template-columns: 70px 1fr; padding: var(--space-sm); position: relative; }
       .cart-item__img { width: 70px; height: 70px; }
       .cart-item__qty { grid-column: 2; }
@@ -2899,17 +2910,17 @@ tr:hover td { background: var(--color-bg-alt); }
       .cart-item__price--mobile { display: block; }
      .cart-item__name { font-size: 0.9rem; }
      .cart-item__meta { font-size: 0.75rem; }
-    
+
     .cart-summary { padding: var(--space-md); position: static; }
     .cart-summary h2 { font-size: 1.1rem; }
     .cart-summary__row { font-size: 0.85rem; }
-    
+
     .checkout-form { padding: var(--space-md); }
     .checkout-form h2 { font-size: 1.1rem; }
     .checkout-item { padding: var(--space-sm); }
-    
+
     .flash { padding: var(--space-md); font-size: 0.85rem; }
-    
+
     .site-footer { padding: var(--space-xl) var(--space-md); }
     .footer-grid { grid-template-columns: 1fr; gap: var(--space-lg); }
     .footer-brand { font-size: 1.1rem; }

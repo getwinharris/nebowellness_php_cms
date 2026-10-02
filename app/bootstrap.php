@@ -42,9 +42,9 @@ function singular_label(string $plural): string {
 
 function module_on(string $key): bool { return (new App\Services\SettingsService())->moduleEnabled($key); }
 function placeholder_img(string $label = ''): string {
-    $label = $label ?: 'Sri Panchami';
+    $label = $label ?: 'Nebo Wellness';
     $label = htmlspecialchars($label, ENT_QUOTES | ENT_XML1, 'UTF-8');
-    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#fdfbf7" width="400" height="400"/><text x="200" y="180" text-anchor="middle" font-family="serif" font-size="28" fill="#3A0003">🪷</text><text x="200" y="230" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#8c7e6d">' . $label . '</text></svg>';
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#fdfbf7" width="400" height="400"/><text x="200" y="180" text-anchor="middle" font-family="serif" font-size="28" fill="#3A0003">🌿</text><text x="200" y="230" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#8c7e6d">' . $label . '</text></svg>';
     return 'data:image/svg+xml,' . rawurlencode($svg);
 }
 

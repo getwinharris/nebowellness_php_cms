@@ -7,12 +7,12 @@ final class SeoService {
     private array $telephone;
 
     public function __construct(array $secrets = []) {
-        $envName = getenv('APP_NAME') ?: 'Sri Panchami Spiritual';
+        $envName = getenv('APP_NAME') ?: 'Nebo Wellness';
         $this->siteName = $secrets['seo_site_name'] ?? $envName;
-        $this->defaultOgImage = $secrets['seo_default_og_image'] ?? 'https://' . ($_SERVER['HTTP_HOST'] ?? 'sripanchamispiritual.com') . '/assets/images/og-image.jpg';
+        $this->defaultOgImage = $secrets['seo_default_og_image'] ?? 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . '/assets/images/og-image.jpg';
         $this->twitterHandle = $secrets['seo_twitter_handle'] ?? '';
         $phone = $secrets['phone'] ?? getenv('CONTACT_PHONE') ?: '';
-        $this->telephone = $phone !== '' ? [$phone] : ['+919789444037', '+919789444038'];
+        $this->telephone = $phone !== '' ? [$phone] : ['+917200182025', '+919585182025'];
     }
 
     public function page(string $key, array $overrides = []): array {
