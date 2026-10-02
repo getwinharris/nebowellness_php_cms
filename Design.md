@@ -11,10 +11,10 @@ colors:
   on-secondary: "#ffffff"
   secondary-container: "#8cc069"
   on-secondary-container: "#ffffff"
-  tertiary: "#d1b368"
-  on-tertiary: "#4472C4"
-  tertiary-container: "#f3e8c9"
-  on-tertiary-container: "#5c4315"
+  tertiary: "#8cc069"
+  on-tertiary: "#2f5aa0"
+  tertiary-container: "#e7f2df"
+  on-tertiary-container: "#3c6b2f"
   neutral: "#faf7f0"
   neutral-variant: "#f7f0e4"
   surface: "#faf7f0"
@@ -120,7 +120,7 @@ Keep the existing PHP templates, routes, forms, and hosted MySQL-backed behavior
 
 - **Primary -- professional blue (`#4472C4`):** headers, primary buttons, active nav state, key actions. `on-primary` is white; `primary-container` (`#6b8dd6`) is the blue-active/pressed state. Inspired by medical/wellness trust colors.
 - **Secondary -- wellness green (`#70AD47`):** supporting accent, success states, nature/health emphasis, secondary CTAs. Represents natural healing and vitality.
-- **Tertiary -- muted gold (`#d1b368`):** tertiary buttons, active underline, eyebrow labels, subtle dividers.
+- **Tertiary -- soft green (`#8cc069`):** tertiary accents, active underline, eyebrow labels, subtle dividers.
 - **Surface (`#faf7f0`) / surface-container (`#f6ede4`):** canvas and warm alternate-section background. Never pure white as a page background; white (`on-primary`) is reserved for cards and inputs so they read as raised above the canvas.
 - **Outline / outline-variant:** hairline borders only -- no heavy strokes.
 - **Ink / ink-muted / ink-soft:** body text hierarchy from primary copy down to placeholders.
@@ -183,7 +183,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 ## Components
 
 - **Header:** warm-neutral (`rgba(250,247,240,0.98)`), ~`80px` tall, non-sticky, hairline bottom border, compact logo, centered primary nav with blue active state, right-aligned account/cart actions.
-- **Hero (SHA-inspired):** Clean, centered headline with professional subtext. Use actual wellness imagery. Primary action prominently displayed. Desktop text is center-aligned. Mobile uses one column with compact image and clear CTA.
+- **Hero (SHA-inspired):** Clean, centered headline with professional subtext over a blue-to-green gradient band. Use real wellness imagery when available. Primary action prominently displayed. Desktop text is center-aligned. Mobile uses one column with compact image and clear CTA.
 - **Program Cards (SHA-style):** White cards (`16px` radius), generous padding (`32px`), clear program name as heading, brief description, key benefits as bullets, prominent CTA. Use 3-column desktop / 2 tablet / 1 mobile grid with equal heights.
 - **Statistics Section (SHA-inspired):** Display measurable outcomes and proof points (e.g., "95% client satisfaction", "12 years experience"). Use large numbers with descriptive labels. Clean 4-column desktop / 2 mobile layout on subtle background.
 - **Team/Consultant Cards (SHA-style):** Professional photo, name, credentials (MD, BNYS, etc.), specialization, experience. White cards with `16px` radius. Include brief bio and "Book Consultation" CTA. Equal-height grid layout.
@@ -191,17 +191,17 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
 - **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
 - **Navigation:** the linked brand mark and name are the sole home control. Do not repeat a separate Home item in desktop or mobile navigation.
-- **Mobile commerce tray:** after the cart becomes non-empty, show one fixed maroon tray above the bottom navigation with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
+- **Mobile commerce tray:** after the cart becomes non-empty, show one fixed blue tray above the bottom navigation with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
 - **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep the cart tray above the bottom navigation and keep support clear of both controls.
 - **Editorial media:** every blog post uses one intentional 16:9 image for both its listing thumbnail and article hero. UI guides use a legible screenshot of the exact page, cropped around the relevant interface rather than a decorative stock image, and link the represented page below the article.
-- **Buttons (`button-primary` / `button-secondary`):** `48px` minimum height, `8px` radius, no uppercase, no letter-spacing. Primary is solid maroon with a gold hover overlay; hover moves from `shadow-md` to `shadow-lg` and lifts 2px, no more. Secondary is gold-on-maroon-text. Hover states never shift layout.
+- **Buttons (`button-primary` / `button-secondary`):** `48px` minimum height, `8px` radius, no uppercase, no letter-spacing. Primary is solid blue with a darker-blue hover; hover moves from `shadow-md` to `shadow-lg` and lifts 2px, no more. Secondary is solid green with white text. Hover states never shift layout.
 - **Forms:** white fields (`on-primary`), `8px` radius, `48px` height, clear labels, a single-value focus ring (`--shadow-focus`) -- no glow.
 - **Search/filter:** one rounded (`pill`) search control, or a quiet grouped filter row. No nested cards for filters.
 - **Product cards (`product-card`):** linked image/title, short description, price, Buy Now and one stateful cart control. Initially show Add to Cart; adding one unit replaces it in place with `− quantity +`. The number is the actual cart quantity. Each press updates the cart immediately; decrementing the final unit restores Add to Cart. Keep 44px targets, native form fallback, visible focus and disabled controls during requests. Do not show a separate Quantity row or redundant in-cart link.
 - **Cart quantity:** provide `−` and `+` controls beside every product, update line totals and the cart count, and remove the line when decreased to zero. Repeated additions of the same product merge into one line. Distinguish selecting a quantity to add from editing the quantity already in the cart.
 - **Commerce responsiveness:** use `minmax(0, 1fr)` for purchase-button columns, wrap quantity labels when space is tight, and keep keyboard focus visible. Verify home, shop, product and cart at 375px and desktop in the built-in Browser. Do not shrink purchase controls to 30px to force them onto one row.
-- **Consultant cards (`card-astrologer`):** white, `8px` radius, face-forward portrait, name, speciality, language/experience metadata, review summary when present, and one clear profile/booking action. Every card uses equal media and content tracks so rows align.
-- **Hero:** product-first offer over actual devotional imagery. The primary action opens the shop. Public consultation booking is retired. Desktop text is left aligned. Mobile uses one column, a compact image, and must reveal the next content band without requiring a full-screen scroll.
+- **Consultant cards (`card-consultant`):** white, `8px` radius, face-forward portrait, name, speciality, language/experience metadata, review summary when present, and one clear profile/booking action. Every card uses equal media and content tracks so rows align.
+- **Hero:** wellness-program-first offer over a blue-to-green gradient band. The primary action opens the contact booking form. Public consultation booking is retired. Desktop text is center aligned. Mobile uses one column, a compact image, and must reveal the next content band without requiring a full-screen scroll.
 - **Authentication:** login and registration are task pages, not marketing pages. Use a centered form surface, suppress the public footer, and keep the complete form visible on common mobile heights.
 - **Product details:** keep the short introduction, feature bullets, detailed description, and labelled specification rows in separate readable sections. Admin-created products use the same fields and layout as existing products; never paste table markup into a plain-text description. Omit empty sections instead of fabricating claims.
 - **Account:** use a persistent internal menu and one unframed content region. Orders, addresses, and installation are tasks, not promotional cards.
@@ -209,11 +209,11 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Admin platform guidance:** describe the product-led public journey consistently. Historical service records may remain owner-accessible, but integration help must not advertise retired public booking, text sessions, or direct calls.
 - **Admin form sizing:** use zero-minimum grid tracks and shrinkable labels/controls. Long integration endpoints or credentials must stay within the field, never widen the page. Check 375px with populated fields without exposing their values in screenshots or reports.
 - **Admin product preview:** render saved images and structured content through the existing product-detail layout. Clearly label the view as an admin-only preview, disable purchase controls, and provide Back to products. Hidden products remain absent from public listings and ordinary URLs; previews are uncached and not indexed.
-- **AI request status (both chat surfaces):** immediately show a keyboard-operable, collapsible Thinking… row and elapsed seconds while waiting. Expanded content reports request status only, never raw model reasoning or simulated stages. Use the shared warm-white/maroon component, 44px summary targets, tabular time digits, and an indeterminate progress control. Respect reduced motion, prevent duplicate submits, restore the composer on every completion path, and retain a collapsed Response ready or Request failed record beside the answer. Timing includes network/server time and must not imply model success or accuracy.
+- **AI request status (both chat surfaces):** immediately show a keyboard-operable, collapsible Thinking… row and elapsed seconds while waiting. Expanded content reports request status only, never raw model reasoning or simulated stages. Use the shared white/blue component, 44px summary targets, tabular time digits, and an indeterminate progress control. Respect reduced motion, prevent duplicate submits, restore the composer on every completion path, and retain a collapsed Response ready or Request failed record beside the answer. Timing includes network/server time and must not imply model success or accuracy.
 - **Waiting and loading:** only show a loading state while a real request is pending. Keep the user's submitted message visible; do not replace real catalog content with decorative skeletons. Errors and fallbacks must remain distinguishable from successful model responses in monitoring.
 - **Value-proposition cards:** 4-column desktop / 2 tablet / 1 mobile, white card, warm icon circle, `accent-italic` heading, muted body, `4px` hover lift into `shadow-lg`.
 - **Footer:** white background, soft border, warm-brown headings, muted body, bottom bar with copyright + credit.
-- **Documents and guides:** Markdown-backed pages use the same warm canvas and a constrained reading column. The page header is centered and quiet; the content surface is white with a single soft border, 14px-20px radius, and `shadow-sm`. Use maroon `h2` headings, muted body text at 1.6-1.7 line-height, generous section spacing, and gold only for eyebrows, links, and small metadata. Documentation indexes use a two-column desktop grid and one-column mobile layout with clear titles, summaries, and a visible `Read guide` action. Do not render legal or customer documentation as long unstructured text or nested cards.
+- **Documents and guides:** Markdown-backed pages use the same warm canvas and a constrained reading column. The page header is centered and quiet; the content surface is white with a single soft border, 14px-20px radius, and `shadow-sm`. Use blue `h2` headings, muted body text at 1.6-1.7 line-height, generous section spacing, and green only for eyebrows, links, and small metadata. Documentation indexes use a two-column desktop grid and one-column mobile layout with clear titles, summaries, and a visible `Read guide` action. Do not render legal or customer documentation as long unstructured text or nested cards.
 
 ## Do's and Don'ts
 
@@ -239,7 +239,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 ## Implementation Notes
 
-- Tokens above are also expressed as CSS custom properties in `assets/css/band.css` (`:root`). The semantic names here (`primary`, `on-primary`, `primary-container`, etc.) exist there as aliases (`--color-primary`, `--color-on-primary`, `--color-primary-container`, ...) layered directly on top of the original hue-named variables (`--color-maroon`, `--color-gold`, ...) -- both are safe to use; new code should prefer the semantic names.
+- Tokens above are also expressed as CSS custom properties in `assets/css/band.css` (`:root`) and the critical CSS in `views/layouts/app.php`. The semantic names here (`primary`, `on-primary`, `primary-container`, etc.) exist there as aliases (`--color-primary`, `--color-on-primary`, `--color-primary-container`, ...) layered directly on top of the original hue-named variables (`--color-maroon`, `--color-gold`, ...) -- both resolve to Nebo blue/green; new code should prefer the semantic names.
 - Elevation tokens: `--shadow-sm/md/lg/xl` plus `--shadow-focus` for the single focus-ring definition.
 - Motion: `--transition-spring` (a restrained expressive-motion curve, `cubic-bezier(0.34, 1.4, 0.64, 1)`) is used for hover lifts on buttons and cards; `--transition-base` still governs color/shadow fades.
 - This file can be linted against the open spec with `npx @google/design.md lint Design.md` if you want machine validation of token references and section order.

@@ -60,7 +60,7 @@ final class PublicController extends BaseController {
         if (!$temple) $this->renderNotFound();
         $this->seoKey = 'temple';
         $this->seoOverrides = [
-            'title' => ($temple['name'] ?? 'Temple') . ' – Temple Timings, Address, Pooja & Darshan at Sri Panchami Spiritual',
+            'title' => ($temple['name'] ?? 'Temple') . ' – Guide at Nebo Lifestyle Clinic',
             'description' => 'Explore ' . ($temple['name'] ?? 'this temple') . ' with detailed guide including timings, address, location map, and available pooja services. ' . ($temple['description'] ?? ''),
             'og_image' => $temple['image_url'] ?? '',
         ];
@@ -91,8 +91,8 @@ final class PublicController extends BaseController {
             }
             if ($catName) {
                 $this->seoOverrides = [
-                    'title' => 'Buy ' . $catName . ' Online – Spiritual Products at Sri Panchami Spiritual',
-                    'description' => 'Shop authentic ' . $catName . ' online at Sri Panchami Spiritual. Browse our collection of sacred items for your spiritual practice. Fast shipping across India.',
+                    'title' => 'Buy ' . $catName . ' Online – Wellness Products at Nebo Lifestyle Clinic',
+                    'description' => 'Shop ' . $catName . ' online at Nebo Lifestyle Clinic. Browse natural wellness essentials supporting your personalised plan.',
                 ];
             }
         }
@@ -130,8 +130,8 @@ final class PublicController extends BaseController {
             $price = $product['offer_price'] ?? $product['price'] ?? 0;
             $schema = (new SeoService((new SecretService())->all()))->productSchema($product);
             $this->seoOverrides = [
-                'title' => ($product['name'] ?? 'Product') . ' – Buy Online at Sri Panchami Spiritual',
-                'description' => 'Buy ' . ($product['name'] ?? 'this product') . ' online at Sri Panchami Spiritual. ' . ($product['description'] ?? '') . ' Price: ₹' . $price . '. Authentic spiritual product with fast shipping.',
+                'title' => ($product['name'] ?? 'Product') . ' – Buy Online at Nebo Lifestyle Clinic',
+                'description' => 'Buy ' . ($product['name'] ?? 'this product') . ' online at Nebo Lifestyle Clinic. ' . ($product['description'] ?? '') . ' Price: ₹' . $price . '. Natural wellness product supporting your plan.',
                 'og_image' => $product['image_url'] ?? '',
                 'json_ld' => '<script type="application/ld+json">' . json_encode($schema) . '</script>',
             ];
@@ -195,7 +195,7 @@ final class PublicController extends BaseController {
     
     public function sitemap(): void {
         header('Content-Type: application/xml; charset=utf-8');
-        $host = $_SERVER['HTTP_HOST'] ?? 'sripanchamispiritual.com';
+        $host = $_SERVER['HTTP_HOST'] ?? 'nebowellness.com';
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $base = $scheme . '://' . $host;
 

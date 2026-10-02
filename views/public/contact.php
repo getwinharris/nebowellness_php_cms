@@ -33,9 +33,9 @@
                         <label for="contact-subject">Subject</label>
                         <select id="contact-subject" name="subject" required>
                             <option value="">Select a subject</option>
-                            <option value="product">Product Inquiry</option>
-                            <option value="temple">Temple Guidance</option>
-                            <option value="order">Order Support</option>
+                            <option value="gut">Gut Health Program</option>
+                            <option value="metabolic">Metabolic Reset</option>
+                            <option value="fertility">Fertility & Maternal Wellness</option>
                             <option value="general">General Question</option>
                         </select>
                     </div>
@@ -52,29 +52,29 @@
                 <span class="contact-card__icon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
                 <div class="contact-card__body">
                     <span class="contact-card__eyebrow">Hours</span>
-                    <h3>Sacred Service Hours</h3>
+                    <h3>Clinic Hours</h3>
                     <p>Monday – Saturday: 9:00 AM – 7:00 PM<br>Sunday: 10:00 AM – 5:00 PM</p>
                 </div>
             </div>
             <div class="contact-card reveal">
                 <span class="contact-card__icon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
                 <div class="contact-card__body">
-                    <span class="contact-card__eyebrow">Shop & visits</span>
-                    <h3>Online Store</h3>
-                    <p>Products are available through the online shop. Contact us for product questions, order support, or temple guidance.</p>
+                    <span class="contact-card__eyebrow">Visit us</span>
+                    <h3>Clinic Location</h3>
+                    <p>Kaliyal, Kanyakumari, Tamil Nadu, India – 629101. Contact us for consultation bookings, program enquiries, or wellness guidance.</p>
                 </div>
             </div>
             <div class="contact-card contact-card--direct contact-direct-panel reveal">
                 <div class="contact-card__body">
                     <span class="contact-card__eyebrow">phone</span>
                     <div class="contact-direct-list">
-                        <a class="contact-direct-link" href="tel:+919789444037">
+                        <a class="contact-direct-link" href="tel:+917200182025">
                             <span class="contact-direct-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.1 19.1 0 0 1-5.9-5.9A19.7 19.7 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 5.9 5.9l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z"/></svg></span>
-                            <span>+91 97894 44037</span>
+                            <span>+91 72001 82025</span>
                         </a>
-                        <a class="contact-direct-link" href="tel:+919789444038">
+                        <a class="contact-direct-link" href="tel:+919585182025">
                             <span class="contact-direct-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.1 19.1 0 0 1-5.9-5.9A19.7 19.7 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 5.9 5.9l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z"/></svg></span>
-                            <span>+91 97894 44038</span>
+                            <span>+91 95851 82025</span>
                         </a>
                     </div>
                 </div>
@@ -82,9 +82,9 @@
             <div class="contact-card contact-card--direct contact-direct-panel reveal">
                 <div class="contact-card__body">
                     <span class="contact-card__eyebrow">email</span>
-                    <a class="contact-direct-link contact-direct-link--mail" href="mailto:support@sripanchamispiritual.com">
+                    <a class="contact-direct-link contact-direct-link--mail" href="mailto:nebolifestyleclinic@gmail.com">
                         <span class="contact-direct-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg></span>
-                        <span>support@sripanchamispiritual.com</span>
+                        <span>nebolifestyleclinic@gmail.com</span>
                     </a>
                 </div>
             </div>
