@@ -63,7 +63,7 @@
         status.dataset.pwaState=state;
         if(state==='installed'){
             title.textContent='App is installed';
-            copy.textContent='Sri Panchami Spiritual is already running as an installed app on this device.';
+            copy.textContent='Nebo Wellness is already running as an installed app on this device.';
             action.hidden=true; fallbackNote.hidden=true;
         }else if(state==='available'){
             title.textContent='Ready to install';
@@ -75,7 +75,7 @@
             action.hidden=true; fallbackNote.hidden=true;
         }else if(state==='ios'){
             title.textContent='Install from Safari';
-            copy.textContent='Tap Share, then Add to Home Screen to install Sri Panchami Spiritual on your device.';
+            copy.textContent='Tap Share, then Add to Home Screen to install Nebo Wellness on your device.';
             fallback();
         }else if(state==='no-service-worker'){
             title.textContent='Not available in this browser';
