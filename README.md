@@ -1,10 +1,10 @@
 ---
-title: Sri Panchami Spiritual Web Application
-description: PHP/MySQL storefront, consultation booking, blog, customer account, and owner administration for shared hosting.
+title: Nebo Wellness Web Application
+description: PHP/MySQL wellness clinic platform with consultation booking, blog, customer accounts, and admin panel for shared hosting.
 category: root
 ---
 
-# Sri Panchami Spiritual
+# Nebo Wellness
 
 PHP 8.2 web application for small PHP hosting with a `public_html` deployment. It uses
 server-rendered PHP templates, hosted MySQL as the primary runtime store, Markdown
