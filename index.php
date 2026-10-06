@@ -47,10 +47,9 @@ if ($uri === '/admin/manifest.json') {
         'scope' => '/admin/',
         'display' => 'standalone',
         'background_color' => '#222222',
-        'theme_color' => '#3a0003',
+        'theme_color' => '#4472C4',
         'icons' => [
-            ['src' => '/assets/images/logo-square.jpeg', 'sizes' => '192x192', 'type' => 'image/jpeg'],
-            ['src' => '/assets/images/logo.jpeg', 'sizes' => '512x512', 'type' => 'image/jpeg'],
+            ['src' => '/assets/images/nebo-symbol.png', 'sizes' => '1024x1024', 'type' => 'image/png'],
         ],
     ];
     header('Content-Type: application/json; charset=utf-8');
@@ -59,7 +58,7 @@ if ($uri === '/admin/manifest.json') {
     exit;
 }
 if ($uri === '/admin/sw.js') {
-    $cacheName = 'sps-cache-admin-v1';
+    $cacheName = 'nebo-cache-admin-v2';
     $precache = json_encode(['/admin', '/login']);
     header('Content-Type: application/javascript; charset=utf-8');
     header('Cache-Control: no-cache');

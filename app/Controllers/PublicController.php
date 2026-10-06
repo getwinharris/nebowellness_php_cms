@@ -6,14 +6,7 @@ final class PublicController extends BaseController {
     public function home(): void {
         $this->detectApiRequest();
         $this->seoKey = 'home';
-        $categories = (new CategoryService())->all();
-        $products = (new ProductService())->visible();
-        $temples = (new TempleService())->all();
-        $this->render('public/home', [
-            'products' => $products,
-            'temples' => $temples,
-            'categories' => $categories,
-        ]);
+        $this->render('public/home');
     }
     
     public function about(): void { 
@@ -23,9 +16,7 @@ final class PublicController extends BaseController {
     }
 
     public function spiritual(): void {
-        $this->detectApiRequest();
-        $this->seoKey = 'spiritual';
-        $this->render('public/spiritual');
+        $this->redirect('/about');
     }
     
     public function terms(): void { 
@@ -49,22 +40,11 @@ final class PublicController extends BaseController {
     }
     
     public function temples(): void { 
-        $this->detectApiRequest();
-        $this->seoKey = 'temples';
-        $this->render('public/temples', ['items' => (new TempleService())->all()]); 
+        $this->redirect('/about');
     }
     
     public function temple(string $slug): void { 
-        $this->detectApiRequest();
-        $temple = (new TempleService())->findBySlug($slug);
-        if (!$temple) $this->renderNotFound();
-        $this->seoKey = 'temple';
-        $this->seoOverrides = [
-            'title' => ($temple['name'] ?? 'Temple') . ' – Guide at Nebo Lifestyle Clinic',
-            'description' => 'Explore ' . ($temple['name'] ?? 'this temple') . ' with detailed guide including timings, address, location map, and available pooja services. ' . ($temple['description'] ?? ''),
-            'og_image' => $temple['image_url'] ?? '',
-        ];
-        $this->render('public/temple', ['slug' => $slug, 'temple' => $temple]); 
+        $this->redirect('/about');
     }
     
     public function shop(): void {
@@ -199,12 +179,12 @@ final class PublicController extends BaseController {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $base = $scheme . '://' . $host;
 
-        $pages = [
-            '/', '/about', '/temples', '/shop', '/contact', '/blog',
-            '/terms', '/privacy', '/spiritual',
-        ];
+        $pages = ['/', '/about', '/contact', '/blog', '/terms', '/privacy'];
+        if (module_on('shop')) $pages[] = '/shop';
         $products = [];
-        try { $products = (new ProductService())->visible(); } catch (\Throwable) {}
+        if (module_on('shop')) {
+            try { $products = (new ProductService())->visible(); } catch (\Throwable) {}
+        }
         $blogPosts = [];
         try { $blogPosts = (new BlogService())->all(); } catch (\Throwable) {}
 
@@ -283,7 +263,7 @@ final class PublicController extends BaseController {
     }
 
     public function docs(): void {
-        $this->redirect('/blog/category/help');
+        $this->redirect('/blog');
     }
 
     public function doc(string $slug): void {

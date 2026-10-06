@@ -6,6 +6,10 @@
             <p class="lede">A holistic wellness sanctuary dedicated to naturopathy, functional medicine, and lifestyle transformation. Serving individuals and families across Kanyakumari and South India with personalised integrative health solutions.</p>
         </div>
 
+        <figure class="nebo-about-photo">
+            <img src="/assets/images/nebo-garden.png" alt="Illustrative tropical garden and wellness setting" loading="eager">
+        </figure>
+
         <div class="about-story-grid">
             <div class="about-story-card reveal">
                 <h3>The Nebo Foundation</h3>

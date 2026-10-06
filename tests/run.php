@@ -252,11 +252,11 @@ $tests['knowledge index keeps type-qualified concepts collision-free'] = functio
         assertTrue(isset($concepts['skill:' . $name]), "Knowledge index should include skill:{$name}");
     }
     assertTrue(isset($concepts['route:get__shop']), 'Knowledge index should include type-qualified shop route');
-    assertTrue(isset($concepts['blog:create-account']), 'Knowledge index should include type-qualified blog');
-    $missingImage = $concepts['image:assets/images/og-image.jpg'] ?? null;
-    assertTrue(is_array($missingImage), 'Knowledge index should retain a concept for a referenced image');
-    assertTrue(($missingImage['usage_count'] ?? 0) >= 1, 'Referenced image concept should expose its usage count');
-    assertTrue(in_array('views/layouts/app.php', $missingImage['used_in'] ?? [], true), 'Referenced image should identify its referring layout');
+    assertTrue(isset($concepts['blog:your-first-nebo-consultation']), 'Knowledge index should include a type-qualified Nebo article');
+    $brandImage = $concepts['image:assets/images/nebo-clinic-hero.png'] ?? null;
+    assertTrue(is_array($brandImage), 'Knowledge index should include the Nebo editorial hero image');
+    assertTrue(($brandImage['usage_count'] ?? 0) >= 1, 'Referenced image concept should expose its usage count');
+    assertTrue(in_array('views/layouts/app.php', $brandImage['used_in'] ?? [], true), 'Referenced image should identify its referring layout');
 };
 
 $tests['local development router serves existing static files directly'] = function (): void {
@@ -314,7 +314,7 @@ $tests['shop supports plain vertical filters and multi category products'] = fun
 };
 
 $tests['public catalog card images are not lazy deferred'] = function (): void {
-    foreach (['views/public/home.php', 'views/public/shop.php', 'views/public/product.php', 'views/public/temples.php'] as $path) {
+    foreach (['views/public/home.php', 'views/public/shop.php', 'views/public/product.php'] as $path) {
         $view = file_get_contents(app_path($path));
         assertTrue(!preg_match('/product-card__image[\\s\\S]{0,240}<img[^>]+loading="lazy"/', $view), "{$path} should not lazy defer visible product card images");
         assertTrue(!preg_match('/temple-feature-card__media[\\s\\S]{0,320}<img[^>]+loading="lazy"/', $view), "{$path} should not lazy defer temple feature images");
@@ -500,7 +500,7 @@ $tests['about page uses focused responsive cards'] = function (): void {
 
 $tests['public pages expose shared general enquiry cta'] = function (): void {
     $css = file_get_contents(app_path('assets/css/band.css'));
-    foreach (['home', 'shop', 'temples', 'about'] as $page) {
+    foreach (['home', 'shop', 'about'] as $page) {
         $view = file_get_contents(app_path("views/public/{$page}.php"));
         assertTrue(str_contains($view, 'page-cta-card'), "{$page} should render the shared enquiry CTA card");
         assertTrue(str_contains($view, 'href="/contact'), "{$page} CTA should link to the general enquiry form");
@@ -1726,11 +1726,11 @@ $tests['repository operations use git and GitHub Actions without duplicate agent
 
 
     $branchPr = file_get_contents(app_path('.github/workflows/branch-pr.yml'));
-    assertTrue(str_contains($branchPr, "github.repository == 'bapxmediahub/bapXphpAiBackend'"), 'Automatic PR creation should run only in the deployment working repository');
+    assertTrue(str_contains($branchPr, "github.repository == 'getwinharris/nebowellness_php_cms'"), 'Automatic PR creation should run only in the deployment working repository');
     assertTrue(str_contains($branchPr, 'actions/create-github-app-token@v2') && str_contains($branchPr, 'error.status === 403'), 'Automatic PR creation should use the bapXai App when configured and explain disabled token permissions');
 
     $agents = file_get_contents(app_path('CLAUDE.md'));
-    assertTrue(str_contains($agents, '`bapxmediahub/bapXphpAiBackend` is the only working repository'), 'Agent contract should pin work to the deployment repository');
+    assertTrue(str_contains($agents, '`getwinharris/nebowellness_php_cms` is the only working repository'), 'Agent contract should pin work to the deployment repository');
     assertTrue(str_contains($agents, 'repository is independent and unforked'), 'Agent contract should record the independent repository state');
     assertTrue(str_contains($agents, 'Do not add an upstream remote'), 'Agent contract should prohibit stale fork synchronization');
 };
@@ -1787,16 +1787,16 @@ $tests['retired booking endpoint creates no new appointment'] = function (): voi
     }
 };
 
-$tests['customer help is a blog category with compatibility redirects'] = function (): void {
+$tests['legacy help URLs redirect into the Nebo journal'] = function (): void {
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
     routeExists('/help/{slug}', 'Help center should expose a hosting-safe guide detail route');
     assertTrue(str_contains(file_get_contents(app_path('index.php')), "'/help'"), 'Front controller should dispatch hosting-safe help routes into PHP');
-    assertTrue(str_contains($controller, "'/blog/category/help'") && str_contains($controller, "'/blog/' . \$slug"), 'Legacy docs routes should redirect to canonical blog help content');
-    assertTrue(str_contains(file_get_contents(app_path('content/blog/categories.yaml')), 'slug: help'), 'Blog categories should include Help');
+    assertTrue(str_contains($controller, "\$this->redirect('/blog');") && str_contains($controller, "'/blog/' . \$slug"), 'Legacy docs routes should redirect to the current journal');
+    $categories = file_get_contents(app_path('content/blog/categories.yaml'));
+    assertTrue(str_contains($categories, 'slug: wellness') && !str_contains($categories, 'slug: astrology') && !str_contains($categories, 'slug: spirituality'), 'Public blog taxonomy should contain wellness topics without legacy categories');
     assertTrue(!is_dir(app_path('content/docs')) || !(glob(app_path('content/docs/*.md')) ?: []), 'Separate customer docs Markdown files should be removed');
     foreach (['create-account', 'order-products', 'payments-and-orders'] as $slug) {
-        $post = file_get_contents(app_path("content/blog/posts/{$slug}.md"));
-        assertTrue(str_contains($post, 'category: help'), "Help post {$slug} should use the help category");
+        assertTrue(!is_file(app_path("content/blog/posts/{$slug}.md")), "Old store help post {$slug} should be removed");
     }
     assertTrue(!is_file(app_path('content/blog/posts/book-consultant.md')), 'Retired consultation help guide should be removed');
 };
@@ -1813,7 +1813,7 @@ $tests['blog uses an editorial index and readable markdown article surface'] = f
     assertTrue(str_contains($css, '.blog-post__content') && str_contains($css, 'line-height:1.78'), 'Article typography should use a constrained readable measure');
 };
 
-$tests['blog media uses one screenshot crop for cards and article pages'] = function (): void {
+$tests['Nebo articles share accessible card and article images'] = function (): void {
     $service = file_get_contents(app_path('app/Services/BlogService.php'));
     $admin = file_get_contents(app_path('views/admin/blog.php'));
     $index = file_get_contents(app_path('views/public/blog.php'));
@@ -1826,14 +1826,16 @@ $tests['blog media uses one screenshot crop for cards and article pages'] = func
     }
     assertTrue(str_contains($index, "\$post['og_image']") && str_contains($article, "\$meta['og_image']"), 'Card and article should share og_image');
     assertTrue(str_contains($article, "\$schemaImage ?: 'undefined'") && str_contains($article, 'e($sourceUrl)'), 'Article metadata should tolerate missing images and render the validated source URL');
-    foreach (['create-account', 'order-products', 'payments-and-orders'] as $slug) {
+    foreach (['your-first-nebo-consultation', 'sustainable-wellness-habits'] as $slug) {
         $post = file_get_contents(app_path("content/blog/posts/{$slug}.md"));
-        assertTrue(str_contains($post, "\nsummary:") && str_contains($post, "\norder:"), "Help post {$slug} should retain summary and order metadata");
-        assertTrue(str_contains($post, "\nimage_alt: Loaded "), "Help post {$slug} should describe a fully loaded browser capture");
-        $image = app_path("assets/images/blog/{$slug}.webp");
+        assertTrue(str_contains($post, "\nsummary:") && str_contains($post, "\ncategory: wellness"), "Nebo article {$slug} should retain summary and wellness category");
+        assertTrue(str_contains($post, "\nimage_alt: Illustrative "), "Nebo article {$slug} should describe illustrative imagery accurately");
+        preg_match('/^og_image: (.+)$/m', $post, $imageMatch);
+        assertTrue(isset($imageMatch[1]), "Nebo article {$slug} should reference a card and article image");
+        $image = app_path(ltrim((string)($imageMatch[1] ?? ''), '/'));
         $size = getimagesize($image);
-        assertTrue(is_array($size) && $size[0] === 1200 && $size[1] === 675, "Help post {$slug} should use a verified 1200x675 image");
-        assertTrue(filesize($image) > 20000, "Help post {$slug} screenshot should contain rendered page detail");
+        assertTrue(is_array($size) && $size[0] >= 1200 && $size[1] >= 675, "Nebo article {$slug} should use a readable landscape image");
+        assertTrue(filesize($image) > 20000, "Nebo article {$slug} image should contain rendered detail");
     }
     assertTrue(str_contains($cli, 'blog:image') && str_contains($crop, '--dry-run'), 'CLI should expose safe blog screenshot cropping');
     assertTrue(str_contains($crop, '$targetWidth = 1200') && str_contains($crop, '$targetHeight = 675'), 'Blog screenshot crop should be stable 16:9');

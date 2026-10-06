@@ -1,7 +1,7 @@
 <section class="blog-page blog-editorial">
   <div class="container">
     <header class="blog-editorial__header">
-      <span class="eyebrow serif-accent">Ideas, rituals and guidance</span>
+      <span class="eyebrow serif-accent">Ideas for healthier living</span>
       <h1 class="page-title"><?= e($categoryName ?? 'Nebo Wellness Journal') ?></h1>
       <p>Health insights, wellness guidance, and thoughtful updates from our naturopathy team.</p>
     </header>
@@ -20,12 +20,12 @@
 
     <?php if (empty($posts)): ?>
       <div class="empty-state">
-        <p>No blog posts yet. Check back soon for updates, features, and spiritual insights.</p>
+        <p>No articles yet. Check back soon for practical wellness guidance and clinic updates.</p>
       </div>
     <?php else: ?>
       <div class="blog-grid">
         <?php foreach ($posts as $index => $post): ?>
-          <?php $postImage = $post['image'] ?? $post['og_image'] ?? ($index === 0 ? '/assets/images/hero-temple-bg.webp' : '/assets/images/og-image.jpg'); ?>
+          <?php $postImage = $post['image'] ?? $post['og_image'] ?? '/assets/images/nebo-programs.png'; ?>
           <article class="blog-card <?= $index === 0 ? 'blog-card--featured' : '' ?>">
             <a class="blog-card__media" href="/blog/<?= e($post['slug'] ?? '') ?>" aria-label="Read <?= e($post['title'] ?? 'article') ?>">
               <img class="blog-card__image" src="<?= e($postImage) ?>" alt="<?= e($post['image_alt'] ?? '') ?>" loading="<?= $index === 0 ? 'eager' : 'lazy' ?>">

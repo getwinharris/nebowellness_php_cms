@@ -11,8 +11,14 @@
 <?php
 $__settings = (new \App\Services\SettingsService())->public();
 $__modules = (new \App\Services\SettingsService())->modules();
-$__logo = $__settings['logo_url'] ?? '/assets/images/logo-small.jpeg';
-$__favicon = $__settings['favicon_url'] ?? '/assets/images/nebo-favicon.png';
+$__logo = (string)($__settings['logo_url'] ?? '');
+if ($__logo === '' || str_contains(strtolower($__logo), 'logo-small.jpeg') || str_contains(strtolower($__logo), 'sripanchami')) {
+    $__logo = '/assets/images/nebo-symbol.png';
+}
+$__favicon = (string)($__settings['favicon_url'] ?? '');
+if ($__favicon === '' || str_contains(strtolower($__favicon), 'sps-') || str_contains(strtolower($__favicon), 'sripanchami')) {
+    $__favicon = '/assets/images/nebo-symbol.png';
+}
 $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png';
 ?>
 <link rel="icon" type="<?= e($__faviconMime) ?>" href="<?= e($__favicon) ?>">
@@ -21,21 +27,21 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nebo Lifestyle Clinic">
-<link rel="apple-touch-icon" href="/assets/images/logo-square.jpeg">
+<link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
 <link rel="canonical" href="https://<?= e($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
 <meta property="og:type" content="<?= e($seo['og_type'] ?? 'website') ?>">
 <meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>">
 <meta property="og:title" content="<?= e($seo['og_title'] ?? $pageTitle) ?>">
 <meta property="og:description" content="<?= e($seo['og_description'] ?? $metaDescription) ?>">
 <meta property="og:url" content="<?= e($seo['og_url'] ?? 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
-<meta property="og:image" content="<?= e($seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/og-image.jpg') ?>">
+<meta property="og:image" content="<?= e($seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.png') ?>">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= e($seo['twitter_title'] ?? $seo['og_title'] ?? $pageTitle) ?>">
 <meta name="twitter:description" content="<?= e($seo['twitter_description'] ?? $seo['og_description'] ?? $metaDescription) ?>">
-<meta name="twitter:image" content="<?= e($seo['twitter_image'] ?? $seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/og-image.jpg') ?>">
+<meta name="twitter:image" content="<?= e($seo['twitter_image'] ?? $seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.png') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -480,7 +486,7 @@ var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if
 document.querySelectorAll('.reveal,.panel,.product-card,.astrologer-card').forEach(function(el){io.observe(el);});
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
 function supportEscape(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
-function supportReplyHtml(value){var safe=supportEscape(value);var allowed=/\/(?:shop|cart|checkout|temples|contact|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=$|[\s.,)])/g;return safe.replace(allowed,function(path){return '<a class="support-action" href="'+path+'">Open '+supportEscape(path.replace(/^\//,'').replace(/[-/]/g,' '))+'</a>';});}
+function supportReplyHtml(value){var safe=supportEscape(value);var allowed=/\/(?:#programs|shop|cart|checkout|contact|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=$|[\s.,)])/g;return safe.replace(allowed,function(path){return '<a class="support-action" href="'+path+'">Open '+supportEscape(path.replace(/^\//,'').replace(/[-/]/g,' '))+'</a>';});}
 function supportActionsHtml(actions){if(!actions||!actions.length)return'';var h='<div class="support-actions">';for(var i=0;i<actions.length;i++){var a=actions[i];if(a.type==='navigate'&&a.path){h+='<a class="btn btn-sm btn-outline support-action-btn" href="'+supportEscape(a.path)+'">'+supportEscape(a.label)+'</a>';}}return h+'</div>';}
 function supportToggle(open){if(!supportPanel||!supportFab)return;supportPanel.hidden=!open;supportFab.setAttribute('aria-expanded',open?'true':'false');}
 function supportSaveLog(){try{if(!supportPanel||!supportLog)return;sessionStorage.setItem(supportPanel.dataset.supportKey,supportLog.innerHTML);}catch(e){}}

@@ -204,14 +204,14 @@ final class SupportBotService {
             return $reply;
         }
         if (preg_match('/\b(hi|hello|hey|vanakkam|namaste)\b/i', $message)) {
-            return 'Hello. I can help you browse spiritual products at /shop, place an order, or explore temples at /temples.';
+            return 'Hello. I can help you explore Nebo wellness programs, read clinic articles at /blog, or contact the team at /contact.';
         }
         if (preg_match('/\b(deliver\w*|shipping|ship|courier|dispatch)\b/i', $message)) {
             return 'Delivery is calculated at checkout. Add items to your cart, go to /checkout and enter your address to see the exact shipping charge before paying. Track confirmed orders at /account/dashboard/orders.';
         }
-        if (preg_match('/\b(products?|available|shop|buy|price|items?|pendants?|rings?|jewelry|jewellery)\b/i', $message)) {
+        if (module_on('shop') && preg_match('/\b(products?|available|shop|buy|price|items?)\b/i', $message)) {
             $names = array_filter(array_map(fn($p) => trim((string)($p['name'] ?? '')), $products));
-            $list = $names ? implode(', ', $names) : 'sacred emblems and spiritual jewelry';
+            $list = $names ? implode(', ', $names) : 'the current catalogue';
             $productLinks = '';
             foreach (array_slice($products, 0, 3) as $p) {
                 $slug = $p['slug'] ?? '';
@@ -219,23 +219,22 @@ final class SupportBotService {
             }
             return 'Available products include ' . $list . '. Browse all at /shop' . $productLinks . '. To buy: go to /shop, click a product, add to cart, then proceed to /checkout to pay with card or UPI.';
         }
-        if (preg_match('/\b(services?|consult\w*|bookings?|book|astrology|call|message|temples?)\b/i', $message)) {
-            return 'For temple guidance visit /temples, or send us a general enquiry at /contact.';
+        if (preg_match('/\b(services?|programs?|consult\w*|bookings?|book|gut|metabolic|fertility|maternal|lifestyle|call|message)\b/i', $message)) {
+            return 'Nebo offers gut health, metabolic wellness, fertility and maternal support, and lifestyle programs. Explore /#programs and contact the clinic at /contact to discuss what fits your goals.';
         }
         if (preg_match('/\b(recharge|wallet|credit|payment)\b/i', $message)) {
             return 'Product payments are completed securely during checkout at /checkout. You can pay with card or UPI. Sign in to reuse saved delivery addresses and view confirmed orders at /account/dashboard/orders.';
         }
-        // Articles are matched before the generic branches: "articles about pooja" was
-        // falling through to the menu even though the posts were already in context.
+        // Match published articles before the generic help branch.
         $article = $this->matchArticle($message, $context);
         if ($article !== null) {
             $summary = $article['summary'] !== '' ? ' ' . rtrim($article['summary'], '.') . '.' : '';
             return 'We have an article on that: "' . $article['title'] . '".' . $summary . ' Read it at ' . $article['url'] . ', or browse everything at /blog.';
         }
         if (preg_match('/\b(how|step|guide|help|documentation|docs)\b/i', $message)) {
-            return "I can help with:\n- Browsing products at /shop\n- Your orders at /account/dashboard/orders\n- Contact us at /contact\nWhat would you like to know more about?";
+            return "I can help with:\n- Nebo programs at /#programs\n- Wellness articles at /blog\n- Contacting the clinic at /contact\nWhat would you like to know more about?";
         }
-        return 'I can help with products at /shop, temples at /temples, and orders at /account/dashboard/orders. What would you like help with?';
+        return 'I can help with Nebo programs at /#programs, wellness articles at /blog, and contacting the clinic at /contact. What would you like to know more about?';
     }
 
     /**
@@ -298,7 +297,7 @@ final class SupportBotService {
     }
 
     private function extractActions(string $reply): array {
-        preg_match_all('/\/(?:shop|cart|checkout|temples|contact|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
+        preg_match_all('/\/(?:#programs|shop|cart|checkout|contact|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
         $seen = [];
         $actions = [];
         foreach ($matches[0] as $path) {
@@ -310,7 +309,7 @@ final class SupportBotService {
                 $path === '/cart' => 'View Cart',
                 $path === '/checkout' => 'Go to Checkout',
                 $path === '/contact' => 'Contact Us',
-                $path === '/temples' => 'View Temples',
+                $path === '/#programs' => 'Explore Programs',
                 $path === '/blog' => 'Read Blog',
                 default => 'Open ' . trim(preg_replace('/^\/+/', '', str_replace(['-', '/'], ' ', $path)))
             };

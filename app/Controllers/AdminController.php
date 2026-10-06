@@ -449,7 +449,7 @@ final class AdminController extends BaseController {
         try {
             $mailer->send(
                 $to,
-                'Test email from Sri Panchami Spiritual',
+                'Test email from Nebo Lifestyle Clinic',
                 '<p>This is a test message sent from Admin &rarr; Integrations.</p>'
                 . '<p>Transport: <strong>' . e($transport) . '</strong><br>From: <strong>' . e($mailer->fromEmail()) . '</strong><br>Sent: ' . e($sentAt) . '</p>'
                 . '<p>If you received this, transactional email is working.</p>'
@@ -592,7 +592,7 @@ final class AdminController extends BaseController {
         $title = trim((string)($_POST['title'] ?? ''));
         if ($title === '') { $this->jsonResponse(['error' => 'Enter a title first.'], 400); return; }
         $result = $this->askModel(
-            "Rewrite this blog headline for a Tamil spiritual products and astrology site. "
+            "Rewrite this blog headline for Nebo Lifestyle Clinic, a naturopathy and functional medicine clinic. "
             . "Return ONE headline only, plain text, no quotes, no markdown, under 70 characters.\n\nHeadline: " . $title
         );
         if ($result === null) { $this->jsonResponse(['error' => 'No AI API key is configured. Set ai_api_key in Admin → Integrations.'], 400); return; }

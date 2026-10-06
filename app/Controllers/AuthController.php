@@ -41,7 +41,7 @@ final class AuthController extends BaseController {
  }
  private function redirectUri(): string {
    $configured = trim((string)($_ENV['APP_URL'] ?? getenv('APP_URL') ?? ''));
-   $base = $configured !== '' ? $configured : 'https://sripanchamispiritual.com';
+   $base = $configured !== '' ? $configured : 'https://nebowellness.com';
    return rtrim($base, '/') . '/auth/google/callback';
  }
  private function post(string $url,array $data): array { $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query($data),CURLOPT_TIMEOUT=>10]); $body=curl_exec($ch); curl_close($ch); return json_decode($body,true)?:[]; }
@@ -80,7 +80,7 @@ final class AuthController extends BaseController {
     session_regenerate_id(true);
     $_SESSION['user'] = ['sub'=>$id,'email'=>$email,'name'=>$name,'role'=>$role];
     try {
-        (new MailQueueService())->enqueue('welcome', $email, 'Welcome to Sri Panchami Spiritual',
+        (new MailQueueService())->enqueue('welcome', $email, 'Welcome to Nebo Lifestyle Clinic',
             '<p>Hello ' . e($name) . ',</p><p>Your account is ready. You can view orders and saved addresses in your dashboard.</p>'
             . \App\Services\MailQueueService::button('Open your dashboard', $this->siteUrl('/account/dashboard')));
     } catch (\Throwable) {}
@@ -139,7 +139,7 @@ final class AuthController extends BaseController {
             // working reset for an address they do not control.
             $link = $this->siteUrl('/reset-password?token=' . urlencode($token));
             try {
-                (new MailQueueService())->enqueue('password_reset', $email, 'Reset your Sri Panchami Spiritual password',
+                (new MailQueueService())->enqueue('password_reset', $email, 'Reset your Nebo Lifestyle Clinic password',
                     '<p>We received a request to reset your password.</p>'
                     . \App\Services\MailQueueService::button('Reset your password', $link)
                     . '<p>If you did not request this, you can ignore this email.</p>');
@@ -172,10 +172,10 @@ final class AuthController extends BaseController {
         if ($resetEmail !== '' && filter_var($resetEmail, FILTER_VALIDATE_EMAIL)) {
             try {
                 (new MailQueueService())->enqueue('password_changed', $resetEmail,
-                    'Your Sri Panchami Spiritual password was changed',
+                    'Your Nebo Lifestyle Clinic password was changed',
                     '<p>Your account password was just changed.</p>'
                     . '<p>If this was not you, contact us immediately at '
-                    . '<a href="mailto:support@sripanchamispiritual.com">support@sripanchamispiritual.com</a>.</p>');
+                    . '<a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a>.</p>');
             } catch (\Throwable $e) { error_log('Password change mail failed: ' . $e->getMessage()); }
         }
         $this->flash('Password updated. Please sign in.','success');

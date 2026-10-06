@@ -36,7 +36,7 @@ final class MailQueueService {
         $siteName = 'Nebo Wellness';
         $siteUrl = rtrim($this->siteUrl('/'), '/');
         $logoUrl = trim((string)($settings['logo_url'] ?? ''));
-        if ($logoUrl === '') $logoUrl = $siteUrl . '/assets/images/logo-square.jpeg';
+        if ($logoUrl === '' || str_contains(strtolower($logoUrl), 'logo-square.jpeg') || str_contains(strtolower($logoUrl), 'sripanchami')) $logoUrl = $siteUrl . '/assets/images/nebo-logo.jpg';
         if (str_starts_with($logoUrl, '/')) $logoUrl = $siteUrl . $logoUrl;
 
         $legal = [];
@@ -314,7 +314,7 @@ final class MailQueueService {
             '<p>Hello ' . e($name !== '' ? $name : 'there') . ',</p>'
             . '<p>Your account was signed in to on <strong>' . e($when) . '</strong> (IP ' . e($ip) . ').</p>'
             . '<p>If this was you, no action is needed. If it was not, change your password immediately '
-            . 'and contact <a href="mailto:support@sripanchamispiritual.com">support@sripanchamispiritual.com</a>.</p>',
+            . 'and contact <a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a>.</p>',
             null, ['role' => $role]);
     }
 
@@ -348,7 +348,7 @@ final class MailQueueService {
     public function enqueueShipmentNotification(array $order): ?array {
         $to = trim((string)($order['customer_email'] ?? ''));
         if ($to === '') return null;
-        $subject = 'Sri Panchami Spiritual order shipped';
+        $subject = 'Your Nebo Lifestyle Clinic order has shipped';
         $trackingId = trim((string)($order['tracking_id'] ?? ''));
         $trackingUrl = trim((string)($order['tracking_url'] ?? ''));
         $courier = trim((string)($order['courier_name'] ?? ''));
@@ -379,7 +379,7 @@ final class MailQueueService {
         if ($to === '') return null;
         $shippedAt = new \DateTimeImmutable((string)($order['shipped_at'] ?? 'now'));
         $availableAt = $shippedAt->modify('+' . max(1, $waitDays) . ' days');
-        $subject = 'How was your Sri Panchami Spiritual product?';
+        $subject = 'How was your Nebo Lifestyle Clinic product?';
         $html = '<p>We hope your order ' . e((string)($order['id'] ?? '')) . ' reached you well.</p>'
             . '<p>Please share your product rating from your account orders page.</p>';
         return $this->enqueue('product_review_request', $to, $subject, $html, $availableAt, ['order_id' => $order['id'] ?? '']);

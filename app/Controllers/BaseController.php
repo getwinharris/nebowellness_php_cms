@@ -20,7 +20,7 @@ abstract class BaseController {
         $base = rtrim((string)($config['app_url'] ?? ''), '/');
         if ($base === '') {
             $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host = (string)($_SERVER['HTTP_HOST'] ?? 'sripanchamispiritual.com');
+            $host = (string)($_SERVER['HTTP_HOST'] ?? 'nebowellness.com');
             $base = $scheme . '://' . $host;
         }
         return $base . '/' . ltrim($path, '/');

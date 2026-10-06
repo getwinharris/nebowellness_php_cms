@@ -11,11 +11,11 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="/admin/manifest.json">
-<meta name="theme-color" content="#3a0003">
+<meta name="theme-color" content="#4472C4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SPS Admin">
-<link rel="apple-touch-icon" href="/assets/images/logo-square.jpeg">
+<meta name="apple-mobile-web-app-title" content="Nebo Admin">
+<link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__.'/../../assets/css/band.css') ?>">
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__.'/../../assets/agent-status.js') ?>" defer></script>
 <style>

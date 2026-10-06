@@ -9,7 +9,10 @@ final class SeoService {
     public function __construct(array $secrets = []) {
         $envName = getenv('APP_NAME') ?: 'Nebo Wellness';
         $this->siteName = $secrets['seo_site_name'] ?? $envName;
-        $this->defaultOgImage = $secrets['seo_default_og_image'] ?? 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . '/assets/images/og-image.jpg';
+        $configuredOgImage = (string)($secrets['seo_default_og_image'] ?? '');
+        $this->defaultOgImage = $configuredOgImage !== '' && !str_contains(strtolower($configuredOgImage), 'sripanchami')
+            ? $configuredOgImage
+            : 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . '/assets/images/nebo-clinic-hero.png';
         $this->twitterHandle = $secrets['seo_twitter_handle'] ?? '';
         $phone = $secrets['phone'] ?? getenv('CONTACT_PHONE') ?: '';
         $this->telephone = $phone !== '' ? [$phone] : ['+917200182025', '+919585182025'];

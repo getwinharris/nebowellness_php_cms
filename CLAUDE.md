@@ -6,7 +6,7 @@ contract for non-Claude tooling; if the two ever disagree, this file wins and
 
 ## Repository
 
-- `bapxmediahub/bapXphpAiBackend` is the only working repository and the Hostinger
+- `getwinharris/nebowellness_php_cms` is the only working repository and the Hostinger
   deployment source. Issues, branches, PRs and releases all live there.
 - The repository is independent and unforked. Do not add an upstream remote or
   synchronise from any other copy.

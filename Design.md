@@ -143,7 +143,7 @@ Keep the existing PHP templates, routes, forms, and hosted MySQL-backed behavior
 - Responsive breakpoints: mobile below `744px` (one column, compact header, bottom nav), tablet `744-1128px` (reduced grid columns, same card geometry), desktop above `1128px` (centered container, `64px` section spacing).
 - Text, buttons, images, and fixed controls must not overlap or reflow awkwardly as content length changes.
 - Do not scale typography with viewport width. Use explicit breakpoint sizes so headings remain predictable and do not dominate short mobile screens.
-- The first viewport must show the product's primary action and a hint of the next section. Home and shop lead to products; account pages lead to the user's current task.
+- The first viewport must show the clinic's primary consultation action and a hint of the next section. Shop pages lead to products when enabled; account pages lead to the user's current task.
 - Page sections are unframed full-width bands. Cards are reserved for repeated entities, forms, summaries, and genuinely bounded tools. Never place a card inside another decorative card.
 - Desktop operational screens use compact density and stable columns. Mobile screens use one clear column with 16px page gutters and no horizontal scrolling.
 
@@ -157,7 +157,7 @@ Four shadow steps exist (`--shadow-sm/md/lg/xl` in `band.css`), each with exactl
 |---|---|
 | `sm` | Resting state for cards and inputs |
 | `md` | Raised buttons; hovered product cards |
-| `lg` | Hovered astrologer cards and feature/value cards |
+| `lg` | Hovered consultant cards and feature/value cards |
 | `xl` | Modals, drawers, popovers only |
 
 Rules:
@@ -183,9 +183,9 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 ## Components
 
 - **Header:** warm-neutral (`rgba(250,247,240,0.98)`), ~`80px` tall, non-sticky, hairline bottom border, compact logo, centered primary nav with blue active state, right-aligned account/cart actions.
-- **Hero (SHA-inspired):** Clean, centered headline with professional subtext over a blue-to-green gradient band. Use real wellness imagery when available. Primary action prominently displayed. Desktop text is center-aligned. Mobile uses one column with compact image and clear CTA.
+- **Home hero (editorial):** Use `nebo-clinic-hero.png` as a full-width photo with a dark blue text scrim. Left-align the headline and consultation action; keep the people and clinic setting visible at the right. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff.
 - **Program Cards (SHA-style):** White cards (`16px` radius), generous padding (`32px`), clear program name as heading, brief description, key benefits as bullets, prominent CTA. Use 3-column desktop / 2 tablet / 1 mobile grid with equal heights.
-- **Statistics Section (SHA-inspired):** Display measurable outcomes and proof points (e.g., "95% client satisfaction", "12 years experience"). Use large numbers with descriptive labels. Clean 4-column desktop / 2 mobile layout on subtle background.
+- **Proof points:** Display measured outcomes only when Nebo can substantiate the numbers and define the measurement period and source. Otherwise use concrete service details without invented percentages.
 - **Team/Consultant Cards (SHA-style):** Professional photo, name, credentials (MD, BNYS, etc.), specialization, experience. White cards with `16px` radius. Include brief bio and "Book Consultation" CTA. Equal-height grid layout.
 - **Testimonial Cards:** Client quote, name, location/condition treated. Use subtle card styling with quotation marks. Include credibility markers. Carousel or grid layout.
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
@@ -201,7 +201,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Cart quantity:** provide `−` and `+` controls beside every product, update line totals and the cart count, and remove the line when decreased to zero. Repeated additions of the same product merge into one line. Distinguish selecting a quantity to add from editing the quantity already in the cart.
 - **Commerce responsiveness:** use `minmax(0, 1fr)` for purchase-button columns, wrap quantity labels when space is tight, and keep keyboard focus visible. Verify home, shop, product and cart at 375px and desktop in the built-in Browser. Do not shrink purchase controls to 30px to force them onto one row.
 - **Consultant cards (`card-consultant`):** white, `8px` radius, face-forward portrait, name, speciality, language/experience metadata, review summary when present, and one clear profile/booking action. Every card uses equal media and content tracks so rows align.
-- **Hero:** wellness-program-first offer over a blue-to-green gradient band. The primary action opens the contact booking form. Public consultation booking is retired. Desktop text is center aligned. Mobile uses one column, a compact image, and must reveal the next content band without requiring a full-screen scroll.
+- **Section rhythm:** Alternate an image-led introduction, clean focus-area cards, a three-column why-Nebo band, and five program cards. About uses a wide tropical-garden image before the story cards. Generated images are illustrative and never presented as actual Nebo staff, premises, or clinical outcomes. The primary action opens the contact form.
 - **Authentication:** login and registration are task pages, not marketing pages. Use a centered form surface, suppress the public footer, and keep the complete form visible on common mobile heights.
 - **Product details:** keep the short introduction, feature bullets, detailed description, and labelled specification rows in separate readable sections. Admin-created products use the same fields and layout as existing products; never paste table markup into a plain-text description. Omit empty sections instead of fabricating claims.
 - **Account:** use a persistent internal menu and one unframed content region. Orders, addresses, and installation are tasks, not promotional cards.
@@ -212,7 +212,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **AI request status (both chat surfaces):** immediately show a keyboard-operable, collapsible Thinking… row and elapsed seconds while waiting. Expanded content reports request status only, never raw model reasoning or simulated stages. Use the shared white/blue component, 44px summary targets, tabular time digits, and an indeterminate progress control. Respect reduced motion, prevent duplicate submits, restore the composer on every completion path, and retain a collapsed Response ready or Request failed record beside the answer. Timing includes network/server time and must not imply model success or accuracy.
 - **Waiting and loading:** only show a loading state while a real request is pending. Keep the user's submitted message visible; do not replace real catalog content with decorative skeletons. Errors and fallbacks must remain distinguishable from successful model responses in monitoring.
 - **Value-proposition cards:** 4-column desktop / 2 tablet / 1 mobile, white card, warm icon circle, `accent-italic` heading, muted body, `4px` hover lift into `shadow-lg`.
-- **Footer:** white background, soft border, warm-brown headings, muted body, bottom bar with copyright + credit.
+- **Footer:** deep Nebo blue background with green headings, clear clinic links, direct contact details, and a copyright bar. The footer must not expose Spirituality, Astrology, or retired devotional routes.
 - **Documents and guides:** Markdown-backed pages use the same warm canvas and a constrained reading column. The page header is centered and quiet; the content surface is white with a single soft border, 14px-20px radius, and `shadow-sm`. Use blue `h2` headings, muted body text at 1.6-1.7 line-height, generous section spacing, and green only for eyebrows, links, and small metadata. Documentation indexes use a two-column desktop grid and one-column mobile layout with clear titles, summaries, and a visible `Read guide` action. Do not render legal or customer documentation as long unstructured text or nested cards.
 
 ## Do's and Don'ts

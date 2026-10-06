@@ -6,7 +6,7 @@
         "routes": 112,
         "controllers": 12,
         "services": 48,
-        "views": 44,
+        "views": 41,
         "collections": 22
     },
     "routes": [
@@ -16,11 +16,7 @@
             "name": "home",
             "controller": "PublicController@home",
             "view": "public/home",
-            "services": [
-                "ProductService",
-                "TempleService",
-                "CategoryService"
-            ]
+            "services": []
         },
         {
             "method": "GET",
@@ -781,9 +777,7 @@
             "name": "api.temples",
             "controller": "ApiController@temples",
             "view": "public/404",
-            "services": [
-                "TempleService"
-            ]
+            "services": []
         },
         {
             "method": "GET",
@@ -1170,7 +1164,7 @@
             "path": "/spiritual",
             "name": "spiritual.short",
             "controller": "PublicController@spiritual",
-            "view": "public/spiritual",
+            "view": "public/about",
             "services": []
         },
         {
@@ -1178,7 +1172,7 @@
             "path": "/sri-panchami-spiritual",
             "name": "spiritual",
             "controller": "PublicController@spiritual",
-            "view": "public/spiritual",
+            "view": "public/about",
             "services": []
         },
         {
@@ -1211,20 +1205,16 @@
             "path": "/temples",
             "name": "temples",
             "controller": "PublicController@temples",
-            "view": "public/temples",
-            "services": [
-                "TempleService"
-            ]
+            "view": "public/about",
+            "services": []
         },
         {
             "method": "GET",
             "path": "/temples/{slug}",
             "name": "temple.show",
             "controller": "PublicController@temple",
-            "view": "public/temple",
-            "services": [
-                "TempleService"
-            ]
+            "view": "public/about",
+            "services": []
         },
         {
             "method": "GET",
@@ -1353,10 +1343,7 @@
         "public/reset-password",
         "public/shop",
         "public/sitemap",
-        "public/spiritual",
         "public/support",
-        "public/temple",
-        "public/temples",
         "public/terms"
     ],
     "collections": [

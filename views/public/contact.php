@@ -1,4 +1,4 @@
-<section class="section">
+<section class="section nebo-contact-page">
     <div class="container container--narrow">
         <div style="text-align:center; margin-bottom:var(--space-2xl);">
             <span class="eyebrow serif-accent">Contact</span>

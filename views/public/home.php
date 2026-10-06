@@ -1,4 +1,4 @@
-<section class="home-hero">
+<section class="home-hero nebo-home-hero">
     <div class="container home-hero-inner">
         <div class="hero-copy">
             <span class="eyebrow">Integrative Health · Natural Healing · Lifestyle Medicine</span>
@@ -13,8 +13,9 @@
 </section>
 
 <!-- About Nebo Foundation -->
-<section class="section section--alt">
+<section class="section section--alt nebo-intro-section">
     <div class="container">
+        <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.png" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
         <div class="section-header">
             <span class="eyebrow serif-accent">About Us</span>
             <h2 class="section-title">The Nebo Foundation</h2>
@@ -176,7 +177,7 @@
             <span class="eyebrow serif-accent">Success Stories</span>
             <h2 class="section-title">What Our Clients Say</h2>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(400px,1fr)); gap:var(--space-xl); max-width:1000px; margin:0 auto;">
+        <div class="nebo-testimonials">
             <article class="value-card reveal" style="padding:var(--space-xl);">
                 <p style="font-style:italic; font-size:1.1rem; line-height:1.7; margin-bottom:var(--space-md);">"After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again."</p>
                 <p style="font-weight:600; color:var(--color-primary);">— Priya S., Bengaluru</p>
