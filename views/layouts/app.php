@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="format-detection" content="telephone=no">
 <title><?= e($pageTitle ?? 'Nebo Lifestyle Clinic') ?></title>
-<parameter name="description" content="<?= e($metaDescription ?? 'Naturopathy, functional medicine, and integrative wellness solutions for sustainable health transformation.') ?>">
+<meta name="description" content="<?= e($metaDescription ?? 'Naturopathy, functional medicine, and integrative wellness solutions for sustainable health transformation.') ?>">
 <meta name="robots" content="<?= e($metaRobots ?? 'index, follow') ?>">
 <?php $__seoKeywords = $seo['keywords'] ?? ''; if ($__seoKeywords !== ''): ?><meta name="keywords" content="<?= e($__seoKeywords) ?>"><?php endif; ?>
 <?php
@@ -28,15 +28,13 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nebo Lifestyle Clinic">
 <link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
-<link rel="canonical" href="https://<?= e($_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
+<link rel="canonical" href="<?= e($seo['canonical'] ?? 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/')) ?>">
 <meta property="og:type" content="<?= e($seo['og_type'] ?? 'website') ?>">
 <meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>">
 <meta property="og:title" content="<?= e($seo['og_title'] ?? $pageTitle) ?>">
 <meta property="og:description" content="<?= e($seo['og_description'] ?? $metaDescription) ?>">
 <meta property="og:url" content="<?= e($seo['og_url'] ?? 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
 <meta property="og:image" content="<?= e($seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.png') ?>">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= e($seo['twitter_title'] ?? $seo['og_title'] ?? $pageTitle) ?>">
@@ -50,13 +48,13 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <?php
 // Inline critical CSS for instant first paint — header, nav, hero, product cards, mobile nav
 $critical = '
-:root{--color-ink:#222222;--color-ink-light:#3f3f3f;--color-gold:#70AD47;--color-gold-light:#e7f2df;--color-gold-dark:#55853a;--color-maroon:#4472C4;--color-maroon-deep:#2f5aa8;--color-accent:#70AD47;--color-accent-light:#8cc069;--color-bg:#faf7f0;--color-bg-alt:#f7f0e4;--color-bg-warm:#f6ede4;--color-border:#d8ccb7;--color-border-light:#eadfcd;--color-text-muted:#6a6259;--color-white:#ffffff;--color-success:#2d8a4e;--color-error:#d64045;--color-rating:#d68641;--font-display:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-serif:Georgia,"Times New Roman",serif;--font-accent:"Playfair Display",Georgia,serif;--shadow-sm:0 1px 2px rgba(0,0,0,0.08);--shadow-md:0 2px 8px rgba(0,0,0,0.12);--shadow-lg:0 2px 8px rgba(0,0,0,0.12);--radius-md:8px;--radius-lg:8px;--radius-xl:8px;--radius-pill:999px;--space-xs:0.5rem;--space-sm:0.75rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem}
+:root{--color-ink:#222222;--color-ink-light:#3f3f3f;--color-gold:#70AD47;--color-gold-light:#e7f2df;--color-gold-dark:#55853a;--color-maroon:#4472C4;--color-maroon-deep:#2f5aa8;--color-accent:#70AD47;--color-accent-light:#8cc069;--color-bg:#f7f9fa;--color-bg-alt:#eef2f4;--color-bg-warm:#edf3f6;--color-border:#d7e1e6;--color-border-light:#e6ecef;--color-text-muted:#5b6872;--color-white:#ffffff;--color-success:#2d8a4e;--color-error:#d64045;--color-rating:#d68641;--font-display:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-serif:Georgia,"Times New Roman",serif;--font-accent:"Playfair Display",Georgia,serif;--shadow-sm:0 1px 2px rgba(0,0,0,0.08);--shadow-md:0 2px 8px rgba(0,0,0,0.12);--shadow-lg:0 2px 8px rgba(0,0,0,0.12);--radius-md:8px;--radius-lg:8px;--radius-xl:8px;--radius-pill:999px;--space-xs:0.5rem;--space-sm:0.75rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem}
 *,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
 html{scroll-behavior:smooth}
 body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--color-bg);color:var(--color-ink);line-height:1.55;overflow-x:hidden}
 a{color:var(--color-maroon);text-decoration:none}
 img{max-width:100%;height:auto;display:block}
-.site-header{position:relative;top:auto;z-index:100;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--space-lg);min-height:80px;padding:12px 24px;background:rgba(250,247,240,0.98);border-bottom:1px solid rgba(112,173,104,0.45);transition:box-shadow 0.25s ease}
+.site-header{position:relative;top:auto;z-index:100;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--space-lg);min-height:80px;padding:12px 24px;background:#ffffff;border-bottom:1px solid var(--color-border-light);transition:box-shadow 0.25s ease}
 .site-header.scrolled{box-shadow:var(--shadow-md)}
 .brand{display:flex;align-items:center;gap:var(--space-xs);color:var(--color-ink);font-weight:700;font-size:1rem;text-decoration:none}
  .brand img{width:40px;height:40px;border-radius:50%;border:2px solid var(--color-gold);object-fit:cover;box-shadow:0 0 0 1px rgba(255,255,255,0.9) inset}
@@ -123,26 +121,26 @@ main{padding-bottom:0}
 .feature-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-xl)}
 .panel{background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-xl);transition:all 0.25s ease;box-shadow:var(--shadow-sm)}
 .panel:hover{box-shadow:var(--shadow-md)}
-.astrologer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-xl)}
- .astrologer-card{background:var(--color-white);border:1px solid var(--color-border);border-radius:18px;overflow:hidden;transition:all 0.3s ease;box-shadow:var(--shadow-sm)}
-.astrologer-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-xl);border-color:rgba(68, 114, 196,0.65)}
-.astrologer-card__media{position:relative;aspect-ratio:3/4;overflow:hidden;background:linear-gradient(180deg,rgba(34, 34, 34,0.02),rgba(34, 34, 34,0.08)),linear-gradient(135deg,rgba(68, 114, 196,0.12),rgba(255,255,255,0.2))}
- .astrologer-card__photo{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transform:scale(1.01)}
-.astrologer-card__media::after{content:\'\';position:absolute;inset:auto 0 0 0;height:42%;background:linear-gradient(180deg,rgba(18,12,8,0),rgba(18,12,8,0.28));pointer-events:none}
-.astrologer-card__media-badge{position:absolute;left:var(--space-sm);bottom:var(--space-sm);z-index:1;padding:0.3rem 0.65rem;border-radius:var(--radius-pill);background:rgba(34, 34, 34,0.78);color:var(--color-white);font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;backdrop-filter:blur(8px)}
-.astrologer-card__body--portrait{padding:var(--space-md) var(--space-md) var(--space-sm);display:grid;gap:var(--space-xs)}
-.astrologer-card__title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-sm)}
-.astrologer-card__status{padding:0.22rem 0.55rem;border-radius:var(--radius-pill);background:rgba(68, 114, 196,0.16);color:var(--color-maroon);font-size:0.64rem;font-weight:700;text-transform:uppercase;white-space:nowrap}
-.astrologer-card__speciality{margin:0;color:var(--color-text-muted);font-size:0.84rem}
-.astrologer-card__bio{margin:0;color:var(--color-ink);font-size:0.83rem;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.astrologer-card__meta{display:flex;flex-wrap:wrap;gap:var(--space-xs);font-size:0.72rem;color:var(--color-text-muted)}
-.astrologer-card__meta span{padding:0.25rem 0.5rem;border:1px solid var(--color-border);border-radius:var(--radius-pill);background:var(--color-bg-alt)}
-.astrologers-hero{margin-bottom:var(--space-lg)}
-.astrologers-hero .lede{max-width:640px;margin:var(--space-sm) auto 0;line-height:1.55;color:var(--color-text-muted)}
-.astrologer-card__footer{padding:var(--space-md);border-top:1px solid var(--color-border);display:grid;gap:var(--space-sm)}
-.astrologer-card__price{font-size:0.88rem;font-weight:700;color:var(--color-maroon)}
-.astrologer-card__actions{display:grid;grid-template-columns:1fr 0.8fr 1fr;gap:var(--space-xs)}
-.astrologer-card__actions .btn{width:100%;padding-left:0.75rem;padding-right:0.75rem}
+.consultant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-xl)}
+ .consultant-card{background:var(--color-white);border:1px solid var(--color-border);border-radius:18px;overflow:hidden;transition:all 0.3s ease;box-shadow:var(--shadow-sm)}
+.consultant-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-xl);border-color:rgba(68, 114, 196,0.65)}
+.consultant-card__media{position:relative;aspect-ratio:3/4;overflow:hidden;background:linear-gradient(180deg,rgba(34, 34, 34,0.02),rgba(34, 34, 34,0.08)),linear-gradient(135deg,rgba(68, 114, 196,0.12),rgba(255,255,255,0.2))}
+ .consultant-card__photo{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transform:scale(1.01)}
+.consultant-card__media::after{content:\'\';position:absolute;inset:auto 0 0 0;height:42%;background:linear-gradient(180deg,rgba(18,12,8,0),rgba(18,12,8,0.28));pointer-events:none}
+.consultant-card__media-badge{position:absolute;left:var(--space-sm);bottom:var(--space-sm);z-index:1;padding:0.3rem 0.65rem;border-radius:var(--radius-pill);background:rgba(34, 34, 34,0.78);color:var(--color-white);font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;backdrop-filter:blur(8px)}
+.consultant-card__body--portrait{padding:var(--space-md) var(--space-md) var(--space-sm);display:grid;gap:var(--space-xs)}
+.consultant-card__title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-sm)}
+.consultant-card__status{padding:0.22rem 0.55rem;border-radius:var(--radius-pill);background:rgba(68, 114, 196,0.16);color:var(--color-maroon);font-size:0.64rem;font-weight:700;text-transform:uppercase;white-space:nowrap}
+.consultant-card__speciality{margin:0;color:var(--color-text-muted);font-size:0.84rem}
+.consultant-card__bio{margin:0;color:var(--color-ink);font-size:0.83rem;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.consultant-card__meta{display:flex;flex-wrap:wrap;gap:var(--space-xs);font-size:0.72rem;color:var(--color-text-muted)}
+.consultant-card__meta span{padding:0.25rem 0.5rem;border:1px solid var(--color-border);border-radius:var(--radius-pill);background:var(--color-bg-alt)}
+.consultants-hero{margin-bottom:var(--space-lg)}
+.consultants-hero .lede{max-width:640px;margin:var(--space-sm) auto 0;line-height:1.55;color:var(--color-text-muted)}
+.consultant-card__footer{padding:var(--space-md);border-top:1px solid var(--color-border);display:grid;gap:var(--space-sm)}
+.consultant-card__price{font-size:0.88rem;font-weight:700;color:var(--color-maroon)}
+.consultant-card__actions{display:grid;grid-template-columns:1fr 0.8fr 1fr;gap:var(--space-xs)}
+.consultant-card__actions .btn{width:100%;padding-left:0.75rem;padding-right:0.75rem}
 .btn-call{background:var(--color-success);color:white;border:none;padding:0.5rem 1rem;border-radius:var(--radius-pill);font-weight:600;cursor:pointer;font-size:0.85rem}
 .btn-message{background:#3b82f6;color:white;border:none;padding:0.5rem 1rem;border-radius:var(--radius-pill);font-weight:600;cursor:pointer;font-size:0.85rem}
  .category-grid{grid-template-columns:repeat(auto-fit,minmax(180px,220px));justify-content:center;gap:var(--space-xl);max-width:760px;margin:0 auto}
@@ -162,19 +160,19 @@ main{padding-bottom:0}
 .astro-search,.astro-filter{min-height:64px;border-radius:var(--radius-pill);background:var(--color-white);border-color:var(--color-border);box-shadow:var(--shadow-sm)}
 .consultation-pricing-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-xl);padding:var(--space-lg) var(--space-xl);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white);color:var(--color-ink);box-shadow:var(--shadow-sm)}
 .consultation-pricing-card h2{margin:0 0 var(--space-xs);font-size:1.35rem}.consultation-pricing-card p{margin:0;color:var(--color-text-muted);max-width:58ch}.consultation-pricing-card__rates{display:flex;gap:var(--space-lg);align-items:stretch}.consultation-pricing-card__rates div{display:grid;gap:2px;min-width:130px;padding-left:var(--space-lg);border-left:1px solid var(--color-border)}.consultation-pricing-card__rates strong{font-size:1.35rem;color:var(--color-maroon)}.consultation-pricing-card__rates span{font-size:.78rem;color:var(--color-text-muted)}
-.astrologer-card,.panel{border-color:var(--color-border-light);border-radius:var(--radius-md);box-shadow:none}
-.astrologer-card:hover,.panel:hover{transform:none;border-color:var(--color-border);box-shadow:var(--shadow-md)}
+.consultant-card,.panel{border-color:var(--color-border-light);border-radius:var(--radius-md);box-shadow:none}
+.consultant-card:hover,.panel:hover{transform:none;border-color:var(--color-border);box-shadow:var(--shadow-md)}
 .support-fab{background:var(--color-maroon);box-shadow:var(--shadow-md)}
-.site-footer{background:var(--color-maroon);color:var(--color-gold-light);padding:var(--space-2xl) 0 var(--space-md);font-size:0.85rem;border-top:1px solid var(--color-gold)}
+.site-footer{background:#2f3437;color:#ffffff;padding:var(--space-2xl) 0 var(--space-md);font-size:0.85rem;border-top:1px solid rgba(255,255,255,.18)}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:var(--space-xl);margin-bottom:var(--space-xl)}
-.footer-brand{font-family:Inter,system-ui,sans-serif;font-size:1.2rem;color:var(--color-gold);font-weight:600;display:block;margin-bottom:var(--space-xs)}
+.footer-brand{font-family:Inter,system-ui,sans-serif;font-size:1.2rem;color:#ffffff;font-weight:600;display:block;margin-bottom:var(--space-xs)}
 .footer-desc{font-size:0.85rem;line-height:1.6;opacity:0.7}
-.footer-heading{font-size:0.75rem;text-transform:uppercase;letter-spacing:0;color:var(--color-gold);margin:0 0 var(--space-sm)}
+.footer-heading{font-size:0.75rem;text-transform:uppercase;letter-spacing:.12em;color:#ffffff;margin:0 0 var(--space-sm)}
 .footer-links{list-style:none;padding:0;margin:0}
 .footer-links li{margin-bottom:var(--space-xs)}
-.footer-links a{color:var(--color-gold-light);text-decoration:none;font-size:0.85rem}
+.footer-links a{color:#eef2f4;text-decoration:none;font-size:0.85rem}
 .footer-links a:hover{color:var(--color-white)}
-.footer-bottom{text-align:center;padding-top:var(--space-md);border-top:1px solid rgba(112,173,104,0.3);font-size:0.75rem;color:var(--color-gold-light)}
+.footer-bottom{text-align:center;padding-top:var(--space-md);border-top:1px solid rgba(255,255,255,.22);font-size:0.75rem;color:#eef2f4}
 .flash{padding:var(--space-md);border-radius:var(--radius-md);margin-bottom:var(--space-md);font-size:0.85rem;font-weight:500}
 .flash--success{background:#e8f5ed;color:var(--color-success)}
 .flash--error{background:#fde8e9;color:var(--color-error)}
@@ -203,27 +201,27 @@ nav.open{display:flex}
 .site-header .menu-toggle{order:3;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center}
 .cart-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center}
 .brand span{display:none}
-.astrologers-page{padding-top:var(--space-md)!important}
-.astrologers-hero{margin-bottom:var(--space-lg)}
-.astrologers-hero .lede{font-size:0.86rem;line-height:1.45;max-width:88%}
-.astrologer-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-sm)}
-.astrologer-card__media{aspect-ratio:1/1.1}
-.astrologer-card__media-badge{font-size:0.52rem;padding:0.18rem 0.4rem;left:0.45rem;bottom:0.45rem}
-.astrologer-card__name{font-size:0.86rem;line-height:1.15}
-.astrologer-card__status{display:none}
-.astrologer-card__speciality{font-size:0.72rem;line-height:1.25}
-.astrologer-card__bio{display:none}
-.astrologer-card__meta{gap:0.25rem;font-size:0.62rem}
-.astrologer-card__meta span{padding:0.15rem 0.35rem}
-.astrologer-card__body--portrait{padding:var(--space-sm)}
-.astrologer-card__footer{padding:var(--space-sm);gap:var(--space-xs)}
-.astrologer-card__price{font-size:0.68rem;line-height:1.3}
-.astrologer-card__actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.3rem}
-.astrologer-card__actions .btn{min-height:34px;padding:0.35rem 0.2rem;font-size:0.62rem;border-radius:4px;letter-spacing:0}
+.consultants-page{padding-top:var(--space-md)!important}
+.consultants-hero{margin-bottom:var(--space-lg)}
+.consultants-hero .lede{font-size:0.86rem;line-height:1.45;max-width:88%}
+.consultant-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-sm)}
+.consultant-card__media{aspect-ratio:1/1.1}
+.consultant-card__media-badge{font-size:0.52rem;padding:0.18rem 0.4rem;left:0.45rem;bottom:0.45rem}
+.consultant-card__name{font-size:0.86rem;line-height:1.15}
+.consultant-card__status{display:none}
+.consultant-card__speciality{font-size:0.72rem;line-height:1.25}
+.consultant-card__bio{display:none}
+.consultant-card__meta{gap:0.25rem;font-size:0.62rem}
+.consultant-card__meta span{padding:0.15rem 0.35rem}
+.consultant-card__body--portrait{padding:var(--space-sm)}
+.consultant-card__footer{padding:var(--space-sm);gap:var(--space-xs)}
+.consultant-card__price{font-size:0.68rem;line-height:1.3}
+.consultant-card__actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.3rem}
+.consultant-card__actions .btn{min-height:34px;padding:0.35rem 0.2rem;font-size:0.62rem;border-radius:4px;letter-spacing:0}
 }
 @media(max-width:480px){
 .product-grid{grid-template-columns:1fr}
-.astrologer-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.consultant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .footer-grid{grid-template-columns:1fr}
 .hero-actions{flex-direction:column;align-items:center}
 }
@@ -239,7 +237,7 @@ echo $critical;
 $__palette_semantic = [
     '--color-primary' => ['set' => ($__settings['palette_primary'] ?? '#4472C4'), 'alias' => '--color-maroon'],
     '--color-secondary' => ['set' => ($__settings['palette_secondary'] ?? '#70AD47'), 'alias' => '--color-gold'],
-    '--color-canvas' => ['set' => ($__settings['palette_canvas'] ?? '#FAF7F0'), 'alias' => '--color-bg'],
+    '--color-canvas' => ['set' => ($__settings['palette_canvas'] ?? '#F7F9FA'), 'alias' => '--color-bg'],
     '--color-text-primary' => ['set' => ($__settings['palette_text'] ?? '#222222'), 'alias' => '--color-ink'],
     '--color-link' => ['set' => ($__settings['palette_link'] ?? '#4472C4'), 'alias' => ''],
 ];
@@ -312,16 +310,20 @@ gtag('js', new Date());
 <?php $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'; ?>
 <?php $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
 <header class="site-header" id="site-header">
-    <a href="/" class="brand"><img src="<?= e($__logo) ?>" width="52" height="52" alt="Nebo Lifestyle Clinic logo"><span>Nebo Lifestyle Clinic</span></a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Menu">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span>Menu</span>
     </button>
+    <a href="/" class="brand"><img src="<?= e($__logo) ?>" width="52" height="52" alt="Nebo Lifestyle Clinic logo"><span>Nebo Lifestyle Clinic</span></a>
 <?php try { $__blogCats = (new \App\Services\BlogService())->categories(); } catch (\Throwable $e) { $__blogCats = []; } ?>
-    <nav id="primary-nav">
+    <nav id="primary-nav" aria-label="Main navigation">
+        <button class="nav-close" type="button" aria-label="Close menu">×</button>
+        <p class="nav-kicker">Explore Nebo</p>
+        <a href="/#programs">Programs</a>
+        <a href="/campaigns"<?= str_starts_with($currentPath, '/campaign') ? ' aria-current="page"' : '' ?>>Campaigns</a>
         <?php if ($__modules['shop']): ?>
         <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
         <?php endif; ?>
-        <a href="/#programs">Programs</a>
         <?php if ($__modules['blog']): ?>
         <div class="nav-dropdown">
             <a href="/blog" class="nav-dropdown__trigger"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog <span class="nav-dropdown__arrow">▾</span></a>
@@ -342,7 +344,10 @@ gtag('js', new Date());
             <a href="/login">Login</a>
         <?php endif; ?>
     </nav>
+    <div class="nav-scrim" data-nav-close hidden></div>
     <div class="header-actions">
+        <a href="/contact" class="header-contact">Contact</a>
+        <a href="/contact#contact-form" class="header-book">Book a consultation</a>
         <a href="/cart" class="cart-btn" aria-label="Cart">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
             <?php $cartCount = 0; if(!empty($_SESSION['cart'])){foreach($_SESSION['cart'] as $c){$cartCount += $c['qty'] ?? 1;}} ?><span class="cart-count"><?= $cartCount ?></span>
@@ -423,32 +428,32 @@ if ($__flash):
         <div class="footer-grid">
             <div>
                 <span class="footer-brand">Nebo Lifestyle Clinic</span>
-                <p class="footer-desc">Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.</p>
+                <p class="footer-desc">Personalised naturopathy, functional medicine, and lifestyle care in Kanyakumari.</p>
+                <div class="footer-social" aria-label="Nebo social channels">
+                    <a href="https://www.instagram.com/nebolifestyleclinic/" target="_blank" rel="noopener noreferrer">Instagram <span aria-hidden="true">↗</span></a>
+                    <a href="https://www.facebook.com/nebolifestyleclinic" target="_blank" rel="noopener noreferrer">Facebook <span aria-hidden="true">↗</span></a>
+                    <a href="https://www.youtube.com/@nebolifestyleclinic" target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a>
+                </div>
             </div>
             <div>
                 <h4 class="footer-heading">Clinic</h4>
                 <ul class="footer-links">
                     <?php if ($__modules['shop']): ?><li><a href="/shop">All Products</a></li><?php endif; ?>
                     <li><a href="/#programs">Programs</a></li>
+                    <li><a href="/campaigns">Campaigns</a></li>
                     <li><a href="/about">About Nebo</a></li>
                     <?php if ($__modules['blog']): ?><li><a href="/blog">Blog</a></li><?php endif; ?>
                     <li><a href="/contact">Contact</a></li>
-                    <li><a href="/terms">Terms</a></li>
-                    <li><a href="/privacy">Privacy</a></li>
                 </ul>
             </div>
             <div>
                 <h4 class="footer-heading">Explore</h4>
             <ul class="footer-links">
-                <li><a href="/#programs">Programs</a></li>
                 <?php if ($__modules['blog']): ?>
-                <li><a href="/blog">Blog</a></li>
                 <?php foreach ($__blogCats as $__cat): ?>
                 <li><a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a></li>
                 <?php endforeach; ?>
                 <?php endif; ?>
-                <li><a href="/about">About Nebo</a></li>
-                <li><a href="/contact">Contact</a></li>
             </ul>
             </div>
             <div>
@@ -457,10 +462,11 @@ if ($__flash):
                     <li><a href="tel:+917200182025">+91 72001 82025</a></li>
                     <li><a href="tel:+919585182025">+91 95851 82025</a></li>
                     <li><a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a></li>
+                    <li>Kaliyal, Kanyakumari, Tamil Nadu 629101</li>
                 </ul>
             </div>
         </div>
-        <div class="footer-bottom">&copy; <?= date('Y') ?> Nebo Lifestyle Clinic &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; developed with &#10084;&#65039; by <a href="https://www.instagram.com/bapxmediahub/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></div>
+        <div class="footer-bottom">&copy; <?= date('Y') ?> Nebo Lifestyle Clinic &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; developed with &#10084;&#65039; by <a href="https://mediahub.bapx.in/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></div>
     </div>
 </footer>
 <?php endif; ?>
@@ -471,19 +477,30 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register(swPath, { scope: swScope }).catch(function(){});
 }
 document.getElementById('site-header').querySelector('.menu-toggle').addEventListener('click',function(){
-    var n=document.getElementById('primary-nav');n.classList.toggle('open');
-    this.setAttribute('aria-expanded',n.classList.contains('open')?'true':'false');
+    var n=document.getElementById('primary-nav'),open=!n.classList.contains('open');n.classList.toggle('open',open);
+    document.querySelector('.nav-scrim').hidden=!open;document.body.classList.toggle('nav-open',open);
+    this.setAttribute('aria-expanded',open?'true':'false');if(open){document.querySelector('.nav-close').focus();}
 });
-document.addEventListener('click',function(e){
-    var n=document.getElementById('primary-nav'),t=document.querySelector('.menu-toggle');
-    if(!n.contains(e.target)&&!t.contains(e.target)){n.classList.remove('open');t.setAttribute('aria-expanded','false');}
-});
+function closePrimaryNav(){var n=document.getElementById('primary-nav'),t=document.querySelector('.menu-toggle');n.classList.remove('open');document.querySelector('.nav-scrim').hidden=true;document.body.classList.remove('nav-open');t.setAttribute('aria-expanded','false');}
+document.querySelector('.nav-close').addEventListener('click',closePrimaryNav);
+document.querySelector('.nav-scrim').addEventListener('click',closePrimaryNav);
+document.querySelectorAll('#primary-nav a').forEach(function(link){link.addEventListener('click',closePrimaryNav);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closePrimaryNav();}});
 var h=document.getElementById('site-header');
 var s=document.createElement('div');s.style.cssText='height:1px;position:absolute;top:0';
 document.body.prepend(s);
 new IntersectionObserver(function(e){h.classList.toggle('scrolled',!e[0].isIntersecting);},{threshold:0}).observe(s);
+document.documentElement.classList.add('motion-ready');
 var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('revealed');io.unobserve(e.target);}});},{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
-document.querySelectorAll('.reveal,.panel,.product-card,.astrologer-card').forEach(function(el){io.observe(el);});
+document.querySelectorAll('.reveal,.panel,.product-card,.consultant-card').forEach(function(el){io.observe(el);});
+document.querySelectorAll('[data-rail-prev],[data-rail-next]').forEach(function(button){
+    button.addEventListener('click',function(){
+        var id=button.getAttribute(button.hasAttribute('data-rail-prev')?'data-rail-prev':'data-rail-next');
+        var rail=document.getElementById(id);if(!rail)return;
+        var direction=button.hasAttribute('data-rail-prev')?-1:1;
+        rail.scrollBy({left:direction*Math.max(280,rail.clientWidth*.72),behavior:'smooth'});
+    });
+});
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
 function supportEscape(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
 function supportReplyHtml(value){var safe=supportEscape(value);var allowed=/\/(?:#programs|shop|cart|checkout|contact|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=$|[\s.,)])/g;return safe.replace(allowed,function(path){return '<a class="support-action" href="'+path+'">Open '+supportEscape(path.replace(/^\//,'').replace(/[-/]/g,' '))+'</a>';});}

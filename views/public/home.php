@@ -28,7 +28,7 @@
             <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Pillars</h3>
             <ul style="list-style:none; padding:0; margin:var(--space-md) 0;">
                 <li style="padding:var(--space-xs) 0;">✓ Gut Health & Digestive Restoration</li>
-                <li style="padding:var(--space-xs) 0;">✓ Metabolic Disease Reversal (diabetes, PCOS, thyroid, fatty liver)</li>
+                <li style="padding:var(--space-xs) 0;">✓ Metabolic Health Support (diabetes, PCOS, thyroid, fatty liver)</li>
                 <li style="padding:var(--space-xs) 0;">✓ Lifestyle Medicine & Sustainable Habit Change</li>
             </ul>
         </div>
@@ -48,14 +48,14 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                 </div>
                 <h3>Gut Health</h3>
-                <p>Restore balance to your digestive system with evidence-based protocols that address root causes of bloating, IBS, leaky gut, and chronic inflammation.</p>
+                <p>Explore practitioner-led nutrition and lifestyle support for digestion, bloating, IBS symptoms, and everyday gut wellbeing.</p>
             </article>
             <article class="value-card reveal">
                 <div class="value-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
                 <h3>Metabolic Diseases</h3>
-                <p>Reverse insulin resistance, PCOS, thyroid disorders, and weight challenges through functional diagnostics and metabolic reset programs.</p>
+                <p>Support insulin sensitivity, PCOS and thyroid care, and sustainable weight goals alongside appropriate medical treatment.</p>
             </article>
             <article class="value-card reveal">
                 <div class="value-card__icon">
@@ -85,11 +85,11 @@
         <div class="value-strip" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
             <article class="value-card reveal">
                 <h3>Root-cause, personalized care</h3>
-                <p>Nebo identifies and resolves underlying imbalances (digestion, hormones, metabolism, stress) with protocols tailored to your history, labs, and goals—avoiding one-size-fits-all symptom masking.</p>
+                <p>Nebo considers digestion, hormones, metabolism, stress, history, and goals when shaping a personalised care plan.</p>
             </article>
             <article class="value-card reveal">
                 <h3>Safe, expert-led, measurable</h3>
-                <p>Drug-free, non-invasive therapies guided by certified naturopaths and functional medicine specialists, with trackable improvements in energy, digestion, hormones, and metabolic markers.</p>
+                <p>Practitioner-led, non-invasive wellbeing support with clear goals, review points, and coordination with existing medical care.</p>
             </article>
             <article class="value-card reveal">
                 <h3>Integrative, maternal-first, sustainable</h3>
@@ -101,90 +101,89 @@
 
 <!-- Programs -->
 <section class="section" id="programs">
-    <div class="container">
-        <div class="section-header">
-            <span class="eyebrow serif-accent">Our Services</span>
-            <h2 class="section-title">Our Programs</h2>
-            <p class="lede">Comprehensive wellness programs designed for sustainable health transformation</p>
+    <div class="container home-rail-section">
+        <div class="home-rail-heading">
+            <div>
+                <span class="eyebrow serif-accent">Our Services</span>
+                <h2 class="section-title">Our Programs</h2>
+                <p class="lede">Personalised, practitioner-led pathways designed around your health goals.</p>
+            </div>
+            <div class="rail-controls" aria-label="Program slides">
+                <button type="button" class="rail-control" data-rail-prev="program-rail" aria-label="Previous programs">←</button>
+                <button type="button" class="rail-control" data-rail-next="program-rail" aria-label="Next programs">→</button>
+            </div>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:var(--space-xl);">
-            <article class="value-card reveal" style="padding:var(--space-xl);">
-                <h3>Gut Restoration Program</h3>
-                <p>A 6–12 week protocol combining dietary reset, probiotics, and lifestyle modifications to heal the gut lining and rebalance microbiome.</p>
-                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
+        <?php $programs = [
+            ['Gut Restoration Program','6–12 weeks','Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.','program-card--blue'],
+            ['Metabolic Reset','Personalised duration','A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.','program-card--sage'],
+            ['Fertility & Preconception Wellness','Personalised duration','Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.','program-card--rose'],
+            ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.','program-card--mist'],
+            ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.','program-card--violet'],
+        ]; ?>
+        <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
+            <?php foreach ($programs as $index => $program): ?>
+            <article class="program-slide reveal <?= e($program[3]) ?>">
+                <div class="program-slide__visual" aria-hidden="true"><span><?= str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT) ?></span></div>
+                <div class="program-slide__body">
+                    <span class="program-slide__meta"><?= e($program[1]) ?></span>
+                    <h3><?= e($program[0]) ?></h3>
+                    <p><?= e($program[2]) ?></p>
+                    <a href="/contact?program=<?= rawurlencode($program[0]) ?>#contact-form" class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></a>
+                </div>
             </article>
-            <article class="value-card reveal" style="padding:var(--space-xl);">
-                <h3>Metabolic Reset</h3>
-                <p>Target insulin sensitivity, reduce visceral fat, and reverse prediabetes/PCOS with metabolic diet, yoga & exercises, necessary supplementation plans.</p>
-                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
-            </article>
-            <article class="value-card reveal" style="padding:var(--space-xl);">
-                <h3>Fertility & Preconception Wellness</h3>
-                <p>Optimize and regulate cycles, and prepare the body for conception using supplements and stress-reduction techniques.</p>
-                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
-            </article>
-            <article class="value-card reveal" style="padding:var(--space-xl);">
-                <h3>Maternal Vitality</h3>
-                <p>Support during pregnancy and post delivery with safe preparatory techniques, massage, and dietary guidance to reduce nausea, fatigue, gestational complications and childcare.</p>
-                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
-            </article>
-            <article class="value-card reveal" style="padding:var(--space-xl);">
-                <h3>Lifestyle Transformation</h3>
-                <p>A 90-day immersive program combining all therapies to build sustainable habits for long-term health.</p>
-                <a href="/contact" class="btn btn-sm btn-outline" style="margin-top:var(--space-md);">Learn More</a>
-            </article>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
 
 <!-- Team -->
 <section class="section section--alt">
-    <div class="container">
-        <div class="section-header">
-            <span class="eyebrow serif-accent">Expert Care</span>
-            <h2 class="section-title">Meet Our Team</h2>
-            <p class="lede">Our multidisciplinary team of certified naturopaths and wellness experts</p>
+    <div class="container home-rail-section">
+        <div class="home-rail-heading">
+            <div>
+                <span class="eyebrow serif-accent">Expert Care</span>
+                <h2 class="section-title">Meet Our Team</h2>
+                <p class="lede">A multidisciplinary team of naturopathy and wellness practitioners.</p>
+            </div>
+            <div class="rail-controls" aria-label="Team slides">
+                <button type="button" class="rail-control" data-rail-prev="team-rail" aria-label="Previous team members">←</button>
+                <button type="button" class="rail-control" data-rail-next="team-rail" aria-label="Next team members">→</button>
+            </div>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:var(--space-lg);">
-            <article class="value-card reveal" style="text-align:center;">
-                <h3 style="color:var(--color-primary);">Dr Bablin Torah</h3>
-                <p style="font-weight:600; color:var(--color-secondary);">MD Naturopathic Consultant</p>
+        <div class="editorial-rail team-rail" id="team-rail" data-editorial-rail tabindex="0" aria-label="Nebo practitioner profiles">
+            <?php foreach ($consultants as $consultant): ?>
+            <article class="team-slide reveal">
+                <div class="team-slide__media">
+                    <img src="<?= e($consultant['photo_url'] ?? '/assets/images/consultants/default-female.webp') ?>" alt="Temporary portrait placeholder for <?= e($consultant['name'] ?? 'Nebo practitioner') ?>" loading="lazy">
+                    <span>Portrait placeholder</span>
+                </div>
+                <div class="team-slide__body">
+                    <h3><?= e($consultant['name'] ?? '') ?></h3>
+                    <p class="team-slide__role"><?= e($consultant['speciality'] ?? '') ?></p>
+                    <?php if (!empty($consultant['description'])): ?><p><?= e($consultant['description']) ?></p><?php endif; ?>
+                    <a href="/contact?consultant=<?= rawurlencode((string)($consultant['name'] ?? '')) ?>#contact-form" class="program-slide__link">Request a consultation <span aria-hidden="true">↗</span></a>
+                </div>
             </article>
-            <article class="value-card reveal" style="text-align:center;">
-                <h3 style="color:var(--color-primary);">Dr Sathyajothi</h3>
-                <p style="font-weight:600; color:var(--color-secondary);">BNYS - Yoga Mentor & Guide</p>
-            </article>
-            <article class="value-card reveal" style="text-align:center;">
-                <h3 style="color:var(--color-primary);">Dr Berslin Fency</h3>
-                <p style="font-weight:600; color:var(--color-secondary);">BNYS - Consultant Physician</p>
-            </article>
-            <article class="value-card reveal" style="text-align:center;">
-                <h3 style="color:var(--color-primary);">Dr Karthik Raj</h3>
-                <p style="font-weight:600; color:var(--color-secondary);">BNYS - Lifestyle Physician</p>
-            </article>
-            <article class="value-card reveal" style="text-align:center;">
-                <h3 style="color:var(--color-primary);">Dr Padmashree</h3>
-                <p style="font-weight:600; color:var(--color-secondary);">BNYS, FFAC, CCBE - Childbirth Educator & Maternity Wellness Consultant</p>
-            </article>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
 
-<!-- Testimonials -->
+<!-- Care principles -->
 <section class="section">
     <div class="container">
         <div class="section-header">
-            <span class="eyebrow serif-accent">Success Stories</span>
-            <h2 class="section-title">What Our Clients Say</h2>
+            <span class="eyebrow serif-accent">The Nebo Approach</span>
+            <h2 class="section-title">Care designed around real life</h2>
         </div>
         <div class="nebo-testimonials">
             <article class="value-card reveal" style="padding:var(--space-xl);">
-                <p style="font-style:italic; font-size:1.1rem; line-height:1.7; margin-bottom:var(--space-md);">"After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again."</p>
-                <p style="font-weight:600; color:var(--color-primary);">— Priya S., Bengaluru</p>
+                <h3>Begin with a careful conversation</h3>
+                <p>Discuss your goals, current care, routines, and concerns before choosing a program. Your practitioner can explain suitable options and when medical referral is needed.</p>
             </article>
             <article class="value-card reveal" style="padding:var(--space-xl);">
-                <p style="font-style:italic; font-size:1.1rem; line-height:1.7; margin-bottom:var(--space-md);">"The IV nutrition and ozone therapy transformed my chronic fatigue. I can finally keep up with my kids and work without crashing."</p>
-                <p style="font-weight:600; color:var(--color-primary);">— Anjali R., Working Mother</p>
+                <h3>Build a plan you can sustain</h3>
+                <p>Turn nutrition, movement, rest, and stress care into practical steps. Review progress with the team and adjust the plan as your needs change.</p>
             </article>
         </div>
     </div>
@@ -198,11 +197,6 @@
                 <span class="page-cta-card__eyebrow">Ready to Transform Your Health?</span>
                 <h3>Book Your Consultation</h3>
                 <p>Start your journey to optimal health. Schedule a 30-minute discovery call to discuss your goals and create a personalized plan.</p>
-                <div style="margin-top:var(--space-lg);">
-                    <p><strong>📍 Location:</strong> Kaliyal, Kanyakumari, Tamilnadu, India - 629101</p>
-                    <p><strong>📞 Phone:</strong> +91-7200182025, 9585182025</p>
-                    <p><strong>📧 Email:</strong> nebolifestyleclinic@gmail.com</p>
-                </div>
             </div>
             <a class="btn btn-primary page-cta-card__button" href="/contact">Book Now →</a>
         </div>

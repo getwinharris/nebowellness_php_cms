@@ -20,7 +20,7 @@ final class SeoService {
 
     public function page(string $key, array $overrides = []): array {
         $host = $_SERVER['HTTP_HOST'] ?? 'nebowellness.com';
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $url = $scheme . '://' . $host . $uri;
 
@@ -37,6 +37,7 @@ final class SeoService {
         $meta['og_url'] ??= $url;
         $meta['og_site_name'] = $this->siteName;
         $meta['og_image'] ??= $this->defaultOgImage;
+        if (str_starts_with((string)$meta['og_image'], '/')) $meta['og_image'] = $scheme . '://' . $host . $meta['og_image'];
         $meta['twitter_image'] ??= $meta['og_image'];
         $meta['twitter_title'] ??= $meta['og_title'] ?? $meta['title'];
         $meta['twitter_description'] ??= $meta['og_description'] ?? $meta['description'];
@@ -74,21 +75,21 @@ final class SeoService {
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
-            'astrologer' => [
+            'consultant' => [
                 'title' => 'Our Wellness Consultants',
                 'description' => 'Meet our experienced naturopaths, functional medicine specialists, and wellness consultants at Nebo Lifestyle Clinic.',
                 'og_type' => 'profile',
                 'robots' => 'index, follow',
             ],
-            'temples' => [
-                'title' => 'Temples in Chennai – Temple Guide, Timings, Address & Pooja Services',
-                'description' => 'Explore temples in Chennai with detailed guides including timings, addresses, and available pooja services. Plan your temple visit with ' . $brand . '.',
+            'campaigns' => [
+                'title' => 'Wellness Campaigns – ' . $brand,
+                'description' => 'Explore focused Nebo Lifestyle Clinic campaigns and find a practical next step for your wellness goals.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
-            'temple' => [
-                'title' => 'Temple Guide – Timings, Address, Pooja & Darshan',
-                'description' => 'View temple details including timings, address, location map, and available pooja services.',
+            'campaign' => [
+                'title' => 'Wellness Campaign – ' . $brand,
+                'description' => 'Discover a Nebo Lifestyle Clinic wellness campaign and contact our team for personal guidance.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
@@ -101,12 +102,6 @@ final class SeoService {
             'contact' => [
                 'title' => 'Contact ' . $brand . ' – Book Your Consultation',
                 'description' => 'Reach out to ' . $brand . ' to book a consultation or ask about gut health, metabolic, fertility, and lifestyle programs. Call or email us.',
-                'og_type' => 'website',
-                'robots' => 'index, follow',
-            ],
-            'spiritual' => [
-                'title' => $brand . ' – Traditional Wisdom & Devotional Practice',
-                'description' => 'Explore ' . $brand . ' for authentic spiritual guidance, traditional wisdom, devotional practices, and sacred products for your spiritual journey.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],
@@ -254,14 +249,14 @@ final class SeoService {
         ];
     }
 
-    public function personSchema(array $astrologer): array {
+    public function personSchema(array $consultant): array {
         return [
             '@context' => 'https://schema.org',
             '@type' => 'Person',
-            'name' => $astrologer['name'] ?? '',
-            'description' => ($astrologer['speciality'] ?? '') . ' astrologer with ' . ($astrologer['experience_years'] ?? '') . ' years of experience.',
-            'image' => $astrologer['photo_url'] ?? $this->defaultOgImage,
-            'knowsLanguage' => $astrologer['languages'] ?? [],
+            'name' => $consultant['name'] ?? '',
+            'description' => ($consultant['speciality'] ?? '') . ' consultant with ' . ($consultant['experience_years'] ?? '') . ' years of experience.',
+            'image' => $consultant['photo_url'] ?? $this->defaultOgImage,
+            'knowsLanguage' => $consultant['languages'] ?? [],
         ];
     }
 

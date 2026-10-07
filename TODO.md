@@ -23,7 +23,7 @@ and agents to the verified GitHub workflow.
 - [x] Open evidence-backed public rebrand issue #18.
 - [ ] Replace devotional logo, blog taxonomy/fallbacks, and empty-gradient hero with Nebo-specific assets and content; update `Design.md` and frontend skill.
 - [ ] Verify public routes at desktop and 375px with built-in Browser; correct any crop, overflow, CTA, or navigation defect.
-- [ ] Revisit issue #4 with a backward-compatible `astrologers` to `consultants` data migration and admin route update; inventory live collection first.
+- [ ] Revisit issue #4 with a backward-compatible `consultants` to `consultants` data migration and admin route update; inventory live collection first.
 - [x] Close stale issue #6: current home template has no shop product section; remove unused product/temple fetching.
 - [x] Issue #19: export and remove the backed-up old orders, users, products, categories, and temples. Live after-counts are zero.
 - [ ] Issue #19: inspect the remaining encrypted integration row through the production Admin/server-side path, clear old AI/Razorpay/Google credentials while preserving clinic SMTP, revoke provider keys, and verify the resulting login/payment configuration.

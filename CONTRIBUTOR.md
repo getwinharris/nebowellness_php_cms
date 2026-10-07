@@ -1,6 +1,6 @@
 ---
 title: Contributing
-description: Verified contribution workflow for Sri Panchami Spiritual.
+description: Verified contribution workflow for Nebo Lifestyle Clinic.
 category: root
 ---
 

@@ -37,7 +37,7 @@ table. **Never put SMTP settings in `.env`** — `.env` holds only `APP_NAME`,
 | SMTP Username | `support@sripanchamispiritual.com` | **Full email address**, not just `support` |
 | SMTP Password | the mailbox password | Set in hPanel → Emails |
 | From Email | `support@sripanchamispiritual.com` | **Must match the authenticated mailbox** or the provider rejects the message |
-| From Name | `Sri Panchami Spiritual` | |
+| From Name | `Nebo Lifestyle Clinic` | |
 | Admin Notification Email | `sripanchamispiritual@gmail.com` | Where the **owner** is notified |
 
 ### From Email vs Admin Notification Email

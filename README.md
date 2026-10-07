@@ -34,7 +34,7 @@ rg -n -B4 -A12 'filename: "<image-name>"' index.yaml
 
 ## Source-of-truth boundaries
 
-- Admin-editable products, categories, consultants, temples, orders, users, settings,
+- Admin-editable products, categories, consultants, campaign pages, orders, users, settings,
   secrets, and related records live only in hosted MySQL.
 - Local development uses direct hosted MySQL or configured `<APP_URL>/remotedb`; it
   must not create a local product/catalogue copy.

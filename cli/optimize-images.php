@@ -51,7 +51,7 @@ $prodDir = __DIR__ . '/../assets/images/products';
 convertDir($opt, $prodDir, ['png', 'jpg', 'jpeg'], ['max_width' => 800, 'max_height' => 800, 'quality' => 80]);
 
 echo "\n=== CONSULTANT CLIENT IMAGES (resize 480x640) ===\n";
-$astroDir = __DIR__ . '/../assets/images/astrologers/client';
+$astroDir = __DIR__ . '/../assets/images/consultants/client';
 convertDir($opt, $astroDir, ['png', 'jpg', 'jpeg'], ['max_width' => 480, 'max_height' => 640, 'quality' => 80]);
 
 echo "\n=== MEDIA LIBRARY IMAGES (resize 1200x1200) ===\n";

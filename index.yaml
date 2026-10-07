@@ -10,16 +10,16 @@ authoritative_sources:
   documentation_map: "docs/map.mmd"
 rules:
   - "Concepts are original project resources; this index never copies blog bodies or runtime records."
-  - "Products, categories, consultants, temples and other editable records are queried from remotedb."
+  - "Products, categories, consultants, campaigns and other editable records are queried from remotedb."
   - "Blog Markdown and image binaries remain local files."
   - "Read discovery first; query only the relevant section or resource. Do not load this entire index into agent context."
-  - "Use at most three discovery hops: entry instructions, exact index match, original source. Avoid broad listings and recursive scans unless the target is absent."
+  - "Use at least three evidence hops: entry instructions, exact index match, original source; continue through each affected route, controller, service, schema, view and browser state needed to verify a change."
 discovery:
   - question: "Does a route, controller, service, view or collection exist?"
     use: "docs/project-index.json"
   - question: "How are routes, controllers, services and collections connected?"
     use: "map.mmd"
-  - question: "What is the live product, category, consultant, temple or admin-editable value?"
+  - question: "What is the live product, category, consultant, campaign or admin-editable value?"
     use: "https://nebowellness.com/remotedb"
   - question: "Where is a blog article and what frontmatter does it declare?"
     use: "concepts filtered by type=blog, then read its resource"
@@ -36,18 +36,45 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 319
-  relationships: 232
+  concepts: 260
+  relationships: 238
   by_type:
-    blog: 2
+    blog: 5
     controller: 12
-    doc: 35
-    image: 79
-    route: 112
+    doc: 33
+    image: 17
+    route: 114
     schema: 22
     service: 48
     skill: 9
 concepts:
+  - id: "blog:gut-friendly-meals"
+    type: "blog"
+    title: "A practical guide to gut-friendly meals"
+    description: "Simple food choices can support consistency while leaving room for your symptoms, culture, and clinical needs."
+    resource: "content/blog/posts/gut-friendly-meals.md"
+    tags:
+      - "wellness"
+    filename: "gut-friendly-meals.md"
+    header_image: "/assets/images/blog/gut-health-food.webp"
+  - id: "blog:how-to-explore-nebo-programs"
+    type: "blog"
+    title: "How to explore Nebo wellness programs"
+    description: "Browse each program, read its focus and duration, then send an enquiry for personalised guidance."
+    resource: "content/blog/posts/how-to-explore-nebo-programs.md"
+    tags:
+      - "help"
+    filename: "how-to-explore-nebo-programs.md"
+    header_image: "/assets/images/blog/wellness-habits.webp"
+  - id: "blog:how-to-request-a-consultation"
+    type: "blog"
+    title: "How to request a Nebo consultation"
+    description: "Share your contact details and goals through the secure enquiry form, then wait for the clinic team to follow up."
+    resource: "content/blog/posts/how-to-request-a-consultation.md"
+    tags:
+      - "help"
+    filename: "how-to-request-a-consultation.md"
+    header_image: "/assets/images/blog/contact-form-guide.webp"
   - id: "blog:sustainable-wellness-habits"
     type: "blog"
     title: "Building wellness habits that fit your life"
@@ -56,7 +83,7 @@ concepts:
     tags:
       - "wellness"
     filename: "sustainable-wellness-habits.md"
-    header_image: "/assets/images/nebo-clinic-hero.png"
+    header_image: "/assets/images/blog/wellness-habits.webp"
   - id: "blog:your-first-nebo-consultation"
     type: "blog"
     title: "Your first Nebo consultation"
@@ -65,7 +92,7 @@ concepts:
     tags:
       - "wellness"
     filename: "your-first-nebo-consultation.md"
-    header_image: "/assets/images/nebo-programs.png"
+    header_image: "/assets/images/blog/contact-form-guide.webp"
   - id: "controller:AccountController"
     type: "controller"
     title: "AccountController"
@@ -174,7 +201,7 @@ concepts:
   - id: "doc:about"
     type: "doc"
     title: "About Page"
-    description: "Route /about - describe Sri Panchami Spiritual, the store mission, product authenticity, and temple guidance."
+    description: "Route /about - introduce Nebo Lifestyle Clinic, its foundation, values, and integrative care approach."
     resource: "docs/pages/about.md"
     tags:
       - "page"
@@ -192,7 +219,7 @@ concepts:
   - id: "doc:admin-dashboard"
     type: "doc"
     title: "Admin Dashboard"
-    description: "Route /admin - owner dashboard for product, order, and astrology session counts."
+    description: "Route /admin - owner dashboard for clinic campaigns, practitioner profiles, products, orders, and historical service records."
     resource: "docs/pages/admin-dashboard.md"
     tags:
       - "page"
@@ -210,7 +237,7 @@ concepts:
   - id: "doc:agentic-monorepo"
     type: "doc"
     title: "Agentic Monorepo"
-    description: "This repo packages the backend and frontend together for small PHP hosting. The current public use case is Sri Panchami Spiritual."
+    description: "This repo packages the Nebo Lifestyle Clinic backend and frontend together for small PHP hosting."
     resource: "docs/agentic-monorepo.md"
     tags:
       - "docs"
@@ -255,7 +282,7 @@ concepts:
   - id: "doc:catalog"
     type: "doc"
     title: "Catalog Module"
-    description: "Owns product, category, temple, and historical service-record reads from MySQL via DatabaseService."
+    description: "Owns product, category, consultant, campaign, and historical service-record reads from MySQL via DatabaseService."
     resource: "docs/modules/catalog.md"
     tags:
       - "module"
@@ -362,7 +389,7 @@ concepts:
   - id: "doc:home"
     type: "doc"
     title: "Home Page"
-    description: "Route / - storefront landing page with product categories, featured products, ordering steps, temple highlights, and more."
+    description: "Route / - Nebo clinic landing page with programs, practitioners, care principles, and consultation enquiry actions."
     resource: "docs/pages/home.md"
     tags:
       - "page"
@@ -394,15 +421,6 @@ concepts:
     tags:
       - "module"
     filename: "orders.md"
-    header_image: ""
-  - id: "doc:pages/temples"
-    type: "doc"
-    title: "Temples Page"
-    description: "Route /temples - show JSON-backed temple entries with image, address, pooja details, and detail links."
-    resource: "docs/pages/temples.md"
-    tags:
-      - "page"
-    filename: "temples.md"
     header_image: ""
   - id: "doc:product-list"
     type: "doc"
@@ -467,819 +485,6 @@ concepts:
       - "page"
     filename: "shop.md"
     header_image: ""
-  - id: "doc:temples"
-    type: "doc"
-    title: "Temples Module"
-    description: "Owns temple catalog pages and admin temple records."
-    resource: "docs/modules/temples.md"
-    tags:
-      - "module"
-    filename: "temples.md"
-    header_image: ""
-  - id: "image:assets/images/astrologers/client/abirami-sekar.jpg"
-    type: "image"
-    title: "abirami-sekar.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/abirami-sekar.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "abirami-sekar.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/abirami-sekar.webp"
-    type: "image"
-    title: "abirami-sekar.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/abirami-sekar.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "abirami-sekar.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/aghora-kali-saraswathi-amma.jpg"
-    type: "image"
-    title: "aghora-kali-saraswathi-amma.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/aghora-kali-saraswathi-amma.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "aghora-kali-saraswathi-amma.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/aghora-kali-saraswathi-amma.webp"
-    type: "image"
-    title: "aghora-kali-saraswathi-amma.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/aghora-kali-saraswathi-amma.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "aghora-kali-saraswathi-amma.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/arun-karthik.jpg"
-    type: "image"
-    title: "arun-karthik.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/arun-karthik.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "arun-karthik.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/arun-karthik.webp"
-    type: "image"
-    title: "arun-karthik.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/arun-karthik.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "arun-karthik.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/deepa-arulalan.jpg"
-    type: "image"
-    title: "deepa-arulalan.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/deepa-arulalan.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "deepa-arulalan.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/deepa-arulalan.webp"
-    type: "image"
-    title: "deepa-arulalan.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/deepa-arulalan.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "deepa-arulalan.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/dna-astrology-vishal.jpg"
-    type: "image"
-    title: "dna-astrology-vishal.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/dna-astrology-vishal.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "dna-astrology-vishal.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/dna-astrology-vishal.webp"
-    type: "image"
-    title: "dna-astrology-vishal.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/dna-astrology-vishal.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "dna-astrology-vishal.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/eswari.jpg"
-    type: "image"
-    title: "eswari.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/eswari.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "eswari.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/eswari.webp"
-    type: "image"
-    title: "eswari.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/eswari.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "eswari.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/jayanthi-ravi.jpg"
-    type: "image"
-    title: "jayanthi-ravi.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/jayanthi-ravi.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "jayanthi-ravi.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/jayanthi-ravi.webp"
-    type: "image"
-    title: "jayanthi-ravi.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/jayanthi-ravi.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "jayanthi-ravi.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/nr-ranjithkumar.jpg"
-    type: "image"
-    title: "nr-ranjithkumar.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/nr-ranjithkumar.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "nr-ranjithkumar.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/nr-ranjithkumar.webp"
-    type: "image"
-    title: "nr-ranjithkumar.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/nr-ranjithkumar.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "nr-ranjithkumar.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/palaru-velayutham-swamigal.jpg"
-    type: "image"
-    title: "palaru-velayutham-swamigal.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/palaru-velayutham-swamigal.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "palaru-velayutham-swamigal.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/palaru-velayutham-swamigal.webp"
-    type: "image"
-    title: "palaru-velayutham-swamigal.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/palaru-velayutham-swamigal.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "palaru-velayutham-swamigal.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/parthiban.jpg"
-    type: "image"
-    title: "parthiban.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/parthiban.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "parthiban.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/parthiban.webp"
-    type: "image"
-    title: "parthiban.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/parthiban.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "parthiban.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/perumpalavanan.jpg"
-    type: "image"
-    title: "perumpalavanan.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/perumpalavanan.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "perumpalavanan.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/perumpalavanan.webp"
-    type: "image"
-    title: "perumpalavanan.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/perumpalavanan.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "perumpalavanan.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/ponmudi.jpg"
-    type: "image"
-    title: "ponmudi.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/ponmudi.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "ponmudi.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/ponmudi.webp"
-    type: "image"
-    title: "ponmudi.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/ponmudi.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "ponmudi.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/revathi-rajesh-kanna.jpg"
-    type: "image"
-    title: "revathi-rajesh-kanna.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/revathi-rajesh-kanna.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "revathi-rajesh-kanna.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/revathi-rajesh-kanna.webp"
-    type: "image"
-    title: "revathi-rajesh-kanna.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/revathi-rajesh-kanna.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "revathi-rajesh-kanna.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/sakthi-dass.jpg"
-    type: "image"
-    title: "sakthi-dass.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/sakthi-dass.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sakthi-dass.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/sakthi-dass.webp"
-    type: "image"
-    title: "sakthi-dass.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/sakthi-dass.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sakthi-dass.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/sara.jpg"
-    type: "image"
-    title: "sara.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/sara.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sara.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/sara.webp"
-    type: "image"
-    title: "sara.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/sara.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sara.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/shrikanth-purushothaman.jpg"
-    type: "image"
-    title: "shrikanth-purushothaman.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/shrikanth-purushothaman.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "shrikanth-purushothaman.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/shrikanth-purushothaman.webp"
-    type: "image"
-    title: "shrikanth-purushothaman.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/shrikanth-purushothaman.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "shrikanth-purushothaman.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/sriguru-padma-mahalingam.jpg"
-    type: "image"
-    title: "sriguru-padma-mahalingam.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/sriguru-padma-mahalingam.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sriguru-padma-mahalingam.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/sriguru-padma-mahalingam.webp"
-    type: "image"
-    title: "sriguru-padma-mahalingam.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/sriguru-padma-mahalingam.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sriguru-padma-mahalingam.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/tj-sundarapandian.jpg"
-    type: "image"
-    title: "tj-sundarapandian.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/tj-sundarapandian.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "tj-sundarapandian.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/tj-sundarapandian.webp"
-    type: "image"
-    title: "tj-sundarapandian.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/tj-sundarapandian.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "tj-sundarapandian.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/uma-venkat.jpg"
-    type: "image"
-    title: "uma-venkat.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/uma-venkat.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "uma-venkat.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/uma-venkat.webp"
-    type: "image"
-    title: "uma-venkat.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/uma-venkat.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "uma-venkat.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/vastu-thangadurai.jpg"
-    type: "image"
-    title: "vastu-thangadurai.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/vastu-thangadurai.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "vastu-thangadurai.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/vastu-thangadurai.webp"
-    type: "image"
-    title: "vastu-thangadurai.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/vastu-thangadurai.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "vastu-thangadurai.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/vastu-vinayagam.jpg"
-    type: "image"
-    title: "vastu-vinayagam.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/vastu-vinayagam.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "vastu-vinayagam.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/client/vastu-vinayagam.webp"
-    type: "image"
-    title: "vastu-vinayagam.webp"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/client/vastu-vinayagam.webp"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "vastu-vinayagam.webp"
-    mime: "image/webp"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/indian-portrait-female-1.svg"
-    type: "image"
-    title: "indian-portrait-female-1.svg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/indian-portrait-female-1.svg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "indian-portrait-female-1.svg"
-    mime: "image/svg+xml"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/indian-portrait-female-2.svg"
-    type: "image"
-    title: "indian-portrait-female-2.svg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/indian-portrait-female-2.svg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "indian-portrait-female-2.svg"
-    mime: "image/svg+xml"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/indian-portrait-male-1.svg"
-    type: "image"
-    title: "indian-portrait-male-1.svg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/indian-portrait-male-1.svg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "indian-portrait-male-1.svg"
-    mime: "image/svg+xml"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/indian-portrait-male-2.svg"
-    type: "image"
-    title: "indian-portrait-male-2.svg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/indian-portrait-male-2.svg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "indian-portrait-male-2.svg"
-    mime: "image/svg+xml"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/abirami-sekar.jpg"
-    type: "image"
-    title: "abirami-sekar.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/abirami-sekar.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "abirami-sekar.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/aghora-kali-saraswathi-amma.jpg"
-    type: "image"
-    title: "aghora-kali-saraswathi-amma.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/aghora-kali-saraswathi-amma.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "aghora-kali-saraswathi-amma.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/arun-karthik.jpg"
-    type: "image"
-    title: "arun-karthik.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/arun-karthik.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "arun-karthik.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/deepa-arulalan.jpg"
-    type: "image"
-    title: "deepa-arulalan.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/deepa-arulalan.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "deepa-arulalan.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/dna-astrology-vishal.jpg"
-    type: "image"
-    title: "dna-astrology-vishal.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/dna-astrology-vishal.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "dna-astrology-vishal.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/eswari.jpg"
-    type: "image"
-    title: "eswari.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/eswari.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "eswari.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/jayanthi-ravi.jpg"
-    type: "image"
-    title: "jayanthi-ravi.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/jayanthi-ravi.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "jayanthi-ravi.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/nr-ranjithkumar.jpg"
-    type: "image"
-    title: "nr-ranjithkumar.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/nr-ranjithkumar.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "nr-ranjithkumar.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/palaru-velayutham-swamigal.jpg"
-    type: "image"
-    title: "palaru-velayutham-swamigal.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/palaru-velayutham-swamigal.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "palaru-velayutham-swamigal.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/parthiban.jpg"
-    type: "image"
-    title: "parthiban.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/parthiban.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "parthiban.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/perumpalavanan.jpg"
-    type: "image"
-    title: "perumpalavanan.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/perumpalavanan.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "perumpalavanan.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/ponmudi.jpg"
-    type: "image"
-    title: "ponmudi.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/ponmudi.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "ponmudi.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/revathi-rajesh-kanna.jpg"
-    type: "image"
-    title: "revathi-rajesh-kanna.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/revathi-rajesh-kanna.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "revathi-rajesh-kanna.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/sakthi-dass.jpg"
-    type: "image"
-    title: "sakthi-dass.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/sakthi-dass.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sakthi-dass.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/sara.jpg"
-    type: "image"
-    title: "sara.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/sara.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sara.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/shrikanth-purushothaman.jpg"
-    type: "image"
-    title: "shrikanth-purushothaman.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/shrikanth-purushothaman.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "shrikanth-purushothaman.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/sriguru-padma-mahalingam.jpg"
-    type: "image"
-    title: "sriguru-padma-mahalingam.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/sriguru-padma-mahalingam.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "sriguru-padma-mahalingam.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/tj-sundarapandian.jpg"
-    type: "image"
-    title: "tj-sundarapandian.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/tj-sundarapandian.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "tj-sundarapandian.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/uma-venkat.jpg"
-    type: "image"
-    title: "uma-venkat.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/uma-venkat.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "uma-venkat.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/vastu-thangadurai.jpg"
-    type: "image"
-    title: "vastu-thangadurai.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/vastu-thangadurai.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "vastu-thangadurai.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
-  - id: "image:assets/images/astrologers/source/vastu-vinayagam.jpg"
-    type: "image"
-    title: "vastu-vinayagam.jpg"
-    description: "Image with no static repository reference detected."
-    resource: "assets/images/astrologers/source/vastu-vinayagam.jpg"
-    tags:
-      - "image"
-      - "unreferenced"
-    filename: "vastu-vinayagam.jpg"
-    mime: "image/jpeg"
-    usage_count: 0
-    used_in: []
   - id: "image:assets/images/bapXfavicon.png"
     type: "image"
     title: "bapXfavicon.png"
@@ -1292,6 +497,74 @@ concepts:
     mime: "image/png"
     usage_count: 0
     used_in: []
+  - id: "image:assets/images/blog/contact-form-guide.webp"
+    type: "image"
+    title: "contact-form-guide.webp"
+    description: "Image referenced by 2 project resource(s)."
+    resource: "assets/images/blog/contact-form-guide.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "contact-form-guide.webp"
+    mime: "image/webp"
+    usage_count: 2
+    used_in:
+      - "content/blog/posts/how-to-request-a-consultation.md"
+      - "content/blog/posts/your-first-nebo-consultation.md"
+  - id: "image:assets/images/blog/gut-health-food.webp"
+    type: "image"
+    title: "gut-health-food.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/blog/gut-health-food.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "gut-health-food.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "content/blog/posts/gut-friendly-meals.md"
+  - id: "image:assets/images/blog/wellness-habits.webp"
+    type: "image"
+    title: "wellness-habits.webp"
+    description: "Image referenced by 2 project resource(s)."
+    resource: "assets/images/blog/wellness-habits.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "wellness-habits.webp"
+    mime: "image/webp"
+    usage_count: 2
+    used_in:
+      - "content/blog/posts/how-to-explore-nebo-programs.md"
+      - "content/blog/posts/sustainable-wellness-habits.md"
+  - id: "image:assets/images/consultants/default-female.webp"
+    type: "image"
+    title: "default-female.webp"
+    description: "Image referenced by 2 project resource(s)."
+    resource: "assets/images/consultants/default-female.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "default-female.webp"
+    mime: "image/webp"
+    usage_count: 2
+    used_in:
+      - "app/Controllers/PublicController.php"
+      - "views/public/home.php"
+  - id: "image:assets/images/consultants/default-male.webp"
+    type: "image"
+    title: "default-male.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/consultants/default-male.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "default-male.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "app/Controllers/PublicController.php"
   - id: "image:assets/images/media/2026/06/karuppasami-dollar-back-png-38db6232.png"
     type: "image"
     title: "karuppasami-dollar-back-png-38db6232.png"
@@ -1319,18 +592,17 @@ concepts:
   - id: "image:assets/images/nebo-clinic-hero.png"
     type: "image"
     title: "nebo-clinic-hero.png"
-    description: "Image referenced by 4 project resource(s)."
+    description: "Image referenced by 3 project resource(s)."
     resource: "assets/images/nebo-clinic-hero.png"
     tags:
       - "image"
       - "used"
     filename: "nebo-clinic-hero.png"
     mime: "image/png"
-    usage_count: 4
+    usage_count: 3
     used_in:
       - "app/Services/SeoService.php"
       - "assets/css/band.css"
-      - "content/blog/posts/sustainable-wellness-habits.md"
       - "views/layouts/app.php"
   - id: "image:assets/images/nebo-garden.png"
     type: "image"
@@ -1361,18 +633,20 @@ concepts:
   - id: "image:assets/images/nebo-programs.png"
     type: "image"
     title: "nebo-programs.png"
-    description: "Image referenced by 4 project resource(s)."
+    description: "Image referenced by 6 project resource(s)."
     resource: "assets/images/nebo-programs.png"
     tags:
       - "image"
       - "used"
     filename: "nebo-programs.png"
     mime: "image/png"
-    usage_count: 4
+    usage_count: 6
     used_in:
-      - "content/blog/posts/your-first-nebo-consultation.md"
+      - "app/Controllers/PublicController.php"
       - "views/public/blog-post.php"
       - "views/public/blog.php"
+      - "views/public/campaign.php"
+      - "views/public/campaigns.php"
       - "views/public/home.php"
   - id: "image:assets/images/nebo-symbol.png"
     type: "image"
@@ -1643,22 +917,6 @@ concepts:
       - "AppointmentService"
       - "AuthService"
     view: "admin/list"
-  - id: "route:get__admin_astrologers"
-    type: "route"
-    title: "GET /admin/astrologers"
-    description: "admin.astrologers"
-    resource: "app/routes.php"
-    tags:
-      - "code"
-      - "route"
-    method: "GET"
-    path: "/admin/astrologers"
-    controller: "AdminController@astrologers"
-    services:
-      - "AstrologerService"
-      - "SchemaService"
-      - "AuthService"
-    view: "admin/astrologer-form"
   - id: "route:get__admin_blog"
     type: "route"
     title: "GET /admin/blog"
@@ -1674,6 +932,22 @@ concepts:
       - "BlogService"
       - "AuthService"
     view: "admin/blog"
+  - id: "route:get__admin_campaigns"
+    type: "route"
+    title: "GET /admin/campaigns"
+    description: "admin.campaigns"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/admin/campaigns"
+    controller: "AdminController@campaigns"
+    services:
+      - "ResourceService"
+      - "SchemaService"
+      - "AuthService"
+    view: "admin/resource"
   - id: "route:get__admin_categories"
     type: "route"
     title: "GET /admin/categories"
@@ -1689,6 +963,22 @@ concepts:
       - "CategoryService"
       - "AuthService"
     view: "admin/resource"
+  - id: "route:get__admin_consultants"
+    type: "route"
+    title: "GET /admin/consultants"
+    description: "admin.consultants"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/admin/consultants"
+    controller: "AdminController@consultants"
+    services:
+      - "ConsultantService"
+      - "SchemaService"
+      - "AuthService"
+    view: "admin/consultant-form"
   - id: "route:get__admin_consultation_analytics"
     type: "route"
     title: "GET /admin/consultation-analytics"
@@ -1906,22 +1196,6 @@ concepts:
       - "TaxService"
       - "AuthService"
     view: "admin/tax-report"
-  - id: "route:get__admin_temples"
-    type: "route"
-    title: "GET /admin/temples"
-    description: "admin.temples"
-    resource: "app/routes.php"
-    tags:
-      - "code"
-      - "route"
-    method: "GET"
-    path: "/admin/temples"
-    controller: "AdminController@temples"
-    services:
-      - "TempleService"
-      - "SchemaService"
-      - "AuthService"
-    view: "admin/resource"
   - id: "route:get__api"
     type: "route"
     title: "GET /api"
@@ -2065,6 +1339,36 @@ concepts:
       - "BlogService"
       - "MarkdownRenderer"
     view: "public/blog"
+  - id: "route:get__campaigns"
+    type: "route"
+    title: "GET /campaigns"
+    description: "campaigns"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/campaigns"
+    controller: "PublicController@campaigns"
+    services:
+      - "CampaignPageService"
+    view: "public/campaigns"
+  - id: "route:get__campaigns__slug"
+    type: "route"
+    title: "GET /campaigns/{slug}"
+    description: "campaign.show"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/campaigns/{slug}"
+    controller: "PublicController@campaign"
+    services:
+      - "CampaignPageService"
+      - "MarkdownRenderer"
+      - "SeoService"
+    view: "public/campaign"
   - id: "route:get__cart"
     type: "route"
     title: "GET /cart"
@@ -2320,6 +1624,7 @@ concepts:
     services:
       - "BlogService"
       - "ProductService"
+      - "CampaignPageService"
     view: "public/sitemap"
   - id: "route:get__spiritual"
     type: "route"
@@ -2438,38 +1743,6 @@ concepts:
       - "AuditLogService"
       - "AuthService"
     view: "admin/appearance"
-  - id: "route:post__admin_astrologers_delete"
-    type: "route"
-    title: "POST /admin/astrologers/delete"
-    description: "admin.astrologers.delete"
-    resource: "app/routes.php"
-    tags:
-      - "code"
-      - "route"
-    method: "POST"
-    path: "/admin/astrologers/delete"
-    controller: "AdminController@deleteAstrologer"
-    services:
-      - "ResourceService"
-      - "AuditLogService"
-      - "AuthService"
-    view: "admin/astrologer-form"
-  - id: "route:post__admin_astrologers_save"
-    type: "route"
-    title: "POST /admin/astrologers/save"
-    description: "admin.astrologers.save"
-    resource: "app/routes.php"
-    tags:
-      - "code"
-      - "route"
-    method: "POST"
-    path: "/admin/astrologers/save"
-    controller: "AdminController@saveAstrologer"
-    services:
-      - "ResourceService"
-      - "AuditLogService"
-      - "AuthService"
-    view: "admin/astrologer-form"
   - id: "route:post__admin_blog_ai_draft"
     type: "route"
     title: "POST /admin/blog/ai-draft"
@@ -2580,6 +1853,38 @@ concepts:
       - "AuditLogService"
       - "AuthService"
     view: "admin/blog"
+  - id: "route:post__admin_campaign_pages_delete"
+    type: "route"
+    title: "POST /admin/campaign_pages/delete"
+    description: "admin.campaigns.delete"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/admin/campaign_pages/delete"
+    controller: "AdminController@deleteCampaign"
+    services:
+      - "ResourceService"
+      - "AuditLogService"
+      - "AuthService"
+    view: "admin/resource"
+  - id: "route:post__admin_campaign_pages_save"
+    type: "route"
+    title: "POST /admin/campaign_pages/save"
+    description: "admin.campaigns.save"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/admin/campaign_pages/save"
+    controller: "AdminController@saveCampaign"
+    services:
+      - "ResourceService"
+      - "AuditLogService"
+      - "AuthService"
+    view: "admin/resource"
   - id: "route:post__admin_categories_delete"
     type: "route"
     title: "POST /admin/categories/delete"
@@ -2612,6 +1917,38 @@ concepts:
       - "AuditLogService"
       - "AuthService"
     view: "admin/resource"
+  - id: "route:post__admin_consultants_delete"
+    type: "route"
+    title: "POST /admin/consultants/delete"
+    description: "admin.consultants.delete"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/admin/consultants/delete"
+    controller: "AdminController@deleteConsultant"
+    services:
+      - "ResourceService"
+      - "AuditLogService"
+      - "AuthService"
+    view: "admin/consultant-form"
+  - id: "route:post__admin_consultants_save"
+    type: "route"
+    title: "POST /admin/consultants/save"
+    description: "admin.consultants.save"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/admin/consultants/save"
+    controller: "AdminController@saveConsultant"
+    services:
+      - "ResourceService"
+      - "AuditLogService"
+      - "AuthService"
+    view: "admin/consultant-form"
   - id: "route:post__admin_contact_submissions_delete"
     type: "route"
     title: "POST /admin/contact_submissions/delete"
@@ -2839,38 +2176,6 @@ concepts:
       - "AuditLogService"
       - "AuthService"
     view: "admin/list"
-  - id: "route:post__admin_temples_delete"
-    type: "route"
-    title: "POST /admin/temples/delete"
-    description: "admin.temples.delete"
-    resource: "app/routes.php"
-    tags:
-      - "code"
-      - "route"
-    method: "POST"
-    path: "/admin/temples/delete"
-    controller: "AdminController@deleteTemple"
-    services:
-      - "ResourceService"
-      - "AuditLogService"
-      - "AuthService"
-    view: "admin/resource"
-  - id: "route:post__admin_temples_save"
-    type: "route"
-    title: "POST /admin/temples/save"
-    description: "admin.temples.save"
-    resource: "app/routes.php"
-    tags:
-      - "code"
-      - "route"
-    method: "POST"
-    path: "/admin/temples/save"
-    controller: "AdminController@saveTemple"
-    services:
-      - "ResourceService"
-      - "AuditLogService"
-      - "AuthService"
-    view: "admin/resource"
   - id: "route:post__api_consultations__id__status"
     type: "route"
     title: "POST /api/consultations/{id}/status"
@@ -3148,16 +2453,6 @@ concepts:
     data_source: "remotedb"
     collection: "appointments"
     schema_file: "storage/schema/collections.php"
-  - id: "schema:astrologers"
-    type: "schema"
-    title: "astrologers"
-    description: "Schema collection: astrologers"
-    resource: "storage/schema/collections.php"
-    tags:
-      - "schema"
-    data_source: "remotedb"
-    collection: "astrologers"
-    schema_file: "storage/schema/collections.php"
   - id: "schema:audit_events"
     type: "schema"
     title: "audit_events"
@@ -3168,6 +2463,16 @@ concepts:
     data_source: "remotedb"
     collection: "audit_events"
     schema_file: "storage/schema/collections.php"
+  - id: "schema:campaign_pages"
+    type: "schema"
+    title: "campaign_pages"
+    description: "Schema collection: campaign_pages"
+    resource: "storage/schema/collections.php"
+    tags:
+      - "schema"
+    data_source: "remotedb"
+    collection: "campaign_pages"
+    schema_file: "storage/schema/collections.php"
   - id: "schema:categories"
     type: "schema"
     title: "categories"
@@ -3177,6 +2482,16 @@ concepts:
       - "schema"
     data_source: "remotedb"
     collection: "categories"
+    schema_file: "storage/schema/collections.php"
+  - id: "schema:consultants"
+    type: "schema"
+    title: "consultants"
+    description: "Schema collection: consultants"
+    resource: "storage/schema/collections.php"
+    tags:
+      - "schema"
+    data_source: "remotedb"
+    collection: "consultants"
     schema_file: "storage/schema/collections.php"
   - id: "schema:consultation_messages"
     type: "schema"
@@ -3318,16 +2633,6 @@ concepts:
     data_source: "remotedb"
     collection: "support_tickets"
     schema_file: "storage/schema/collections.php"
-  - id: "schema:temples"
-    type: "schema"
-    title: "temples"
-    description: "Schema collection: temples"
-    resource: "storage/schema/collections.php"
-    tags:
-      - "schema"
-    data_source: "remotedb"
-    collection: "temples"
-    schema_file: "storage/schema/collections.php"
   - id: "schema:users"
     type: "schema"
     title: "users"
@@ -3412,14 +2717,6 @@ concepts:
     tags:
       - "code"
       - "service"
-  - id: "service:AstrologerService"
-    type: "service"
-    title: "AstrologerService"
-    description: "Service: AstrologerService"
-    resource: "app/Services/AstrologerService.php"
-    tags:
-      - "code"
-      - "service"
   - id: "service:AuditLogService"
     type: "service"
     title: "AuditLogService"
@@ -3452,6 +2749,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:CampaignPageService"
+    type: "service"
+    title: "CampaignPageService"
+    description: "Service: CampaignPageService"
+    resource: "app/Services/CampaignPageService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:CartService"
     type: "service"
     title: "CartService"
@@ -3465,6 +2770,14 @@ concepts:
     title: "CategoryService"
     description: "Service: CategoryService"
     resource: "app/Services/CategoryService.php"
+    tags:
+      - "code"
+      - "service"
+  - id: "service:ConsultantService"
+    type: "service"
+    title: "ConsultantService"
+    description: "Service: ConsultantService"
+    resource: "app/Services/ConsultantService.php"
     tags:
       - "code"
       - "service"
@@ -3724,14 +3037,6 @@ concepts:
     tags:
       - "code"
       - "service"
-  - id: "service:TempleService"
-    type: "service"
-    title: "TempleService"
-    description: "Service: TempleService"
-    resource: "app/Services/TempleService.php"
-    tags:
-      - "code"
-      - "service"
   - id: "skill:admin-ui"
     type: "skill"
     title: "admin-ui"
@@ -3830,9 +3135,6 @@ relationships:
     to: "service:AppointmentService"
     relation: "uses"
   - from: "controller:AdminController"
-    to: "service:AstrologerService"
-    relation: "uses"
-  - from: "controller:AdminController"
     to: "service:AuditLogService"
     relation: "uses"
   - from: "controller:AdminController"
@@ -3846,6 +3148,9 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:CategoryService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:ConsultantService"
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:ConsultationService"
@@ -3906,9 +3211,6 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:TaxService"
-    relation: "uses"
-  - from: "controller:AdminController"
-    to: "service:TempleService"
     relation: "uses"
   - from: "controller:ApiController"
     to: "service:CategoryService"
@@ -3974,6 +3276,9 @@ relationships:
     to: "service:BlogService"
     relation: "uses"
   - from: "controller:PublicController"
+    to: "service:CampaignPageService"
+    relation: "uses"
+  - from: "controller:PublicController"
     to: "service:CartService"
     relation: "uses"
   - from: "controller:PublicController"
@@ -3983,10 +3288,16 @@ relationships:
     to: "service:ContactService"
     relation: "uses"
   - from: "controller:PublicController"
+    to: "service:MarkdownRenderer"
+    relation: "uses"
+  - from: "controller:PublicController"
     to: "service:ProductService"
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:SecretService"
+    relation: "uses"
+  - from: "controller:PublicController"
+    to: "service:SeoService"
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:SettingsService"
@@ -4066,13 +3377,16 @@ relationships:
   - from: "route:get__admin_appointments"
     to: "controller:AdminController"
     relation: "handled_by"
-  - from: "route:get__admin_astrologers"
-    to: "controller:AdminController"
-    relation: "handled_by"
   - from: "route:get__admin_blog"
     to: "controller:AdminController"
     relation: "handled_by"
+  - from: "route:get__admin_campaigns"
+    to: "controller:AdminController"
+    relation: "handled_by"
   - from: "route:get__admin_categories"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:get__admin_consultants"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:get__admin_consultation_analytics"
@@ -4117,9 +3431,6 @@ relationships:
   - from: "route:get__admin_tax_report"
     to: "controller:AdminController"
     relation: "handled_by"
-  - from: "route:get__admin_temples"
-    to: "controller:AdminController"
-    relation: "handled_by"
   - from: "route:get__api"
     to: "controller:ApiController"
     relation: "handled_by"
@@ -4149,6 +3460,12 @@ relationships:
     relation: "handled_by"
   - from: "route:get__blog_category__slug"
     to: "controller:BlogController"
+    relation: "handled_by"
+  - from: "route:get__campaigns"
+    to: "controller:PublicController"
+    relation: "handled_by"
+  - from: "route:get__campaigns__slug"
+    to: "controller:PublicController"
     relation: "handled_by"
   - from: "route:get__cart"
     to: "controller:PublicController"
@@ -4228,12 +3545,6 @@ relationships:
   - from: "route:post__admin_appearance_save"
     to: "controller:AdminController"
     relation: "handled_by"
-  - from: "route:post__admin_astrologers_delete"
-    to: "controller:AdminController"
-    relation: "handled_by"
-  - from: "route:post__admin_astrologers_save"
-    to: "controller:AdminController"
-    relation: "handled_by"
   - from: "route:post__admin_blog_ai_draft"
     to: "controller:AdminController"
     relation: "handled_by"
@@ -4255,10 +3566,22 @@ relationships:
   - from: "route:post__admin_blog_toggle"
     to: "controller:AdminController"
     relation: "handled_by"
+  - from: "route:post__admin_campaign_pages_delete"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:post__admin_campaign_pages_save"
+    to: "controller:AdminController"
+    relation: "handled_by"
   - from: "route:post__admin_categories_delete"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_categories_save"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:post__admin_consultants_delete"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:post__admin_consultants_save"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_contact_submissions_delete"
@@ -4301,12 +3624,6 @@ relationships:
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_support_tickets_save"
-    to: "controller:AdminController"
-    relation: "handled_by"
-  - from: "route:post__admin_temples_delete"
-    to: "controller:AdminController"
-    relation: "handled_by"
-  - from: "route:post__admin_temples_save"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__api_consultations__id__status"
@@ -4378,17 +3695,23 @@ relationships:
   - from: "service:AgentContextService"
     to: "schema:users"
     relation: "stores"
+  - from: "service:AgentToolRegistry"
+    to: "schema:campaign_pages"
+    relation: "stores"
   - from: "service:AppointmentService"
     to: "schema:appointments"
-    relation: "stores"
-  - from: "service:AstrologerService"
-    to: "schema:astrologers"
     relation: "stores"
   - from: "service:AuditLogService"
     to: "schema:audit_events"
     relation: "stores"
+  - from: "service:CampaignPageService"
+    to: "schema:campaign_pages"
+    relation: "stores"
   - from: "service:CategoryService"
     to: "schema:categories"
+    relation: "stores"
+  - from: "service:ConsultantService"
+    to: "schema:consultants"
     relation: "stores"
   - from: "service:ConsultationService"
     to: "schema:appointments"
@@ -4463,10 +3786,13 @@ relationships:
     to: "schema:appointments"
     relation: "stores"
   - from: "service:ResourceService"
-    to: "schema:astrologers"
+    to: "schema:campaign_pages"
     relation: "stores"
   - from: "service:ResourceService"
     to: "schema:categories"
+    relation: "stores"
+  - from: "service:ResourceService"
+    to: "schema:consultants"
     relation: "stores"
   - from: "service:ResourceService"
     to: "schema:orders"
@@ -4488,7 +3814,4 @@ relationships:
     relation: "stores"
   - from: "service:SupportTicketService"
     to: "schema:support_tickets"
-    relation: "stores"
-  - from: "service:TempleService"
-    to: "schema:temples"
     relation: "stores"

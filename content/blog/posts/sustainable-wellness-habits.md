@@ -8,8 +8,8 @@ published_at: 2026-10-02
 summary: How Nebo approaches practical and sustainable lifestyle change.
 excerpt: Small, repeatable changes in food, movement, rest, and stress care can be easier to maintain.
 author: Nebo Lifestyle Clinic
-og_image: /assets/images/nebo-clinic-hero.png
-image_alt: Illustrative conversation in a calm clinic setting
+og_image: /assets/images/blog/wellness-habits.webp
+image_alt: A calm morning routine with a journal, nourishing food and gentle movement
 source_url: /#programs
 ---
 

@@ -15,17 +15,17 @@ final class AuthController extends BaseController {
    if(!empty($token['error'])||empty($token['access_token'])){$this->flash('Google login failed. Please try again.','error');$this->redirect('/login');}
    $user=$this->get('https://openidconnect.googleapis.com/v1/userinfo',$token['access_token']);
    if(empty($user)){$this->flash('Failed to fetch your profile from Google. Please try again.','error');$this->redirect('/login');}
-    $store=new DatabaseService(); $users=$store->read('users'); $role = 'customer'; $astrologerSlug = ''; $mustChange = false; $existingId = '';
-    foreach ($users as $u) { if (($u['id'] ?? '') === ($user['sub'] ?? '') || (($u['email'] ?? '') !== '' && ($u['email'] ?? '') === ($user['email'] ?? ''))) { $role=$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'); $astrologerSlug=$u['astrologer_slug'] ?? ''; $mustChange=(bool)($u['must_change_password'] ?? false); if (($u['email'] ?? '') === ($user['email'] ?? '')) $existingId=$u['id']??''; break; } }
+    $store=new DatabaseService(); $users=$store->read('users'); $role = 'customer'; $consultantSlug = ''; $mustChange = false; $existingId = '';
+    foreach ($users as $u) { if (($u['id'] ?? '') === ($user['sub'] ?? '') || (($u['email'] ?? '') !== '' && ($u['email'] ?? '') === ($user['email'] ?? ''))) { $role=$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'); $consultantSlug=$u['consultant_slug'] ?? ''; $mustChange=(bool)($u['must_change_password'] ?? false); if (($u['email'] ?? '') === ($user['email'] ?? '')) $existingId=$u['id']??''; break; } }
     $userId = $existingId ?: ($user['sub'] ?? bin2hex(random_bytes(8)));
     unset($_SESSION['oauth_state']);
     session_regenerate_id(true);
-    $_SESSION['user']=['sub'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','username'=>explode('@',$user['email'])[0],'picture'=>$user['picture']??'','role'=>$role,'astrologer_slug'=>$astrologerSlug];
+    $_SESSION['user']=['sub'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','username'=>explode('@',$user['email'])[0],'picture'=>$user['picture']??'','role'=>$role,'consultant_slug'=>$consultantSlug];
     try { $store->upsert('users',['id'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','picture'=>$user['picture']??'','role'=>$role]); } catch (\Throwable) {}
     $this->flash('Signed in.','success');
     session_write_close();
    if ($role === 'admin') { $this->redirect('/admin'); return; }
-   if ($role === 'astrologer') { $_SESSION = []; $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
+   if ($role === 'consultant') { $_SESSION = []; $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
     $this->redirect('/account/dashboard');
   }
  public function logout(): void {
@@ -112,9 +112,9 @@ final class AuthController extends BaseController {
     foreach ($users as $u) {
         $matches = strcasecmp((string)($u['email'] ?? ''), $email) === 0 || strcasecmp((string)($u['username'] ?? ''), $email) === 0;
         if ($matches && !empty($u['password_hash']) && password_verify($password,$u['password_hash'])) {
-            if (($u['role'] ?? '') === 'astrologer') { $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
+            if (($u['role'] ?? '') === 'consultant') { $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
             session_regenerate_id(true);
-            $_SESSION['user'] = ['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'astrologer_slug'=>$u['astrologer_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)];
+            $_SESSION['user'] = ['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'consultant_slug'=>$u['consultant_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)];
             $this->flash('Signed in.','success');
             session_write_close();
             $this->redirect(($u['role'] ?? '') === 'customer' ? '/account/dashboard' : '/');

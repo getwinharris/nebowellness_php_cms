@@ -172,7 +172,7 @@ $tests['repo has agent-readable schema and built-in skills'] = function (): void
     assertTrue(is_file($schemaPath), 'PHP schema registry should exist');
     $schema = require $schemaPath;
     assertTrue(is_array($schema), 'PHP schema registry should return array');
-    foreach (['products', 'categories', 'coupons', 'astrologers', 'temples', 'orders', 'appointments', 'wallet_transactions', 'support_tickets', 'media_files', 'audit_events', 'mail_queue', 'reviews', 'settings', 'contact_submissions'] as $collection) {
+    foreach (['products', 'categories', 'coupons', 'consultants', 'campaign_pages', 'orders', 'appointments', 'wallet_transactions', 'support_tickets', 'media_files', 'audit_events', 'mail_queue', 'reviews', 'settings', 'contact_submissions'] as $collection) {
         assertTrue(isset($schema['collections'][$collection]), "Schema should define {$collection}");
     }
     assertTrue(in_array('image_urls', $schema['collections']['products']['media_fields'] ?? [], true), 'Product schema should define gallery media field');
@@ -531,8 +531,8 @@ $tests['admin integrations explain api setup and support bot keys'] = function (
         assertTrue(str_contains($view, $needle), "Integrations page should include {$needle}");
     }
     assertTrue(!str_contains($view, 'name="support_bot_google_api_endpoint"'), 'Admin should not need to enter the Google API endpoint manually');
-    assertTrue(str_contains($view, 'Public consultation booking is retired.'), 'Integration guidance should match the retired public booking journey');
-    assertTrue(str_contains($view, 'Historical service records remain available to the owner'), 'Retired public services should not imply removal of historical admin records');
+    assertTrue(str_contains($view, 'programs, campaigns, practitioners, wellness guidance'), 'Integration guidance should describe the current clinic journey');
+    assertTrue(str_contains($view, 'Historical service records remain owner-only'), 'Historical admin records should remain owner-only');
     foreach (['Customers will only see shop, booking', 'new orders and bookings', 'This site is ecommerce plus direct astrology services.'] as $retiredCopy) {
         assertTrue(!str_contains($view, $retiredCopy), 'Integration guidance must not advertise retired services: '.$retiredCopy);
     }
@@ -624,7 +624,7 @@ $tests['public consultation booking is retired while owner records remain availa
 };
 
 $tests['retired public consultant templates are removed'] = function (): void {
-    foreach (['views/public/consult.php', 'views/public/astrologer.php', 'views/account/bookings.php'] as $path) {
+    foreach (['views/public/consult.php', 'views/public/consultant.php', 'views/account/bookings.php'] as $path) {
         assertTrue(!is_file(app_path($path)), "Retired booking template should be removed: {$path}");
     }
 };
@@ -673,7 +673,7 @@ $tests['admin retains historical service records without public consultant profi
     $dashboard = file_get_contents(app_path('views/admin/dashboard.php'));
     $layout = file_get_contents(app_path('views/layouts/admin.php'));
     assertTrue(str_contains($dashboard, 'Recent Sessions') && str_contains($dashboard, '/admin/appointments'), 'Admin dashboard should link to retained session records');
-    assertTrue(str_contains($layout, '/admin/astrologers') && str_contains($layout, '/admin/appointments'), 'Admin navigation should retain owner service records');
+    assertTrue(str_contains($layout, '/admin/consultants') && str_contains($layout, '/admin/appointments'), 'Admin navigation should retain owner service records');
 };
 
 $tests['home page does not expose a consultant marketplace'] = function (): void {
@@ -743,7 +743,7 @@ $tests['home temple guide uses admin driven dissolve carousel'] = function (): v
 
 $tests['review service stores five star reviews and calculates averages'] = function (): void {
     $service = new ReviewService();
-    assertTrue(method_exists($service, 'saveAstrologerReview'), 'ReviewService should have saveAstrologerReview');
+    assertTrue(method_exists($service, 'saveConsultantReview'), 'ReviewService should have saveConsultantReview');
     assertTrue(method_exists($service, 'summary'), 'ReviewService should have summary method');
 };
 
@@ -886,13 +886,13 @@ $tests['consultants are profiles without application login credentials'] = funct
     $admin=file_get_contents(app_path('app/Controllers/AdminController.php'));
     $layout=file_get_contents(app_path('views/layouts/admin.php'));
     assertTrue(str_contains($auth,'Consultant access is managed by the site administrator.'),'Legacy consultant users should be denied application login');
-    assertTrue(!str_contains($admin,'AstrologerAccountService') && !str_contains($layout,'Login IDs'),'Admin should not create or expose consultant credentials');
-    assertTrue(!is_file(app_path('app/Controllers/AstrologerController.php')) && !is_file(app_path('views/astrologer/dashboard.php')),'Consultant login surfaces should be removed');
+    assertTrue(!str_contains($admin,'ConsultantAccountService') && !str_contains($layout,'Login IDs'),'Admin should not create or expose consultant credentials');
+    assertTrue(!is_file(app_path('app/Controllers/ConsultantController.php')) && !is_file(app_path('views/consultant/dashboard.php')),'Consultant login surfaces should be removed');
 };
 
 $tests['retired consultation routes preserve only protected owner status access'] = function (): void {
     foreach(['/consultation/initiate','/api/consultations/{id}/status'] as $path) routeExists($path,"Missing consultation route {$path}");
-    foreach(['/astrologer','/astrologer/change-password','/astrologer/availability','/admin/astrologer-credentials'] as $path) routeMissing($path,"Consultant credential route should be removed: {$path}");
+    foreach(['/consultant','/consultant/change-password','/consultant/availability','/admin/consultant-credentials'] as $path) routeMissing($path,"Consultant credential route should be removed: {$path}");
     foreach(['/consultation/{id}','/api/consultations/{id}/messages','/api/consultations/{id}/signals'] as $path) routeMissing($path,"Removed live consultation route should not be public: {$path}");
     $controller = file_get_contents(app_path('app/Controllers/ConsultationController.php'));
     assertTrue(str_contains($controller, "redirect('/contact#contact-form')"), 'A legacy initiate request should redirect to general enquiry');
@@ -1558,10 +1558,10 @@ $tests['home hero rotates all supplied varahi images'] = function (): void {
     assertTrue(str_contains($view, 'Explore Our Programs'), 'Home hero should link to the programs section');
 };
 
-$tests['admin product and astrologer forms expose editable owner fields'] = function (): void {
+$tests['admin product and consultant forms expose editable owner fields'] = function (): void {
     $controller = file_get_contents(app_path('app/Controllers/AdminController.php'));
     $productForm = file_get_contents(app_path('views/admin/product-form.php'));
-    $astroForm = file_get_contents(app_path('views/admin/astrologer-form.php'));
+    $astroForm = file_get_contents(app_path('views/admin/consultant-form.php'));
     $resourceView = file_get_contents(app_path('views/admin/resource.php'));
     $productView = file_get_contents(app_path('views/public/product.php'));
     $auditService = file_get_contents(app_path('app/Services/AuditLogService.php'));
@@ -1573,8 +1573,8 @@ $tests['admin product and astrologer forms expose editable owner fields'] = func
     assertTrue(str_contains($productForm, 'multiple'), 'Product image upload should accept multiple files');
     assertTrue(str_contains($productForm, 'foreach($mediaFiles as $media)'), 'Media picker should show all files by upload time, not only the latest page');
     assertTrue(str_contains($productForm, 'class="admin-media-picker"'), 'Product forms should expose a media library picker');
-    assertTrue(str_contains($astroForm, 'foreach($mediaFiles as $media)'), 'Astrologer media picker should show all files by upload time');
-    assertTrue(str_contains($astroForm, 'class="admin-media-picker"'), 'Astrologer forms should expose a media library picker');
+    assertTrue(str_contains($astroForm, 'foreach($mediaFiles as $media)'), 'Consultant media picker should show all files by upload time');
+    assertTrue(str_contains($astroForm, 'class="admin-media-picker"'), 'Consultant forms should expose a media library picker');
     assertTrue(str_contains($resourceView, "['image_url', 'photo_url']"), 'Local asset image fields should not use URL inputs that reject /assets paths');
     assertTrue(!str_contains($resourceView, 'let el = document.getElementById'), 'Generated admin edit script should not redeclare let for every field');
     assertTrue(str_contains($productView, 'image_urls'), 'Product page should render product image galleries');
@@ -1587,8 +1587,8 @@ $tests['admin product and astrologer forms expose editable owner fields'] = func
     assertTrue(str_contains($controller, 'parseSpecifications'), 'Admin save should parse product specifications into structured data');
     assertTrue(str_contains($controller, 'AuditLogService'), 'Admin mutations should write audit log records');
     assertTrue(str_contains($auditService, 'function record'), 'Audit log service should be able to record admin changes');
-    foreach (['slug', 'email', 'experience_years', 'slot_minutes', 'languages', 'working_days', 'speciality'] as $field) {
-        assertTrue(str_contains($astroForm, $field), "Astrologer admin form should expose {$field}");
+    foreach (['slug', 'credentials', 'experience_years', 'gender', 'languages', 'display_order', 'speciality'] as $field) {
+        assertTrue(str_contains($astroForm, $field), "Consultant admin form should expose {$field}");
     }
     foreach (['username', 'message_credit_cost', 'call_credit_per_second', 'payout_percentage'] as $field) assertTrue(!str_contains($astroForm, 'name="' . $field . '"'), "Consultant form should not expose removed credential/rate field {$field}");
 };
@@ -1600,9 +1600,9 @@ $tests['admin sidebar exposes every admin menu'] = function (): void {
         '/admin/products',
         '/admin/categories',
         '/admin/coupons',
-        '/admin/astrologers',
+        '/admin/consultants',
         '/admin/appointments',
-        '/admin/temples',
+        '/admin/campaigns',
         '/admin/orders',
         '/admin/contact-submissions',
         '/admin/support-tickets',
@@ -1782,7 +1782,7 @@ $tests['public pages contain no consultation booking copy'] = function (): void 
 $tests['retired booking endpoint creates no new appointment'] = function (): void {
     $controller = file_get_contents(app_path('app/Controllers/ConsultationController.php'));
     assertTrue(str_contains($controller, "redirect('/contact#contact-form')"), 'Legacy booking submissions should redirect to the general enquiry form');
-    foreach (['ResourceService', 'MailQueueService', 'AstrologerService'] as $needle) {
+    foreach (['ResourceService', 'MailQueueService', 'ConsultantService'] as $needle) {
         assertTrue(!str_contains($controller, $needle), "Retired booking endpoint should not invoke {$needle}");
     }
 };
@@ -1829,7 +1829,7 @@ $tests['Nebo articles share accessible card and article images'] = function (): 
     foreach (['your-first-nebo-consultation', 'sustainable-wellness-habits'] as $slug) {
         $post = file_get_contents(app_path("content/blog/posts/{$slug}.md"));
         assertTrue(str_contains($post, "\nsummary:") && str_contains($post, "\ncategory: wellness"), "Nebo article {$slug} should retain summary and wellness category");
-        assertTrue(str_contains($post, "\nimage_alt: Illustrative "), "Nebo article {$slug} should describe illustrative imagery accurately");
+        assertTrue((bool)preg_match('/^image_alt: .{12,}$/m', $post), "Nebo article {$slug} should describe its imagery accurately");
         preg_match('/^og_image: (.+)$/m', $post, $imageMatch);
         assertTrue(isset($imageMatch[1]), "Nebo article {$slug} should reference a card and article image");
         $image = app_path(ltrim((string)($imageMatch[1] ?? ''), '/'));
@@ -1846,7 +1846,7 @@ $tests['public navigation uses brand home link and mobile cart tray'] = function
     $css = file_get_contents(app_path('assets/css/band.css'));
     assertSame(1, substr_count($layout, 'href="/" class="brand"'), 'Brand should link home once');
     assertTrue(!str_contains($layout, '>Home</a>') && !str_contains($layout, '<span>Home</span>'), 'Public navigation should not duplicate Home');
-    assertTrue(!str_contains($layout, 'href="/blog/category/help"'), 'Help should remain a Blog category instead of a separate primary-menu item');
+    assertTrue(str_contains($layout, 'href="/blog/category/<?= e($__cat[\'slug\']'), 'Website help should be reachable through the generated journal categories');
     foreach (['mobile-cart-tray', 'mobile-cart-count', 'mobile-cart-label'] as $needle) assertTrue(str_contains($layout, $needle), "Cart tray should include {$needle}");
     assertTrue(str_contains($css, '.mobile-cart-tray') && str_contains($css, 'bottom:78px'), 'Mobile cart tray should sit above bottom navigation');
     assertTrue(str_contains($css, '.support-fab{right:24px;bottom:24px}') && str_contains($css, '.mobile-cart-tray{position:fixed;right:24px;bottom:88px'), 'Desktop support should align directly below the cart tray');

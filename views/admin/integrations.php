@@ -1,6 +1,6 @@
 <div class="admin-card" style="border-left:4px solid var(--color-gold); margin-bottom:var(--space-lg);">
     <h2 style="font-size:1rem; margin:0 0 var(--space-sm);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> API Setup</h2>
-    <p style="margin:0; color:var(--color-text-muted); font-size:0.9rem;">These settings are for the website owner only. Customers use the shop, product pages, cart, account, temple guides, and editorial content. Public consultation booking is retired. All site secrets (payments, email, analytics, and AI) are stored encrypted in the project secret store and managed from this page &mdash; they are never kept in <code>.env</code>.</p>
+    <p style="margin:0; color:var(--color-text-muted); font-size:0.9rem;">These settings are for the website owner only. Visitors use program, campaign, journal, product, account, and enquiry pages. All site secrets for payments, email, analytics, and AI are stored encrypted in the project secret store and managed here &mdash; they are never kept in <code>.env</code>.</p>
 </div>
 <div class="admin-card">
     <form method="post" action="/admin/integrations/save" class="admin-form">
@@ -122,7 +122,7 @@
             Configure default SEO metadata used across all pages. These can be overridden per page automatically by the SEO service.
         </p>
         <div class="admin-form__row">
-            <label>Site Name<input name="seo_site_name" value="<?= e($secrets['seo_site_name']??'') ?>" placeholder="Nebo Wellness"></label>
+            <label>Site Name<input name="seo_site_name" value="<?= e($secrets['seo_site_name']??'') ?>" placeholder="Nebo Lifestyle Clinic"></label>
             <label>Twitter Handle<input name="seo_twitter_handle" value="<?= e($secrets['seo_twitter_handle']??'') ?>" placeholder="@sps"></label>
         </div>
         <div class="admin-form__row">
@@ -152,7 +152,7 @@
             <label>From Email<input name="mail_from_email" value="<?= e($secrets['mail_from_email']??'') ?>" placeholder="support@sripanchamispiritual.com"></label>
         </div>
         <div class="admin-form__row">
-            <label>From Name<input name="mail_from_name" value="<?= e($secrets['mail_from_name']??'Nebo Wellness') ?>" placeholder="Nebo Wellness"></label>
+            <label>From Name<input name="mail_from_name" value="<?= e($secrets['mail_from_name']??'Nebo Lifestyle Clinic') ?>" placeholder="Nebo Lifestyle Clinic"></label>
             <label>Admin Notification Email<input name="admin_notification_email" value="<?= e($secrets['admin_notification_email']??'') ?>" placeholder="nebolifestyleclinic@gmail.com"></label>
         </div>
         <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">
@@ -169,7 +169,7 @@
 
         <div class="admin-card" style="background:var(--color-bg-alt); margin-top:var(--space-xl); padding:var(--space-md);">
             <h3 style="font-size:0.9rem; margin:0 0 var(--space-sm);">Platform Scope</h3>
-            <p style="margin:0; color:var(--color-text-muted); font-size:0.85rem;">This site is a spiritual-products storefront supported by temple guides and editorial content. Public consultation booking, text sessions, and direct call sessions are retired. Historical service records remain available to the owner in the admin panel.</p>
+            <p style="margin:0; color:var(--color-text-muted); font-size:0.85rem;">This site presents Nebo Lifestyle Clinic programs, campaigns, practitioners, wellness guidance, products, and enquiry support. Historical service records remain owner-only in the admin panel.</p>
         </div>
         <button class="btn btn-primary" style="margin-top:var(--space-lg);">Save Integrations</button>
     </form>

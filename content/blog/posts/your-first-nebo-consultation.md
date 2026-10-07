@@ -8,8 +8,8 @@ published_at: 2026-10-02
 summary: What to expect when you contact Nebo Lifestyle Clinic about your goals.
 excerpt: A simple guide to discussing your health goals, questions, and next steps with our team.
 author: Nebo Lifestyle Clinic
-og_image: /assets/images/nebo-programs.png
-image_alt: Illustrative nutrition consultation in a clinic setting
+og_image: /assets/images/blog/contact-form-guide.webp
+image_alt: Nebo consultation request form shown on a laptop and phone
 source_url: /contact
 ---
 

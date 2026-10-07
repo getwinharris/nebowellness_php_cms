@@ -2,7 +2,7 @@ User-agent: *
 Disallow: /admin/
 Disallow: /account/
 Disallow: /api/
-Disallow: /astrologer/
+Disallow: /consultant/
 Disallow: /cart
 Disallow: /checkout
 Disallow: /login

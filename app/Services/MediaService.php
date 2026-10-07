@@ -12,13 +12,13 @@ final class MediaService {
     }
 
     /** Contexts the library knows about. 'blog' was missing, so blog uploads vanished. */
-    private const CONTEXTS = ['shared', 'products', 'temples', 'astrologers', 'blog'];
+    private const CONTEXTS = ['shared', 'products', 'campaigns', 'consultants', 'blog'];
 
     /** Asset folders scanned so images shipped with the site appear alongside uploads. */
     private const ASSET_DIRS = [
         'products'    => 'assets/images/products',
-        'temples'     => 'assets/images/temples',
-        'astrologers' => 'assets/images/astrologers',
+        'campaigns'   => 'assets/images/campaigns',
+        'consultants' => 'assets/images/consultants',
         'blog'        => 'assets/images/blog',
         'shared'      => 'assets/images/media',
     ];
@@ -30,7 +30,7 @@ final class MediaService {
             $all = array_merge($all, $this->readWithAliases($ctx));
         }
         // The catalogue only records files uploaded through the admin, so product and
-        // temple artwork that ships with the site never appeared in the library and
+        // campaign artwork that ships with the site never appeared in the library and
         // could not be picked when editing a post. Scan the folders too and merge on
         // path, with catalogue entries winning so descriptions and usage survive.
         $byPath = [];
@@ -136,7 +136,7 @@ final class MediaService {
     }
 
     public function delete(string $id, ?string $context = null): void {
-        $contexts = $context ? [$context] : ['shared','products','temples','astrologers'];
+        $contexts = $context ? [$context] : ['shared','products','campaigns','consultants','blog'];
         foreach ($contexts as $ctx) {
             $filePath = '';
             $records = array_values(array_filter($this->readYaml($ctx), function($r) use ($id, &$filePath) {
@@ -305,7 +305,7 @@ final class MediaService {
     private function scanExistingAssets(): array {
         $base = app_path('assets/images');
         $items = [];
-        foreach (['products', 'temples', 'astrologers'] as $context) {
+        foreach (['products', 'campaigns', 'consultants', 'blog'] as $context) {
             $dir = $base . '/' . $context;
             if (!is_dir($dir)) continue;
             foreach (glob($dir . '/*.{jpg,jpeg,png,webp,gif,svg}', GLOB_BRACE) ?: [] as $file) {

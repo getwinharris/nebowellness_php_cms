@@ -1,12 +1,33 @@
 <?php
 namespace App\Controllers;
-use App\Services\{AuthService,BlogService,ProductService,TempleService,CategoryService,SecretService,SeoService,ContactService,ReviewService,MarkdownRenderer};
+use App\Services\{AuthService,BlogService,CampaignPageService,ConsultantService,ProductService,CategoryService,SecretService,SeoService,ContactService,ReviewService,MarkdownRenderer};
 final class PublicController extends BaseController {
     
     public function home(): void {
         $this->detectApiRequest();
         $this->seoKey = 'home';
-        $this->render('public/home');
+        $consultants = [];
+        try { $consultants = (new ConsultantService())->all(); }
+        catch (\Throwable $error) { error_log('Home consultant profiles unavailable: ' . $error->getMessage()); }
+        if ($consultants === []) $consultants = $this->defaultConsultants();
+        $this->render('public/home', ['consultants' => $consultants]);
+    }
+
+    /**
+     * Honest temporary cards for the launch. The silhouettes make it clear that these
+     * are placeholders; saving a consultant in Admin replaces the fallback list and
+     * its photo_url can be changed from the media picker.
+     */
+    private function defaultConsultants(): array {
+        $female = '/assets/images/consultants/default-female.webp';
+        $male = '/assets/images/consultants/default-male.webp';
+        return [
+            ['id'=>'dr-bablin-torah','slug'=>'dr-bablin-torah','name'=>'Dr Bablin Torah','speciality'=>'MD Naturopathic Consultant','photo_url'=>$male,'description'=>'Integrative naturopathy and personalised lifestyle guidance.','languages'=>['English','Tamil']],
+            ['id'=>'dr-sathyajothi','slug'=>'dr-sathyajothi','name'=>'Dr Sathyajothi','speciality'=>'BNYS · Yoga Mentor & Guide','photo_url'=>$male,'description'=>'Therapeutic yoga and practical movement guidance for sustainable wellbeing.','languages'=>['English','Tamil']],
+            ['id'=>'dr-berslin-fency','slug'=>'dr-berslin-fency','name'=>'Dr Berslin Fency','speciality'=>'BNYS · Consultant Physician','photo_url'=>$female,'description'=>'Root-cause assessment and evidence-informed naturopathic care.','languages'=>['English','Tamil']],
+            ['id'=>'dr-karthik-raj','slug'=>'dr-karthik-raj','name'=>'Dr Karthik Raj','speciality'=>'BNYS · Lifestyle Physician','photo_url'=>$male,'description'=>'Personalised nutrition, movement, sleep and metabolic health planning.','languages'=>['English','Tamil']],
+            ['id'=>'dr-padmashree','slug'=>'dr-padmashree','name'=>'Dr Padmashree','speciality'=>'BNYS, FFAC, CCBE · Maternity Wellness Consultant','photo_url'=>$female,'description'=>'Preconception, pregnancy and postpartum wellness support.','languages'=>['English','Tamil']],
+        ];
     }
     
     public function about(): void { 
@@ -45,6 +66,24 @@ final class PublicController extends BaseController {
     
     public function temple(string $slug): void { 
         $this->redirect('/about');
+    }
+
+    public function campaigns(): void {
+        $this->seoKey = 'campaigns';
+        $this->render('public/campaigns', ['pages' => (new CampaignPageService())->published()]);
+    }
+
+    public function campaign(string $slug): void {
+        $page = (new CampaignPageService())->findPublished($slug);
+        if ($page === null) $this->renderNotFound();
+        $this->seoKey = 'campaign';
+        $this->seoOverrides = [
+            'title' => trim((string)($page['seo_title'] ?? '')) ?: $page['title'] . ' – Nebo Lifestyle Clinic',
+            'description' => trim((string)($page['seo_description'] ?? '')) ?: (string)($page['summary'] ?? ''),
+            'og_image' => trim((string)($page['image_url'] ?? '')) ?: '/assets/images/nebo-programs.png',
+            'canonical' => $this->siteUrl('/campaigns/' . $page['slug']),
+        ];
+        $this->render('public/campaign', ['campaign' => $page]);
     }
     
     public function shop(): void {
@@ -187,6 +226,8 @@ final class PublicController extends BaseController {
         }
         $blogPosts = [];
         try { $blogPosts = (new BlogService())->all(); } catch (\Throwable) {}
+        $campaignPages = (new CampaignPageService())->published();
+        $pages[] = '/campaigns';
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
@@ -205,6 +246,10 @@ final class PublicController extends BaseController {
             if (!empty($post['slug']) && !empty($post['published'])) {
                 $xml .= '  <url><loc>' . $base . '/blog/' . e($post['slug']) . '</loc><lastmod>' . e(substr((string)($post['updated_at'] ?? $post['published_at'] ?? ''), 0, 10)) . '</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>' . "\n";
             }
+        }
+
+        foreach ($campaignPages as $campaignPage) {
+            $xml .= '  <url><loc>' . $base . '/campaigns/' . e($campaignPage['slug']) . '</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>' . "\n";
         }
 
         $xml .= '</urlset>';

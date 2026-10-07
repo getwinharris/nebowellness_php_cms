@@ -7,8 +7,9 @@
                 <select name="context">
                     <option value="shared">Shared</option>
                     <option value="products">Products</option>
-                    <option value="temples">Temples</option>
-                    <option value="astrologers">Astrologers</option>
+                    <option value="campaigns">Campaigns</option>
+                    <option value="consultants">Consultants</option>
+                    <option value="consultants">Consultants</option>
                 </select>
             </label>
             <label>Description

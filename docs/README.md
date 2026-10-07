@@ -44,7 +44,6 @@ Generated files point to original sources. Do not hand-edit them.
 - [`modules/razorpay.md`](modules/razorpay.md)
 - [`modules/google-oauth.md`](modules/google-oauth.md)
 - [`modules/pwa.md`](modules/pwa.md)
-- [`modules/temples.md`](modules/temples.md)
 
 ## Page notes
 

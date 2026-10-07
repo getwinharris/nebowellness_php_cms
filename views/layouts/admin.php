@@ -86,10 +86,10 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="admin-submenu" id="menu-services">
-                <a href="/admin/astrologers" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/astrologers') === 0 ? 'active' : '') ?>">Astrologers</a>
+                <a href="/admin/consultants" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/consultants') === 0 ? 'active' : '') ?>">Consultants</a>
                 <a href="/admin/appointments" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/appointments') === 0 ? 'active' : '') ?>">Sessions</a>
                 <a href="/admin/consultation-analytics" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/consultation-analytics') === 0 ? 'active' : '') ?>">Analytics</a>
-                <a href="/admin/temples" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/temples') === 0 ? 'active' : '') ?>">Temples</a>
+                <a href="/admin/campaigns" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/campaigns') === 0 ? 'active' : '') ?>">Campaign Pages</a>
             </div>
             <?php if ($__modules['blog']): ?>
             <a href="/admin/blog" class="admin-nav-top <?= (strpos($_SERVER['REQUEST_URI'], '/admin/blog') === 0 ? 'active' : '') ?>">
@@ -167,9 +167,9 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
             $__crumb = '';
             $__labelMap = [
                 'products'=>'Products','categories'=>'Categories','coupons'=>'Coupons',
-                'orders'=>'Orders','shipping'=>'Shipping','tax-report'=>'Tax Report','astrologers'=>'Astrologers',
+                'orders'=>'Orders','shipping'=>'Shipping','tax-report'=>'Tax Report','consultants'=>'Consultants',
                 'appointments'=>'Sessions',
-                'consultation-analytics'=>'Analytics','temples'=>'Temples',
+                'consultation-analytics'=>'Analytics','campaigns'=>'Campaign Pages',
                 'settings'=>'Site Settings','integrations'=>'Integrations',
                 'backups'=>'Backups','audit-log'=>'Audit Log',
                 'contact-submissions'=>'Contacts','support-tickets'=>'Support',
