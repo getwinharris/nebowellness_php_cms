@@ -3,10 +3,10 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 112,
+        "routes": 114,
         "controllers": 12,
         "services": 48,
-        "views": 44,
+        "views": 43,
         "collections": 22
     },
     "routes": [
@@ -16,11 +16,7 @@
             "name": "home",
             "controller": "PublicController@home",
             "view": "public/home",
-            "services": [
-                "ProductService",
-                "TempleService",
-                "CategoryService"
-            ]
+            "services": []
         },
         {
             "method": "GET",
@@ -195,42 +191,6 @@
         },
         {
             "method": "GET",
-            "path": "/admin/astrologers",
-            "name": "admin.astrologers",
-            "controller": "AdminController@astrologers",
-            "view": "admin/astrologer-form",
-            "services": [
-                "AstrologerService",
-                "SchemaService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/astrologers/delete",
-            "name": "admin.astrologers.delete",
-            "controller": "AdminController@deleteAstrologer",
-            "view": "admin/astrologer-form",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/astrologers/save",
-            "name": "admin.astrologers.save",
-            "controller": "AdminController@saveAstrologer",
-            "view": "admin/astrologer-form",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
             "path": "/admin/blog",
             "name": "admin.blog",
             "controller": "AdminController@blog",
@@ -323,6 +283,42 @@
             ]
         },
         {
+            "method": "POST",
+            "path": "/admin/campaign_pages/delete",
+            "name": "admin.campaigns.delete",
+            "controller": "AdminController@deleteCampaign",
+            "view": "admin/resource",
+            "services": [
+                "ResourceService",
+                "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/campaign_pages/save",
+            "name": "admin.campaigns.save",
+            "controller": "AdminController@saveCampaign",
+            "view": "admin/resource",
+            "services": [
+                "ResourceService",
+                "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/admin/campaigns",
+            "name": "admin.campaigns",
+            "controller": "AdminController@campaigns",
+            "view": "admin/resource",
+            "services": [
+                "ResourceService",
+                "SchemaService",
+                "AuthService"
+            ]
+        },
+        {
             "method": "GET",
             "path": "/admin/categories",
             "name": "admin.categories",
@@ -351,6 +347,42 @@
             "name": "admin.categories.save",
             "controller": "AdminController@saveCategory",
             "view": "admin/resource",
+            "services": [
+                "ResourceService",
+                "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/admin/consultants",
+            "name": "admin.consultants",
+            "controller": "AdminController@consultants",
+            "view": "admin/consultant-form",
+            "services": [
+                "ConsultantService",
+                "SchemaService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/consultants/delete",
+            "name": "admin.consultants.delete",
+            "controller": "AdminController@deleteConsultant",
+            "view": "admin/consultant-form",
+            "services": [
+                "ResourceService",
+                "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/consultants/save",
+            "name": "admin.consultants.save",
+            "controller": "AdminController@saveConsultant",
+            "view": "admin/consultant-form",
             "services": [
                 "ResourceService",
                 "AuditLogService",
@@ -691,42 +723,6 @@
         },
         {
             "method": "GET",
-            "path": "/admin/temples",
-            "name": "admin.temples",
-            "controller": "AdminController@temples",
-            "view": "admin/resource",
-            "services": [
-                "TempleService",
-                "SchemaService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/temples/delete",
-            "name": "admin.temples.delete",
-            "controller": "AdminController@deleteTemple",
-            "view": "admin/resource",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/temples/save",
-            "name": "admin.temples.save",
-            "controller": "AdminController@saveTemple",
-            "view": "admin/resource",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
             "path": "/api",
             "name": "api.index",
             "controller": "ApiController@index",
@@ -781,9 +777,7 @@
             "name": "api.temples",
             "controller": "ApiController@temples",
             "view": "public/404",
-            "services": [
-                "TempleService"
-            ]
+            "services": []
         },
         {
             "method": "GET",
@@ -837,6 +831,28 @@
             "services": [
                 "BlogService",
                 "MarkdownRenderer"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/campaigns",
+            "name": "campaigns",
+            "controller": "PublicController@campaigns",
+            "view": "public/campaigns",
+            "services": [
+                "CampaignPageService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/campaigns/{slug}",
+            "name": "campaign.show",
+            "controller": "PublicController@campaign",
+            "view": "public/campaign",
+            "services": [
+                "CampaignPageService",
+                "MarkdownRenderer",
+                "SeoService"
             ]
         },
         {
@@ -1162,7 +1178,8 @@
             "view": "public/sitemap",
             "services": [
                 "BlogService",
-                "ProductService"
+                "ProductService",
+                "CampaignPageService"
             ]
         },
         {
@@ -1170,7 +1187,7 @@
             "path": "/spiritual",
             "name": "spiritual.short",
             "controller": "PublicController@spiritual",
-            "view": "public/spiritual",
+            "view": "public/about",
             "services": []
         },
         {
@@ -1178,7 +1195,7 @@
             "path": "/sri-panchami-spiritual",
             "name": "spiritual",
             "controller": "PublicController@spiritual",
-            "view": "public/spiritual",
+            "view": "public/about",
             "services": []
         },
         {
@@ -1211,20 +1228,16 @@
             "path": "/temples",
             "name": "temples",
             "controller": "PublicController@temples",
-            "view": "public/temples",
-            "services": [
-                "TempleService"
-            ]
+            "view": "public/about",
+            "services": []
         },
         {
             "method": "GET",
             "path": "/temples/{slug}",
             "name": "temple.show",
             "controller": "PublicController@temple",
-            "view": "public/temple",
-            "services": [
-                "TempleService"
-            ]
+            "view": "public/about",
+            "services": []
         },
         {
             "method": "GET",
@@ -1272,13 +1285,14 @@
         "AiClient",
         "AiReplyCleaner",
         "AppointmentService",
-        "AstrologerService",
         "AuditLogService",
         "AuthService",
         "BlogDraftService",
         "BlogService",
+        "CampaignPageService",
         "CartService",
         "CategoryService",
+        "ConsultantService",
         "ConsultationService",
         "ContactService",
         "CouponService",
@@ -1310,8 +1324,7 @@
         "StoragePermissionService",
         "SupportBotService",
         "SupportTicketService",
-        "TaxService",
-        "TempleService"
+        "TaxService"
     ],
     "views": [
         "account/_nav",
@@ -1321,8 +1334,8 @@
         "account/orders",
         "admin/agent",
         "admin/appearance",
-        "admin/astrologer-form",
         "admin/blog",
+        "admin/consultant-form",
         "admin/consultation-analytics",
         "admin/dashboard",
         "admin/detail",
@@ -1340,6 +1353,8 @@
         "public/about",
         "public/blog",
         "public/blog-post",
+        "public/campaign",
+        "public/campaigns",
         "public/cart",
         "public/categories",
         "public/checkout",
@@ -1353,18 +1368,16 @@
         "public/reset-password",
         "public/shop",
         "public/sitemap",
-        "public/spiritual",
         "public/support",
-        "public/temple",
-        "public/temples",
         "public/terms"
     ],
     "collections": [
         "addresses",
         "appointments",
-        "astrologers",
         "audit_events",
+        "campaign_pages",
         "categories",
+        "consultants",
         "consultation_messages",
         "consultation_signals",
         "contact_submissions",
@@ -1379,7 +1392,6 @@
         "secrets",
         "settings",
         "support_tickets",
-        "temples",
         "users",
         "wallet_transactions"
     ],

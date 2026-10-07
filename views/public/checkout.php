@@ -239,7 +239,7 @@
                                         order_id: order.order_id,
                                         name: 'Nebo Wellness',
                                         description: 'Product order payment',
-                                        theme: {color: '#3A0003'},
+                                        theme: {color: '#4472C4'},
                                         prefill: {
                                             name: form.querySelector('[name="name"]').value,
                                             email: form.querySelector('[name="email"]').value,

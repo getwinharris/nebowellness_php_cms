@@ -15,17 +15,17 @@ final class AuthController extends BaseController {
    if(!empty($token['error'])||empty($token['access_token'])){$this->flash('Google login failed. Please try again.','error');$this->redirect('/login');}
    $user=$this->get('https://openidconnect.googleapis.com/v1/userinfo',$token['access_token']);
    if(empty($user)){$this->flash('Failed to fetch your profile from Google. Please try again.','error');$this->redirect('/login');}
-    $store=new DatabaseService(); $users=$store->read('users'); $role = 'customer'; $astrologerSlug = ''; $mustChange = false; $existingId = '';
-    foreach ($users as $u) { if (($u['id'] ?? '') === ($user['sub'] ?? '') || (($u['email'] ?? '') !== '' && ($u['email'] ?? '') === ($user['email'] ?? ''))) { $role=$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'); $astrologerSlug=$u['astrologer_slug'] ?? ''; $mustChange=(bool)($u['must_change_password'] ?? false); if (($u['email'] ?? '') === ($user['email'] ?? '')) $existingId=$u['id']??''; break; } }
+    $store=new DatabaseService(); $users=$store->read('users'); $role = 'customer'; $consultantSlug = ''; $mustChange = false; $existingId = '';
+    foreach ($users as $u) { if (($u['id'] ?? '') === ($user['sub'] ?? '') || (($u['email'] ?? '') !== '' && ($u['email'] ?? '') === ($user['email'] ?? ''))) { $role=$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'); $consultantSlug=$u['consultant_slug'] ?? ''; $mustChange=(bool)($u['must_change_password'] ?? false); if (($u['email'] ?? '') === ($user['email'] ?? '')) $existingId=$u['id']??''; break; } }
     $userId = $existingId ?: ($user['sub'] ?? bin2hex(random_bytes(8)));
     unset($_SESSION['oauth_state']);
     session_regenerate_id(true);
-    $_SESSION['user']=['sub'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','username'=>explode('@',$user['email'])[0],'picture'=>$user['picture']??'','role'=>$role,'astrologer_slug'=>$astrologerSlug];
+    $_SESSION['user']=['sub'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','username'=>explode('@',$user['email'])[0],'picture'=>$user['picture']??'','role'=>$role,'consultant_slug'=>$consultantSlug];
     try { $store->upsert('users',['id'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','picture'=>$user['picture']??'','role'=>$role]); } catch (\Throwable) {}
     $this->flash('Signed in.','success');
     session_write_close();
    if ($role === 'admin') { $this->redirect('/admin'); return; }
-   if ($role === 'astrologer') { $_SESSION = []; $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
+   if ($role === 'consultant') { $_SESSION = []; $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
     $this->redirect('/account/dashboard');
   }
  public function logout(): void {
@@ -41,7 +41,7 @@ final class AuthController extends BaseController {
  }
  private function redirectUri(): string {
    $configured = trim((string)($_ENV['APP_URL'] ?? getenv('APP_URL') ?? ''));
-   $base = $configured !== '' ? $configured : 'https://sripanchamispiritual.com';
+   $base = $configured !== '' ? $configured : 'https://nebowellness.com';
    return rtrim($base, '/') . '/auth/google/callback';
  }
  private function post(string $url,array $data): array { $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query($data),CURLOPT_TIMEOUT=>10]); $body=curl_exec($ch); curl_close($ch); return json_decode($body,true)?:[]; }
@@ -80,7 +80,7 @@ final class AuthController extends BaseController {
     session_regenerate_id(true);
     $_SESSION['user'] = ['sub'=>$id,'email'=>$email,'name'=>$name,'role'=>$role];
     try {
-        (new MailQueueService())->enqueue('welcome', $email, 'Welcome to Sri Panchami Spiritual',
+        (new MailQueueService())->enqueue('welcome', $email, 'Welcome to Nebo Lifestyle Clinic',
             '<p>Hello ' . e($name) . ',</p><p>Your account is ready. You can view orders and saved addresses in your dashboard.</p>'
             . \App\Services\MailQueueService::button('Open your dashboard', $this->siteUrl('/account/dashboard')));
     } catch (\Throwable) {}
@@ -112,9 +112,9 @@ final class AuthController extends BaseController {
     foreach ($users as $u) {
         $matches = strcasecmp((string)($u['email'] ?? ''), $email) === 0 || strcasecmp((string)($u['username'] ?? ''), $email) === 0;
         if ($matches && !empty($u['password_hash']) && password_verify($password,$u['password_hash'])) {
-            if (($u['role'] ?? '') === 'astrologer') { $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
+            if (($u['role'] ?? '') === 'consultant') { $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
             session_regenerate_id(true);
-            $_SESSION['user'] = ['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'astrologer_slug'=>$u['astrologer_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)];
+            $_SESSION['user'] = ['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'consultant_slug'=>$u['consultant_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)];
             $this->flash('Signed in.','success');
             session_write_close();
             $this->redirect(($u['role'] ?? '') === 'customer' ? '/account/dashboard' : '/');
@@ -139,7 +139,7 @@ final class AuthController extends BaseController {
             // working reset for an address they do not control.
             $link = $this->siteUrl('/reset-password?token=' . urlencode($token));
             try {
-                (new MailQueueService())->enqueue('password_reset', $email, 'Reset your Sri Panchami Spiritual password',
+                (new MailQueueService())->enqueue('password_reset', $email, 'Reset your Nebo Lifestyle Clinic password',
                     '<p>We received a request to reset your password.</p>'
                     . \App\Services\MailQueueService::button('Reset your password', $link)
                     . '<p>If you did not request this, you can ignore this email.</p>');
@@ -172,10 +172,10 @@ final class AuthController extends BaseController {
         if ($resetEmail !== '' && filter_var($resetEmail, FILTER_VALIDATE_EMAIL)) {
             try {
                 (new MailQueueService())->enqueue('password_changed', $resetEmail,
-                    'Your Sri Panchami Spiritual password was changed',
+                    'Your Nebo Lifestyle Clinic password was changed',
                     '<p>Your account password was just changed.</p>'
                     . '<p>If this was not you, contact us immediately at '
-                    . '<a href="mailto:support@sripanchamispiritual.com">support@sripanchamispiritual.com</a>.</p>');
+                    . '<a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a>.</p>');
             } catch (\Throwable $e) { error_log('Password change mail failed: ' . $e->getMessage()); }
         }
         $this->flash('Password updated. Please sign in.','success');

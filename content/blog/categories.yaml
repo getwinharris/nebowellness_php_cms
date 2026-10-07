@@ -1,13 +1,7 @@
 categories:
-  - slug: news
-    name: News & Updates
-    description: Platform news, feature releases, and announcements
-  - slug: spirituality
-    name: Spirituality
-    description: Spiritual guidance, practices, and wisdom
-  - slug: astrology
-    name: Astrology
-    description: Vedic astrology insights and traditional wisdom
+  - slug: wellness
+    name: Wellness Insights
+    description: Practical guidance on naturopathy, nutrition, and sustainable habits
   - slug: help
-    name: Help
-    description: Customer guides for accounts, orders, delivery, and payments
+    name: Website Help
+    description: Simple guides for exploring programs and requesting a consultation

@@ -1,19 +1,33 @@
 <?php
 namespace App\Controllers;
-use App\Services\{AuthService,BlogService,ProductService,TempleService,CategoryService,SecretService,SeoService,ContactService,ReviewService,MarkdownRenderer};
+use App\Services\{AuthService,BlogService,CampaignPageService,ConsultantService,ProductService,CategoryService,SecretService,SeoService,ContactService,ReviewService,MarkdownRenderer};
 final class PublicController extends BaseController {
     
     public function home(): void {
         $this->detectApiRequest();
         $this->seoKey = 'home';
-        $categories = (new CategoryService())->all();
-        $products = (new ProductService())->visible();
-        $temples = (new TempleService())->all();
-        $this->render('public/home', [
-            'products' => $products,
-            'temples' => $temples,
-            'categories' => $categories,
-        ]);
+        $consultants = [];
+        try { $consultants = (new ConsultantService())->all(); }
+        catch (\Throwable $error) { error_log('Home consultant profiles unavailable: ' . $error->getMessage()); }
+        if ($consultants === []) $consultants = $this->defaultConsultants();
+        $this->render('public/home', ['consultants' => $consultants]);
+    }
+
+    /**
+     * Honest temporary cards for the launch. The silhouettes make it clear that these
+     * are placeholders; saving a consultant in Admin replaces the fallback list and
+     * its photo_url can be changed from the media picker.
+     */
+    private function defaultConsultants(): array {
+        $female = '/assets/images/consultants/default-female.webp';
+        $male = '/assets/images/consultants/default-male.webp';
+        return [
+            ['id'=>'dr-bablin-torah','slug'=>'dr-bablin-torah','name'=>'Dr Bablin Torah','speciality'=>'MD Naturopathic Consultant','photo_url'=>$male,'description'=>'Integrative naturopathy and personalised lifestyle guidance.','languages'=>['English','Tamil']],
+            ['id'=>'dr-sathyajothi','slug'=>'dr-sathyajothi','name'=>'Dr Sathyajothi','speciality'=>'BNYS · Yoga Mentor & Guide','photo_url'=>$male,'description'=>'Therapeutic yoga and practical movement guidance for sustainable wellbeing.','languages'=>['English','Tamil']],
+            ['id'=>'dr-berslin-fency','slug'=>'dr-berslin-fency','name'=>'Dr Berslin Fency','speciality'=>'BNYS · Consultant Physician','photo_url'=>$female,'description'=>'Root-cause assessment and evidence-informed naturopathic care.','languages'=>['English','Tamil']],
+            ['id'=>'dr-karthik-raj','slug'=>'dr-karthik-raj','name'=>'Dr Karthik Raj','speciality'=>'BNYS · Lifestyle Physician','photo_url'=>$male,'description'=>'Personalised nutrition, movement, sleep and metabolic health planning.','languages'=>['English','Tamil']],
+            ['id'=>'dr-padmashree','slug'=>'dr-padmashree','name'=>'Dr Padmashree','speciality'=>'BNYS, FFAC, CCBE · Maternity Wellness Consultant','photo_url'=>$female,'description'=>'Preconception, pregnancy and postpartum wellness support.','languages'=>['English','Tamil']],
+        ];
     }
     
     public function about(): void { 
@@ -23,9 +37,7 @@ final class PublicController extends BaseController {
     }
 
     public function spiritual(): void {
-        $this->detectApiRequest();
-        $this->seoKey = 'spiritual';
-        $this->render('public/spiritual');
+        $this->redirect('/about', 301);
     }
     
     public function terms(): void { 
@@ -49,22 +61,29 @@ final class PublicController extends BaseController {
     }
     
     public function temples(): void { 
-        $this->detectApiRequest();
-        $this->seoKey = 'temples';
-        $this->render('public/temples', ['items' => (new TempleService())->all()]); 
+        $this->redirect('/about', 301);
     }
     
     public function temple(string $slug): void { 
-        $this->detectApiRequest();
-        $temple = (new TempleService())->findBySlug($slug);
-        if (!$temple) $this->renderNotFound();
-        $this->seoKey = 'temple';
+        $this->redirect('/about', 301);
+    }
+
+    public function campaigns(): void {
+        $this->seoKey = 'campaigns';
+        $this->render('public/campaigns', ['pages' => (new CampaignPageService())->published()]);
+    }
+
+    public function campaign(string $slug): void {
+        $page = (new CampaignPageService())->findPublished($slug);
+        if ($page === null) $this->renderNotFound();
+        $this->seoKey = 'campaign';
         $this->seoOverrides = [
-            'title' => ($temple['name'] ?? 'Temple') . ' – Guide at Nebo Lifestyle Clinic',
-            'description' => 'Explore ' . ($temple['name'] ?? 'this temple') . ' with detailed guide including timings, address, location map, and available pooja services. ' . ($temple['description'] ?? ''),
-            'og_image' => $temple['image_url'] ?? '',
+            'title' => trim((string)($page['seo_title'] ?? '')) ?: $page['title'] . ' – Nebo Lifestyle Clinic',
+            'description' => trim((string)($page['seo_description'] ?? '')) ?: (string)($page['summary'] ?? ''),
+            'og_image' => trim((string)($page['image_url'] ?? '')) ?: '/assets/images/nebo-programs.png',
+            'canonical' => $this->siteUrl('/campaigns/' . $page['slug']),
         ];
-        $this->render('public/temple', ['slug' => $slug, 'temple' => $temple]); 
+        $this->render('public/campaign', ['campaign' => $page]);
     }
     
     public function shop(): void {
@@ -199,14 +218,16 @@ final class PublicController extends BaseController {
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $base = $scheme . '://' . $host;
 
-        $pages = [
-            '/', '/about', '/temples', '/shop', '/contact', '/blog',
-            '/terms', '/privacy', '/spiritual',
-        ];
+        $pages = ['/', '/about', '/contact', '/blog', '/terms', '/privacy'];
+        if (module_on('shop')) $pages[] = '/shop';
         $products = [];
-        try { $products = (new ProductService())->visible(); } catch (\Throwable) {}
+        if (module_on('shop')) {
+            try { $products = (new ProductService())->visible(); } catch (\Throwable) {}
+        }
         $blogPosts = [];
         try { $blogPosts = (new BlogService())->all(); } catch (\Throwable) {}
+        $campaignPages = (new CampaignPageService())->published();
+        $pages[] = '/campaigns';
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
@@ -225,6 +246,10 @@ final class PublicController extends BaseController {
             if (!empty($post['slug']) && !empty($post['published'])) {
                 $xml .= '  <url><loc>' . $base . '/blog/' . e($post['slug']) . '</loc><lastmod>' . e(substr((string)($post['updated_at'] ?? $post['published_at'] ?? ''), 0, 10)) . '</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>' . "\n";
             }
+        }
+
+        foreach ($campaignPages as $campaignPage) {
+            $xml .= '  <url><loc>' . $base . '/campaigns/' . e($campaignPage['slug']) . '</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>' . "\n";
         }
 
         $xml .= '</urlset>';
@@ -283,11 +308,18 @@ final class PublicController extends BaseController {
     }
 
     public function docs(): void {
-        $this->redirect('/blog/category/help');
+        $this->redirect('/blog');
     }
 
     public function doc(string $slug): void {
         $slug = preg_replace('/[^a-z0-9-]/', '', strtolower($slug));
+        $replacements = [
+            'create-account' => '/register',
+            'order-products' => '/shop',
+            'payments-and-orders' => '/blog/category/help',
+            'book-consultant' => '/contact',
+        ];
+        if (isset($replacements[$slug])) $this->redirect($replacements[$slug], 301);
         $this->redirect('/blog/' . $slug);
     }
 

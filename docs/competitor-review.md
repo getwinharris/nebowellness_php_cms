@@ -15,9 +15,9 @@ Reference reviewed: [Deiveegaa Enterprises](https://deiveegaa.com/).
 - Uses product imagery repeatedly as purchase evidence instead of relying on decorative backgrounds.
 - Keeps collection links, pricing, sale state, policy links, reviews, and checkout actions visible.
 
-## Sri Panchami Direction
+## Nebo Direction
 
-Sri Panchami is broader: spiritual products, temples, and guidance. Match the competitor's commercial clarity without copying its branding or claims:
+Nebo is a practitioner-led lifestyle clinic. Match the reference site's editorial clarity, restrained typography, program cards, navigation, and measured motion without copying its branding, content, or medical claims:
 
 - Keep products and cart state easy to reach on every viewport.
 - Give every product specific materials, dimensions, usage, care, fulfillment, and return information when verified.

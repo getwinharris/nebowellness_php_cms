@@ -47,10 +47,9 @@ if ($uri === '/admin/manifest.json') {
         'scope' => '/admin/',
         'display' => 'standalone',
         'background_color' => '#222222',
-        'theme_color' => '#3a0003',
+        'theme_color' => '#4472C4',
         'icons' => [
-            ['src' => '/assets/images/logo-square.jpeg', 'sizes' => '192x192', 'type' => 'image/jpeg'],
-            ['src' => '/assets/images/logo.jpeg', 'sizes' => '512x512', 'type' => 'image/jpeg'],
+            ['src' => '/assets/images/nebo-symbol.png', 'sizes' => '1254x1254', 'type' => 'image/png'],
         ],
     ];
     header('Content-Type: application/json; charset=utf-8');
@@ -59,7 +58,7 @@ if ($uri === '/admin/manifest.json') {
     exit;
 }
 if ($uri === '/admin/sw.js') {
-    $cacheName = 'sps-cache-admin-v1';
+    $cacheName = 'nebo-cache-admin-v2';
     $precache = json_encode(['/admin', '/login']);
     header('Content-Type: application/javascript; charset=utf-8');
     header('Cache-Control: no-cache');
@@ -92,7 +91,7 @@ if ($uri !== null && $uri !== '/' && str_ends_with($uri, '/')) {
 }
 
 // PHP routes (admin + public pages)
-$phpRoutes = ['/','/shop','/shop/','/product','/cart','/checkout','/payment','/support','/about','/contact','/temples','/consult','/consultation','/auth','/login','/logout','/register','/forgot-password','/reset-password','/account','/reviews','/sri-panchami-spiritual','/spiritual','/categories','/terms','/privacy','/blog','/docs','/help','/sitemap.xml'];
+$phpRoutes = ['/','/shop','/shop/','/product','/cart','/checkout','/payment','/support','/about','/contact','/temples','/campaigns','/consult','/consultation','/auth','/login','/logout','/register','/forgot-password','/reset-password','/account','/reviews','/sri-panchami-spiritual','/spiritual','/categories','/terms','/privacy','/blog','/docs','/help','/sitemap.xml'];
 $isPhpRoute = false;
 foreach ($phpRoutes as $route) {
     if (strpos($uri, $route . '/') === 0 || $uri === $route) {

@@ -68,6 +68,25 @@ final class DatabaseService {
         return $result;
     }
 
+    /** Explicit deployment migration for a collection already declared in the canonical schema. */
+    public function ensureSchemaCollection(string $name): void {
+        $schema = require app_path('storage/schema/collections.php');
+        if (!isset($schema['collections'][$name]) || !preg_match('/^[a-z_]+$/', $name)) {
+            throw new \InvalidArgumentException('Unknown schema collection.');
+        }
+        $this->db()->exec("CREATE TABLE IF NOT EXISTS `{$name}` (
+            id VARCHAR(36) PRIMARY KEY,
+            _data JSON NOT NULL,
+            _owner VARCHAR(255) DEFAULT NULL,
+            _status VARCHAR(50) DEFAULT NULL,
+            _created_at DATETIME DEFAULT NULL,
+            _updated_at DATETIME DEFAULT NULL,
+            INDEX idx_owner (_owner),
+            INDEX idx_status (_status),
+            INDEX idx_created (_created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+    }
+
     private function db(): \PDO {
         if ($this->pdo === null) {
             if (self::$sharedPdo !== null) return $this->pdo = self::$sharedPdo;

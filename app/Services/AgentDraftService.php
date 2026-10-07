@@ -65,7 +65,7 @@ final class AgentDraftService
         $note = '';
 
         if ($subject === '') {
-            $example = $isBlog ? 'benefits of rudraksha' : 'brass oil lamp';
+            $example = $isBlog ? 'building sustainable wellness habits' : 'wellness product';
             $note = 'Tell me what to write about and I will fill this in — for example "/'
                 . $command . ' ' . $example . '". Or fill the form in yourself.';
         } elseif (!$this->ai->configured()) {
@@ -139,8 +139,8 @@ final class AgentDraftService
             $keys[] = $field['name'];
         }
         $what = $isBlog
-            ? 'a blog post for a Hindu spiritual products and astrology shop'
-            : 'a product listing for a Hindu spiritual products shop';
+            ? 'a wellness article for Nebo Lifestyle Clinic'
+            : 'a product listing for Nebo Lifestyle Clinic';
 
         return "Write {$what} about: {$subject}\n"
             . "Return ONLY a JSON object, no prose and no code fence, with exactly these keys: "

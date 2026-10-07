@@ -1,7 +1,7 @@
 <div class="auth-page">
     <div class="auth-visual">
         <h2>Recover Access</h2>
-        <p>Enter your email address and we will send you a secure link to reset your password and return to your spiritual journey.</p>
+        <p>Enter your email address and we will send you a secure link to reset your password and return to your wellness account.</p>
     </div>
     <div class="auth-form-container">
         <div class="auth-card">

@@ -6,7 +6,7 @@ contract for non-Claude tooling; if the two ever disagree, this file wins and
 
 ## Repository
 
-- `bapxmediahub/bapXphpAiBackend` is the only working repository and the Hostinger
+- `getwinharris/nebowellness_php_cms` is the only working repository and the Hostinger
   deployment source. Issues, branches, PRs and releases all live there.
 - The repository is independent and unforked. Do not add an upstream remote or
   synchronise from any other copy.
@@ -16,9 +16,10 @@ contract for non-Claude tooling; if the two ever disagree, this file wins and
 
 ## Work order
 
-### Navigation budget
+### Verification depth
 
-For repository questions, use at most three discovery hops before answering:
+For repository questions and changes, use at least three evidence hops before answering
+or committing. Continue beyond three whenever the affected workflow crosses more layers:
 
 1. Read this file and only the `discovery`, `query_examples`, and `summary` block at
    the top of `index.yaml`.
@@ -26,9 +27,12 @@ For repository questions, use at most three discovery hops before answering:
    concept, filename, collection, class, or skill.
 3. Open the returned original source and answer with its path/symbol.
 
-Do not run broad directory listings, recursive globs, Git history, or read the whole
-generated index when the indexed path answers the question. Broaden only when a
-target is absent, and state that absence as a finding.
+The minimum is entry instructions → exact index match → original source. For changes,
+also follow the affected route through controller, service, schema/runtime collection,
+view, and rendered browser state where those layers exist. Do not run broad directory
+listings, recursive globs, Git history, or read the whole generated index when narrow
+queries answer the question. Broaden only when a target is absent, and state that
+absence as a finding.
 
 1. `./bapXphp map` and `./bapXphp schema list` before proposing any change.
 2. Read this file.
@@ -110,6 +114,9 @@ the browser workflow. Keep UI actions grounded in the current browser state.
 After route, schema, controller, view or workflow changes, run `./bapXphp update`
 to regenerate `map.mmd`, `docs/systematic-map.mmd`, and the indexes. Fix stale
 expectations to match the agreed behavior; never weaken validation to hide a defect.
+Before every commit, read the affected paths in `docs/systematic-map.mmd` after the
+final regeneration and confirm the generated wiring matches the implemented workflow.
+Repeat this regenerate-and-read check after each logical change set added to that commit.
 Run `./bapXphp ci` before the PR and verify GitHub checks before merging. After
 deployment, repeat the affected flows in the live Browser and attach the evidence
 to the original issues. A merge or an SMTP acceptance message alone does not prove

@@ -183,8 +183,14 @@ MYSQL_DB="${BAPX_MYSQL_DB:-u907253411_db_name_sps}"
 MYSQL_USER="${BAPX_MYSQL_USER:-u907253411_db_user_sps}"
 MYSQL_PASS="${BAPX_MYSQL_PASS:-}"
 SCHEMA_FILE="$ROOT/storage/schema/collections.php"
-APP_URL="${APP_URL:-https://sripanchamispiritual.com}"
+APP_URL="${APP_URL:-https://nebowellness.com}"
 REMOTE_DB_URL="${BAPX_REMOTE_DB_URL:-${APP_URL%/}/remotedb}"
+
+remote_db_curl() {
+  local auth=()
+  [ -n "$MYSQL_PASS" ] && auth=(-H "Authorization: Bearer $MYSQL_PASS")
+  curl "${auth[@]}" "$@" "$REMOTE_DB_URL"
+}
 
 # ── Colors ─────────────────────────────────────────────────────
 R='\033[0;31m'; G='\033[0;32m'; Y='\033[1;33m'; C='\033[0;36m'; B='\033[1m'; N='\033[0m'
@@ -938,7 +944,7 @@ cmd_db_remote_status() {
       echo "Integration {$name}: " . ($ready ? "configured" : "incomplete") . "\n";
     }
   ' "$ROOT"
-  curl -fsS --max-time 12 -X POST "$REMOTE_DB_URL" -H "Content-Type: application/json" -d '{"query":"SELECT 1"}' >/dev/null \
+  remote_db_curl -fsS --max-time 12 -X POST -H "Content-Type: application/json" -d '{"query":"SELECT 1"}' >/dev/null \
     && echo "Remote endpoint: reachable" \
     || { echo "Remote endpoint: unavailable"; return 1; }
 }
@@ -949,7 +955,7 @@ cmd_db_upsert() {
   php -r 'json_decode($argv[1], true, 512, JSON_THROW_ON_ERROR);' "$record" >/dev/null 2>&1 || die "Record must be valid JSON."
   local payload
   payload=$(php -r 'echo json_encode(["action"=>"upsert","collection"=>$argv[1],"record"=>json_decode($argv[2],true,512,JSON_THROW_ON_ERROR)]);' "$collection" "$record") || die "Unable to encode record."
-  curl -sS --max-time 15 -X POST "$REMOTE_DB_URL" \
+  remote_db_curl -sS --max-time 15 -X POST \
     -H "Content-Type: application/json" \
     -d "$payload" \
     | php -r '
@@ -964,7 +970,7 @@ cmd_db_delete() {
   [ -n "$collection" ] && [ -n "$id" ] || die "Usage: bapXphp db delete <collection> <id>"
   local payload
   payload=$(php -r 'echo json_encode(["action"=>"delete","collection"=>$argv[1],"id"=>$argv[2]]);' "$collection" "$id")
-  curl -sS --max-time 15 -X POST "$REMOTE_DB_URL" \
+  remote_db_curl -sS --max-time 15 -X POST \
     -H "Content-Type: application/json" \
     -d "$payload" \
     | php -r '
@@ -1045,11 +1051,11 @@ cmd_db_query() {
   [ -n "$owner_val" ] && sql="$sql AND _owner = '$owner_val'"
   [ -n "$limit" ] && sql="$sql LIMIT $limit"
   local resp
-  resp=$(curl -s --max-time 15 -X POST "$REMOTE_DB_URL" \
+  resp=$(remote_db_curl -s --max-time 15 -X POST \
     -H "Content-Type: application/json" \
     -d "$(php -r 'echo json_encode(["query" => $argv[1]]);' "$sql")" 2>&1) || { die "Remote DB unreachable."; }
   local data
-  data=$(echo "$resp" | php -r '$r=json_decode(file_get_contents("php://stdin"),true);foreach(($r["data"]??[]) as $row){$d=json_decode($row["_data"]??"{}",true)?:[];$d["id"]=$row["id"]??"";echo json_encode($d,JSON_UNESCAPED_UNICODE)."\n";}')
+  data=$(echo "$resp" | php -r '$r=json_decode(file_get_contents("php://stdin"),true);if(!empty($r["error"])){fwrite(STDERR,"Remote query failed: ".$r["error"]."\n");exit(1);}foreach(($r["data"]??[]) as $row){$d=json_decode($row["_data"]??"{}",true)?:[];$d["id"]=$row["id"]??"";echo json_encode($d,JSON_UNESCAPED_UNICODE)."\n";}') || return 1
   [ -z "$data" ] && { echo "No records found in $collection."; return; }
   local count
   count=$(echo "$data" | wc -l | tr -d ' ')
@@ -1088,7 +1094,7 @@ cmd_db_raw() {
   local sql="$*"
   [ -z "$sql" ] && die "Usage: bapXphp db raw \"SELECT ...\""
 
-  curl -s --max-time 15 -X POST "$REMOTE_DB_URL" \
+  remote_db_curl -s --max-time 15 -X POST \
     -H "Content-Type: application/json" \
     -d "$(php -r 'echo json_encode(["query" => $argv[1]]);' "$sql")" 2>&1 \
     | php -r '
@@ -1097,8 +1103,12 @@ cmd_db_raw() {
       $data = $r["data"] ?? [];
       if (empty($data)) { echo "No results.\n"; exit(0); }
       foreach ($data as $row) {
-        $decoded = json_decode($row["_data"] ?? "{}", true) ?: [];
-        $decoded["id"] = $row["id"] ?? "";
+        if (array_key_exists("_data", $row)) {
+          $decoded = json_decode($row["_data"] ?? "{}", true) ?: [];
+          $decoded["id"] = $row["id"] ?? "";
+        } else {
+          $decoded = $row;
+        }
         echo json_encode($decoded, JSON_UNESCAPED_UNICODE) . "\n";
       }
     '

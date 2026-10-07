@@ -1,4 +1,9 @@
 sections:
+  - section: Programs & Consultations
+    links:
+      - /#programs: Explore Programs
+      - /campaigns: Current Campaigns
+      - /contact: Request a Consultation
   - section: Account & Orders
     links:
       - /account/dashboard/orders: My Orders
@@ -8,11 +13,8 @@ sections:
       - /shop: Browse All Products
       - /cart: View Cart
       - /checkout: Checkout
-  - section: Temples
-    links:
-      - /temples: Temple Guide
   - section: Help & Support
     links:
       - /contact: Contact Form
-      - /docs: Customer Help Guides
-      - /blog: Blog & Articles
+      - /blog/category/help: Website Help
+      - /blog: Wellness Journal

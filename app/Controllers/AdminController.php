@@ -77,19 +77,49 @@ final class AdminController extends BaseController {
         $this->redirect('/admin/orders/'.$id);
     }
     public function shipping(): void{$this->render('admin/settings',['pageTitle' => 'Shipping', 'title' => 'Shipping']);}
-    public function astrologers(): void{
-        $this->render('admin/astrologer-form',['pageTitle'=>'Astrologers','title'=>'Astrologers','collection'=>'astrologers','items'=>(new ResourceService('astrologers'))->all(),'mediaFiles'=>$this->mediaFor('astrologers')]);
+    public function consultants(): void{
+        $this->render('admin/consultant-form',['pageTitle'=>'Consultants','title'=>'Consultants','collection'=>'consultants','items'=>(new ResourceService('consultants'))->all(),'mediaFiles'=>$this->mediaFor('consultants')]);
     }
-    public function saveAstrologer(): void{$this->save('astrologers');}
-    public function deleteAstrologer(): void{
+    public function saveConsultant(): void{$this->save('consultants');}
+    public function deleteConsultant(): void{
         $id=(string)($_POST['id']??'');
-        (new ResourceService('astrologers'))->delete($id); (new AuditLogService())->record('delete','astrologers',$id); $this->flash('Deleted.','info'); $this->redirect('/admin/astrologers');
+        (new ResourceService('consultants'))->delete($id); (new AuditLogService())->record('delete','consultants',$id); $this->flash('Deleted.','info'); $this->redirect('/admin/consultants');
     }
     public function appointments(): void{$this->list('Sessions','appointments');}
     public function consultationAnalytics(): void{$this->render('admin/consultation-analytics',['pageTitle'=>'Consultation Analytics','metrics'=>(new ConsultationService())->analytics()]);}
-    public function temples(): void{$this->resource('Temples','temples',$this->schemaFields('temples',['name','description','image_url','address','map_url']));}
-    public function saveTemple(): void{$this->save('temples');}
-    public function deleteTemple(): void{$this->delete('temples');}
+    public function campaigns(): void{$this->resource('Campaign Pages','campaign_pages',$this->schemaFields('campaign_pages',['title','slug','summary','body','image_url','cta_label','cta_url','seo_title','seo_description','status']));}
+    public function saveCampaign(): void{
+        $title = trim((string)($_POST['title'] ?? ''));
+        $slug = trim((string)($_POST['slug'] ?? ''));
+        if ($slug === '') $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title) ?? '', '-'));
+        if ($title === '' || !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug)) {
+            $this->flash('Enter a title and a URL slug using lowercase letters, numbers, and hyphens.', 'error');
+            $this->redirect('/admin/campaigns');
+        }
+        $data = ['slug' => $slug, 'title' => $title];
+        $id = trim((string)($_POST['id'] ?? ''));
+        if ($id !== '') $data['id'] = $id;
+        foreach (['summary','body','image_url','cta_label','cta_url','seo_title','seo_description'] as $field) {
+            $data[$field] = trim((string)($_POST[$field] ?? ''));
+        }
+        $uploaded = $this->uploadedMedia('campaign_pages');
+        if ($uploaded && $data['image_url'] === '') $data['image_url'] = (string)$uploaded[0]['url'];
+        $data['status'] = ($_POST['status'] ?? '') === 'published' ? 'published' : 'draft';
+        $record = (new ResourceService('campaign_pages'))->save($data);
+        if ($uploaded) (new MediaService())->recordUsage($uploaded, 'campaign_pages', (string)$record['id'], $title);
+        (new AuditLogService())->record('save','campaign_pages',(string)$record['id'],['fields'=>array_keys($data),'uploaded_media'=>count($uploaded)]);
+        $this->flash('Campaign page saved.', 'success');
+        $this->redirect('/admin/campaigns');
+    }
+    public function deleteCampaign(): void{
+        $id = trim((string)($_POST['id'] ?? ''));
+        if ($id !== '') {
+            (new ResourceService('campaign_pages'))->delete($id);
+            (new AuditLogService())->record('delete','campaign_pages',$id);
+        }
+        $this->flash('Campaign page deleted.', 'info');
+        $this->redirect('/admin/campaigns');
+    }
     public function settings(): void{$this->render('admin/settings',['pageTitle' => 'Settings', 'title' => 'Site Settings', 'settings'=>(new SettingsService())->public(), 'adminCredentials'=>(new EnvService())->adminCredentials()]);}
     public function saveSettings(): void{
         // The settings page posts several independent forms to this one action, so only
@@ -159,7 +189,7 @@ final class AdminController extends BaseController {
             $userCount = count($users);
             $orderCount = count($orders);
             $productCount = count($products);
-            $astrologerCount = count($db->read('astrologers'));
+            $consultantCount = count($db->read('consultants'));
             $appointmentCount = count($db->read('appointments'));
             $ticketCount = count($db->read('support_tickets'));
             $totalRevenue = array_sum(array_column($orders, 'total'));
@@ -204,7 +234,7 @@ final class AdminController extends BaseController {
                 . "- Total users: {$userCount}\n"
                 . "- Total orders: {$orderCount} (confirmed: " . count($confirmedOrders) . ", pending: " . count($pendingOrders) . ")\n"
                 . "- Products: {$productCount}\n"
-                . "- Astrologers: {$astrologerCount}\n"
+                . "- Consultants: {$consultantCount}\n"
                 . "- Appointments: {$appointmentCount}\n"
                 . "- Support tickets: {$ticketCount}\n"
                 . "- Total revenue: ₹" . number_format($totalRevenue, 2) . "\n"
@@ -264,7 +294,7 @@ final class AdminController extends BaseController {
         // the statistics blob, not enquiries, of which there are none. A number with no
         // stated source is unverifiable, so the persona now asks for the figure, how it
         // was arrived at, and what was checked.
-        $prompt = "You are the admin analyst for this store, talking to its owner. "
+        $prompt = "You are the admin analyst for Nebo Lifestyle Clinic, talking to its owner. "
             . "Be brief and concrete: two to five sentences, or a short Markdown list.\n"
             . "When you give a number, say what it counts, where it came from, and any judgement you made "
             . "to arrive at it. If a word in the question is open to interpretation, say how you read it.\n"
@@ -274,7 +304,7 @@ final class AdminController extends BaseController {
             . "Do not restate your role, the context, the constraints or the question. Do not show your reasoning "
             . "or a plan.\n"
             . "You can look things up. Use the tools for anything about a specific order, product, coupon, "
-            . "support enquiry or article, or for sales over a period, instead of saying you do not have the "
+            . "support enquiry, article or campaign page, or for sales over a period, instead of saying you do not have the "
             . "information. Only report what a tool returned; never invent an order id, a tracking number or a "
             . "figure.\n"
             . "\n{$context}\n\nQuestion: {$message}";
@@ -316,7 +346,7 @@ final class AdminController extends BaseController {
     }
     public function appearance(): void{
         $s=(new SettingsService())->public();
-        $d = ['#3A0003','#D1B368','#FAF7F0','#222222','#3A0003'];
+        $d = ['#4472C4','#70AD47','#F7F9FA','#222222','#4472C4'];
         $this->render('admin/appearance',['pageTitle'=>'Logo & Favicon','logo_url'=>$s['logo_url']??'','favicon_url'=>$s['favicon_url']??'','palette_primary'=>$s['palette_primary']??$d[0],'palette_secondary'=>$s['palette_secondary']??$d[1],'palette_canvas'=>$s['palette_canvas']??$d[2],'palette_text'=>$s['palette_text']??$d[3],'palette_link'=>$s['palette_link']??$d[4]]);
     }
     public function saveAppearance(): void{
@@ -339,7 +369,7 @@ final class AdminController extends BaseController {
         if (!empty($_POST['reset_palette'])) {
             foreach (['palette_primary','palette_secondary','palette_canvas','palette_text','palette_link'] as $k) unset($s[$k]);
         } else {
-            $defaults = ['#3A0003','#D1B368','#FAF7F0','#222222','#3A0003'];
+            $defaults = ['#4472C4','#70AD47','#F7F9FA','#222222','#4472C4'];
             $keys = ['palette_primary','palette_secondary','palette_canvas','palette_text','palette_link'];
             $vals = [];
             $errs = [];
@@ -449,7 +479,7 @@ final class AdminController extends BaseController {
         try {
             $mailer->send(
                 $to,
-                'Test email from Sri Panchami Spiritual',
+                'Test email from Nebo Lifestyle Clinic',
                 '<p>This is a test message sent from Admin &rarr; Integrations.</p>'
                 . '<p>Transport: <strong>' . e($transport) . '</strong><br>From: <strong>' . e($mailer->fromEmail()) . '</strong><br>Sent: ' . e($sentAt) . '</p>'
                 . '<p>If you received this, transactional email is working.</p>'
@@ -592,7 +622,7 @@ final class AdminController extends BaseController {
         $title = trim((string)($_POST['title'] ?? ''));
         if ($title === '') { $this->jsonResponse(['error' => 'Enter a title first.'], 400); return; }
         $result = $this->askModel(
-            "Rewrite this blog headline for a Tamil spiritual products and astrology site. "
+            "Rewrite this blog headline for Nebo Lifestyle Clinic, a naturopathy and functional medicine clinic. "
             . "Return ONE headline only, plain text, no quotes, no markdown, under 70 characters.\n\nHeadline: " . $title
         );
         if ($result === null) { $this->jsonResponse(['error' => 'No AI API key is configured. Set ai_api_key in Admin → Integrations.'], 400); return; }
@@ -653,7 +683,7 @@ final class AdminController extends BaseController {
         if(isset($data['modes']))$data['modes']=$this->splitList($data['modes']);
         if(isset($data['languages']))$data['languages']=$this->splitList($data['languages']);
         $uploaded=$this->uploadedMedia($collection);
-        if ($collection === 'astrologers') {
+        if ($collection === 'consultants') {
             $photos=$this->splitList((string)($data['photo_urls'] ?? ''));
             if (!empty($data['photo_url'])) array_unshift($photos, (string)$data['photo_url']);
             $uploadedPaths=array_column($uploaded, 'url');
@@ -663,12 +693,11 @@ final class AdminController extends BaseController {
                 $data['photo_urls']=$photos;
             }
         }
-        if ($collection === 'temples' && $uploaded && empty($data['image_url'])) $data['image_url']=$uploaded[0]['url'];
         $record=(new ResourceService($collection))->save($data);
         $entityName = (string)($record['name'] ?? $record['slug'] ?? '');
         if ($uploaded) (new MediaService())->recordUsage($uploaded, $collection, (string)($record['id'] ?? ''), $entityName);
         (new AuditLogService())->record('save',$collection,(string)($record['id'] ?? ''),['fields'=>array_keys($data),'uploaded_media'=>count($uploaded)]);
-        $this->flash($collection==='astrologers'?'Consultant profile saved.':'Saved.','success');
+        $this->flash($collection==='consultants'?'Consultant profile saved.':'Saved.','success');
         $this->redirect('/admin/'.$collection);
     }
     private function saveProductRecord(): void{
@@ -734,8 +763,8 @@ final class AdminController extends BaseController {
         return $specifications;
     }
     private function uploadedMedia(string $collection): array { return (new MediaService())->upload($_FILES['media_files'] ?? [], $this->mediaContext($collection)); }
-    private function mediaFor(string $collection): array { return in_array($collection, ['products','temples','astrologers'], true) ? (new MediaService())->all($this->mediaContext($collection)) : []; }
-    private function mediaContext(string $collection): string { return match($collection){'products'=>'products','temples'=>'temples','astrologers'=>'astrologers',default=>'shared'}; }
+    private function mediaFor(string $collection): array { return in_array($collection, ['products','campaign_pages','consultants'], true) ? (new MediaService())->all($this->mediaContext($collection)) : []; }
+    private function mediaContext(string $collection): string { return match($collection){'products'=>'products','campaign_pages'=>'campaigns','consultants'=>'consultants',default=>'shared'}; }
     private function schemaFields(string $collection, array $fallback): array { return (new SchemaService())->adminFields($collection, $fallback); }
     private static function contrast(string $hex1, string $hex2): float {
         $l1 = self::luminance($hex1); $l2 = self::luminance($hex2);

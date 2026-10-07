@@ -1,42 +1,24 @@
 {
-  "name": "Sri Panchami Spiritual",
-  "short_name": "SPS",
-  "description": "Authentic spiritual products, online astrology consultation, and temple guides.",
+  "name": "Nebo Lifestyle Clinic",
+  "short_name": "Nebo",
+  "description": "Naturopathy, functional medicine, and integrative wellness solutions.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#faf7f0",
-  "theme_color": "#3a0003",
+  "background_color": "#f7f9fa",
+  "theme_color": "#4472C4",
   "categories": [
-    "shopping",
+    "health",
     "lifestyle",
-    "spirituality"
+    "medical"
   ],
   "icons": [
     {
-      "src": "/assets/images/pwa/icon-192.png",
-      "sizes": "192x192",
+      "src": "/assets/images/nebo-symbol.png",
+      "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"
-    },
-    {
-      "src": "/assets/images/pwa/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/assets/images/pwa/icon-192-maskable.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/assets/images/pwa/icon-512-maskable.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ]
 }

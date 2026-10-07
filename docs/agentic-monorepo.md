@@ -1,12 +1,12 @@
 ---
 type: doc
 title: Agentic Monorepo
-description: This repo packages the backend and frontend together for small PHP hosting. The current public use case is Sri Panchami Spiritual.
+description: This repo packages the Nebo Lifestyle Clinic backend and frontend together for small PHP hosting.
 category: docs
 ---
 # Agentic PHP/MySQL Monorepo
 
-This repo packages the backend and frontend together for small PHP hosting. The current public use case is Sri Panchami Spiritual, but the backend is reusable for other customer projects.
+This repo packages the Nebo Lifestyle Clinic backend and frontend together for small PHP hosting, with two PHP agent surfaces and generated project knowledge for safe maintenance.
 
 ## Data Architecture
 

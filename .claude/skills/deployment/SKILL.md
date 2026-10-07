@@ -5,7 +5,7 @@ description: Use when editing Hostinger deployment, Git auto-deploy, environment
 # Deployment
 
 - Follow the root `AGENTS.md` repository contract for deployment documentation edits.
-- Treat `bapxmediahub/bapXphpAiBackend` as the only agent working repository and deployment source. It is independent and unforked.
+- Treat `getwinharris/nebowellness_php_cms` as the only agent working repository and deployment source. It is independent and unforked.
 - Keep deployment guidance aligned with PHP shared hosting, `public_html`, writable `storage/`, and Git auto-deploy.
 - `.env` is ignored, installation-specific configuration and is never deployed from Git. Keep safe placeholders in `.env.example`. Admin credentials and API secrets belong in Admin settings/integrations backed by hosted MySQL, never in tracked files.
 - Do not add an upstream remote or fork-sync workflow. A future white-label package belongs in a separate repository.
@@ -25,7 +25,7 @@ description: Use when editing Hostinger deployment, Git auto-deploy, environment
 
 ## CI/CD Pipeline
 
-1. Developer / Agent pushes a branch to `bapxmediahub/bapXphpAiBackend`
+1. Developer / Agent pushes a branch to `getwinharris/nebowellness_php_cms`
 2. The branch/PR workflow runs repository checks and may create/update an eligible PR according to `.github/workflows/branch-pr.yml`
 3. Merge to deployment `main` after CI and review evidence pass
 4. The already-configured Hostinger Git integration pulls deployment `main`; this is

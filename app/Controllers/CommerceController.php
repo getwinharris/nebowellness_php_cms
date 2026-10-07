@@ -127,7 +127,7 @@ final class CommerceController extends BaseController {
             }
             $cartTotal = $this->cartTotal($items);
             $lineItems = [[
-                'name' => 'Sri Panchami Spiritual Order',
+                'name' => 'Nebo Lifestyle Clinic Order',
                 'amount' => (int)round($cartTotal * 100),
                 'quantity' => 1,
             ]];
