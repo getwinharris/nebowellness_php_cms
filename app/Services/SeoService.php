@@ -12,7 +12,7 @@ final class SeoService {
         $configuredOgImage = (string)($secrets['seo_default_og_image'] ?? '');
         $this->defaultOgImage = $configuredOgImage !== '' && !str_contains(strtolower($configuredOgImage), 'sripanchami')
             ? $configuredOgImage
-            : 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . '/assets/images/nebo-clinic-hero.png';
+            : 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . '/assets/images/nebo-clinic-hero.webp';
         $this->twitterHandle = $secrets['seo_twitter_handle'] ?? '';
         $phone = $secrets['phone'] ?? getenv('CONTACT_PHONE') ?: '';
         $this->telephone = $phone !== '' ? [$phone] : ['+917200182025', '+919585182025'];

@@ -183,12 +183,12 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 ## Components
 
-- **Header:** soft white, ~`80px` tall, non-sticky, hairline bottom border, compact Nebo symbol, centered primary nav with blue active state, right-aligned account/cart actions.
+- **Header:** soft white, non-sticky, hairline bottom border, centered vector Nebo symbol above the wordmark. `NEBO` is extra bold Nebo blue and `LIFESTYLE CLINIC` is bold Nebo green. The drawer repeats this lockup as a home link; account/cart actions remain right aligned.
 - **Home hero (editorial):** Use `nebo-clinic-hero.png` as a full-width photo with a dark blue text scrim. Left-align the headline and consultation action; keep the people and clinic setting visible at the right. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff.
-- **Program rail:** a horizontal, scroll-snap editorial rail with three cards visible on
+- **Program rail:** a horizontal, equal-height scroll-snap editorial rail with three cards visible on
   wide screens and one partial next card visible on mobile. Each card uses an abstract
   colour field, duration label, program name, short factual description, and enquiry
-  link. Arrow controls scroll the same native rail; keyboard and touch scrolling remain
+  link. Each arrow action advances exactly one card plus its grid gap; keyboard and touch scrolling remain
   available. Nebo offers programs only: never introduce destinations, accommodation,
   room selection, stay length, or hotel booking concepts.
 - **Campaign pages:** owner-edited pages use a full-width image with a blue text scrim, short headline and enquiry action, followed by an open reading column and one quiet side card. The campaign index uses 16:9 image cards. Drafts never have a public route or sitemap entry.
@@ -198,7 +198,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
   are supplied, use the approved male silhouette for male practitioners and approved
   female silhouette for female practitioners, label them as portrait placeholders,
   and keep `photo_url` editable through Admin → Consultants and the media picker.
-- **Testimonial Cards:** Client quote, name, location/condition treated. Use subtle card styling with quotation marks. Include credibility markers. Carousel or grid layout.
+- **Testimonial Cards:** Use the client-approved testimonial copy from the project source document. Present it as a quiet two-column quote grid with the supplied attribution; do not invent outcome claims or missing attribution details.
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
 - **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
 - **Navigation:** the linked brand mark and name are the sole home control. Do not repeat a separate Home item in desktop or mobile navigation.

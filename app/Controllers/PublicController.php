@@ -37,7 +37,7 @@ final class PublicController extends BaseController {
     }
 
     public function spiritual(): void {
-        $this->redirect('/about');
+        $this->redirect('/about', 301);
     }
     
     public function terms(): void { 
@@ -61,11 +61,11 @@ final class PublicController extends BaseController {
     }
     
     public function temples(): void { 
-        $this->redirect('/about');
+        $this->redirect('/about', 301);
     }
     
     public function temple(string $slug): void { 
-        $this->redirect('/about');
+        $this->redirect('/about', 301);
     }
 
     public function campaigns(): void {
@@ -313,6 +313,13 @@ final class PublicController extends BaseController {
 
     public function doc(string $slug): void {
         $slug = preg_replace('/[^a-z0-9-]/', '', strtolower($slug));
+        $replacements = [
+            'create-account' => '/register',
+            'order-products' => '/shop',
+            'payments-and-orders' => '/blog/category/help',
+            'book-consultant' => '/contact',
+        ];
+        if (isset($replacements[$slug])) $this->redirect($replacements[$slug], 301);
         $this->redirect('/blog/' . $slug);
     }
 

@@ -169,22 +169,22 @@
     </div>
 </section>
 
-<!-- Care principles -->
+<!-- Client-provided testimonials -->
 <section class="section">
     <div class="container">
         <div class="section-header">
-            <span class="eyebrow serif-accent">The Nebo Approach</span>
-            <h2 class="section-title">Care designed around real life</h2>
+            <span class="eyebrow serif-accent">Client Stories</span>
+            <h2 class="section-title">Experiences shared by Nebo clients</h2>
         </div>
-        <div class="nebo-testimonials">
-            <article class="value-card reveal" style="padding:var(--space-xl);">
-                <h3>Begin with a careful conversation</h3>
-                <p>Discuss your goals, current care, routines, and concerns before choosing a program. Your practitioner can explain suitable options and when medical referral is needed.</p>
-            </article>
-            <article class="value-card reveal" style="padding:var(--space-xl);">
-                <h3>Build a plan you can sustain</h3>
-                <p>Turn nutrition, movement, rest, and stress care into practical steps. Review progress with the team and adjust the plan as your needs change.</p>
-            </article>
+        <div class="nebo-testimonials" aria-label="Client testimonials">
+            <figure class="nebo-testimonial value-card reveal">
+                <blockquote>“After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again.”</blockquote>
+                <figcaption>Priya S. <span>Bengaluru</span></figcaption>
+            </figure>
+            <figure class="nebo-testimonial value-card reveal">
+                <blockquote>“The IV nutrition and ozone therapy transformed my chronic fatigue. I can finally keep up with my kids and work without crashing.”</blockquote>
+                <figcaption>Nebo client <span>Client-provided testimonial</span></figcaption>
+            </figure>
         </div>
     </div>
 </section>

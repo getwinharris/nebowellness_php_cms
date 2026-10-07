@@ -36,13 +36,13 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 260
+  concepts: 262
   relationships: 238
   by_type:
     blog: 5
     controller: 12
     doc: 33
-    image: 17
+    image: 19
     route: 114
     schema: 22
     service: 48
@@ -592,13 +592,25 @@ concepts:
   - id: "image:assets/images/nebo-clinic-hero.png"
     type: "image"
     title: "nebo-clinic-hero.png"
-    description: "Image referenced by 3 project resource(s)."
+    description: "Image with no static repository reference detected."
     resource: "assets/images/nebo-clinic-hero.png"
     tags:
       - "image"
-      - "used"
+      - "unreferenced"
     filename: "nebo-clinic-hero.png"
     mime: "image/png"
+    usage_count: 0
+    used_in: []
+  - id: "image:assets/images/nebo-clinic-hero.webp"
+    type: "image"
+    title: "nebo-clinic-hero.webp"
+    description: "Image referenced by 3 project resource(s)."
+    resource: "assets/images/nebo-clinic-hero.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-clinic-hero.webp"
+    mime: "image/webp"
     usage_count: 3
     used_in:
       - "app/Services/SeoService.php"
@@ -661,6 +673,19 @@ concepts:
     usage_count: 2
     used_in:
       - "views/layouts/admin.php"
+      - "views/layouts/app.php"
+  - id: "image:assets/images/nebo-symbol.svg"
+    type: "image"
+    title: "nebo-symbol.svg"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/nebo-symbol.svg"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-symbol.svg"
+    mime: "image/svg+xml"
+    usage_count: 1
+    used_in:
       - "views/layouts/app.php"
   - id: "image:assets/images/pwa/icon-192-maskable.png"
     type: "image"

@@ -34,12 +34,12 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <meta property="og:title" content="<?= e($seo['og_title'] ?? $pageTitle) ?>">
 <meta property="og:description" content="<?= e($seo['og_description'] ?? $metaDescription) ?>">
 <meta property="og:url" content="<?= e($seo['og_url'] ?? 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
-<meta property="og:image" content="<?= e($seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.png') ?>">
+<meta property="og:image" content="<?= e($seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.webp') ?>">
 <meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= e($seo['twitter_title'] ?? $seo['og_title'] ?? $pageTitle) ?>">
 <meta name="twitter:description" content="<?= e($seo['twitter_description'] ?? $seo['og_description'] ?? $metaDescription) ?>">
-<meta name="twitter:image" content="<?= e($seo['twitter_image'] ?? $seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.png') ?>">
+<meta name="twitter:image" content="<?= e($seo['twitter_image'] ?? $seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.webp') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -314,10 +314,17 @@ gtag('js', new Date());
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         <span>Menu</span>
     </button>
-    <a href="/" class="brand"><img src="<?= e($__logo) ?>" width="52" height="52" alt="Nebo Lifestyle Clinic logo"><span>Nebo Lifestyle Clinic</span></a>
+    <a href="/" class="brand" aria-label="Nebo Lifestyle Clinic home">
+        <img src="/assets/images/nebo-symbol.svg" width="68" height="55" alt="">
+        <span class="brand-wordmark"><strong>NEBO</strong><b>LIFESTYLE CLINIC</b></span>
+    </a>
 <?php try { $__blogCats = (new \App\Services\BlogService())->categories(); } catch (\Throwable $e) { $__blogCats = []; } ?>
     <nav id="primary-nav" aria-label="Main navigation">
         <button class="nav-close" type="button" aria-label="Close menu">×</button>
+        <a href="/" class="nav-home-brand" aria-label="Nebo Lifestyle Clinic home">
+            <img src="/assets/images/nebo-symbol.svg" width="76" height="62" alt="">
+            <span><strong>NEBO</strong><b>LIFESTYLE CLINIC</b></span>
+        </a>
         <p class="nav-kicker">Explore Nebo</p>
         <a href="/#programs">Programs</a>
         <a href="/campaigns"<?= str_starts_with($currentPath, '/campaign') ? ' aria-current="page"' : '' ?>>Campaigns</a>
@@ -498,7 +505,11 @@ document.querySelectorAll('[data-rail-prev],[data-rail-next]').forEach(function(
         var id=button.getAttribute(button.hasAttribute('data-rail-prev')?'data-rail-prev':'data-rail-next');
         var rail=document.getElementById(id);if(!rail)return;
         var direction=button.hasAttribute('data-rail-prev')?-1:1;
-        rail.scrollBy({left:direction*Math.max(280,rail.clientWidth*.72),behavior:'smooth'});
+        var card=rail.firstElementChild;if(!card)return;
+        var styles=getComputedStyle(rail);
+        var gap=parseFloat(styles.columnGap||styles.gap)||0;
+        var distance=card.getBoundingClientRect().width+gap;
+        rail.scrollBy({left:direction*distance,behavior:'smooth'});
     });
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');

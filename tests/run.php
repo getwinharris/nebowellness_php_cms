@@ -253,7 +253,7 @@ $tests['knowledge index keeps type-qualified concepts collision-free'] = functio
     }
     assertTrue(isset($concepts['route:get__shop']), 'Knowledge index should include type-qualified shop route');
     assertTrue(isset($concepts['blog:your-first-nebo-consultation']), 'Knowledge index should include a type-qualified Nebo article');
-    $brandImage = $concepts['image:assets/images/nebo-clinic-hero.png'] ?? null;
+    $brandImage = $concepts['image:assets/images/nebo-clinic-hero.webp'] ?? null;
     assertTrue(is_array($brandImage), 'Knowledge index should include the Nebo editorial hero image');
     assertTrue(($brandImage['usage_count'] ?? 0) >= 1, 'Referenced image concept should expose its usage count');
     assertTrue(in_array('views/layouts/app.php', $brandImage['used_in'] ?? [], true), 'Referenced image should identify its referring layout');

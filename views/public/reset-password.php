@@ -1,7 +1,7 @@
 <div class="auth-page">
     <div class="auth-visual">
         <h2>Secure Your Account</h2>
-        <p>Set a strong password to protect your account and ensure a seamless experience with your sacred collections.</p>
+        <p>Set a strong password to protect your Nebo account and saved order information.</p>
     </div>
     <div class="auth-form-container">
         <div class="auth-card">

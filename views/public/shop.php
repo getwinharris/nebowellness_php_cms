@@ -28,7 +28,7 @@
                 <div class="panel" style="text-align:center; padding:var(--space-2xl);">
                     <span style="display:block; margin-bottom:var(--space-md);"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/><path d="M2 12h20"/></svg></span>
                     <h3 style="font-family:var(--font-serif); margin:0 0 var(--space-sm);">No products found</h3>
-                    <p style="color:var(--color-text-muted); margin:0 0 var(--space-lg);">No products are available right now. Contact the clinic if you need help.</p>
+                    <p style="color:var(--color-text-muted); margin:0 0 var(--space-lg);"><?= $category !== '' ? 'No products match this category. Browse all products or choose another category.' : 'No products are available right now. Contact the clinic if you need help.' ?></p>
                     <a href="/shop" class="btn btn-primary">Browse All</a>
                 </div>
             <?php else: ?>

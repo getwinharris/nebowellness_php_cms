@@ -1,7 +1,7 @@
 <div class="auth-page">
     <div class="auth-visual">
         <h2>Begin Your Journey</h2>
-        <p>Join our community of devotees and seekers. Create your account to manage your bookings and sacred collections.</p>
+        <p>Create your Nebo account to manage product orders, delivery addresses, and account preferences.</p>
     </div>
     <div class="auth-form-container">
         <div class="auth-card">

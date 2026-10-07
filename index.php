@@ -49,7 +49,7 @@ if ($uri === '/admin/manifest.json') {
         'background_color' => '#222222',
         'theme_color' => '#4472C4',
         'icons' => [
-            ['src' => '/assets/images/nebo-symbol.png', 'sizes' => '1024x1024', 'type' => 'image/png'],
+            ['src' => '/assets/images/nebo-symbol.png', 'sizes' => '1254x1254', 'type' => 'image/png'],
         ],
     ];
     header('Content-Type: application/json; charset=utf-8');

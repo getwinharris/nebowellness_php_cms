@@ -6,5 +6,6 @@ for the compact header mark, favicon, and PWA icons. No manual upload is require
 for the default brand assets.
 
 Admin → Appearance can override the public logo and favicon. After changing either,
-verify the desktop and mobile header, browser tab, and installed PWA icon. The
-default social image is the illustrative clinic hero photograph rather than the logo.
+verify the desktop and mobile header and browser tab. Installed PWA icons use the
+committed Nebo symbol asset. The default social image is the illustrative clinic hero
+photograph rather than the logo.
