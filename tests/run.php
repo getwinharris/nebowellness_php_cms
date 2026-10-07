@@ -374,7 +374,7 @@ $tests['private account admin and review endpoints enforce authentication guards
 
 $tests['public service worker does not cache dynamic commerce pages first'] = function (): void {
     $sw = file_get_contents(app_path('assets/pwa/sw-user.js'));
-    assertTrue(str_contains($sw, "const CACHE = 'sps-user-v2'"), 'Public service worker cache should be versioned after navigation caching changes');
+    assertTrue(str_contains($sw, "const CACHE = 'nebo-user-v3'"), 'Public service worker cache should use the current Nebo version after navigation caching changes');
     assertTrue(!str_contains($sw, "['/','/shop','/consult','/login']"), 'Public service worker should not precache dynamic PHP pages');
     assertTrue(str_contains($sw, "e.request.mode === 'navigate'"), 'Public service worker should handle navigations explicitly');
     assertTrue(str_contains($sw, "fetch(e.request).catch"), 'Public navigations should be network-first to avoid stale shop/cart/checkout UI');
@@ -468,7 +468,7 @@ $tests['contact page exposes general enquiry form and confirmation delivery'] = 
     foreach (['Gut Health Program', 'Metabolic Reset', 'Fertility & Maternal Wellness', 'General Question'] as $subject) {
         assertTrue(str_contains($view, $subject), "Contact form should include the {$subject} subject");
     }
-    assertTrue(!str_contains($view, 'Astrology Consultation'), 'Contact form should not offer a retired consultation subject');
+    assertTrue(!str_contains($view, 'Legacy Consultation'), 'Contact form should not offer a retired consultation subject');
     foreach (['tel:+917200182025', 'tel:+919585182025', 'mailto:nebolifestyleclinic@gmail.com', 'contact-direct-link--mail'] as $needle) {
         assertTrue(str_contains($view, $needle), "Contact page should expose {$needle}");
     }
@@ -533,7 +533,7 @@ $tests['admin integrations explain api setup and support bot keys'] = function (
     assertTrue(!str_contains($view, 'name="support_bot_google_api_endpoint"'), 'Admin should not need to enter the Google API endpoint manually');
     assertTrue(str_contains($view, 'programs, campaigns, practitioners, wellness guidance'), 'Integration guidance should describe the current clinic journey');
     assertTrue(str_contains($view, 'Historical service records remain owner-only'), 'Historical admin records should remain owner-only');
-    foreach (['Customers will only see shop, booking', 'new orders and bookings', 'This site is ecommerce plus direct astrology services.'] as $retiredCopy) {
+    foreach (['Customers will only see shop, booking', 'new orders and bookings', 'This site is ecommerce plus direct legacy services.'] as $retiredCopy) {
         assertTrue(!str_contains($view, $retiredCopy), 'Integration guidance must not advertise retired services: '.$retiredCopy);
     }
 };
@@ -723,7 +723,7 @@ $tests['product cards retain responsive image presentation'] = function (): void
 $tests['home hero leads with spiritual products and a working shop cta'] = function (): void {
     $view = file_get_contents(app_path('views/public/home.php'));
     assertTrue(!str_contains($view, 'Spiritual Products Online in Chennai'), 'Home hero headline should not say products online in Chennai');
-    assertTrue(!str_contains($view, 'Remote Astrology Consultation</a>'), 'Home hero astrology button should use shorter text');
+    assertTrue(!str_contains($view, 'Remote Legacy Consultation</a>'), 'Home hero retired consultation button should remain absent');
     foreach (['Where Science Meets Nature for Lifelong Wellness', '/contact', 'Book Your Consultation', 'Explore Our Programs'] as $needle) {
         assertTrue(str_contains($view, $needle), "Home hero should include {$needle}");
     }
@@ -1793,7 +1793,7 @@ $tests['legacy help URLs redirect into the Nebo journal'] = function (): void {
     assertTrue(str_contains(file_get_contents(app_path('index.php')), "'/help'"), 'Front controller should dispatch hosting-safe help routes into PHP');
     assertTrue(str_contains($controller, "\$this->redirect('/blog');") && str_contains($controller, "'/blog/' . \$slug"), 'Legacy docs routes should redirect to the current journal');
     $categories = file_get_contents(app_path('content/blog/categories.yaml'));
-    assertTrue(str_contains($categories, 'slug: wellness') && !str_contains($categories, 'slug: astrology') && !str_contains($categories, 'slug: spirituality'), 'Public blog taxonomy should contain wellness topics without legacy categories');
+    assertTrue(str_contains($categories, 'slug: wellness') && !str_contains($categories, 'slug: horoscope') && !str_contains($categories, 'slug: spirituality'), 'Public blog taxonomy should contain wellness topics without legacy categories');
     assertTrue(!is_dir(app_path('content/docs')) || !(glob(app_path('content/docs/*.md')) ?: []), 'Separate customer docs Markdown files should be removed');
     foreach (['create-account', 'order-products', 'payments-and-orders'] as $slug) {
         assertTrue(!is_file(app_path("content/blog/posts/{$slug}.md")), "Old store help post {$slug} should be removed");
@@ -1971,10 +1971,10 @@ $tests['support product questions retain public specifications and reject unrela
         'name' => 'Kariya Sakthi Aragaja Mai', 'url' => '/product/aragaja',
         'description' => 'Sacred fragrance paste.', 'specifications' => ['Pack size' => '25 g'],
     ]]], 'articles' => [[
-        'title' => 'What is Sade Sati?', 'url' => '/blog/sade-sati', 'summary' => 'Astrology guide',
+        'title' => 'What is Sade Sati?', 'url' => '/blog/sade-sati', 'summary' => 'Legacy guide',
     ]]];
     $question = 'What is Kariya Sakthi Aragaja Mai and what is its pack size?';
-    assertSame(null, $article($question, $context), 'Common question words must not match astrology articles');
+    assertSame(null, $article($question, $context), 'Common question words must not match unrelated legacy articles');
     $reply = $fallback($question, $context);
     assertTrue(str_contains($reply, 'Pack size: 25 g'), 'Fallback uses the product specification');
     assertTrue(str_contains($reply, '/product/aragaja'), 'Fallback links the matched product');

@@ -5,7 +5,7 @@
     "summary": {
         "routes": 114,
         "controllers": 12,
-        "services": 48,
+        "services": 47,
         "views": 43,
         "collections": 22
     },
@@ -1300,7 +1300,6 @@
         "DatabaseService",
         "DocsMapService",
         "EnvService",
-        "GitHubDocService",
         "ImageOptimizerService",
         "KnowledgeGraphService",
         "MailQueueService",

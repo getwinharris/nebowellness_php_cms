@@ -9,7 +9,6 @@
                     <option value="products">Products</option>
                     <option value="campaigns">Campaigns</option>
                     <option value="consultants">Consultants</option>
-                    <option value="consultants">Consultants</option>
                 </select>
             </label>
             <label>Description

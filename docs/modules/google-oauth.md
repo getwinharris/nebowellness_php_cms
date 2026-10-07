@@ -17,7 +17,7 @@ Main files: `GoogleOAuthClient.php`, `AuthController.php`, `views/admin/integrat
    - **Google Client Secret**
 
 2. In the Google Cloud Console, add these Authorized redirect URIs to your OAuth 2.0 Client ID:
-   - `https://sripanchamispiritual.com/auth/google/callback` (production)
+   - `https://www.nebowellness.com/auth/google/callback` (production)
    - `http://127.0.0.1:6020/auth/google/callback` (local dev)
 
 3. The button appears on both /login and /register pages only when credentials are set. Missing credentials hide the button entirely — no dead click targets.

@@ -45,7 +45,7 @@ bapXphp ci
 
 ## Repository Architecture
 
-`bapxmediahub/bapXphpAiBackend` is the independent source repository and the
+`getwinharris/nebowellness_php_cms` is the independent source repository and the
 Hostinger deployment source. All issues, branches, PRs, reviews, and
 customer-specific changes belong there. It is no longer a fork and has no
 upstream synchronization workflow.
@@ -100,5 +100,5 @@ This application is built for normal PHP hosting, not Vercel. Vercel's official 
 - Data not saving: run `bapXphp db status`, then verify the `BAPX_MYSQL_*` values and hosted database permissions.
 - Admin blocked: verify the admin account in remote MySQL and the current Admin -> Settings configuration.
 - Razorpay disabled: add live key ID and secret in admin integrations.
-- Google login not working: verify the Google Cloud Console has the correct callback URL (`https://sripanchamispiritual.com/auth/google/callback`).
+- Google login not working: verify the Google Cloud Console has the correct callback URL (`https://www.nebowellness.com/auth/google/callback`).
 - Emails not sending: check Admin → Integrations → Send a Test Email. It reports the exact SMTP error. For Hostinger use `smtp.hostinger.com`, port 465 (SSL) or 587 (TLS), the full email address as username, and a From Email matching that mailbox.

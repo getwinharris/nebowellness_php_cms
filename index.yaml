@@ -36,7 +36,7 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 262
+  concepts: 261
   relationships: 238
   by_type:
     blog: 5
@@ -45,7 +45,7 @@ summary:
     image: 19
     route: 114
     schema: 22
-    service: 48
+    service: 47
     skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -2859,14 +2859,6 @@ concepts:
     title: "EnvService"
     description: "Service: EnvService"
     resource: "app/Services/EnvService.php"
-    tags:
-      - "code"
-      - "service"
-  - id: "service:GitHubDocService"
-    type: "service"
-    title: "GitHubDocService"
-    description: "Service: GitHubDocService"
-    resource: "app/Services/GitHubDocService.php"
     tags:
       - "code"
       - "service"

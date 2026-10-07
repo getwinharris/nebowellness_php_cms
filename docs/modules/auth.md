@@ -23,7 +23,7 @@ Main files: `AuthController.php`, `AuthService.php`, `EnvService.php`, `PublicCo
 - Button appears only when `google_client_id` and `google_client_secret` are configured in Admin → Integrations.
 - Uses `openid email profile` scopes only (no Calendar/Meet).
 - Callback redirects based on user role (same as loginPost).
-- Redirect URI: `https://sripanchamispiritual.com/auth/google/callback` (production), `http://127.0.0.1:6020/auth/google/callback` (local dev).
+- Redirect URI: `https://www.nebowellness.com/auth/google/callback` (production), `http://127.0.0.1:6020/auth/google/callback` (local dev).
 
 ## Registration
 
