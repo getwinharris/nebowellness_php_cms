@@ -34,11 +34,11 @@ table. **Never put SMTP settings in `.env`** — `.env` holds only `APP_NAME`,
 | SMTP Host | `smtp.hostinger.com` | |
 | SMTP Port | `465` (SSL) or `587` (TLS/STARTTLS) | Match the Encryption field |
 | Encryption | `ssl` for 465, `tls` for 587 | |
-| SMTP Username | `support@sripanchamispiritual.com` | **Full email address**, not just `support` |
+| SMTP Username | the new Hostinger Nebo mailbox | **Full email address**, not just `support` |
 | SMTP Password | the mailbox password | Set in hPanel → Emails |
-| From Email | `support@sripanchamispiritual.com` | **Must match the authenticated mailbox** or the provider rejects the message |
+| From Email | the same new Nebo mailbox | **Must match the authenticated mailbox** or the provider rejects the message |
 | From Name | `Nebo Lifestyle Clinic` | |
-| Admin Notification Email | `sripanchamispiritual@gmail.com` | Where the **owner** is notified |
+| Admin Notification Email | the client-approved Nebo inbox | Where the **owner** is notified |
 
 ### From Email vs Admin Notification Email
 
@@ -90,11 +90,11 @@ The port is blocked by the host or a firewall.
 
 ## Checking the domain
 
-Mail cannot work if the domain is wrong. The live domain is
-`sripanchamispiritual.com`. Verify the MX records resolve:
+Mail cannot work if the mailbox domain is wrong. Verify the MX records for the
+client-approved Nebo mailbox domain before testing:
 
 ```bash
-host -t MX sripanchamispiritual.com
+host -t MX <mailbox-domain>
 # → mx1.hostinger.com, mx2.hostinger.com
 ```
 

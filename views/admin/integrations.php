@@ -145,11 +145,11 @@
                     <option value="tls" <?= (($secrets['smtp_encryption']??'ssl') === 'tls') ? 'selected' : '' ?>>TLS / STARTTLS (587)</option>
                 </select>
             </label>
-            <label>SMTP Username<input name="smtp_username" value="<?= e($secrets['smtp_username']??'') ?>" placeholder="support@sripanchamispiritual.com"></label>
+            <label>SMTP Username<input name="smtp_username" value="<?= e($secrets['smtp_username']??'') ?>" placeholder="support@nebowellness.com"></label>
         </div>
         <div class="admin-form__row">
             <label>SMTP Password<input type="password" name="smtp_password" value="<?= e($secrets['smtp_password']??'') ?>" placeholder="SMTP password" autocomplete="new-password"></label>
-            <label>From Email<input name="mail_from_email" value="<?= e($secrets['mail_from_email']??'') ?>" placeholder="support@sripanchamispiritual.com"></label>
+            <label>From Email<input name="mail_from_email" value="<?= e($secrets['mail_from_email']??'') ?>" placeholder="support@nebowellness.com"></label>
         </div>
         <div class="admin-form__row">
             <label>From Name<input name="mail_from_name" value="<?= e($secrets['mail_from_name']??'Nebo Lifestyle Clinic') ?>" placeholder="Nebo Lifestyle Clinic"></label>
@@ -159,7 +159,7 @@
             <strong>Hostinger mailbox:</strong> host <code>smtp.hostinger.com</code>,
             port <code>465</code> with SSL (or <code>587</code> with TLS/STARTTLS).
             <strong>SMTP Username</strong> and <strong>From Email</strong> must both be the
-            full mailbox address, e.g. <code>support@sripanchamispiritual.com</code> — providers
+            full mailbox address, e.g. <code>support@nebowellness.com</code> — providers
             reject a From Email that does not match the authenticated mailbox.
             <strong>Admin Notification Email</strong> is different: it is where <em>you</em> get told
             about new orders and contact enquiries, so it can be a personal inbox such as a Gmail address.

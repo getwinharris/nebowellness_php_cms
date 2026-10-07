@@ -81,7 +81,7 @@ try {
         $failures[] = "POST /admin/orders/test/status expected 302, got {$post['status']}";
     }
 
-    $appointmentPost = httpRequest($base . '/consultation/initiate', 'POST', 'astrologer_slug=pandit-shastri&mode=text_session');
+    $appointmentPost = httpRequest($base . '/consultation/initiate', 'POST', 'consultant_slug=legacy-profile&mode=text_session');
     echo "{$appointmentPost['status']} POST /consultation/initiate\n";
     if ($appointmentPost['status'] !== 302) {
         $failures[] = "POST /consultation/initiate expected guest login redirect 302, got {$appointmentPost['status']}";

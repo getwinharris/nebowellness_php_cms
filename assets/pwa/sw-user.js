@@ -1,4 +1,4 @@
-const CACHE = 'sps-user-v2';
+const CACHE = 'nebo-user-v3';
 const PRECACHE = ['/manifest.json'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.map(n => n !== CACHE ? caches.delete(n) : null))).then(() => self.clients.claim())); });

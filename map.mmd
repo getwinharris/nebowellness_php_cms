@@ -7,10 +7,10 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 114 routes, 12 controllers, 48 services, 43 views, 0 data files, 20 tools"]
+  subgraph ARCH["Architecture Overview — 114 routes, 12 controllers, 47 services, 43 views, 0 data files, 20 tools"]
     arch_routes["> Routes: 114 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 12"]:::arch
-    arch_svc["> Services: 48"]:::arch
+    arch_svc["> Services: 47"]:::arch
     arch_views["> Views: 43"]:::arch
     arch_data["> Collections: 22 schema | 0 files"]:::arch
     arch_tools["> Tools: 20"]:::arch
@@ -195,7 +195,6 @@ flowchart LR
     service_databaseservice["DatabaseService"]:::code
     service_docsmapservice["DocsMapService"]:::code
     service_envservice["EnvService"]:::code
-    service_githubdocservice["GitHubDocService"]:::code
     service_imageoptimizerservice["ImageOptimizerService"]:::code
     service_knowledgegraphservice["KnowledgeGraphService"]:::code
     service_mailqueueservice["MailQueueService"]:::code
