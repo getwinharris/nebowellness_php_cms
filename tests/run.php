@@ -543,6 +543,8 @@ $tests['google oauth callback uses canonical configured app url'] = function ():
     assertTrue(str_contains($auth, "getenv('APP_URL')"), 'Google OAuth should use the configured canonical app URL');
     assertTrue(!str_contains($auth, "\$_SERVER['HTTP_HOST']"), 'Google OAuth should not trust the incoming host for redirect URI');
     assertTrue(str_contains($auth, 'https://www.nebowellness.com'), 'Google OAuth should normalize the Nebo callback to the public canonical host');
+    assertTrue(str_contains($auth, "\$_SESSION['oauth_redirect_uri']"), 'Google OAuth should retain the URI used to start an in-flight sign-in');
+    assertTrue(str_contains($auth, "'redirect_uri'=>\$redirectUri"), 'Google OAuth token exchange should use the retained in-flight callback URI');
     $previous = $_ENV['APP_URL'] ?? null;
     $_ENV['APP_URL'] = 'https://nebowellness.com';
     $method = new ReflectionMethod(\App\Controllers\AuthController::class, 'redirectUri');
