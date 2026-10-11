@@ -468,7 +468,7 @@ $tests['contact page exposes general enquiry form and confirmation delivery'] = 
     foreach (['Gut Health Program', 'Metabolic Reset', 'Fertility & Maternal Wellness', 'General Question'] as $subject) {
         assertTrue(str_contains($view, $subject), "Contact form should include the {$subject} subject");
     }
-    assertTrue(!str_contains($view, 'Legacy Consultation'), 'Contact form should not offer a retired consultation subject');
+    assertTrue(!str_contains($view, 'Astrology Consultation'), 'Contact form should not offer a retired consultation subject');
     foreach (['tel:+917200182025', 'tel:+919585182025', 'mailto:nebolifestyleclinic@gmail.com', 'contact-direct-link--mail'] as $needle) {
         assertTrue(str_contains($view, $needle), "Contact page should expose {$needle}");
     }
@@ -533,7 +533,7 @@ $tests['admin integrations explain api setup and support bot keys'] = function (
     assertTrue(!str_contains($view, 'name="support_bot_google_api_endpoint"'), 'Admin should not need to enter the Google API endpoint manually');
     assertTrue(str_contains($view, 'programs, campaigns, practitioners, wellness guidance'), 'Integration guidance should describe the current clinic journey');
     assertTrue(str_contains($view, 'Historical service records remain owner-only'), 'Historical admin records should remain owner-only');
-    foreach (['Customers will only see shop, booking', 'new orders and bookings', 'This site is ecommerce plus direct legacy services.'] as $retiredCopy) {
+    foreach (['Customers will only see shop, booking', 'new orders and bookings', 'This site is ecommerce plus direct astrology services.'] as $retiredCopy) {
         assertTrue(!str_contains($view, $retiredCopy), 'Integration guidance must not advertise retired services: '.$retiredCopy);
     }
 };
@@ -542,6 +542,20 @@ $tests['google oauth callback uses canonical configured app url'] = function ():
     $auth = file_get_contents(app_path('app/Controllers/AuthController.php'));
     assertTrue(str_contains($auth, "getenv('APP_URL')"), 'Google OAuth should use the configured canonical app URL');
     assertTrue(!str_contains($auth, "\$_SERVER['HTTP_HOST']"), 'Google OAuth should not trust the incoming host for redirect URI');
+    assertTrue(str_contains($auth, 'https://www.nebowellness.com'), 'Google OAuth should normalize the Nebo callback to the public canonical host');
+    $previous = $_ENV['APP_URL'] ?? null;
+    $_ENV['APP_URL'] = 'https://nebowellness.com';
+    $method = new ReflectionMethod(\App\Controllers\AuthController::class, 'redirectUri');
+    $uri = $method->invoke(new \App\Controllers\AuthController());
+    if ($previous === null) unset($_ENV['APP_URL']); else $_ENV['APP_URL'] = $previous;
+    assertSame('https://www.nebowellness.com/auth/google/callback', $uri, 'The former apex APP_URL should produce the documented Google callback');
+};
+
+$tests['retired GitHub blog-cache command is not exposed'] = function (): void {
+    $cli = file_get_contents(app_path('cli/bapXphp'));
+    assertTrue(!str_contains($cli, 'cmd_bloggen'), 'CLI should not advertise a command backed by the retired GitHub document service');
+    assertTrue(!str_contains($cli, 'refresh-blog-cache.php'), 'CLI should not invoke the deleted blog-cache script');
+    assertTrue(!is_file(app_path('cli/refresh-blog-cache.php')), 'Retired GitHub blog-cache script should be removed');
 };
 
 $tests['razorpay secrets support test and live modes'] = function (): void {
@@ -723,7 +737,7 @@ $tests['product cards retain responsive image presentation'] = function (): void
 $tests['home hero leads with spiritual products and a working shop cta'] = function (): void {
     $view = file_get_contents(app_path('views/public/home.php'));
     assertTrue(!str_contains($view, 'Spiritual Products Online in Chennai'), 'Home hero headline should not say products online in Chennai');
-    assertTrue(!str_contains($view, 'Remote Legacy Consultation</a>'), 'Home hero retired consultation button should remain absent');
+    assertTrue(!str_contains($view, 'Remote Astrology Consultation</a>'), 'Home hero retired consultation button should remain absent');
     foreach (['Where Science Meets Nature for Lifelong Wellness', '/contact', 'Book Your Consultation', 'Explore Our Programs'] as $needle) {
         assertTrue(str_contains($view, $needle), "Home hero should include {$needle}");
     }
@@ -1793,7 +1807,7 @@ $tests['legacy help URLs redirect into the Nebo journal'] = function (): void {
     assertTrue(str_contains(file_get_contents(app_path('index.php')), "'/help'"), 'Front controller should dispatch hosting-safe help routes into PHP');
     assertTrue(str_contains($controller, "\$this->redirect('/blog');") && str_contains($controller, "'/blog/' . \$slug"), 'Legacy docs routes should redirect to the current journal');
     $categories = file_get_contents(app_path('content/blog/categories.yaml'));
-    assertTrue(str_contains($categories, 'slug: wellness') && !str_contains($categories, 'slug: horoscope') && !str_contains($categories, 'slug: spirituality'), 'Public blog taxonomy should contain wellness topics without legacy categories');
+    assertTrue(str_contains($categories, 'slug: wellness') && !str_contains($categories, 'slug: astrology') && !str_contains($categories, 'slug: spirituality'), 'Public blog taxonomy should contain wellness topics without legacy categories');
     assertTrue(!is_dir(app_path('content/docs')) || !(glob(app_path('content/docs/*.md')) ?: []), 'Separate customer docs Markdown files should be removed');
     foreach (['create-account', 'order-products', 'payments-and-orders'] as $slug) {
         assertTrue(!is_file(app_path("content/blog/posts/{$slug}.md")), "Old store help post {$slug} should be removed");
