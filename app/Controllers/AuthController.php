@@ -6,19 +6,21 @@ final class AuthController extends BaseController {
   public function googleRedirect(): void {
   $s=(new SecretService())->all(); if(empty($s['google_client_id'])||empty($s['google_client_secret'])){$this->flash('Google login is not configured yet.','warning');$this->redirect('/login');}
   $state=bin2hex(random_bytes(16)); $_SESSION['oauth_state']=$state; $_SESSION['oauth_state_created_at']=time();
-  $url=(new GoogleOAuthClient($s['google_client_id'],$s['google_client_secret']))->authorizationUrl($this->redirectUri(),$state); $this->redirect($url);
+  $redirectUri=$this->redirectUri(); $_SESSION['oauth_redirect_uri']=$redirectUri;
+  $url=(new GoogleOAuthClient($s['google_client_id'],$s['google_client_secret']))->authorizationUrl($redirectUri,$state); $this->redirect($url);
   }
   public function callback(): void {
     if(($_GET['state']??'')!==($_SESSION['oauth_state']??'')){$this->flash('Invalid OAuth state. Please try again.','error');$this->redirect('/login');}
-    if(($_SESSION['oauth_state_created_at']??0)<time()-600){unset($_SESSION['oauth_state'],$_SESSION['oauth_state_created_at']);$this->flash('OAuth state expired. Please try again.','error');$this->redirect('/login');}
-   $s=(new SecretService())->all(); $token=$this->post('https://oauth2.googleapis.com/token',['code'=>$_GET['code']??'','client_id'=>$s['google_client_id'],'client_secret'=>$s['google_client_secret'],'redirect_uri'=>$this->redirectUri(),'grant_type'=>'authorization_code']);
+    if(($_SESSION['oauth_state_created_at']??0)<time()-600){unset($_SESSION['oauth_state'],$_SESSION['oauth_state_created_at'],$_SESSION['oauth_redirect_uri']);$this->flash('OAuth state expired. Please try again.','error');$this->redirect('/login');}
+   $redirectUri=(string)($_SESSION['oauth_redirect_uri']??$this->redirectUri());
+   $s=(new SecretService())->all(); $token=$this->post('https://oauth2.googleapis.com/token',['code'=>$_GET['code']??'','client_id'=>$s['google_client_id'],'client_secret'=>$s['google_client_secret'],'redirect_uri'=>$redirectUri,'grant_type'=>'authorization_code']);
    if(!empty($token['error'])||empty($token['access_token'])){$this->flash('Google login failed. Please try again.','error');$this->redirect('/login');}
    $user=$this->get('https://openidconnect.googleapis.com/v1/userinfo',$token['access_token']);
    if(empty($user)){$this->flash('Failed to fetch your profile from Google. Please try again.','error');$this->redirect('/login');}
     $store=new DatabaseService(); $users=$store->read('users'); $role = 'customer'; $consultantSlug = ''; $mustChange = false; $existingId = '';
     foreach ($users as $u) { if (($u['id'] ?? '') === ($user['sub'] ?? '') || (($u['email'] ?? '') !== '' && ($u['email'] ?? '') === ($user['email'] ?? ''))) { $role=$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'); $consultantSlug=$u['consultant_slug'] ?? ''; $mustChange=(bool)($u['must_change_password'] ?? false); if (($u['email'] ?? '') === ($user['email'] ?? '')) $existingId=$u['id']??''; break; } }
     $userId = $existingId ?: ($user['sub'] ?? bin2hex(random_bytes(8)));
-    unset($_SESSION['oauth_state']);
+    unset($_SESSION['oauth_state'],$_SESSION['oauth_state_created_at'],$_SESSION['oauth_redirect_uri']);
     session_regenerate_id(true);
     $_SESSION['user']=['sub'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','username'=>explode('@',$user['email'])[0],'picture'=>$user['picture']??'','role'=>$role,'consultant_slug'=>$consultantSlug];
     try { $store->upsert('users',['id'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','picture'=>$user['picture']??'','role'=>$role]); } catch (\Throwable) {}

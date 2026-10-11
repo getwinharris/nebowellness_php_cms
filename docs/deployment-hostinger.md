@@ -100,5 +100,5 @@ This application is built for normal PHP hosting, not Vercel. Vercel's official 
 - Data not saving: run `bapXphp db status`, then verify the `BAPX_MYSQL_*` values and hosted database permissions.
 - Admin blocked: verify the admin account in remote MySQL and the current Admin -> Settings configuration.
 - Razorpay disabled: add live key ID and secret in admin integrations.
-- Google login not working: verify the Google Cloud Console has the correct callback URL (`https://www.nebowellness.com/auth/google/callback`).
+- Google login not working: register `https://www.nebowellness.com/auth/google/callback` in Google Cloud Console. During the apex-to-www migration, register `https://nebowellness.com/auth/google/callback` too and retain it until all in-progress sign-ins have expired.
 - Emails not sending: check Admin → Integrations → Send a Test Email. It reports the exact SMTP error. For Hostinger use `smtp.hostinger.com`, port 465 (SSL) or 587 (TLS), the full email address as username, and a From Email matching that mailbox.
