@@ -93,7 +93,6 @@ set -euo pipefail
 # ── Blog & Docs ──────────────────────────────────────────────────
 #       bapXphp docsmap                 — regenerate docs/map.mmd (content: skills, docs, blog, admin, agents)
 #       bapXphp codemap                 — regenerate map.mmd (root, code dependency graph with edges + gaps)
-#   bapXphp bloggen                 — regenerate blog cache from GitHub markdown sources
 #       bapXphp index                   — generate index.yaml knowledge index (concepts + relationships)
 #
 # ── Task Management (todowrite) ──────────────────────────────────
@@ -183,7 +182,7 @@ MYSQL_DB="${BAPX_MYSQL_DB:-u907253411_db_name_sps}"
 MYSQL_USER="${BAPX_MYSQL_USER:-u907253411_db_user_sps}"
 MYSQL_PASS="${BAPX_MYSQL_PASS:-}"
 SCHEMA_FILE="$ROOT/storage/schema/collections.php"
-APP_URL="${APP_URL:-https://nebowellness.com}"
+APP_URL="${APP_URL:-https://www.nebowellness.com}"
 REMOTE_DB_URL="${BAPX_REMOTE_DB_URL:-${APP_URL%/}/remotedb}"
 
 remote_db_curl() {
@@ -1239,14 +1238,6 @@ cmd_okfgen() {
   echo "Done. → index.yaml"
 }
 
-# ── bloggen — Regenerate blog cache from GitHub ──────────────
-cmd_bloggen() {
-  require_php
-  echo "Regenerating blog cache from GitHub markdown sources..."
-  php "$ROOT/cli/refresh-blog-cache.php" "$ROOT"
-  echo "Done. Blog cache refreshed."
-}
-
 cmd_product_images() {
   require_php
   local source="${1:-}"
@@ -2193,8 +2184,6 @@ main() {
       cmd_codemap ;;
     index|okfgen|knowledge-graph|kg)
       cmd_okfgen ;;
-    bloggen)
-      cmd_bloggen ;;
     todo)
       shift; cmd_todo "$@" ;;
     objective|obj)

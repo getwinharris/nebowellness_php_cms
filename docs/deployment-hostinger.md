@@ -12,7 +12,7 @@ category: docs
 2. Enable **Auto Deployment** for the production **Branch** (`main`) so merged commits deploy automatically.
 3. Upload the current `main` build to `/public_html` with Git or FTP when doing a manual recovery deploy.
 4. Keep `.env`, `index.php`, `.htaccess`, `api/`, `app/`, `assets/`, `integrations/`, `storage/`, `cli/`, and `views/` together.
-5. Configure `BAPX_MYSQL_HOST`, `BAPX_MYSQL_PORT`, `BAPX_MYSQL_DB`, `BAPX_MYSQL_USER`, and `BAPX_MYSQL_PASS` in `.env` for direct hosted MySQL access.
+5. Set `APP_URL=https://www.nebowellness.com` and configure `BAPX_MYSQL_HOST`, `BAPX_MYSQL_PORT`, `BAPX_MYSQL_DB`, `BAPX_MYSQL_USER`, and `BAPX_MYSQL_PASS` in `.env` for direct hosted MySQL access.
 6. Configure application secrets from Admin -> Integrations; they are stored in remote MySQL, not `.env`.
 7. Set a Hostinger cron job for queued mail after SMTP is configured:
 
