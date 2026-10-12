@@ -185,8 +185,8 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 - **Header:** soft white, non-sticky, hairline bottom border, centered vector Nebo symbol above the wordmark. `NEBO` is extra bold Nebo blue and `LIFESTYLE CLINIC` is bold Nebo green. The drawer repeats this lockup as a home link; account/cart actions remain right aligned.
 - **Home hero (editorial):** Use `nebo-clinic-hero.png` as a full-width photo with a dark blue text scrim. Left-align the headline and consultation action; keep the people and clinic setting visible at the right. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff.
-- **Program rail:** a horizontal, equal-height scroll-snap editorial rail with two full cards and a partial next card visible on
-  wide screens, and one partial next card visible on mobile. The selected card is visibly larger than its neighbours without changing the rail's row geometry. Each card uses an abstract
+- **Program rail:** a horizontal, equal-height scroll-snap editorial rail with three cards visible on
+  wide screens and one partial next card visible on mobile. Each card uses an abstract
   colour field, duration label, program name, short factual description, and enquiry
   link. Each arrow action advances exactly one card plus its grid gap; keyboard and touch scrolling remain
   available. When the rail enters view, its cards use one short staggered rise; only the current card receives a subtle lift. Nebo offers programs only: never introduce destinations, accommodation,
@@ -197,7 +197,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
   speciality, concise bio, and one consultation enquiry action. Until actual portraits
   are supplied, use the approved male silhouette for male practitioners and approved
   female silhouette for female practitioners, label them as portrait placeholders,
-  and keep `photo_url` editable through Admin → Consultants and the media picker. Use the same two-plus-partial-card composition, single-card arrow advance, selected-card emphasis, and scroll entrance as the program rail.
+  and keep `photo_url` editable through Admin → Consultants and the media picker. Use a large selected profile beside small portrait previews, with the same single-card arrow advance and scroll entrance as the program rail.
 - **Testimonial Cards:** Use the client-approved testimonial copy from the project source document. Present it as a quiet two-column quote grid with the supplied attribution; do not invent outcome claims or missing attribution details.
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
 - **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
