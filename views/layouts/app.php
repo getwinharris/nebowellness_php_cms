@@ -524,7 +524,7 @@ document.querySelectorAll('[data-editorial-rail]').forEach(function(rail){
         var target=Math.max(0,Math.min(cards.length-1,activeIndex+direction));
         if(target===activeIndex)return;
         arrowMotion=true;window.clearTimeout(settleTimer);updateControls(target);
-        rail.scrollTo({left:Math.min(cardPosition(target),maxScroll()),behavior:'smooth'});
+        rail.scrollTo({left:Math.min(cardPosition(target),maxScroll()),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
         settleTimer=window.setTimeout(function(){arrowMotion=false;updateControls();},650);
     }
     if(previous) previous.addEventListener('click',function(){move(-1);});
