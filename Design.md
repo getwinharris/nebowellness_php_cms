@@ -189,7 +189,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
   wide screens and one partial next card visible on mobile. Each card uses an abstract
   colour field, duration label, program name, short factual description, and enquiry
   link. Each arrow action advances exactly one card plus its grid gap; keyboard and touch scrolling remain
-  available. Nebo offers programs only: never introduce destinations, accommodation,
+  available. When the rail enters view, its cards use one short staggered rise; only the current card receives a subtle lift. Nebo offers programs only: never introduce destinations, accommodation,
   room selection, stay length, or hotel booking concepts.
 - **Campaign pages:** owner-edited pages use a full-width image with a blue text scrim, short headline and enquiry action, followed by an open reading column and one quiet side card. The campaign index uses 16:9 image cards. Drafts never have a public route or sitemap entry.
 - **Proof points:** Display measured outcomes only when Nebo can substantiate the numbers and define the measurement period and source. Otherwise use concrete service details without invented percentages.
@@ -197,7 +197,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
   speciality, concise bio, and one consultation enquiry action. Until actual portraits
   are supplied, use the approved male silhouette for male practitioners and approved
   female silhouette for female practitioners, label them as portrait placeholders,
-  and keep `photo_url` editable through Admin → Consultants and the media picker.
+  and keep `photo_url` editable through Admin → Consultants and the media picker. Use the same single-card arrow advance and scroll entrance as the program rail.
 - **Testimonial Cards:** Use the client-approved testimonial copy from the project source document. Present it as a quiet two-column quote grid with the supplied attribution; do not invent outcome claims or missing attribution details.
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
 - **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
