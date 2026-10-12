@@ -538,11 +538,11 @@ $tests['admin integrations explain api setup and support bot keys'] = function (
     }
 };
 
-$tests['google oauth callback uses canonical configured app url'] = function (): void {
+$tests['google oauth callback uses the configured app url'] = function (): void {
     $auth = file_get_contents(app_path('app/Controllers/AuthController.php'));
     assertTrue(str_contains($auth, "getenv('APP_URL')"), 'Google OAuth should use the configured canonical app URL');
     assertTrue(!str_contains($auth, "\$_SERVER['HTTP_HOST']"), 'Google OAuth should not trust the incoming host for redirect URI');
-    assertTrue(str_contains($auth, 'https://www.nebowellness.com'), 'Google OAuth should normalize the Nebo callback to the public canonical host');
+    assertTrue(str_contains($auth, 'https://www.nebowellness.com'), 'Google OAuth should default new Nebo deployments to the public canonical host');
     assertTrue(str_contains($auth, "\$_SESSION['oauth_redirect_uri']"), 'Google OAuth should retain the URI used to start an in-flight sign-in');
     assertTrue(str_contains($auth, "'redirect_uri'=>\$redirectUri"), 'Google OAuth token exchange should use the retained in-flight callback URI');
     $previous = $_ENV['APP_URL'] ?? null;
@@ -550,7 +550,11 @@ $tests['google oauth callback uses canonical configured app url'] = function ():
     $method = new ReflectionMethod(\App\Controllers\AuthController::class, 'redirectUri');
     $uri = $method->invoke(new \App\Controllers\AuthController());
     if ($previous === null) unset($_ENV['APP_URL']); else $_ENV['APP_URL'] = $previous;
-    assertSame('https://www.nebowellness.com/auth/google/callback', $uri, 'The former apex APP_URL should produce the documented Google callback');
+    assertSame('https://nebowellness.com/auth/google/callback', $uri, 'OAuth must use the exact configured callback host');
+    $_ENV['APP_URL'] = 'https://www.nebowellness.com';
+    $uri = $method->invoke(new \App\Controllers\AuthController());
+    if ($previous === null) unset($_ENV['APP_URL']); else $_ENV['APP_URL'] = $previous;
+    assertSame('https://www.nebowellness.com/auth/google/callback', $uri, 'The recommended www APP_URL should produce the documented callback');
 };
 
 $tests['retired GitHub blog-cache command is not exposed'] = function (): void {
