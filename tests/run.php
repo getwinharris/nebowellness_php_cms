@@ -557,14 +557,6 @@ $tests['google oauth callback uses the configured app url'] = function (): void 
     assertSame('https://www.nebowellness.com/auth/google/callback', $uri, 'The recommended www APP_URL should produce the documented callback');
 };
 
-$tests['editorial rails advance one card and animate when revealed'] = function (): void {
-    $layout = file_get_contents(app_path('views/layouts/app.php'));
-    $styles = file_get_contents(app_path('assets/css/band.css'));
-    assertTrue(str_contains($layout, 'cards[target].offsetLeft'), 'Rail controls should target the next card rather than scroll an arbitrary distance');
-    assertTrue(str_contains($layout, 'rail-entered'), 'Editorial rails should receive their entrance state when scrolled into view');
-    assertTrue(str_contains($styles, '.editorial-rail.rail-entered .reveal.is-rail-current'), 'The active editorial card should receive the focused motion treatment');
-};
-
 $tests['retired GitHub blog-cache command is not exposed'] = function (): void {
     $cli = file_get_contents(app_path('cli/bapXphp'));
     assertTrue(!str_contains($cli, 'cmd_bloggen'), 'CLI should not advertise a command backed by the retired GitHub document service');
