@@ -86,6 +86,43 @@ final class PublicController extends BaseController {
         $this->render('public/campaign', ['campaign' => $page]);
     }
     
+    public function campaignEnquire(string $slug): void {
+        $page = (new CampaignPageService())->findPublished($slug);
+        if ($page === null) $this->renderNotFound();
+        $this->validateCsrf();
+        $this->checkRateLimit('campaign-enquiry', 3, 120);
+        $submission = [];
+        foreach (['name','email','phone','message'] as $field) {
+            $value = $_POST[$field] ?? '';
+            $submission[$field] = is_string($value) ? trim($value) : '';
+        }
+        $errors = [];
+        if ($submission['name'] === '' || strlen($submission['name']) > 150) $errors[] = 'Enter your name (up to 150 characters).';
+        if (!filter_var($submission['email'], FILTER_VALIDATE_EMAIL) || strlen($submission['email']) > 254) $errors[] = 'Enter a valid email address.';
+        foreach (['phone','message'] as $field) {
+            $mode = $page['form_' . $field] ?? 'optional';
+            if ($mode === 'hidden') $submission[$field] = '';
+            if ($mode === 'required' && $submission[$field] === '') $errors[] = 'Please enter your ' . $field . '.';
+        }
+        if (strlen($submission['phone']) > 40 || strlen($submission['message']) > 5000) $errors[] = 'Keep your phone number under 40 characters and message under 5,000 characters.';
+        if ($errors !== []) {
+            $_SESSION['campaign_form'] = ['slug'=>$slug, 'errors'=>$errors, 'values'=>$submission];
+            $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
+        }
+        $submission['campaign_slug'] = $slug;
+        $submission['campaign_title'] = $page['title'];
+        $submission['subject'] = 'Campaign enquiry: ' . $page['title'];
+        if ($submission['message'] === '') $submission['message'] = 'Please contact me about ' . $page['title'] . '.';
+        $submission['id'] = (new ContactService())->save($submission);
+        try {
+            $queue = new \App\Services\MailQueueService();
+            $queue->enqueueContactConfirmation($submission);
+            $queue->notifyAdmin($submission['subject'], '<p>New campaign enquiry.</p><p>' . e($submission['name']) . ' · ' . e($submission['email']) . '</p><p>' . nl2br(e($submission['message'])) . '</p>');
+        } catch (\Throwable $error) { error_log('Campaign enquiry email failed: ' . $error->getMessage()); }
+        $_SESSION['campaign_form'] = ['slug'=>$slug, 'success'=>true];
+        $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
+    }
+
     public function shop(): void {
         $this->detectApiRequest();
         $category = $_GET['category'] ?? '';

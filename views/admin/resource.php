@@ -1,3 +1,4 @@
+<?php $listFields = $collection === 'campaign_pages' ? ['title','slug','status','form_title'] : $fields; ?>
 <div class="admin-card">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-sm); margin-bottom:var(--space-lg);">
         <h2 style="margin:0; font-size:1.1rem;"><?= e($title) ?></h2>
@@ -9,8 +10,12 @@
         <div class="admin-form__row" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));">
             <?php foreach($fields as $field): ?>
                 <label><?= e(ucwords(str_replace('_',' ',$field))) ?>
-                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description'], true)): ?>
+                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description','form_intro','form_success'], true)): ?>
                         <textarea name="<?= e($field) ?>" id="field-<?= e($field) ?>" rows="<?= $field === 'body' ? 10 : 3 ?>"></textarea>
+                    <?php elseif(in_array($field, ['form_phone','form_message'], true)): ?>
+                        <select name="<?= e($field) ?>" id="field-<?= e($field) ?>">
+                            <option value="optional">Optional</option><option value="required">Required</option><option value="hidden">Hidden</option>
+                        </select>
                     <?php elseif($field === 'active'): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
                             <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" checked> Active
@@ -30,7 +35,7 @@
                         <input type="date" name="<?= e($field) ?>" id="field-<?= e($field) ?>">
                     <?php elseif(str_contains($field, '_spend') || str_contains($field, '_limit') || str_contains($field, 'discount')): ?>
                         <input type="number" name="<?= e($field) ?>" id="field-<?= e($field) ?>" placeholder="Leave blank for no limit" step="any" min="0">
-                    <?php elseif(str_contains($field, '_url') && !in_array($field, ['image_url', 'photo_url'], true)): ?>
+                    <?php elseif(str_contains($field, '_url') && !($collection === 'campaign_pages' && $field === 'cta_url') && !in_array($field, ['image_url', 'photo_url'], true)): ?>
                         <input type="url" name="<?= e($field) ?>" id="field-<?= e($field) ?>" placeholder="https://...">
                     <?php elseif(str_contains($field, 'price') || str_contains($field, 'amount') || str_contains($field, 'value') || str_contains($field, '_prm') || str_contains($field, '_percentage') || $field === 'slot_minutes' || $field === 'experience_years'): ?>
                         <input type="number" name="<?= e($field) ?>" id="field-<?= e($field) ?>" placeholder="0" step="any">
@@ -96,14 +101,14 @@
 <div class="admin-card">
     <div class="table-wrap">
         <table>
-            <thead><tr><?php foreach($fields as $field): ?><th><?= e(ucwords(str_replace('_',' ',$field))) ?></th><?php endforeach; ?><th>Actions</th></tr></thead>
+            <thead><tr><?php foreach($listFields as $field): ?><th><?= e(ucwords(str_replace('_',' ',$field))) ?></th><?php endforeach; ?><th>Actions</th></tr></thead>
             <tbody>
             <?php if(empty($items)): ?>
-                <tr><td colspan="<?= count($fields) + 1 ?>" class="text-center" style="color:var(--color-text-muted); padding:var(--space-2xl);">No records yet. Add one using the form above.</td></tr>
+                <tr><td colspan="<?= count($listFields) + 1 ?>" class="text-center" style="color:var(--color-text-muted); padding:var(--space-2xl);">No records yet. Add one using the form above.</td></tr>
             <?php else: ?>
                 <?php foreach($items as $item): ?>
                     <tr>
-                        <?php foreach($fields as $field): ?>
+                        <?php foreach($listFields as $field): ?>
                             <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
                                 <?php if($field === 'image_urls' && !empty($item[$field])): ?>
                                     <?php $imageCount = is_array($item[$field]) ? count($item[$field]) : count(array_filter(preg_split('/[\r\n,]+/', (string)$item[$field]) ?: [])); ?>

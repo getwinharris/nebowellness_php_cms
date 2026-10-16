@@ -533,6 +533,28 @@ document.querySelectorAll('[data-editorial-rail]').forEach(function(rail){
     window.addEventListener('resize',function(){window.clearTimeout(scrollTimer);scrollTimer=window.setTimeout(updateControls,80);});
     updateControls();if(railReveal)railReveal.observe(rail);else rail.classList.add('rail-entered');
 });
+document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
+    var rail=showcase.querySelector('.team-rail'),cards=Array.from(rail.children),detail=showcase.querySelector('.team-detail');
+    var previous=document.querySelector('[data-rail-prev="team-rail"]'),next=document.querySelector('[data-rail-next="team-rail"]'),selected=0;
+    if(!cards.length)return;
+    function select(index){
+        selected=(index+cards.length)%cards.length;
+        cards.forEach(function(card,i){
+            var active=i===selected;
+            card.classList.toggle('is-rail-current',active);
+            card.style.order=String(active?cards.length:(i-selected-1+cards.length)%cards.length);
+            card.querySelector('button').setAttribute('aria-pressed',String(active));
+        });
+        detail.replaceChildren(cards[selected].querySelector('.team-slide__body').cloneNode(true));
+        if(previous)previous.disabled=cards.length<2;
+        if(next)next.disabled=cards.length<2;
+    }
+    cards.forEach(function(card,i){card.querySelector('button').addEventListener('click',function(){select(i);});});
+    if(previous)previous.addEventListener('click',function(){select(selected-1);});
+    if(next)next.addEventListener('click',function(){select(selected+1);});
+    showcase.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
+    select(0);showcase.classList.add('team-enhanced');
+});
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
 function supportEscape(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
 function supportReplyHtml(value){var safe=supportEscape(value);var allowed=/\/(?:#programs|shop|cart|checkout|contact|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=$|[\s.,)])/g;return safe.replace(allowed,function(path){return '<a class="support-action" href="'+path+'">Open '+supportEscape(path.replace(/^\//,'').replace(/[-/]/g,' '))+'</a>';});}

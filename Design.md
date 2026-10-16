@@ -267,3 +267,20 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - Elevation tokens: `--shadow-sm/md/lg/xl` plus `--shadow-focus` for the single focus-ring definition.
 - Motion: `--transition-spring` (a restrained expressive-motion curve, `cubic-bezier(0.34, 1.4, 0.64, 1)`) is used for hover lifts on buttons and cards; `--transition-base` still governs color/shadow fades.
 - This file can be linted against the open spec with `npx @google/design.md lint Design.md` if you want machine validation of token references and section order.
+
+## Promotion enquiry forms
+
+Each campaign has an on-page enquiry band with a charcoal surface, white copy,
+clear field labels and a two-column editorial composition. At 375px it becomes a
+single column. Admin controls form heading, introduction, submission button,
+confirmation copy and phone/message visibility and required state. Name and email
+remain required. Enquiries retain campaign attribution in the existing inbox.
+
+## Team selection composition
+
+The team module uses a clipped portrait track on the left and a selected biography
+column on the right. Portrait previews always show names. Exactly one portrait is
+large; its description and consultation action appear in the detail column.
+Arrows cycle one practitioner at a time; portrait buttons and left/right keys also
+select profiles. On mobile the detail column follows the portraits. Without script
+enhancement, every profile renders with its own readable biography.

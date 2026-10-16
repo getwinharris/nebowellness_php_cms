@@ -150,13 +150,15 @@
                 <button type="button" class="rail-control" data-rail-next="team-rail" aria-label="Next team members">→</button>
             </div>
         </div>
-        <div class="editorial-rail team-rail" id="team-rail" data-editorial-rail tabindex="0" aria-label="Nebo practitioner profiles">
-            <?php foreach ($consultants as $consultant): ?>
-            <article class="team-slide reveal">
-                <div class="team-slide__media">
+        <div class="team-showcase" data-team-showcase>
+        <div class="team-rail" id="team-rail" aria-label="Nebo practitioner profiles">
+            <?php foreach ($consultants as $teamIndex => $consultant): ?>
+            <article class="team-slide">
+                <button type="button" class="team-slide__media" aria-label="View <?= e($consultant['name'] ?? 'practitioner') ?>" aria-pressed="<?= $teamIndex === 0 ? 'true' : 'false' ?>">
                     <img src="<?= e($consultant['photo_url'] ?? '/assets/images/consultants/default-female.webp') ?>" alt="Temporary portrait placeholder for <?= e($consultant['name'] ?? 'Nebo practitioner') ?>" loading="lazy">
-                    <span>Portrait placeholder</span>
-                </div>
+                    <span class="team-placeholder">Portrait placeholder</span>
+                    <span class="team-preview-name"><?= e($consultant['name'] ?? '') ?></span>
+                </button>
                 <div class="team-slide__body">
                     <h3><?= e($consultant['name'] ?? '') ?></h3>
                     <p class="team-slide__role"><?= e($consultant['speciality'] ?? '') ?></p>
@@ -165,6 +167,8 @@
                 </div>
             </article>
             <?php endforeach; ?>
+        </div>
+        <div class="team-detail" aria-live="polite" aria-atomic="true"></div>
         </div>
     </div>
 </section>

@@ -3,7 +3,7 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 114,
+        "routes": 115,
         "controllers": 12,
         "services": 47,
         "views": 43,
@@ -853,6 +853,18 @@
                 "CampaignPageService",
                 "MarkdownRenderer",
                 "SeoService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/campaigns/{slug}/enquire",
+            "name": "campaign.enquire",
+            "controller": "PublicController@campaignEnquire",
+            "view": "public/campaign",
+            "services": [
+                "CampaignPageService",
+                "ContactService",
+                "MailQueueService"
             ]
         },
         {

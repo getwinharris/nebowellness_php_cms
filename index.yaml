@@ -36,14 +36,14 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 261
-  relationships: 238
+  concepts: 263
+  relationships: 240
   by_type:
     blog: 5
     controller: 12
-    doc: 33
+    doc: 34
     image: 19
-    route: 114
+    route: 115
     schema: 22
     service: 47
     skill: 9
@@ -475,6 +475,14 @@ concepts:
     tags:
       - "docs"
     filename: "schema.md"
+    header_image: ""
+  - id: "doc:sha-motion-reference"
+    type: "doc"
+    title: "sha-motion-reference"
+    description: ""
+    resource: "docs/sha-motion-reference.md"
+    tags: []
+    filename: "sha-motion-reference.md"
     header_image: ""
   - id: "doc:shop"
     type: "doc"
@@ -2216,6 +2224,22 @@ concepts:
       - "AuthService"
       - "ConsultationService"
     view: "admin/list"
+  - id: "route:post__campaigns__slug__enquire"
+    type: "route"
+    title: "POST /campaigns/{slug}/enquire"
+    description: "campaign.enquire"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/campaigns/{slug}/enquire"
+    controller: "PublicController@campaignEnquire"
+    services:
+      - "CampaignPageService"
+      - "ContactService"
+      - "MailQueueService"
+    view: "public/campaign"
   - id: "route:post__cart_add"
     type: "route"
     title: "POST /cart/add"
@@ -3305,6 +3329,9 @@ relationships:
     to: "service:ContactService"
     relation: "uses"
   - from: "controller:PublicController"
+    to: "service:MailQueueService"
+    relation: "uses"
+  - from: "controller:PublicController"
     to: "service:MarkdownRenderer"
     relation: "uses"
   - from: "controller:PublicController"
@@ -3645,6 +3672,9 @@ relationships:
     relation: "handled_by"
   - from: "route:post__api_consultations__id__status"
     to: "controller:ConsultationController"
+    relation: "handled_by"
+  - from: "route:post__campaigns__slug__enquire"
+    to: "controller:PublicController"
     relation: "handled_by"
   - from: "route:post__cart_add"
     to: "controller:CommerceController"

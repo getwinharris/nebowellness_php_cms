@@ -99,8 +99,11 @@ final class AdminController extends BaseController {
         $data = ['slug' => $slug, 'title' => $title];
         $id = trim((string)($_POST['id'] ?? ''));
         if ($id !== '') $data['id'] = $id;
-        foreach (['summary','body','image_url','cta_label','cta_url','seo_title','seo_description'] as $field) {
+        foreach (['summary','body','image_url','cta_label','cta_url','form_title','form_intro','form_button','form_success','seo_title','seo_description'] as $field) {
             $data[$field] = trim((string)($_POST[$field] ?? ''));
+        }
+        foreach (['form_phone', 'form_message'] as $field) {
+            $data[$field] = in_array($_POST[$field] ?? '', ['optional','required','hidden'], true) ? $_POST[$field] : 'optional';
         }
         $uploaded = $this->uploadedMedia('campaign_pages');
         if ($uploaded && $data['image_url'] === '') $data['image_url'] = (string)$uploaded[0]['url'];
