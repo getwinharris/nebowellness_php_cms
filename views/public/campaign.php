@@ -5,6 +5,9 @@ $ctaLabel = trim((string)($campaign['cta_label'] ?? '')) ?: 'Talk to our team';
 $formState = $_SESSION['campaign_form'] ?? [];
 if (($formState['slug'] ?? '') !== $campaign['slug']) $formState = [];
 else unset($_SESSION['campaign_form']);
+$submissionToken = bin2hex(random_bytes(16));
+$_SESSION['campaign_tokens'][$campaign['slug']][$submissionToken] = 'pending';
+$_SESSION['campaign_tokens'][$campaign['slug']] = array_slice($_SESSION['campaign_tokens'][$campaign['slug']], -20, null, true);
 $formValues = $formState['values'] ?? [];
 $copy = static fn(string $field, string $fallback): string => trim((string)($campaign[$field] ?? '')) ?: $fallback;
 ?>
@@ -26,6 +29,7 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
       <?php else: ?>
         <?php if (!empty($formState['errors'])): ?><div role="alert" class="campaign-form-errors"><?php foreach ($formState['errors'] as $error): ?><p><?= e($error) ?></p><?php endforeach; ?></div><?php endif; ?>
         <form method="post" action="/campaigns/<?= e(rawurlencode($campaign['slug'])) ?>/enquire" class="contact-form">
+          <input type="hidden" name="submission_token" value="<?= e($submissionToken) ?>">
           <input type="hidden" name="_csrf" value="<?= e($_SESSION['csrf_token'] ??= bin2hex(random_bytes(16))) ?>">
           <div class="contact-form__row">
             <div class="form-group"><label for="campaign-name">Name</label><input id="campaign-name" name="name" autocomplete="name" maxlength="150" value="<?= e($formValues['name'] ?? '') ?>" required></div>

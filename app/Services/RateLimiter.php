@@ -3,9 +3,24 @@ namespace App\Services;
 final class RateLimiter {
     private string $file;
     private array $data;
-    public function __construct() {
-        $this->file = storage_path('logs/rate_limit.php');
+    public function __construct(?string $file = null) {
+        $this->file = $file ?? storage_path('logs/rate_limit.php');
         $this->data = is_file($this->file) ? require $this->file : [];
+    }
+    public function consume(string $key, int $maxAttempts = 5, int $windowSeconds = 60): bool {
+        $dir = dirname($this->file);
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) return false;
+        $lock = fopen($this->file . '.lock', 'c');
+        if ($lock === false) return false;
+        try {
+            if (!flock($lock, LOCK_EX)) return false;
+            if (function_exists('opcache_invalidate')) opcache_invalidate($this->file, true);
+            $this->data = is_file($this->file) ? require $this->file : [];
+            if (!$this->check($key, $maxAttempts, $windowSeconds)) return false;
+            $this->data[$key][] = time();
+            $content = '<?php return ' . var_export($this->data, true) . ';';
+            return file_put_contents($this->file, $content, LOCK_EX) === strlen($content);
+        } finally { flock($lock, LOCK_UN); fclose($lock); }
     }
     public function check(string $key, int $maxAttempts = 5, int $windowSeconds = 60): bool {
         $now = time();

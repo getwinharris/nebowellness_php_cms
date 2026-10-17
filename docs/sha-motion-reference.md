@@ -1,3 +1,8 @@
+---
+type: doc
+title: SHA editorial motion reference
+description: Evidence and acceptance checks for team portraits, native scroll overlays and campaign forms.
+---
 # SHA motion reference investigation
 
 Tracked in issue #27. Inspected 2026-10-16 using REA 6.5.0 and the built-in Browser.

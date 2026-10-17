@@ -99,6 +99,16 @@ final class AdminController extends BaseController {
         $data = ['slug' => $slug, 'title' => $title];
         $id = trim((string)($_POST['id'] ?? ''));
         if ($id !== '') $data['id'] = $id;
+        foreach ((new ResourceService('campaign_pages'))->all() as $existing) {
+            if ($id !== '' && (string)($existing['id'] ?? '') === $id && !hash_equals(hash('sha256', json_encode($existing)), (string)($_POST['revision'] ?? ''))) {
+                $this->flash('This campaign changed since you opened it. Reload and edit the latest version.', 'error');
+                $this->redirect('/admin/campaigns');
+            }
+            if (($existing['slug'] ?? '') === $slug && (string)($existing['id'] ?? '') !== $id) {
+                $this->flash('That URL slug belongs to another campaign. Choose a unique slug.', 'error');
+                $this->redirect('/admin/campaigns');
+            }
+        }
         foreach (['summary','body','image_url','cta_label','cta_url','form_title','form_intro','form_button','form_success','seo_title','seo_description'] as $field) {
             $data[$field] = trim((string)($_POST[$field] ?? ''));
         }

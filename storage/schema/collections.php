@@ -379,7 +379,7 @@
                 'email' => ['type' => 'email', 'required' => true],
                 'phone' => ['type' => 'string'],
                 'subject' => ['type' => 'string'],
-                'message' => ['type' => 'text', 'required' => true],
+                'message' => ['type' => 'text'],
                 'campaign_slug' => ['type' => 'string'],
                 'campaign_title' => ['type' => 'string'],
                 'status' => ['type' => 'enum', 'values' => ['new', 'read', 'closed']],

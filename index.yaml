@@ -36,13 +36,13 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 263
+  concepts: 265
   relationships: 240
   by_type:
     blog: 5
     controller: 12
-    doc: 34
-    image: 19
+    doc: 35
+    image: 20
     route: 115
     schema: 22
     service: 47
@@ -478,8 +478,8 @@ concepts:
     header_image: ""
   - id: "doc:sha-motion-reference"
     type: "doc"
-    title: "sha-motion-reference"
-    description: ""
+    title: "SHA editorial motion reference"
+    description: "Evidence and acceptance checks for team portraits, native scroll overlays and campaign forms."
     resource: "docs/sha-motion-reference.md"
     tags: []
     filename: "sha-motion-reference.md"
@@ -492,6 +492,14 @@ concepts:
     tags:
       - "page"
     filename: "shop.md"
+    header_image: ""
+  - id: "doc:support-agent-comparison"
+    type: "doc"
+    title: "Support agent comparison and model routing"
+    description: "Evidence from SHA live chat, Nebo source and Google model discovery, tracked in issue 29."
+    resource: "docs/support-agent-comparison.md"
+    tags: []
+    filename: "support-agent-comparison.md"
     header_image: ""
   - id: "image:assets/images/bapXfavicon.png"
     type: "image"
@@ -650,6 +658,19 @@ concepts:
     usage_count: 1
     used_in:
       - "app/Services/MailQueueService.php"
+  - id: "image:assets/images/nebo-official-logo.jpg"
+    type: "image"
+    title: "nebo-official-logo.jpg"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/nebo-official-logo.jpg"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-official-logo.jpg"
+    mime: "image/jpeg"
+    usage_count: 1
+    used_in:
+      - "views/layouts/app.php"
   - id: "image:assets/images/nebo-programs.png"
     type: "image"
     title: "nebo-programs.png"
@@ -685,16 +706,15 @@ concepts:
   - id: "image:assets/images/nebo-symbol.svg"
     type: "image"
     title: "nebo-symbol.svg"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image with no static repository reference detected."
     resource: "assets/images/nebo-symbol.svg"
     tags:
       - "image"
-      - "used"
+      - "unreferenced"
     filename: "nebo-symbol.svg"
     mime: "image/svg+xml"
-    usage_count: 1
-    used_in:
-      - "views/layouts/app.php"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/pwa/icon-192-maskable.png"
     type: "image"
     title: "icon-192-maskable.png"

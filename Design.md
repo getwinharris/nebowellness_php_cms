@@ -284,3 +284,11 @@ large; its description and consultation action appear in the detail column.
 Arrows cycle one practitioner at a time; portrait buttons and left/right keys also
 select profiles. On mobile the detail column follows the portraits. Without script
 enhancement, every profile renders with its own readable biography.
+
+## Editorial section overlays
+
+Home sections use opaque full-viewport layers in increasing stacking order. A short
+section pins at the viewport top while the next layer naturally scrolls over it.
+A tall section scrolls to its bottom before pinning so all text and actions remain
+reachable on mobile. Content reveals use a viewport timeline where supported;
+unsupported browsers retain visible copy. Reduced motion restores normal flow.

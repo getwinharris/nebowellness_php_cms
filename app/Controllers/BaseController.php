@@ -42,12 +42,11 @@ abstract class BaseController {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $key = $action . ':' . $ip;
         $limiter = new \App\Services\RateLimiter();
-        if (!$limiter->check($key, $maxAttempts, $windowSeconds)) {
+        if (!$limiter->consume($key, $maxAttempts, $windowSeconds)) {
             $this->flash('Too many attempts. Please try again later.', 'error');
             $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
             return false;
         }
-        $limiter->hit($key);
         return true;
     }
 

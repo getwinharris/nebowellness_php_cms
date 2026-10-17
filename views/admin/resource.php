@@ -7,6 +7,7 @@
     <form id="resource-form" method="post" action="/admin/<?= e($collection) ?>/save" class="admin-form" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
         <input type="hidden" name="id" id="resource-id">
+        <?php if ($collection === 'campaign_pages'): ?><input type="hidden" name="revision" id="resource-revision"><?php endif; ?>
         <div class="admin-form__row" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));">
             <?php foreach($fields as $field): ?>
                 <label><?= e(ucwords(str_replace('_',' ',$field))) ?>
@@ -127,7 +128,7 @@
                         <?php endforeach; ?>
                         <td>
                             <div style="display:flex; gap:var(--space-xs);">
-                                <button type="button" class="btn btn-sm btn-ghost edit-item" data-item='<?= e(json_encode(array_merge($item, ['__id' => $item['id'] ?? '']), JSON_HEX_APOS)) ?>'>
+                                <button type="button" class="btn btn-sm btn-ghost edit-item" data-item='<?= e(json_encode(array_merge($item, ['__id' => $item['id'] ?? '', '__revision' => hash('sha256', json_encode($item))]), JSON_HEX_APOS)) ?>'>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     Edit
                                 </button>
@@ -152,6 +153,7 @@ document.querySelectorAll('.edit-item').forEach(button => {
     button.addEventListener('click', () => {
         const item = JSON.parse(button.dataset.item || '{}');
         document.getElementById('resource-id').value = item.__id || '';
+        var revision=document.getElementById('resource-revision');if(revision)revision.value=item.__revision||'';
         document.getElementById('save-btn').textContent = 'Update <?= e(singular_label($title)) ?>';
         <?php foreach($fields as $field): ?>
             var el = document.getElementById('field-<?= e($field) ?>');

@@ -1,4 +1,5 @@
-<section class="home-hero nebo-home-hero">
+<div class="editorial-stack" data-editorial-stack>
+<section class="editorial-stack-card home-hero nebo-home-hero" style="--stack-order:1" data-stack-card>
     <div class="container home-hero-inner">
         <div class="hero-copy">
             <span class="eyebrow">Integrative Health · Natural Healing · Lifestyle Medicine</span>
@@ -13,7 +14,7 @@
 </section>
 
 <!-- About Nebo Foundation -->
-<section class="section section--alt nebo-intro-section">
+<section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card>
     <div class="container">
         <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.png" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
         <div class="section-header">
@@ -36,7 +37,7 @@
 </section>
 
 <!-- Focus Areas -->
-<section class="section">
+<section class="editorial-stack-card section" style="--stack-order:3" data-stack-card>
     <div class="container">
         <div class="section-header">
             <span class="eyebrow serif-accent">What We Treat</span>
@@ -76,7 +77,7 @@
 </section>
 
 <!-- Why Choose Nebo -->
-<section class="section section--warm">
+<section class="editorial-stack-card section section--warm" style="--stack-order:4" data-stack-card>
     <div class="container">
         <div class="section-header">
             <span class="eyebrow serif-accent">Why Nebo</span>
@@ -100,7 +101,7 @@
 </section>
 
 <!-- Programs -->
-<section class="section" id="programs">
+<section class="editorial-stack-card section" id="programs" style="--stack-order:5" data-stack-card>
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -137,7 +138,7 @@
 </section>
 
 <!-- Team -->
-<section class="section section--alt">
+<section class="editorial-stack-card section section--alt" style="--stack-order:6" data-stack-card>
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -174,7 +175,7 @@
 </section>
 
 <!-- Client-provided testimonials -->
-<section class="section">
+<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card>
     <div class="container">
         <div class="section-header">
             <span class="eyebrow serif-accent">Client Stories</span>
@@ -194,7 +195,7 @@
 </section>
 
 <!-- Contact CTA -->
-<section class="section section--warm">
+<section class="editorial-stack-card section section--warm" style="--stack-order:8" data-stack-card>
     <div class="container">
         <div class="page-cta-card reveal" style="text-align:center;">
             <div>
@@ -206,3 +207,5 @@
         </div>
     </div>
 </section>
+
+</div>

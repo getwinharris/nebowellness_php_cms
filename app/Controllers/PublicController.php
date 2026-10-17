@@ -90,35 +90,54 @@ final class PublicController extends BaseController {
         $page = (new CampaignPageService())->findPublished($slug);
         if ($page === null) $this->renderNotFound();
         $this->validateCsrf();
+        $token = is_string($_POST['submission_token'] ?? null) ? $_POST['submission_token'] : '';
+        if (!preg_match('/^[a-f0-9]{32}$/', $token) || !isset($_SESSION['campaign_tokens'][$slug][$token])) {
+            $this->flash('This form has expired. Please try again.', 'error');
+            $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
+        }
+        if ($_SESSION['campaign_tokens'][$slug][$token] === 'done') {
+            $_SESSION['campaign_form'] = ['slug'=>$slug, 'success'=>true];
+            $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
+        }
         $this->checkRateLimit('campaign-enquiry', 3, 120);
+        if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > 40000) {
+            $this->flash('The enquiry is too long. Please shorten it.', 'error');
+            $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
+        }
+        $length = static fn(string $value): int => preg_match_all('/./us', $value) ?: 0;
         $submission = [];
         foreach (['name','email','phone','message'] as $field) {
             $value = $_POST[$field] ?? '';
             $submission[$field] = is_string($value) ? trim($value) : '';
         }
         $errors = [];
-        if ($submission['name'] === '' || strlen($submission['name']) > 150) $errors[] = 'Enter your name (up to 150 characters).';
+        if ($submission['name'] === '' || $length($submission['name']) > 150) $errors[] = 'Enter your name (up to 150 characters).';
         if (!filter_var($submission['email'], FILTER_VALIDATE_EMAIL) || strlen($submission['email']) > 254) $errors[] = 'Enter a valid email address.';
         foreach (['phone','message'] as $field) {
             $mode = $page['form_' . $field] ?? 'optional';
             if ($mode === 'hidden') $submission[$field] = '';
             if ($mode === 'required' && $submission[$field] === '') $errors[] = 'Please enter your ' . $field . '.';
         }
-        if (strlen($submission['phone']) > 40 || strlen($submission['message']) > 5000) $errors[] = 'Keep your phone number under 40 characters and message under 5,000 characters.';
+        if ($length($submission['phone']) > 40 || $length($submission['message']) > 5000) $errors[] = 'Keep your phone number under 40 characters and message under 5,000 characters.';
         if ($errors !== []) {
+            foreach (['name'=>150,'email'=>254,'phone'=>40,'message'=>5000] as $field=>$limit) {
+                preg_match_all('/./us', $submission[$field], $characters);
+                $submission[$field] = implode('', array_slice($characters[0] ?? [], 0, $limit));
+            }
             $_SESSION['campaign_form'] = ['slug'=>$slug, 'errors'=>$errors, 'values'=>$submission];
             $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
         }
         $submission['campaign_slug'] = $slug;
         $submission['campaign_title'] = $page['title'];
         $submission['subject'] = 'Campaign enquiry: ' . $page['title'];
-        if ($submission['message'] === '') $submission['message'] = 'Please contact me about ' . $page['title'] . '.';
+        $submission['id'] = 'campaign_' . substr(hash('sha256', session_id() . $slug . $token), 0, 24);
         $submission['id'] = (new ContactService())->save($submission);
         try {
             $queue = new \App\Services\MailQueueService();
             $queue->enqueueContactConfirmation($submission);
             $queue->notifyAdmin($submission['subject'], '<p>New campaign enquiry.</p><p>' . e($submission['name']) . ' · ' . e($submission['email']) . '</p><p>' . nl2br(e($submission['message'])) . '</p>');
         } catch (\Throwable $error) { error_log('Campaign enquiry email failed: ' . $error->getMessage()); }
+        $_SESSION['campaign_tokens'][$slug][$token] = 'done';
         $_SESSION['campaign_form'] = ['slug'=>$slug, 'success'=>true];
         $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
     }

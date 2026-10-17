@@ -16,9 +16,7 @@ final class CampaignPageService {
     }
 
     public function findPublished(string $slug): ?array {
-        foreach ($this->published() as $page) {
-            if ($page['slug'] === $slug) return $page;
-        }
-        return null;
+        $matches = array_values(array_filter($this->published(), static fn(array $page): bool => $page['slug'] === $slug));
+        return count($matches) === 1 ? $matches[0] : null;
     }
 }
