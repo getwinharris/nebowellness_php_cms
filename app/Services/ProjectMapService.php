@@ -25,6 +25,7 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/temples/{slug}','name'=>'temple.show','page'=>'public/about','controller'=>'PublicController@temple','services'=>[]],
             ['method'=>'GET','path'=>'/campaigns','name'=>'campaigns','page'=>'public/campaigns','controller'=>'PublicController@campaigns','services'=>['CampaignPageService']],
             ['method'=>'GET','path'=>'/campaigns/{slug}','name'=>'campaign.show','page'=>'public/campaign','controller'=>'PublicController@campaign','services'=>['CampaignPageService','MarkdownRenderer','SeoService']],
+            ['method'=>'POST','path'=>'/campaigns/{slug}/enquire','name'=>'campaign.enquire','page'=>'public/campaign','controller'=>'PublicController@campaignEnquire','services'=>['CampaignPageService','ContactService','MailQueueService']],
             ['method'=>'GET','path'=>'/shop','name'=>'shop','page'=>'public/shop','controller'=>'PublicController@shop','services'=>['ProductService','CategoryService']],
             ['method'=>'GET','path'=>'/categories','name'=>'categories','page'=>'public/categories','controller'=>'PublicController@categories','services'=>['CategoryService']],
             ['method'=>'GET','path'=>'/product/{slug}','name'=>'product.show','page'=>'public/product','controller'=>'PublicController@product','services'=>['ProductService']],

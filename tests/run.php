@@ -2020,6 +2020,27 @@ $tests['smtp encodes long unicode HTML into bounded transport safe MIME lines'] 
     foreach (explode("\r\n", $match[1]) as $line) assertTrue(strlen($line) <= 76, 'Encoded body lines stay within MIME limits');
 };
 
+$tests['rate limiter reloads shared counts and rejects storage failure'] = function (): void {
+    $dir = sys_get_temp_dir() . '/nebo-rate-' . bin2hex(random_bytes(6));
+    mkdir($dir);
+    $path = $dir . '/rate.php';
+    try {
+        $first = new App\Services\RateLimiter($path);
+        $second = new App\Services\RateLimiter($path);
+        assertTrue($first->consume('qa', 2, 60), 'First request accepted');
+        assertTrue($second->consume('qa', 2, 60), 'Independent instance sees persisted first request');
+        assertSame(false, $first->consume('qa', 2, 60), 'Stale instance must reload and reject third request');
+        file_put_contents($path, '<?php return ' . var_export(['qa'=>[time()-61]], true) . ';');
+        assertTrue($second->consume('qa', 2, 60), 'Expired attempts do not block a new request');
+        mkdir($dir . '/blocked.php.lock');
+        set_error_handler(static fn() => true);
+        try { assertSame(false, (new App\Services\RateLimiter($dir . '/blocked.php'))->consume('qa'), 'Unavailable lock fails closed'); }
+        finally { restore_error_handler(); }
+    } finally {
+        @unlink($path); @unlink($path . '.lock'); @rmdir($dir . '/blocked.php.lock'); @rmdir($dir);
+    }
+};
+
 foreach ($tests as $name => $test) {
     try {
         $test();
