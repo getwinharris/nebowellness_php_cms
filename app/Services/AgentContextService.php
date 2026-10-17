@@ -32,6 +32,11 @@ final class AgentContextService {
     }
 
     private function siteContext(): array {
+        $campaigns = array_map(static fn(array $page): array => [
+            'title' => $page['title'],
+            'summary' => mb_substr((string)($page['summary'] ?? ''), 0, 400),
+            'url' => '/campaigns/' . $page['slug'],
+        ], array_slice((new CampaignPageService($this->store))->published(), 0, 12));
         $products = array_map(fn($item) => [
             'name' => $item['name'] ?? '',
             'slug' => $item['slug'] ?? '',
@@ -51,8 +56,10 @@ final class AgentContextService {
                 'cart' => '/cart',
                 'checkout' => '/checkout',
                 'contact' => '/contact',
+                'campaigns' => '/campaigns',
                 'orders' => '/account/dashboard/orders',
             ],
+            'campaigns' => $campaigns,
             'products' => $products,
             'support_scope' => 'Answer only from this JSON context and public site links. Do not access tools, files, admin data, or other users.',
         ];

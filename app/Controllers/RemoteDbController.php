@@ -56,6 +56,22 @@ final class RemoteDbController {
         $action = strtolower(trim((string)($input['action'] ?? 'query')));
 
         if ($action !== 'query') {
+            if ($action === 'init_schema_collections') {
+                try {
+                    $requested = array_values(array_unique(array_filter(array_map(
+                        static fn($name): string => preg_replace('/[^a-z_]/', '', (string)$name) ?? '',
+                        is_array($input['collections'] ?? null) ? $input['collections'] : []
+                    ))));
+                    if ($requested === [] || count($requested) > 5) throw new \InvalidArgumentException('One to five collections are required.');
+                    foreach ($requested as $collection) $this->store->ensureSchemaCollection($collection);
+                    http_response_code(200);
+                    echo json_encode(['success' => true, 'collections' => $requested]);
+                } catch (\Throwable) {
+                    http_response_code(422);
+                    echo json_encode(['error' => 'Schema collection migration failed.']);
+                }
+                return;
+            }
             $this->mutate($action, $input);
             return;
         }

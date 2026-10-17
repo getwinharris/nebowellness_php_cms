@@ -2,7 +2,7 @@
     <div class="container">
         <span class="eyebrow serif-accent">Support</span>
         <h1 class="section__title">How can we help?</h1>
-        <p class="lede">Find quick answers about products, orders, delivery addresses, and payments.</p>
+        <p class="lede">Find program information and ways to reach the Nebo clinic team.</p>
 
         <div class="support-grid">
             <?php if (!empty($supportNav)): ?>
@@ -22,24 +22,16 @@
                 <?php endforeach; ?>
             <?php else: ?>
             <article class="support-card">
-                <h2>Saved addresses</h2>
-                <p>Your signup address becomes the default at checkout. Select another saved address or enter and optionally save a different delivery address for an order.</p>
+                <h2>Explore programs</h2>
+                <p>Review Nebo's gut health, metabolic wellness, maternal care, and lifestyle programs on the <a href="/#programs">home page</a>.</p>
             </article>
             <article class="support-card">
-                <h2>Orders &amp; shipping</h2>
-                <p>Track your product orders from <a href="/account/dashboard/orders">your orders</a>. Shipping and delivery details appear once an order is fulfilled.</p>
-            </article>
-            <article class="support-card">
-                <h2>Products &amp; returns</h2>
-                <p>Shop authentic rudraksha, pooja items, and sacred jewellery in the <a href="/shop">store</a>. Reach out through the contact form for product or return questions.</p>
-            </article>
-            <article class="support-card">
-                <h2>Temples &amp; guidance</h2>
-                <p>Explore the <a href="/temples">temple guide</a> for temple details, timings, and directions.</p>
+                <h2>Read the journal</h2>
+                <p>Our <a href="/blog">wellness journal</a> explains what to expect and how we approach sustainable habits.</p>
             </article>
             <article class="support-card">
                 <h2>Talk to a person</h2>
-                <p>Email <a href="mailto:support@sripanchamispiritual.com">support@sripanchamispiritual.com</a> or call <a href="tel:+919789444037">+91 97894 44037</a>. We usually reply within one business day.</p>
+                <p>Email <a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a> or call <a href="tel:+917200182025">+91 72001 82025</a>.</p>
             </article>
             <?php endif; ?>
         </div>

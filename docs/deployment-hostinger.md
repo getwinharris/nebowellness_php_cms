@@ -12,7 +12,7 @@ category: docs
 2. Enable **Auto Deployment** for the production **Branch** (`main`) so merged commits deploy automatically.
 3. Upload the current `main` build to `/public_html` with Git or FTP when doing a manual recovery deploy.
 4. Keep `.env`, `index.php`, `.htaccess`, `api/`, `app/`, `assets/`, `integrations/`, `storage/`, `cli/`, and `views/` together.
-5. Configure `BAPX_MYSQL_HOST`, `BAPX_MYSQL_PORT`, `BAPX_MYSQL_DB`, `BAPX_MYSQL_USER`, and `BAPX_MYSQL_PASS` in `.env` for direct hosted MySQL access.
+5. Set `APP_URL=https://www.nebowellness.com` and configure `BAPX_MYSQL_HOST`, `BAPX_MYSQL_PORT`, `BAPX_MYSQL_DB`, `BAPX_MYSQL_USER`, and `BAPX_MYSQL_PASS` in `.env` for direct hosted MySQL access.
 6. Configure application secrets from Admin -> Integrations; they are stored in remote MySQL, not `.env`.
 7. Set a Hostinger cron job for queued mail after SMTP is configured:
 
@@ -45,7 +45,7 @@ bapXphp ci
 
 ## Repository Architecture
 
-`bapxmediahub/bapXphpAiBackend` is the independent source repository and the
+`getwinharris/nebowellness_php_cms` is the independent source repository and the
 Hostinger deployment source. All issues, branches, PRs, reviews, and
 customer-specific changes belong there. It is no longer a fork and has no
 upstream synchronization workflow.
@@ -100,5 +100,5 @@ This application is built for normal PHP hosting, not Vercel. Vercel's official 
 - Data not saving: run `bapXphp db status`, then verify the `BAPX_MYSQL_*` values and hosted database permissions.
 - Admin blocked: verify the admin account in remote MySQL and the current Admin -> Settings configuration.
 - Razorpay disabled: add live key ID and secret in admin integrations.
-- Google login not working: verify the Google Cloud Console has the correct callback URL (`https://sripanchamispiritual.com/auth/google/callback`).
+- Google login not working: register the exact `APP_URL` callback in Google Cloud Console. New Nebo production setup uses `https://www.nebowellness.com/auth/google/callback`. For an apex-to-www change, register both callbacks, wait 10 minutes for active sign-ins to expire, then update `APP_URL` and retain the apex callback until the transition is complete.
 - Emails not sending: check Admin → Integrations → Send a Test Email. It reports the exact SMTP error. For Hostinger use `smtp.hostinger.com`, port 465 (SSL) or 587 (TLS), the full email address as username, and a From Email matching that mailbox.

@@ -1,7 +1,7 @@
 ---
 type: doc
 title: Home Page
-description: Route / - storefront landing page with product categories, featured products, ordering steps, temple highlights, and more.
+description: Route / - Nebo clinic landing page with programs, practitioners, care principles, and consultation enquiry actions.
 category: page
 ---
 # Home Page
@@ -10,7 +10,7 @@ Route: `/`
 
 Controller: `PublicController@home`
 
-Purpose: storefront landing page with product categories, featured products, ordering steps, temple highlights, and trust guidance.
+Purpose: present Nebo programs, practitioners, care principles, and a clear consultation enquiry journey.
 
-Key checks: hero and product-card actions link to `/shop` or product detail pages; malformed remote categories are rejected before rendering; product, ordering, temple, and value sections all reach the response.
+Key checks: hero and program actions reach `/contact` or `/#programs`; program and practitioner rails work with touch, keyboard, and arrows; placeholder portraits remain editable in Admin.
 The first viewport uses the remote catalog and the Varahi Amman image carousel. Product and category data come from remote MySQL through `DatabaseService`; missing required category identity fields never create blank cards or terminate the page.

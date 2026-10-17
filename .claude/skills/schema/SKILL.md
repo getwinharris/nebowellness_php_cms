@@ -12,7 +12,7 @@ description: Use when changing MySQL database collections, fields, admin forms, 
   relationships belong in the generated index and, where editable, MySQL.
 - Do not add local product/category/consultant seed catalogues. Use direct MySQL or `<APP_URL>/remotedb` for local testing.
 - `media_files` is presently a declared but unwired collection because `MediaService` still uses YAML; preserve this as an explicit gap until the owning service is migrated.
-- Consultant profiles do not have application login access. Authentication or provider-access changes must align users, astrologers, appointments, authorization, admin forms, and tests. Treat consultation message and signal collections as retained legacy data unless the scheduled-appointment-only product policy is explicitly changed.
+- Consultant profiles do not have application login access. Authentication or provider-access changes must align users, consultants, appointments, authorization, admin forms, and tests. Treat consultation message and signal collections as retained historical data unless the scheduled-appointment-only product policy is explicitly changed.
 - Run `./bapXphp update` after schema or storage changes so `index.yaml`, maps and project indexes stay queryable.
 - Follow the affected map edges through services and pages, and distinguish runtime data from genuinely undeclared storage before adding files.
 - Validate with `php tests/run.php`.

@@ -10,8 +10,7 @@
                 <p class="lede">Return to the wellness clinic, explore programs, or contact Nebo Wellness for help finding the right page.</p>
                 <div class="not-found-actions">
                     <a href="/" class="btn btn-primary">Home</a>
-                    <a href="/shop" class="btn btn-outline">Shop</a>
-                    <a href="/temples" class="btn btn-ghost">Temples</a>
+                    <a href="/#programs" class="btn btn-outline">Programs</a>
                     <a href="/contact" class="btn btn-ghost">Contact</a>
                 </div>
             </div>

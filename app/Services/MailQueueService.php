@@ -16,16 +16,15 @@ final class MailQueueService {
      * copied from assets/css/band.css so the mail matches the site.
      */
     private const BRAND = [
-        'maroon'      => '#4472C4',  // Nebo blue
-        'maroon_deep' => '#2c5aa0',  // Nebo dark blue
-        'gold'        => '#70AD47',  // Nebo green
-        'gold_light'  => '#8cc069',  // Nebo light green
-        'bg'          => '#faf7f0',
-        'bg_alt'      => '#f7f0e4',
-        'border'      => '#d8ccb7',
+        'primary'     => '#4472C4',
+        'primary_dark'=> '#2c5aa0',
+        'accent'      => '#70AD47',
+        'bg'          => '#f7f9fa',
+        'bg_alt'      => '#eef2f4',
+        'border'      => '#d7e1e6',
         'ink'         => '#222222',
-        'muted'       => '#91877c',
-        'serif'       => "Georgia,'Times New Roman',serif",
+        'muted'       => '#5b6872',
+        'serif'       => "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif",
         'sans'        => "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif",
     ];
 
@@ -33,10 +32,10 @@ final class MailQueueService {
         $b = self::BRAND;
         $isAdmin = $audience === 'admin';
         $settings = (new SettingsService())->public();
-        $siteName = 'Nebo Wellness';
+        $siteName = 'Nebo Lifestyle Clinic';
         $siteUrl = rtrim($this->siteUrl('/'), '/');
         $logoUrl = trim((string)($settings['logo_url'] ?? ''));
-        if ($logoUrl === '') $logoUrl = $siteUrl . '/assets/images/logo-square.jpeg';
+        if ($logoUrl === '' || str_contains(strtolower($logoUrl), 'logo-square.jpeg') || str_contains(strtolower($logoUrl), 'sripanchami')) $logoUrl = $siteUrl . '/assets/images/nebo-logo.jpg';
         if (str_starts_with($logoUrl, '/')) $logoUrl = $siteUrl . $logoUrl;
 
         $legal = [];
@@ -63,14 +62,14 @@ final class MailQueueService {
             . '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid ' . $b['border'] . ';border-radius:14px;overflow:hidden;">'
 
             // Header
-            . '<tr><td align="center" style="background:' . ($isAdmin ? $b['maroon_deep'] : $b['maroon']) . ';padding:22px 24px;border-bottom:3px solid ' . $b['gold'] . ';">'
+            . '<tr><td align="center" style="background:' . ($isAdmin ? '#2f3437' : $b['primary_dark']) . ';padding:22px 24px;border-bottom:3px solid ' . $b['accent'] . ';">'
             . '<img src="' . e($logoUrl) . '" width="' . ($isAdmin ? 44 : 64) . '" height="' . ($isAdmin ? 44 : 64) . '" alt="' . e($siteName) . '" '
-            . 'style="display:block;margin:0 auto 10px;width:' . ($isAdmin ? 44 : 64) . 'px;height:' . ($isAdmin ? 44 : 64) . 'px;border-radius:50%;border:2px solid ' . $b['gold'] . ';">'
-            . '<div style="font-family:' . $b['serif'] . ';font-size:' . ($isAdmin ? 16 : 19) . 'px;font-weight:bold;color:' . $b['gold'] . ';letter-spacing:0.4px;">'
+            . 'style="display:block;margin:0 auto 10px;width:' . ($isAdmin ? 44 : 64) . 'px;height:' . ($isAdmin ? 44 : 64) . 'px;border-radius:50%;border:2px solid #ffffff;">'
+            . '<div style="font-family:' . $b['serif'] . ';font-size:' . ($isAdmin ? 16 : 19) . 'px;font-weight:600;color:#ffffff;letter-spacing:0;">'
             . e($siteName) . '</div>'
             // Admin mail is labelled so it is obvious at a glance in a shared inbox that
             // this is a store notification, not something a customer received.
-            . ($isAdmin ? '<div style="margin-top:6px;font-family:' . $b['sans'] . ';font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#c9b89a;">Store notification</div>' : '')
+            . ($isAdmin ? '<div style="margin-top:6px;font-family:' . $b['sans'] . ';font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#dbe3e7;">Owner notification</div>' : '')
             . '</td></tr>'
 
             // Body — 16px, the floor for comfortable reading on a phone
@@ -82,13 +81,13 @@ final class MailQueueService {
             . '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
             . '<td style="border-top:1px solid ' . $b['border'] . ';padding-top:18px;font-family:' . $b['sans'] . ';font-size:12px;line-height:1.7;color:' . $b['muted'] . ';">'
             . ($isAdmin
-                ? '<strong style="color:' . $b['ink'] . ';font-family:' . $b['serif'] . ';font-size:14px;">Store notification</strong>'
-                  . '<br>Sent to the store owner. Customers do not receive this email.'
-                  . '<br><a href="' . e($siteUrl . '/admin') . '" style="color:' . $b['maroon'] . ';text-decoration:underline;">Open the admin panel</a>'
+                ? '<strong style="color:' . $b['ink'] . ';font-family:' . $b['serif'] . ';font-size:14px;">Nebo owner notification</strong>'
+                  . '<br>Sent to the clinic owner. Customers do not receive this email.'
+                  . '<br><a href="' . e($siteUrl . '/admin') . '" style="color:' . $b['primary'] . ';text-decoration:underline;">Open the admin panel</a>'
                 : '<strong style="color:' . $b['ink'] . ';font-family:' . $b['serif'] . ';font-size:14px;">' . e($siteName) . '</strong>' . $legalHtml
                   . '<br><br>Need help? Reply to this email or write to '
-                  . '<a href="mailto:nebolifestyleclinic@gmail.com" style="color:' . $b['maroon'] . ';text-decoration:underline;">nebolifestyleclinic@gmail.com</a>'
-                  . '<br><a href="' . e($siteUrl) . '" style="color:' . $b['maroon'] . ';text-decoration:underline;">' . e(preg_replace('#^https?://#', '', $siteUrl)) . '</a>')
+                  . '<a href="mailto:nebolifestyleclinic@gmail.com" style="color:' . $b['primary'] . ';text-decoration:underline;">nebolifestyleclinic@gmail.com</a>'
+                  . '<br><a href="' . e($siteUrl) . '" style="color:' . $b['primary'] . ';text-decoration:underline;">' . e(preg_replace('#^https?://#', '', $siteUrl)) . '</a>')
             . '</td></tr></table></td></tr>'
 
             . '</table>'
@@ -103,7 +102,7 @@ final class MailQueueService {
     /** Heading for the one thing the email is about. */
     public static function heading(string $text): string {
         return '<h1 style="margin:0 0 14px;font-family:' . self::BRAND['serif'] . ';font-size:22px;line-height:1.3;'
-            . 'font-weight:bold;color:' . self::BRAND['maroon'] . ';">' . e($text) . '</h1>';
+            . 'font-weight:600;color:' . self::BRAND['primary_dark'] . ';">' . e($text) . '</h1>';
     }
 
     /** Key/value panel for order and appointment details. */
@@ -133,9 +132,9 @@ final class MailQueueService {
      */
     public static function button(string $label, string $url): string {
         return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:22px 0;">'
-            . '<tr><td align="center" bgcolor="' . self::BRAND['maroon'] . '" style="border-radius:999px;height:46px;">'
+            . '<tr><td align="center" bgcolor="' . self::BRAND['primary'] . '" style="border-radius:8px;height:46px;">'
             . '<a href="' . e($url) . '" style="display:inline-block;padding:13px 30px;font-family:' . self::BRAND['sans'] . ';'
-            . 'font-size:15px;font-weight:600;color:' . self::BRAND['gold'] . ';text-decoration:none;border-radius:999px;">'
+            . 'font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">'
             . e($label) . '</a></td></tr></table>';
     }
 
@@ -236,7 +235,7 @@ final class MailQueueService {
     /** Render saved order lines without inventing prices or product claims. */
     public static function orderItemsHtml(array $items): string {
         if (!$items) return '';
-        $html = '<h2 style="font-size:18px;color:' . self::BRAND['maroon'] . ';">Your items</h2><ul style="padding-left:20px;">';
+        $html = '<h2 style="font-size:18px;color:' . self::BRAND['primary_dark'] . ';">Your items</h2><ul style="padding-left:20px;">';
         foreach ($items as $item) {
             if (!is_array($item)) continue;
             $html .= '<li style="margin-bottom:8px;">' . e((string)($item['name'] ?? 'Product'))
@@ -314,7 +313,7 @@ final class MailQueueService {
             '<p>Hello ' . e($name !== '' ? $name : 'there') . ',</p>'
             . '<p>Your account was signed in to on <strong>' . e($when) . '</strong> (IP ' . e($ip) . ').</p>'
             . '<p>If this was you, no action is needed. If it was not, change your password immediately '
-            . 'and contact <a href="mailto:support@sripanchamispiritual.com">support@sripanchamispiritual.com</a>.</p>',
+            . 'and contact <a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a>.</p>',
             null, ['role' => $role]);
     }
 
@@ -348,7 +347,7 @@ final class MailQueueService {
     public function enqueueShipmentNotification(array $order): ?array {
         $to = trim((string)($order['customer_email'] ?? ''));
         if ($to === '') return null;
-        $subject = 'Sri Panchami Spiritual order shipped';
+        $subject = 'Your Nebo Lifestyle Clinic order has shipped';
         $trackingId = trim((string)($order['tracking_id'] ?? ''));
         $trackingUrl = trim((string)($order['tracking_url'] ?? ''));
         $courier = trim((string)($order['courier_name'] ?? ''));
@@ -379,7 +378,7 @@ final class MailQueueService {
         if ($to === '') return null;
         $shippedAt = new \DateTimeImmutable((string)($order['shipped_at'] ?? 'now'));
         $availableAt = $shippedAt->modify('+' . max(1, $waitDays) . ' days');
-        $subject = 'How was your Sri Panchami Spiritual product?';
+        $subject = 'How was your Nebo Lifestyle Clinic product?';
         $html = '<p>We hope your order ' . e((string)($order['id'] ?? '')) . ' reached you well.</p>'
             . '<p>Please share your product rating from your account orders page.</p>';
         return $this->enqueue('product_review_request', $to, $subject, $html, $availableAt, ['order_id' => $order['id'] ?? '']);

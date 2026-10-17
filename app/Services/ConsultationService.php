@@ -7,8 +7,8 @@ final class ConsultationService {
     public function sessionsFor(array $user): array {
         $items = $this->store->read('appointments');
         if (($user['role'] ?? '') === 'admin') return $items;
-        if (($user['role'] ?? '') === 'astrologer') {
-            return array_values(array_filter($items, fn($row) => ($row['astrologer_slug'] ?? '') === ($user['astrologer_slug'] ?? '')));
+        if (($user['role'] ?? '') === 'consultant') {
+            return array_values(array_filter($items, fn($row) => ($row['consultant_slug'] ?? '') === ($user['consultant_slug'] ?? '')));
         }
         return array_values(array_filter($items, fn($row) => strcasecmp((string)($row['customer_email'] ?? ''), (string)($user['email'] ?? '')) === 0));
     }
@@ -27,8 +27,8 @@ final class ConsultationService {
     public function sendMessage(array $session, array $user, string $body): array {
         $mode = (string)($session['mode'] ?? '');
         $status = (string)($session['status'] ?? 'requested');
-        if ($mode === 'text_session' && !in_array($status, ['accepted', 'active'], true)) throw new \InvalidArgumentException('Messaging becomes available after the astrologer accepts the session.');
-        if ($mode === 'direct_call' && $status !== 'active') throw new \InvalidArgumentException('Call chat becomes available after the astrologer starts the session.');
+        if ($mode === 'text_session' && !in_array($status, ['accepted', 'active'], true)) throw new \InvalidArgumentException('Messaging becomes available after the consultant accepts the session.');
+        if ($mode === 'direct_call' && $status !== 'active') throw new \InvalidArgumentException('Call chat becomes available after the consultant starts the session.');
         $body = trim($body);
         if ($body === '' || mb_strlen($body) > 2000) throw new \InvalidArgumentException('Message must contain 1 to 2000 characters.');
         $message = [
@@ -62,7 +62,7 @@ final class ConsultationService {
         return $signal;
     }
 
-    public function updateStatus(array $session, string $status, string $actorRole = 'astrologer'): array {
+    public function updateStatus(array $session, string $status, string $actorRole = 'consultant'): array {
         if (!in_array($status, ['accepted','active','completed','declined','cancelled'], true)) throw new \InvalidArgumentException('Invalid session status.');
         $current = (string)($session['status'] ?? 'requested');
         $allowed = [
@@ -97,7 +97,7 @@ final class ConsultationService {
     private function notifyStatusChange(array $session, string $status): void {
         $to = trim((string)($session['customer_email'] ?? ''));
         if ($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) return;
-        $consultant = (string)($session['astrologer_name'] ?? 'your consultant');
+        $consultant = (string)($session['consultant_name'] ?? 'your consultant');
         $when = trim((string)($session['preferred_date'] ?? '') . ' ' . (string)($session['preferred_time'] ?? ''));
         [$subject, $body] = match ($status) {
             'accepted' => ['Your consultation is confirmed',

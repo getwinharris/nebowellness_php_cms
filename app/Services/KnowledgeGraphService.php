@@ -60,15 +60,15 @@ final class KnowledgeGraphService {
             ],
             'rules' => [
                 'Concepts are original project resources; this index never copies blog bodies or runtime records.',
-                'Products, categories, consultants, temples and other editable records are queried from remotedb.',
+                'Products, categories, consultants, campaigns and other editable records are queried from remotedb.',
                 'Blog Markdown and image binaries remain local files.',
                 'Read discovery first; query only the relevant section or resource. Do not load this entire index into agent context.',
-                'Use at most three discovery hops: entry instructions, exact index match, original source. Avoid broad listings and recursive scans unless the target is absent.',
+                'Use at least three evidence hops: entry instructions, exact index match, original source; continue through each affected route, controller, service, schema, view and browser state needed to verify a change.',
             ],
             'discovery' => [
                 ['question' => 'Does a route, controller, service, view or collection exist?', 'use' => 'docs/project-index.json'],
                 ['question' => 'How are routes, controllers, services and collections connected?', 'use' => 'map.mmd'],
-                ['question' => 'What is the live product, category, consultant, temple or admin-editable value?', 'use' => $appUrl . '/remotedb'],
+                ['question' => 'What is the live product, category, consultant, campaign or admin-editable value?', 'use' => $appUrl . '/remotedb'],
                 ['question' => 'Where is a blog article and what frontmatter does it declare?', 'use' => 'concepts filtered by type=blog, then read its resource'],
                 ['question' => 'Where is an image and which source files reference it?', 'use' => 'concepts filtered by type=image; query by filename or resource'],
                 ['question' => 'What repository instructions or skill apply?', 'use' => 'AGENTS.md, CLAUDE.md, then .claude/skills'],

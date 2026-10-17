@@ -59,7 +59,7 @@ if ($uri === '/admin/manifest.json') {
     exit;
 }
 if ($uri === '/admin/sw.js') {
-    $cacheName = 'sps-cache-admin-v1';
+    $cacheName = 'nebo-cache-admin-v2';
     $precache = json_encode(['/admin', '/login']);
     header('Content-Type: application/javascript; charset=utf-8');
     header('Cache-Control: no-cache');
@@ -92,7 +92,7 @@ if ($uri !== null && $uri !== '/' && str_ends_with($uri, '/')) {
 }
 
 // PHP routes (admin + public pages)
-$phpRoutes = ['/','/shop','/shop/','/product','/cart','/checkout','/payment','/support','/about','/contact','/temples','/consult','/consultation','/auth','/login','/logout','/register','/forgot-password','/reset-password','/account','/reviews','/sri-panchami-spiritual','/spiritual','/categories','/terms','/privacy','/blog','/docs','/help','/sitemap.xml'];
+$phpRoutes = ['/','/shop','/shop/','/product','/cart','/checkout','/payment','/support','/about','/contact','/temples','/campaigns','/consult','/consultation','/auth','/login','/logout','/register','/forgot-password','/reset-password','/account','/reviews','/sri-panchami-spiritual','/spiritual','/categories','/terms','/privacy','/blog','/docs','/help','/sitemap.xml'];
 $isPhpRoute = false;
 foreach ($phpRoutes as $route) {
     if (strpos($uri, $route . '/') === 0 || $uri === $route) {

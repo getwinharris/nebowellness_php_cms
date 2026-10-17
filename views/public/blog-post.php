@@ -1,5 +1,5 @@
 <?php
-    $schemaBase = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'sripanchamispiritual.com');
+    $schemaBase = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com');
     $schemaUrl = $schemaBase . '/blog/' . ($slug ?? '');
     $schemaImage = $meta['og_image'] ?? $meta['image'] ?? ($seo['og_image'] ?? '');
     $schema = [
@@ -57,7 +57,7 @@
         </div>
       </header>
 
-      <?php $articleImage = $meta['image'] ?? $meta['og_image'] ?? '/assets/images/hero-temple-bg.webp'; ?>
+      <?php $articleImage = $meta['image'] ?? $meta['og_image'] ?? '/assets/images/nebo-programs.png'; ?>
       <figure class="blog-post__featured"><img src="<?= e($articleImage) ?>" alt="<?= e($meta['image_alt'] ?? '') ?>" loading="eager"></figure>
 
       <div class="blog-post__content">
@@ -70,8 +70,8 @@
     </article>
 
     <aside class="blog-post__cta">
-      <div><span class="eyebrow">Shop</span><h2>Explore our collection</h2><p>Authentic spiritual products, sourced with care and delivered across India.</p></div>
-      <a href="/shop" class="btn btn-primary">Browse products</a>
+      <div><span class="eyebrow">Nebo programs</span><h2>Explore your next step</h2><p>Learn about our clinic programs and ask the team which approach fits your goals.</p></div>
+      <a href="/#programs" class="btn btn-primary">Explore programs</a>
     </aside>
   </div>
 </section>

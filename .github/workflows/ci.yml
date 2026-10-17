@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   validate:
-    if: github.actor != 'ci-ai-bot' && endsWith(github.repository, 'bapXphpAiBackend')
+    if: github.actor != 'ci-ai-bot' && github.repository == 'getwinharris/nebowellness_php_cms'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:

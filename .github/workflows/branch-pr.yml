@@ -6,6 +6,7 @@ on:
       - 'codex/**'
       - 'fix/**'
       - 'feat/**'
+      - 'bapX/**'
 
 permissions:
   contents: read
@@ -17,7 +18,7 @@ concurrency:
 
 jobs:
   open:
-    if: github.repository == 'bapxmediahub/bapXphpAiBackend'
+    if: github.repository == 'getwinharris/nebowellness_php_cms'
     runs-on: ubuntu-latest
     steps:
       - name: Create bapXai installation token
@@ -44,7 +45,7 @@ jobs:
                 return;
               }
               const title = head
-                .replace(/^(codex|fix|feat)\//, '')
+                .replace(/^(codex|fix|feat|bapX)\//, '')
                 .replace(/[-_]+/g, ' ')
                 .replace(/\b\w/g, value => value.toUpperCase());
               const result = await github.rest.pulls.create({

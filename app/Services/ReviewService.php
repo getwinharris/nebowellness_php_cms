@@ -4,8 +4,8 @@ namespace App\Services;
 final class ReviewService {
     public function __construct(private DatabaseService $store = new DatabaseService()) {}
 
-    public function saveAstrologerReview(array $data): array {
-        return $this->save('astrologer', $data);
+    public function saveConsultantReview(array $data): array {
+        return $this->save('consultant', $data);
     }
 
     public function saveProductReview(array $data): array {
@@ -63,9 +63,9 @@ final class ReviewService {
     }
 
     private function verifyPurchase(string $targetType, string $targetSlug, string $customerEmail, string $sourceId): bool {
-        if ($targetType === 'astrologer') {
+        if ($targetType === 'consultant') {
             foreach ($this->store->read('appointments') as $a) {
-                if (($a['id'] ?? '') === $sourceId && ($a['customer_email'] ?? '') === $customerEmail && ($a['astrologer_slug'] ?? '') === $targetSlug) {
+                if (($a['id'] ?? '') === $sourceId && ($a['customer_email'] ?? '') === $customerEmail && ($a['consultant_slug'] ?? '') === $targetSlug) {
                     return true;
                 }
             }

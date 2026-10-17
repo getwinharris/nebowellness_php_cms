@@ -47,9 +47,9 @@ try {
         '/contact' => 200,
         '/consult' => 302,
         '/consult/shrikanth-purushothaman' => 302,
-        '/api/consult' => 302,
-        '/temples' => 200,
-        '/sri-panchami-spiritual' => 200,
+        '/api/consult' => 404,
+        '/temples' => 301,
+        '/sri-panchami-spiritual' => 301,
         '/forgot-password' => 200,
         '/reset-password' => 200,
         '/auth/google' => 302,
@@ -81,7 +81,7 @@ try {
         $failures[] = "POST /admin/orders/test/status expected 302, got {$post['status']}";
     }
 
-    $appointmentPost = httpRequest($base . '/consultation/initiate', 'POST', 'astrologer_slug=pandit-shastri&mode=text_session');
+    $appointmentPost = httpRequest($base . '/consultation/initiate', 'POST', 'consultant_slug=legacy-profile&mode=text_session');
     echo "{$appointmentPost['status']} POST /consultation/initiate\n";
     if ($appointmentPost['status'] !== 302) {
         $failures[] = "POST /consultation/initiate expected guest login redirect 302, got {$appointmentPost['status']}";

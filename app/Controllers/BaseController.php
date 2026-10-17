@@ -7,7 +7,7 @@ abstract class BaseController {
     protected string $seoKey = 'home';
     protected array $seoOverrides = [];
     
-    protected function redirect(string $path): never { session_write_close(); header('Location: ' . $path); exit; }
+    protected function redirect(string $path, int $status = 302): never { session_write_close(); header('Location: ' . $path, true, $status); exit; }
     protected function flash(string $message, string $type = 'info'): void { $_SESSION['flash'] = ['message' => $message, 'type' => $type]; }
 
     /**
@@ -20,7 +20,7 @@ abstract class BaseController {
         $base = rtrim((string)($config['app_url'] ?? ''), '/');
         if ($base === '') {
             $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-            $host = (string)($_SERVER['HTTP_HOST'] ?? 'sripanchamispiritual.com');
+            $host = (string)($_SERVER['HTTP_HOST'] ?? 'nebowellness.com');
             $base = $scheme . '://' . $host;
         }
         return $base . '/' . ltrim($path, '/');

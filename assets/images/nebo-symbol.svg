@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 260" role="img" aria-labelledby="title desc">
+  <title id="title">Nebo Lifestyle Clinic symbol</title>
+  <desc id="desc">A green medical staff with wings rising between blue mountains.</desc>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 231 75 155l28 38 39-58 34 50 42-50 37 58 26-38 21 76-58-55-28 40-42-48-37 48-34-40-85 55Z" fill="#4472c4" stroke="#4472c4" stroke-width="5"/>
+    <path d="M160 54v162M160 89c-24 1-31-20-55-22-21-2-39 15-67 10 19 31 49 43 82 29 9-4 17-10 23-18M160 89c24 1 31-20 55-22 21-2 39 15 67 10-19 31-49 43-82 29-9-4-17-10-23-18" stroke="#70ad47" stroke-width="18"/>
+    <circle cx="160" cy="37" r="24" fill="#70ad47" stroke="#70ad47" stroke-width="6"/>
+    <path d="M160 122c-28 0-39 14-39 27 0 16 19 20 39 28 20 8 34 15 34 29 0 13-13 23-34 28M160 150c25 0 39-13 39-27" stroke="#70ad47" stroke-width="12"/>
+  </g>
+</svg>

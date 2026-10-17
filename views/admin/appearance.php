@@ -58,14 +58,14 @@
         <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">Customize brand colors site-wide. Uses the <code>--color-*</code> CSS custom property naming.</p>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md) var(--space-xl);">
             <div>
-                <label>Primary <span style="font-weight:400; font-size:0.8rem; color:var(--color-text-muted);">(maroon)</span></label>
+                <label>Primary <span style="font-weight:400; font-size:0.8rem; color:var(--color-text-muted);">(clinic blue)</span></label>
                 <div style="display:flex; gap:var(--space-sm); align-items:center;">
                     <input type="color" name="palette_primary" value="<?= e($palette_primary) ?>" style="width:44px; height:44px; border:0; padding:0; cursor:pointer; border-radius:6px; flex-shrink:0;">
                     <code style="font-size:0.85rem;"><?= e($palette_primary) ?></code>
                 </div>
             </div>
             <div>
-                <label>Secondary <span style="font-weight:400; font-size:0.8rem; color:var(--color-text-muted);">(gold)</span></label>
+                <label>Secondary <span style="font-weight:400; font-size:0.8rem; color:var(--color-text-muted);">(wellness green)</span></label>
                 <div style="display:flex; gap:var(--space-sm); align-items:center;">
                     <input type="color" name="palette_secondary" value="<?= e($palette_secondary) ?>" style="width:44px; height:44px; border:0; padding:0; cursor:pointer; border-radius:6px; flex-shrink:0;">
                     <code style="font-size:0.85rem;"><?= e($palette_secondary) ?></code>

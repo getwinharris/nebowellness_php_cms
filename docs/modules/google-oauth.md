@@ -16,9 +16,11 @@ Main files: `GoogleOAuthClient.php`, `AuthController.php`, `views/admin/integrat
    - **Google Client ID**
    - **Google Client Secret**
 
-2. In the Google Cloud Console, add these Authorized redirect URIs to your OAuth 2.0 Client ID:
-   - `https://sripanchamispiritual.com/auth/google/callback` (production)
+2. In the Google Cloud Console, add the Authorized redirect URIs that exactly match the deployed `APP_URL`:
+   - `https://www.nebowellness.com/auth/google/callback` (production)
    - `http://127.0.0.1:6020/auth/google/callback` (local dev)
+
+   When moving an already configured site from the apex domain to `www`, add both callbacks first, allow any started sign-ins to expire (10 minutes), then update `APP_URL`. Retain the apex callback until the transition is complete.
 
 3. The button appears on both /login and /register pages only when credentials are set. Missing credentials hide the button entirely — no dead click targets.
 
@@ -29,5 +31,5 @@ Main files: `GoogleOAuthClient.php`, `AuthController.php`, `views/admin/integrat
   - **admin** → `/admin`
   - Historical service records are owner-only; public consultation booking is retired.
   - **customer** → `/` (home)
-- New Google-authenticated users are upserted into `users.json` with role `customer`.
+- New Google-authenticated users are upserted into the MySQL `users` collection with role `customer`.
 - Existing users (matched by email) retain their previously assigned role.

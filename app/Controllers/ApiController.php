@@ -1,7 +1,7 @@
 <?php
 namespace App\Controllers;
 
-use App\Services\{ProductService,CategoryService,TempleService};
+use App\Services\{ProductService,CategoryService};
 
 final class ApiController extends BaseController {
     public function index(): void {
@@ -9,7 +9,6 @@ final class ApiController extends BaseController {
             '/api/shop',
             '/api/categories',
             '/api/product/{slug}',
-            '/api/temples',
         ]]);
     }
 
@@ -41,7 +40,6 @@ final class ApiController extends BaseController {
     }
 
     public function temples(): void {
-        $temples = (new TempleService())->all();
-        $this->jsonResponse(['success' => true, 'temples' => $temples]);
+        $this->jsonResponse(['success' => false, 'error' => 'This endpoint has been retired.'], 410);
     }
 }

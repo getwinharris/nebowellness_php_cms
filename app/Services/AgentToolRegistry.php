@@ -102,6 +102,16 @@ final class AgentToolRegistry
                 ],
             ],
             [
+                'name' => 'campaign_pages',
+                'description' => 'List clinic campaign landing pages, including drafts, their publication status and public paths. Read only.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'slug' => ['type' => 'string', 'description' => 'Optional campaign slug to narrow the result.'],
+                    ],
+                ],
+            ],
+            [
                 'name' => 'coupon_status',
                 'description' => 'Whether a coupon is currently usable, and why not if it is refused: '
                     . 'expired, not started, spend limits, usage limits.',
@@ -140,6 +150,7 @@ final class AgentToolRegistry
                 'sales_summary' => $this->salesSummary($args),
                 'support_enquiries' => $this->supportEnquiries($args),
                 'search_articles' => $this->searchArticles($args),
+                'campaign_pages' => $this->campaignPages($args),
                 'coupon_status' => $this->couponStatus($args),
                 default => ['error' => 'No such tool: ' . $name],
             };
@@ -147,6 +158,24 @@ final class AgentToolRegistry
             error_log('Agent tool ' . $name . ' failed: ' . $e->getMessage());
             return ['error' => 'That lookup failed: ' . $e->getMessage()];
         }
+    }
+
+    private function campaignPages(array $args): array
+    {
+        $slug = strtolower(trim((string)($args['slug'] ?? '')));
+        $out = [];
+        foreach ($this->store->read('campaign_pages') as $page) {
+            if ($slug !== '' && strtolower((string)($page['slug'] ?? '')) !== $slug) continue;
+            $out[] = [
+                'title' => (string)($page['title'] ?? ''),
+                'slug' => (string)($page['slug'] ?? ''),
+                'status' => (string)($page['status'] ?? 'draft'),
+                'public_url' => ($page['status'] ?? '') === 'published' ? '/campaigns/' . (string)($page['slug'] ?? '') : null,
+                'summary' => mb_substr((string)($page['summary'] ?? ''), 0, 300),
+            ];
+            if (count($out) >= 20) break;
+        }
+        return ['found' => count($out), 'campaigns' => $out];
     }
 
     private function findOrder(array $args): array

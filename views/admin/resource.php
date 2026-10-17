@@ -9,8 +9,8 @@
         <div class="admin-form__row" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));">
             <?php foreach($fields as $field): ?>
                 <label><?= e(ucwords(str_replace('_',' ',$field))) ?>
-                    <?php if($field === 'description' || $field === 'image_urls'): ?>
-                        <textarea name="<?= e($field) ?>" id="field-<?= e($field) ?>" rows="3"></textarea>
+                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description'], true)): ?>
+                        <textarea name="<?= e($field) ?>" id="field-<?= e($field) ?>" rows="<?= $field === 'body' ? 10 : 3 ?>"></textarea>
                     <?php elseif($field === 'active'): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
                             <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" checked> Active
@@ -40,9 +40,14 @@
                         <input type="time" name="<?= e($field) ?>" id="field-<?= e($field) ?>">
                     <?php elseif(str_contains($field, 'status')): ?>
                         <select name="<?= e($field) ?>" id="field-<?= e($field) ?>">
+                            <?php if($collection === 'campaign_pages'): ?>
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                            <?php else: ?>
                             <option value="active">Active</option>
                             <option value="inactive">Inactive</option>
                             <option value="draft">Draft</option>
+                            <?php endif; ?>
                         </select>
                     <?php else: ?>
                         <input type="text" name="<?= e($field) ?>" id="field-<?= e($field) ?>" placeholder="">
@@ -50,12 +55,12 @@
                 </label>
             <?php endforeach; ?>
         </div>
-        <?php if(in_array($collection, ['products','temples','astrologers'], true)): ?>
+        <?php if(in_array($collection, ['products','campaign_pages','consultants'], true)): ?>
             <div class="admin-upload-panel">
                 <label>Upload Media Files
                     <input type="file" name="media_files[]" id="field-media-files" accept="image/png,image/jpeg,image/webp,image/gif" multiple>
                 </label>
-                <p>Uploaded files are saved into the media library by upload time. Product uploads are added to the gallery; temple and astrologer uploads fill the main image when empty.</p>
+                <p>Uploaded files are saved into the media library. Choose a primary image for the campaign or consultant profile.</p>
                 <div class="admin-image-preview" id="product-image-preview"></div>
             </div>
             <?php if(!empty($mediaFiles)): ?>
@@ -73,7 +78,7 @@
                                     <button type="button" class="btn btn-sm btn-ghost use-media" data-field="image_url" data-path="<?= e($media['url'] ?? $media['path']) ?>">Primary</button>
                                     <button type="button" class="btn btn-sm btn-ghost use-media" data-field="image_urls" data-append="1" data-path="<?= e($media['url'] ?? $media['path']) ?>">Gallery</button>
                                 <?php else: ?>
-                                    <button type="button" class="btn btn-sm btn-ghost use-media" data-field="<?= $collection === 'astrologers' ? 'photo_url' : 'image_url' ?>" data-path="<?= e($media['url'] ?? $media['path']) ?>">Use</button>
+                                    <button type="button" class="btn btn-sm btn-ghost use-media" data-field="<?= $collection === 'consultants' ? 'photo_url' : 'image_url' ?>" data-path="<?= e($media['url'] ?? $media['path']) ?>">Use</button>
                                 <?php endif; ?>
                             </div>
                         <?php endforeach; ?>

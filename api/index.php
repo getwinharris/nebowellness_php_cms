@@ -27,7 +27,7 @@ try {
 $routes = require __DIR__ . '/../app/routes.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$paths = [$uri, str_replace('/api', '', $uri) ?: '/'];
+$paths = [rtrim((string)$uri, '/') ?: '/'];
 
 $matched = false;
 foreach ($routes as $route) {

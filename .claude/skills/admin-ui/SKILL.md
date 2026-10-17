@@ -7,8 +7,8 @@ description: Use when editing owner/admin pages, CRUD forms, media library, envi
 - Follow the root `AGENTS.md` repository contract and its app/view/storage area rules.
 - Keep owner/admin UI PHP-template based.
 - Admin mutations should route through controllers/services and remain auditable.
-- Use schema-driven resource fields and the media library for product, temple, and astrologer media.
-- Treat consultants/astrologers as retained admin-managed records; public booking and profiles are retired. Do not create or display provider credentials unless authentication is explicitly added as a separate product change.
+- Use schema-driven resource fields and the media library for product, campaign, and consultant media.
+- Treat consultants as admin-managed public profiles. Historical appointments remain owner-only. Do not create or display provider login credentials unless authentication is explicitly added as a separate product change.
 - Validate with `php tests/run.php`; use a browser workflow for changed admin pages.
 
 ## Admin Panel Agent

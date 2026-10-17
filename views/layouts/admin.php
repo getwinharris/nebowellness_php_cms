@@ -11,11 +11,11 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="/admin/manifest.json">
-<meta name="theme-color" content="#3a0003">
+<meta name="theme-color" content="#4472C4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SPS Admin">
-<link rel="apple-touch-icon" href="/assets/images/logo-square.jpeg">
+<meta name="apple-mobile-web-app-title" content="Nebo Admin">
+<link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__.'/../../assets/css/band.css') ?>">
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__.'/../../assets/agent-status.js') ?>" defer></script>
 <style>
@@ -86,10 +86,10 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
             <div class="admin-submenu" id="menu-services">
-                <a href="/admin/astrologers" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/astrologers') === 0 ? 'active' : '') ?>">Astrologers</a>
+                <a href="/admin/consultants" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/consultants') === 0 ? 'active' : '') ?>">Consultants</a>
                 <a href="/admin/appointments" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/appointments') === 0 ? 'active' : '') ?>">Sessions</a>
                 <a href="/admin/consultation-analytics" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/consultation-analytics') === 0 ? 'active' : '') ?>">Analytics</a>
-                <a href="/admin/temples" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/temples') === 0 ? 'active' : '') ?>">Temples</a>
+                <a href="/admin/campaigns" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/campaigns') === 0 ? 'active' : '') ?>">Campaign Pages</a>
             </div>
             <?php if ($__modules['blog']): ?>
             <a href="/admin/blog" class="admin-nav-top <?= (strpos($_SERVER['REQUEST_URI'], '/admin/blog') === 0 ? 'active' : '') ?>">
@@ -167,9 +167,9 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
             $__crumb = '';
             $__labelMap = [
                 'products'=>'Products','categories'=>'Categories','coupons'=>'Coupons',
-                'orders'=>'Orders','shipping'=>'Shipping','tax-report'=>'Tax Report','astrologers'=>'Astrologers',
+                'orders'=>'Orders','shipping'=>'Shipping','tax-report'=>'Tax Report','consultants'=>'Consultants',
                 'appointments'=>'Sessions',
-                'consultation-analytics'=>'Analytics','temples'=>'Temples',
+                'consultation-analytics'=>'Analytics','campaigns'=>'Campaign Pages',
                 'settings'=>'Site Settings','integrations'=>'Integrations',
                 'backups'=>'Backups','audit-log'=>'Audit Log',
                 'contact-submissions'=>'Contacts','support-tickets'=>'Support',

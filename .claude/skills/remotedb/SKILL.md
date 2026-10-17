@@ -25,7 +25,7 @@ local database.
 ## Endpoint and auth
 
 ```
-POST https://sripanchamispiritual.com/remotedb
+POST https://www.nebowellness.com/remotedb
 Content-Type: application/json
 ```
 
@@ -50,7 +50,7 @@ rejected — writes must use the mutation actions below.
 ```bash
 PASS=$(grep '^BAPX_MYSQL_PASS=' .env | cut -d= -f2-)
 
-curl -s -X POST https://sripanchamispiritual.com/remotedb \
+curl -s -X POST https://www.nebowellness.com/remotedb \
   -H 'Content-Type: application/json' \
   -d "{\"query\":\"SELECT COUNT(*) c FROM products\",\"password\":\"$PASS\"}"
 # {"success":true,"data":[{"c":7}]}
