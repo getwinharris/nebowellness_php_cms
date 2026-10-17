@@ -542,6 +542,7 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
             card.classList.toggle('is-rail-current',active);
             card.style.order=String(active?cards.length:(i-selected-1+cards.length)%cards.length);
             card.querySelector('button').setAttribute('aria-pressed',String(active));
+            card.querySelector('button').tabIndex=active?0:-1;
         });
         detail.replaceChildren(cards[selected].querySelector('.team-slide__body').cloneNode(true));
         if(previous)previous.disabled=cards.length<2;
@@ -550,7 +551,7 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
     cards.forEach(function(card,i){card.querySelector('button').addEventListener('click',function(){select(i);});});
     if(previous)previous.addEventListener('click',function(){select(selected-1);});
     if(next)next.addEventListener('click',function(){select(selected+1);});
-    showcase.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
+    rail.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
     select(0);showcase.classList.add('team-enhanced');
 });
 document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
