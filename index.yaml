@@ -36,13 +36,13 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 265
+  concepts: 273
   relationships: 240
   by_type:
     blog: 5
     controller: 12
     doc: 35
-    image: 20
+    image: 28
     route: 115
     schema: 22
     service: 47
@@ -581,6 +581,66 @@ concepts:
     usage_count: 1
     used_in:
       - "app/Controllers/PublicController.php"
+  - id: "image:assets/images/logo-192.png"
+    type: "image"
+    title: "logo-192.png"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/logo-192.png"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "logo-192.png"
+    mime: "image/png"
+    usage_count: 0
+    used_in: []
+  - id: "image:assets/images/logo-512.png"
+    type: "image"
+    title: "logo-512.png"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/logo-512.png"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "logo-512.png"
+    mime: "image/png"
+    usage_count: 0
+    used_in: []
+  - id: "image:assets/images/logo-small.jpg"
+    type: "image"
+    title: "logo-small.jpg"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/logo-small.jpg"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "logo-small.jpg"
+    mime: "image/jpeg"
+    usage_count: 0
+    used_in: []
+  - id: "image:assets/images/logo-square.jpg"
+    type: "image"
+    title: "logo-square.jpg"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/logo-square.jpg"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "logo-square.jpg"
+    mime: "image/jpeg"
+    usage_count: 0
+    used_in: []
+  - id: "image:assets/images/logo.jpg"
+    type: "image"
+    title: "logo.jpg"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/logo.jpg"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "logo.jpg"
+    mime: "image/jpeg"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/media/2026/06/karuppasami-dollar-back-png-38db6232.png"
     type: "image"
     title: "karuppasami-dollar-back-png-38db6232.png"
@@ -632,6 +692,18 @@ concepts:
       - "app/Services/SeoService.php"
       - "assets/css/band.css"
       - "views/layouts/app.php"
+  - id: "image:assets/images/nebo-favicon.png"
+    type: "image"
+    title: "nebo-favicon.png"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/nebo-favicon.png"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "nebo-favicon.png"
+    mime: "image/png"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/nebo-garden.png"
     type: "image"
     title: "nebo-garden.png"
@@ -645,6 +717,30 @@ concepts:
     usage_count: 1
     used_in:
       - "views/public/about.php"
+  - id: "image:assets/images/nebo-logo-small.jpg"
+    type: "image"
+    title: "nebo-logo-small.jpg"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/nebo-logo-small.jpg"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "nebo-logo-small.jpg"
+    mime: "image/jpeg"
+    usage_count: 0
+    used_in: []
+  - id: "image:assets/images/nebo-logo-square.jpg"
+    type: "image"
+    title: "nebo-logo-square.jpg"
+    description: "Image with no static repository reference detected."
+    resource: "assets/images/nebo-logo-square.jpg"
+    tags:
+      - "image"
+      - "unreferenced"
+    filename: "nebo-logo-square.jpg"
+    mime: "image/jpeg"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/nebo-logo.jpg"
     type: "image"
     title: "nebo-logo.jpg"
