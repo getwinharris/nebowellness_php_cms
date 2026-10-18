@@ -7,8 +7,8 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 114 routes, 12 controllers, 47 services, 43 views, 0 data files, 19 tools"]
-    arch_routes["> Routes: 114 (Public + Auth + Payment + Admin + Support)"]:::arch
+  subgraph ARCH["Architecture Overview — 115 routes, 12 controllers, 47 services, 43 views, 0 data files, 19 tools"]
+    arch_routes["> Routes: 115 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 12"]:::arch
     arch_svc["> Services: 47"]:::arch
     arch_views["> Views: 43"]:::arch
@@ -32,6 +32,7 @@ flowchart LR
     route_get_temples_slug["GET /temples/{slug} — Legacy URL — redirects to About Nebo"]:::route
     route_get_campaigns["GET /campaigns — Published wellness campaign index"]:::route
     route_get_campaigns_slug["GET /campaigns/{slug} — Published wellness campaign landing page"]:::route
+    route_post_campaigns_slug_enquire["POST /campaigns/{slug}/enquire"]:::route
     route_get_shop["GET /shop — Product shop — grid with pill actions"]:::route
     route_get_categories["GET /categories — Products filtered by category"]:::route
     route_get_product_slug["GET /product/{slug} — Product detail — gallery, add-to-cart, buy-now"]:::route
@@ -357,6 +358,11 @@ flowchart LR
   controller_publiccontroller --> service_campaignpageservice
   controller_publiccontroller --> service_markdownrenderer
   controller_publiccontroller --> service_seoservice
+  controller_publiccontroller -. renders .-> view_public_campaign
+  route_post_campaigns_slug_enquire --> controller_publiccontroller
+  controller_publiccontroller --> service_campaignpageservice
+  controller_publiccontroller --> service_contactservice
+  controller_publiccontroller --> service_mailqueueservice
   controller_publiccontroller -. renders .-> view_public_campaign
   route_get_shop --> controller_publiccontroller
   controller_publiccontroller --> service_productservice

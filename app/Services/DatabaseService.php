@@ -61,6 +61,7 @@ final class DatabaseService {
         $body = @curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $result = json_decode((string)$body, true) ?: [];
+        if ($code === 409) throw new \DomainException('This record changed. Reload the latest version.');
         if ($body === false || $code < 200 || $code >= 300 || empty($result['success'])) {
             throw new \RuntimeException((string)($result['error'] ?? 'Remote mutation failed.'));
         }
@@ -202,6 +203,24 @@ final class DatabaseService {
             $stmt->execute([$id, json_encode($record), $owner, $status, $created, $updated]);
         }
         return $record;
+    }
+    /** Lock the row and compare the same revision shown by the editor before saving. */
+    public function upsertIfRevision(string $table, array $record, string $expectedRevision): array {
+        if (!preg_match('/^[a-z_]+$/', $table) || empty($record['id'])) throw new \InvalidArgumentException('Record id is required.');
+        if ($this->isRemote()) return $this->remoteMutation('upsert', $table, ['record'=>$record, 'expected_revision'=>$expectedRevision])['record'];
+        $pdo = $this->db();
+        $pdo->beginTransaction();
+        try {
+            $stmt = $pdo->prepare("SELECT id, _data FROM `{$table}` WHERE id = ? FOR UPDATE");
+            $stmt->execute([$record['id']]);
+            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            $current = $row ? array_merge(json_decode($row['_data'], true) ?: [], ['id'=>$row['id']]) : null;
+            if ($current === null || !hash_equals(ResourceService::revision($current), $expectedRevision)) throw new \DomainException('This record changed. Reload the latest version.');
+            $saved = $this->upsert($table, $record);
+            $pdo->commit();
+            self::$remoteQueryCache = [];
+            return $saved;
+        } catch (\Throwable $error) { if ($pdo->inTransaction()) $pdo->rollBack(); throw $error; }
     }
     public function delete(string $table, string $value, string $key = 'id'): void {
         if ($this->isTestMode()) return;

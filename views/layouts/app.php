@@ -12,8 +12,8 @@
 $__settings = (new \App\Services\SettingsService())->public();
 $__modules = (new \App\Services\SettingsService())->modules();
 $__logo = (string)($__settings['logo_url'] ?? '');
-if ($__logo === '' || str_contains(strtolower($__logo), 'logo-small.jpeg') || str_contains(strtolower($__logo), 'sripanchami')) {
-    $__logo = '/assets/images/nebo-symbol.png';
+if ($__logo === '' || str_contains(strtolower($__logo), 'logo-small.jpeg') || str_contains(strtolower($__logo), 'sripanchami') || str_contains($__logo, 'nebo-symbol.')) {
+    $__logo = '/assets/images/nebo-official-logo.jpg';
 }
 $__favicon = (string)($__settings['favicon_url'] ?? '');
 if ($__favicon === '' || str_contains(strtolower($__favicon), 'sps-') || str_contains(strtolower($__favicon), 'sripanchami')) {
@@ -315,15 +315,13 @@ gtag('js', new Date());
         <span>Menu</span>
     </button>
     <a href="/" class="brand" aria-label="Nebo Lifestyle Clinic home">
-        <img src="/assets/images/nebo-symbol.svg" width="68" height="55" alt="">
-        <span class="brand-wordmark"><strong>NEBO</strong><b>LIFESTYLE CLINIC</b></span>
+        <img src="<?= e($__logo) ?>" width="160" height="88" alt="Nebo Lifestyle Clinic">
     </a>
 <?php try { $__blogCats = (new \App\Services\BlogService())->categories(); } catch (\Throwable $e) { $__blogCats = []; } ?>
     <nav id="primary-nav" aria-label="Main navigation">
         <button class="nav-close" type="button" aria-label="Close menu">×</button>
         <a href="/" class="nav-home-brand" aria-label="Nebo Lifestyle Clinic home">
-            <img src="/assets/images/nebo-symbol.svg" width="76" height="62" alt="">
-            <span><strong>NEBO</strong><b>LIFESTYLE CLINIC</b></span>
+            <img src="<?= e($__logo) ?>" width="180" height="100" alt="Nebo Lifestyle Clinic">
         </a>
         <p class="nav-kicker">Explore Nebo</p>
         <a href="/#programs">Programs</a>
@@ -532,6 +530,36 @@ document.querySelectorAll('[data-editorial-rail]').forEach(function(rail){
     var scrollTimer;rail.addEventListener('scroll',function(){if(arrowMotion)return;window.clearTimeout(scrollTimer);scrollTimer=window.setTimeout(updateControls,80);},{passive:true});
     window.addEventListener('resize',function(){window.clearTimeout(scrollTimer);scrollTimer=window.setTimeout(updateControls,80);});
     updateControls();if(railReveal)railReveal.observe(rail);else rail.classList.add('rail-entered');
+});
+document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
+    var rail=showcase.querySelector('.team-rail'),cards=Array.from(rail.children),detail=showcase.querySelector('.team-detail');
+    var previous=document.querySelector('[data-rail-prev="team-rail"]'),next=document.querySelector('[data-rail-next="team-rail"]'),selected=0;
+    if(!cards.length)return;
+    function select(index){
+        selected=(index+cards.length)%cards.length;
+        cards.forEach(function(card,i){
+            var active=i===selected;
+            card.classList.toggle('is-rail-current',active);
+            card.style.order=String(active?cards.length:(i-selected-1+cards.length)%cards.length);
+            card.querySelector('button').setAttribute('aria-pressed',String(active));
+            card.querySelector('button').tabIndex=active?0:-1;
+        });
+        detail.replaceChildren(cards[selected].querySelector('.team-slide__body').cloneNode(true));
+        if(previous)previous.disabled=cards.length<2;
+        if(next)next.disabled=cards.length<2;
+    }
+    cards.forEach(function(card,i){card.querySelector('button').addEventListener('click',function(){select(i);});});
+    if(previous)previous.addEventListener('click',function(){select(selected-1);});
+    if(next)next.addEventListener('click',function(){select(selected+1);});
+    rail.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
+    select(0);showcase.classList.add('team-enhanced');
+});
+document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
+    if(!('ResizeObserver' in window))return;
+    var cards=Array.from(stack.querySelectorAll('[data-stack-card]'));
+    var observer=new ResizeObserver(function(entries){entries.forEach(function(entry){entry.target.style.setProperty('--stack-height',entry.target.offsetHeight+'px');});});
+    cards.forEach(function(card){card.style.setProperty('--stack-height',card.offsetHeight+'px');observer.observe(card);});
+    stack.classList.add('stack-ready');
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
 function supportEscape(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
