@@ -135,6 +135,9 @@ final class PublicController extends BaseController {
         try {
             $queue = new \App\Services\MailQueueService();
             $queue->enqueueContactConfirmation($submission);
+        } catch (\Throwable $error) { error_log('Campaign receipt queue failed: ' . $error->getMessage()); }
+        try {
+            $queue = new \App\Services\MailQueueService();
             $queue->notifyAdmin($submission['subject'], '<p>New campaign enquiry.</p><p>' . e($submission['name']) . ' · ' . e($submission['email']) . '</p><p>' . e($submission['phone']) . '</p><p>' . nl2br(e($submission['message'])) . '</p>');
         } catch (\Throwable $error) { error_log('Campaign enquiry email failed: ' . $error->getMessage()); }
         $_SESSION['campaign_tokens'][$slug][$token] = 'done';
