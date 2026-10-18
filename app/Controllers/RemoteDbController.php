@@ -106,7 +106,9 @@ final class RemoteDbController {
             if ($action === 'upsert') {
                 $record = $input['record'] ?? null;
                 if (!is_array($record) || empty($record['id'])) throw new \InvalidArgumentException('Record id is required.');
-                $saved = $store->upsert($collection, $record);
+                $saved = isset($input['expected_revision'])
+                    ? $store->upsertIfRevision($collection, $record, (string)$input['expected_revision'])
+                    : $store->upsert($collection, $record);
                 http_response_code(200);
                 echo json_encode(['success' => true, 'record' => $saved]);
                 return;
@@ -129,7 +131,7 @@ final class RemoteDbController {
             }
             throw new \InvalidArgumentException('Unsupported mutation action.');
         } catch (\Throwable $e) {
-            http_response_code(422);
+            http_response_code($e instanceof \DomainException ? 409 : 422);
             echo json_encode(['error' => 'Remote mutation failed: ' . $e->getMessage()]);
         }
     }

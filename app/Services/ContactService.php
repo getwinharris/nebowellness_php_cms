@@ -26,7 +26,7 @@ final class ContactService {
         $data['id'] = $id;
         $data['created_at'] = $data['created_at'] ?? time();
         $data['status'] = $data['status'] ?? 'new';
-        $previous = isset($data['id']) ? $this->find($id) : null;
+        $previous = $this->store->find('contact_submissions', $id);
         $this->store->upsert('contact_submissions', $data);
         try { (new MailStorageService($this->store))->recordInboxFromContact($data); }
         catch (\Throwable $error) {

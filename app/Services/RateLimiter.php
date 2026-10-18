@@ -18,8 +18,7 @@ final class RateLimiter {
             $this->data = is_file($this->file) ? require $this->file : [];
             if (!$this->check($key, $maxAttempts, $windowSeconds)) return false;
             $this->data[$key][] = time();
-            $content = '<?php return ' . var_export($this->data, true) . ';';
-            return file_put_contents($this->file, $content, LOCK_EX) === strlen($content);
+            return $this->save();
         } finally { flock($lock, LOCK_UN); fclose($lock); }
     }
     public function check(string $key, int $maxAttempts = 5, int $windowSeconds = 60): bool {
@@ -45,10 +44,17 @@ final class RateLimiter {
             if (empty($this->data[$key])) unset($this->data[$key]);
         }
     }
-    private function save(): void {
+    private function save(): bool {
         $content = '<?php return ' . var_export($this->data, true) . ';';
         $dir = dirname($this->file);
-        if (!is_dir($dir)) mkdir($dir, 0775, true);
-        file_put_contents($this->file, $content, LOCK_EX);
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) return false;
+        $temp = tempnam($dir, '.rate-');
+        if ($temp === false) return false;
+        try {
+            if (file_put_contents($temp, $content, LOCK_EX) !== strlen($content)) return false;
+            if (!rename($temp, $this->file)) return false;
+            if (function_exists('opcache_invalidate')) opcache_invalidate($this->file, true);
+            return true;
+        } finally { if (is_file($temp)) unlink($temp); }
     }
 }

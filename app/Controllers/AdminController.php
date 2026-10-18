@@ -100,7 +100,7 @@ final class AdminController extends BaseController {
         $id = trim((string)($_POST['id'] ?? ''));
         if ($id !== '') $data['id'] = $id;
         foreach ((new ResourceService('campaign_pages'))->all() as $existing) {
-            if ($id !== '' && (string)($existing['id'] ?? '') === $id && !hash_equals(hash('sha256', json_encode($existing)), (string)($_POST['revision'] ?? ''))) {
+            if ($id !== '' && (string)($existing['id'] ?? '') === $id && !hash_equals(ResourceService::revision($existing), (string)($_POST['revision'] ?? ''))) {
                 $this->flash('This campaign changed since you opened it. Reload and edit the latest version.', 'error');
                 $this->redirect('/admin/campaigns');
             }
@@ -118,7 +118,8 @@ final class AdminController extends BaseController {
         $uploaded = $this->uploadedMedia('campaign_pages');
         if ($uploaded && $data['image_url'] === '') $data['image_url'] = (string)$uploaded[0]['url'];
         $data['status'] = ($_POST['status'] ?? '') === 'published' ? 'published' : 'draft';
-        $record = (new ResourceService('campaign_pages'))->save($data);
+        try { $record = (new ResourceService('campaign_pages'))->save($data, $id !== '' ? (string)($_POST['revision'] ?? '') : null); }
+        catch (\DomainException $error) { $this->flash($error->getMessage(), 'error'); $this->redirect('/admin/campaigns'); }
         if ($uploaded) (new MediaService())->recordUsage($uploaded, 'campaign_pages', (string)$record['id'], $title);
         (new AuditLogService())->record('save','campaign_pages',(string)$record['id'],['fields'=>array_keys($data),'uploaded_media'=>count($uploaded)]);
         $this->flash('Campaign page saved.', 'success');

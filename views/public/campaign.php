@@ -5,9 +5,11 @@ $ctaLabel = trim((string)($campaign['cta_label'] ?? '')) ?: 'Talk to our team';
 $formState = $_SESSION['campaign_form'] ?? [];
 if (($formState['slug'] ?? '') !== $campaign['slug']) $formState = [];
 else unset($_SESSION['campaign_form']);
+if (empty($formState['success'])) {
 $submissionToken = bin2hex(random_bytes(16));
 $_SESSION['campaign_tokens'][$campaign['slug']][$submissionToken] = 'pending';
 $_SESSION['campaign_tokens'][$campaign['slug']] = array_slice($_SESSION['campaign_tokens'][$campaign['slug']], -20, null, true);
+}
 $formValues = $formState['values'] ?? [];
 $copy = static fn(string $field, string $fallback): string => trim((string)($campaign[$field] ?? '')) ?: $fallback;
 ?>
