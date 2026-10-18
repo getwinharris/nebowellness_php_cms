@@ -292,3 +292,14 @@ section pins at the viewport top while the next layer naturally scrolls over it.
 A tall section scrolls to its bottom before pinning so all text and actions remain
 reachable on mobile. Content reveals use a viewport timeline where supported;
 unsupported browsers retain visible copy. Reduced motion restores normal flow.
+
+
+## Pinned navigation and portrait alignment
+
+The white main navigation bar stays at the viewport top during scrolling. The
+hero remains in normal document flow and scrolls away. The header's measured height
+reserves space for anchor targets and short stacked sections; tall sections still
+scroll fully before pinning. The opaque header sits above content overlays.
+Team preview portraits align around the featured portrait's vertical center, with
+centered image crops and visible names. Details move below the portrait rail at
+tablet widths as well as mobile, so the preview names retain useful space.
