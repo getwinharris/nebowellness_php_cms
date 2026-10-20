@@ -517,6 +517,7 @@ $tests['public pages expose general enquiry ctas'] = function (): void {
 
 $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] = function (): void {
     $css = file_get_contents(app_path('assets/css/band.css'));
+    if ($css === false) throw new RuntimeException('Unable to read the landing-page stylesheet.');
     $layout = file_get_contents(app_path('views/layouts/app.php'));
     $contact = file_get_contents(app_path('views/public/contact.php'));
     foreach ([
