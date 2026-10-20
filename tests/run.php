@@ -532,6 +532,10 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     assertTrue(str_contains($layout, "if('ResizeObserver' in window){") && str_contains($layout, 'window.addEventListener(\'resize\',measureCards)'), 'Stack cards should be measured with a ResizeObserver fallback');
     assertTrue(str_contains($layout, "footer.classList.add('editorial-stack-card','landing-footer-card')"), 'The footer should become the final landing-page stack card');
     assertTrue(!str_contains($contact, 'scroll-margin-top:110px'), 'Contact anchor should rely on the shared header scroll padding only');
+    foreach (['.consultation-invitation h2 { font-size: 4rem;', '.consultation-invitation h2 { font-size: 3rem;', '.consultation-invitation h2 { font-size: 2rem;'] as $needle) {
+        assertTrue(str_contains($css, $needle), "Consultation heading should use an explicit breakpoint size: {$needle}");
+    }
+    assertTrue(str_contains($css, '.editorial-stack-card.landing-footer-card { background: #2f3437; color: #fff; margin-top: 0; }'), 'The final footer card should meet the preceding card without an inherited gap');
 };
 
 $tests['admin integrations explain api setup and support bot keys'] = function (): void {

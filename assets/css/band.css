@@ -4371,20 +4371,24 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 
 /* The consultation invitation is a full editorial composition, not a thin banner. */
 .consultation-invitation { display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,1fr); gap: clamp(32px,6vw,96px); align-items: center; }
-.consultation-invitation h2 { font-size: clamp(2rem,4.2vw,4rem); font-weight: 300; line-height: 1.08; letter-spacing: -.04em; margin: 16px 0 24px; }
+.consultation-invitation h2 { font-size: 4rem; font-weight: 300; line-height: 1.08; letter-spacing: -.04em; margin: 16px 0 24px; }
 .consultation-invitation__copy > p { max-width: 48ch; line-height: 1.65; color: var(--color-text-muted); margin-bottom: 28px; }
 .consultation-invitation__steps { list-style: none; padding: 0; margin: 0; }
 .consultation-invitation__steps li { display: grid; grid-template-columns: 32px minmax(0,1fr); gap: 20px; border-top: 1px solid var(--color-border); padding: 22px 0; }
 .consultation-invitation__steps li > span { color: var(--color-primary); font-size: .8rem; letter-spacing: .08em; }
 .consultation-invitation__steps h3 { font-size: 1.15rem; font-weight: 500; margin: 0 0 8px; }
 .consultation-invitation__steps p { margin: 0; color: var(--color-text-muted); line-height: 1.5; }
-.editorial-stack-card.landing-footer-card { background: #2f3437; color: #fff; }
+.editorial-stack-card.landing-footer-card { background: #2f3437; color: #fff; margin-top: 0; }
 .footer-editorial-heading { margin-bottom: clamp(28px,5svh,56px); }
 .footer-editorial-heading .eyebrow { color: #d5e3cd; }
 .footer-editorial-heading h2 { font-size: clamp(2rem,4svh,3rem); line-height: 1.15; font-weight: 300; margin: 16px 0 0; color: #fff; }
 .landing-footer-card .footer-grid { margin-bottom: 24px; }
 @media (max-width: 743px) {
     .consultation-invitation { grid-template-columns: minmax(0,1fr); gap: 32px; }
+    .consultation-invitation h2 { font-size: 2rem; }
     .consultation-invitation .btn { width: 100%; }
     .editorial-stack-card.landing-footer-card { padding-bottom: 100px; }
+}
+@media (min-width: 744px) and (max-width: 1128px) {
+    .consultation-invitation h2 { font-size: 3rem; }
 }
