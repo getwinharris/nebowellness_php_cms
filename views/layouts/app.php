@@ -428,8 +428,9 @@ if ($__flash):
 <?php endif; ?>
 
 <?php if (!in_array($currentPath, ['/login', '/register'])): ?>
-<footer class="site-footer">
+<footer class="site-footer" role="contentinfo" aria-label="Nebo clinic information">
     <div class="container">
+        <?php if ($currentPath === '/'): ?><div class="footer-editorial-heading"><span class="eyebrow">Nebo Lifestyle Clinic</span><h2>Stay connected.<br>Live well, every day.</h2></div><?php endif; ?>
         <div class="footer-grid">
             <div>
                 <span class="footer-brand">Nebo Lifestyle Clinic</span>
@@ -562,10 +563,24 @@ if(pinnedHeader){
     else window.addEventListener('resize',measureHeader);
 }
 document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
-    if(!('ResizeObserver' in window))return;
+    var footer=document.querySelector('.site-footer');
+    if(footer){
+        footer.classList.add('editorial-stack-card','landing-footer-card');
+        footer.setAttribute('data-stack-card','');
+        footer.style.setProperty('--stack-order','9');
+        stack.appendChild(footer);
+    }
     var cards=Array.from(stack.querySelectorAll('[data-stack-card]'));
-    var observer=new ResizeObserver(function(entries){entries.forEach(function(entry){entry.target.style.setProperty('--stack-height',entry.target.offsetHeight+'px');});});
-    cards.forEach(function(card){card.style.setProperty('--stack-height',card.offsetHeight+'px');observer.observe(card);});
+    function measureCards(){cards.forEach(function(card){card.style.setProperty('--stack-height',card.offsetHeight+'px');});}
+    measureCards();
+    if('ResizeObserver' in window){
+        var observer=new ResizeObserver(measureCards);
+        cards.forEach(function(card){observer.observe(card);});
+    }else{
+        window.addEventListener('resize',measureCards);
+        window.addEventListener('load',measureCards);
+        cards.forEach(function(card){card.querySelectorAll('img').forEach(function(img){img.addEventListener('load',measureCards);});});
+    }
     stack.classList.add('stack-ready');
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
