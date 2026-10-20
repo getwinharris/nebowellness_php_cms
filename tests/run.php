@@ -498,16 +498,45 @@ $tests['about page uses focused responsive cards'] = function (): void {
     assertTrue(str_contains($css, '.about-story-grid,') && str_contains($css, '.about-feature-grid { grid-template-columns: 1fr; }'), 'About cards should stack on smaller screens');
 };
 
-$tests['public pages expose shared general enquiry cta'] = function (): void {
+$tests['public pages expose general enquiry ctas'] = function (): void {
     $css = file_get_contents(app_path('assets/css/band.css'));
-    foreach (['home', 'shop', 'about'] as $page) {
+    $home = file_get_contents(app_path('views/public/home.php'));
+    foreach (['consultation-invitation', 'consultation-invitation__steps', 'Request a consultation', 'href="/contact#contact-form"'] as $needle) {
+        assertTrue(str_contains($home, $needle), "Home should render its editorial consultation invitation with {$needle}");
+    }
+    foreach (['shop', 'about'] as $page) {
         $view = file_get_contents(app_path("views/public/{$page}.php"));
         assertTrue(str_contains($view, 'page-cta-card'), "{$page} should render the shared enquiry CTA card");
         assertTrue(str_contains($view, 'href="/contact'), "{$page} CTA should link to the general enquiry form");
     }
+    assertTrue(str_contains($css, '.consultation-invitation'), 'Home consultation invitation should have its editorial layout styling');
     assertTrue(str_contains($css, '.page-cta-card:hover') && str_contains($css, 'translateY(-6px)'), 'Shared CTA should use the same lift animation language as home cards');
     assertTrue(str_contains($css, '.about-feature-card:hover') && str_contains($css, 'scale(1.04)'), 'About feature cards should animate their icons on hover');
     assertTrue(str_contains($css, '.page-cta-card.reveal.revealed:hover'), 'Shared CTA hover animation should win after scroll reveal');
+};
+
+$tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] = function (): void {
+    $css = file_get_contents(app_path('assets/css/band.css'));
+    if ($css === false) throw new RuntimeException('Unable to read the landing-page stylesheet.');
+    $layout = file_get_contents(app_path('views/layouts/app.php'));
+    $contact = file_get_contents(app_path('views/public/contact.php'));
+    foreach ([
+        '.stack-ready > .editorial-stack-card:not(.home-hero) { position: sticky;',
+        '@media (prefers-reduced-motion: reduce)',
+        '.stack-ready > .editorial-stack-card:not(.home-hero) { position: relative; top: auto; }',
+        '@media (max-width: 1128px) and (min-width: 744px)',
+        '.team-enhanced .team-slide:not(.is-rail-current) .team-placeholder',
+        'top: calc(var(--site-header-height, 114px) + 16px)',
+    ] as $needle) {
+        assertTrue(str_contains($css, $needle), "Editorial stack CSS should include {$needle}");
+    }
+    assertTrue(str_contains($layout, "if('ResizeObserver' in window){") && str_contains($layout, 'window.addEventListener(\'resize\',measureCards)'), 'Stack cards should be measured with a ResizeObserver fallback');
+    assertTrue(str_contains($layout, "footer.classList.add('editorial-stack-card','landing-footer-card')"), 'The footer should become the final landing-page stack card');
+    assertTrue(!str_contains($contact, 'scroll-margin-top:110px'), 'Contact anchor should rely on the shared header scroll padding only');
+    foreach (['.consultation-invitation h2 { font-size: 4rem;', '.consultation-invitation h2 { font-size: 3rem;', '.consultation-invitation h2 { font-size: 2rem;'] as $needle) {
+        assertTrue(str_contains($css, $needle), "Consultation heading should use an explicit breakpoint size: {$needle}");
+    }
+    assertTrue(str_contains($css, '.editorial-stack-card.landing-footer-card { background: #2f3437; color: #fff; margin-top: 0; }'), 'The final footer card should meet the preceding card without an inherited gap');
 };
 
 $tests['admin integrations explain api setup and support bot keys'] = function (): void {

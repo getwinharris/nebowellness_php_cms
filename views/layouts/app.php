@@ -54,7 +54,7 @@ html{scroll-behavior:smooth}
 body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--color-bg);color:var(--color-ink);line-height:1.55;overflow-x:hidden}
 a{color:var(--color-maroon);text-decoration:none}
 img{max-width:100%;height:auto;display:block}
-.site-header{position:relative;top:auto;z-index:100;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--space-lg);min-height:80px;padding:12px 24px;background:#ffffff;border-bottom:1px solid var(--color-border-light);transition:box-shadow 0.25s ease}
+.site-header{position:sticky;top:0;z-index:1000;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--space-lg);min-height:80px;padding:12px 24px;background:#ffffff;border-bottom:1px solid var(--color-border-light);transition:box-shadow 0.25s ease}
 .site-header.scrolled{box-shadow:var(--shadow-md)}
 .brand{display:flex;align-items:center;gap:var(--space-xs);color:var(--color-ink);font-weight:700;font-size:1rem;text-decoration:none}
  .brand img{width:40px;height:40px;border-radius:50%;border:2px solid var(--color-gold);object-fit:cover;box-shadow:0 0 0 1px rgba(255,255,255,0.9) inset}
@@ -428,8 +428,9 @@ if ($__flash):
 <?php endif; ?>
 
 <?php if (!in_array($currentPath, ['/login', '/register'])): ?>
-<footer class="site-footer">
+<footer class="site-footer" role="contentinfo" aria-label="Nebo clinic information">
     <div class="container">
+        <?php if ($currentPath === '/'): ?><div class="footer-editorial-heading"><span class="eyebrow">Nebo Lifestyle Clinic</span><h2>Stay connected.<br>Live well, every day.</h2></div><?php endif; ?>
         <div class="footer-grid">
             <div>
                 <span class="footer-brand">Nebo Lifestyle Clinic</span>
@@ -554,11 +555,32 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
     rail.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
     select(0);showcase.classList.add('team-enhanced');
 });
+var pinnedHeader=document.querySelector('.site-header');
+if(pinnedHeader){
+    function measureHeader(){document.documentElement.style.setProperty('--site-header-height',pinnedHeader.offsetHeight+'px');}
+    measureHeader();
+    if('ResizeObserver' in window)new ResizeObserver(measureHeader).observe(pinnedHeader);
+    else window.addEventListener('resize',measureHeader);
+}
 document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
-    if(!('ResizeObserver' in window))return;
+    var footer=document.querySelector('.site-footer');
+    if(footer){
+        footer.classList.add('editorial-stack-card','landing-footer-card');
+        footer.setAttribute('data-stack-card','');
+        footer.style.setProperty('--stack-order','9');
+        stack.appendChild(footer);
+    }
     var cards=Array.from(stack.querySelectorAll('[data-stack-card]'));
-    var observer=new ResizeObserver(function(entries){entries.forEach(function(entry){entry.target.style.setProperty('--stack-height',entry.target.offsetHeight+'px');});});
-    cards.forEach(function(card){card.style.setProperty('--stack-height',card.offsetHeight+'px');observer.observe(card);});
+    function measureCards(){cards.forEach(function(card){card.style.setProperty('--stack-height',card.offsetHeight+'px');});}
+    measureCards();
+    if('ResizeObserver' in window){
+        var observer=new ResizeObserver(measureCards);
+        cards.forEach(function(card){observer.observe(card);});
+    }else{
+        window.addEventListener('resize',measureCards);
+        window.addEventListener('load',measureCards);
+        cards.forEach(function(card){card.querySelectorAll('img').forEach(function(img){img.addEventListener('load',measureCards);});});
+    }
     stack.classList.add('stack-ready');
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');

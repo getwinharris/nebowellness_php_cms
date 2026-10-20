@@ -197,13 +197,18 @@
 <!-- Contact CTA -->
 <section class="editorial-stack-card section section--warm" style="--stack-order:8" data-stack-card>
     <div class="container">
-        <div class="page-cta-card reveal" style="text-align:center;">
-            <div>
-                <span class="page-cta-card__eyebrow">Ready to Transform Your Health?</span>
-                <h3>Book Your Consultation</h3>
-                <p>Start your journey to optimal health. Schedule a 30-minute discovery call to discuss your goals and create a personalized plan.</p>
+        <div class="consultation-invitation">
+            <div class="consultation-invitation__copy">
+                <span class="eyebrow serif-accent">Your next chapter</span>
+                <h2>Begin your journey<br>to better wellbeing.</h2>
+                <p>Share your health goals with Nebo. Our team will help you understand the programs, meet the right practitioner, and choose a practical next step.</p>
+                <a class="btn btn-primary" href="/contact#contact-form">Request a consultation <span aria-hidden="true">↗</span></a>
             </div>
-            <a class="btn btn-primary page-cta-card__button" href="/contact">Book Now →</a>
+            <ol class="consultation-invitation__steps" aria-label="What happens next">
+                <li><span aria-hidden="true">01</span><div><h3>Tell us what matters</h3><p>Let us know your goals and the support you are looking for.</p></div></li>
+                <li><span aria-hidden="true">02</span><div><h3>Connect with our team</h3><p>Discuss the relevant program and what a consultation involves.</p></div></li>
+                <li><span aria-hidden="true">03</span><div><h3>Take your next step</h3><p>Plan care around your needs with guidance from a Nebo practitioner.</p></div></li>
+            </ol>
         </div>
     </div>
 </section>

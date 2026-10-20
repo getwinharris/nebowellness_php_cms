@@ -183,7 +183,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 ## Components
 
-- **Header:** soft white, non-sticky, hairline bottom border, centered vector Nebo symbol above the wordmark. `NEBO` is extra bold Nebo blue and `LIFESTYLE CLINIC` is bold Nebo green. The drawer repeats this lockup as a home link; account/cart actions remain right aligned.
+- **Header:** soft white, pinned to the viewport top, with a hairline bottom border and the complete client-supplied Nebo logo centered. The drawer repeats this logo as a home link; account/cart actions remain right aligned.
 - **Home hero (editorial):** Use `nebo-clinic-hero.png` as a full-width photo with a dark blue text scrim. Left-align the headline and consultation action; keep the people and clinic setting visible at the right. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff.
 - **Program rail:** a horizontal, equal-height scroll-snap editorial rail with three cards visible on
   wide screens and one partial next card visible on mobile. Each card uses an abstract
@@ -292,3 +292,27 @@ section pins at the viewport top while the next layer naturally scrolls over it.
 A tall section scrolls to its bottom before pinning so all text and actions remain
 reachable on mobile. Content reveals use a viewport timeline where supported;
 unsupported browsers retain visible copy. Reduced motion restores normal flow.
+
+
+## Pinned navigation and portrait alignment
+
+The white main navigation bar stays at the viewport top during scrolling. The
+hero remains in normal document flow and scrolls away. The header's measured height
+reserves space for anchor targets and short stacked sections; tall sections still
+scroll fully before pinning. The opaque header sits above content overlays.
+Team preview portraits align around the featured portrait's vertical center, with
+centered image crops and visible names. Details move below the portrait rail at
+tablet widths as well as mobile, so the preview names retain useful space.
+
+Every non-hero scroll section centers its complete content composition vertically
+within the available viewport below navigation. Desktop program artwork, spacing,
+and portraits scale with viewport height so copy and actions stay inside the card.
+Sections expand naturally for longer text and mobile; do not impose a fixed height
+or crop readable text to manufacture a fit. Section boundaries contain decorative
+motion, while horizontal carousels keep their own scrolling region.
+
+The final consultation card uses a generous editorial heading, one clear request
+button and three concise next-step explanations. The shared gray footer becomes
+the last full-height layer of the homepage stack when enhanced, retaining a single
+footer instance and its navigation, social and legal links. Without JavaScript it
+remains the normal page footer. Footer copy stays white on charcoal.
