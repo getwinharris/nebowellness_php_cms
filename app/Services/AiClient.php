@@ -117,7 +117,7 @@ final class AiClient
         $contents = [['role' => 'user', 'parts' => [['text' => $this->withAnswerFence($prompt)]]]];
 
         for ($round = 0; $round < $maxRounds; $round++) {
-            $payload = json_encode([
+            $payload = (string)json_encode([
                 'contents' => $contents,
                 'tools' => [['functionDeclarations' => $tools->declarations()]],
                 'generationConfig' => [
@@ -125,8 +125,9 @@ final class AiClient
                     'maxOutputTokens' => $maxTokens,
                     'thinkingConfig' => ['thinkingLevel' => 'MINIMAL'],
                 ],
-            ], JSON_UNESCAPED_SLASHES);
+            ], JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
 
+            $status = 0;
             $body = $this->post($url, $payload, $headers, $status, $timeout);
             if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
 
@@ -211,7 +212,7 @@ final class AiClient
         }
 
         $url = $endpoint . '/chat/completions';
-        $payload = json_encode([
+        $payload = (string)json_encode([
             'model' => $model,
             'messages' => [['role' => 'user', 'content' => $prompt]],
             'max_tokens' => $maxTokens,
@@ -240,8 +241,9 @@ final class AiClient
                 'maxOutputTokens' => $maxTokens,
                 'thinkingConfig' => ['thinkingLevel' => 'MINIMAL'],
             ],
-        ], JSON_UNESCAPED_SLASHES);
+        ], JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . trim((string)($config['apiKey'] ?? ''))];
+        $status = 0;
         $body = $this->post($url, $payload, $headers, $status, $timeout);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);

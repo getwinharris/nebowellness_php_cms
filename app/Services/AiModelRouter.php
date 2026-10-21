@@ -41,11 +41,22 @@ final class AiModelRouter
     {
         if (!in_array($model, [self::PRIMARY, self::FALLBACK], true)) return $model;
         try {
-            $next = self::transition($this->state(), $model, $success);
-            $next['id'] = $this->stateId();
-            $next['updated_at'] = date('c');
-            $this->store->upsert('ai_model_state', $next, 'id');
-            return (string)$next['active_model'];
+            // Compare the revision that was read with the revision still in storage.
+            // The hosted bridge implements the same conditional update, so concurrent
+            // requests cannot silently overwrite one another's failure increment.
+            for ($attempt = 0; $attempt < 3; $attempt++) {
+                $current = $this->state();
+                $next = self::transition($current, $model, $success);
+                $next['id'] = $this->stateId();
+                $next['updated_at'] = date('c');
+                try {
+                    $this->store->upsertIfRevision('ai_model_state', $next, ResourceService::revision($current));
+                    return (string)$next['active_model'];
+                } catch (\DomainException) {
+                    continue;
+                }
+            }
+            throw new \RuntimeException('Concurrent routing updates did not settle.');
         } catch (\Throwable $error) {
             // Routing telemetry must never turn an otherwise useful model response into
             // a 500. If state storage is unavailable, keep using the current model.

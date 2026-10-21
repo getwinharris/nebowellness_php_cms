@@ -13,7 +13,7 @@ The homepage initially rendered contact, phone and country-specific WhatsApp cho
 
 ## Nebo observed source gaps
 
-The public widget in `views/layouts/app.php` uses a generic Support heading, sessionStorage transcript, one text composer and basic close/send controls. It lacks the reference's visible agent identity/availability, conversation list, attachment intake, expansion/resizing and explicit human handoff. The transcript alone is stored in the browser while the posted request carries the current question, so apparent conversation continuity needs a server-context audit. Customer and admin requests share `AiClient`; its configured-model request has no persistent three-failure switch.
+The public widget in `views/layouts/app.php` uses a generic Support heading, sessionStorage transcript, one text composer and basic close/send controls. It lacks the reference's visible agent identity/availability, conversation list, attachment intake, expansion/resizing and explicit human handoff. The transcript alone is stored in the browser while the posted request carries the current question, so apparent conversation continuity needs a server-context audit. Customer and admin requests share `AiClient`, with isolated persistent three-failure routing health for each surface as described below.
 
 Do not claim all SHA features should be copied: file/screen intake requires deliberate privacy, storage, validation and owner handling. Immediate priorities are accurate response behavior, useful program/contact actions, clear status and reliable model routing.
 
