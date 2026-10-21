@@ -711,7 +711,7 @@ $tests['support assistant widget uses browser session memory and google model se
     $client = file_get_contents(app_path('app/Services/AiClient.php'));
     assertTrue(str_contains($client, 'getModelConfig'), 'AiClient should resolve endpoint and model from Admin → Integrations');
     assertTrue(!str_contains($client, 'curl_close($ch)'), 'PHP 8.5 transport must not emit obsolete curl_close warnings into JSON');
-    assertTrue(str_contains($client, 'CURLOPT_TIMEOUT => 20'), 'Provider wait must leave PHP request time for fallback and monitoring');
+    assertTrue(str_contains($client, 'CURLOPT_TIMEOUT => max(1, $timeout)') && str_contains($client, 'min(8, $remaining)'), 'Provider and failover waits must stay inside the PHP request deadline');
     $admin = file_get_contents(app_path('app/Controllers/AdminController.php'));
     assertTrue(str_contains($admin, 'AiClient') && !str_contains($admin, 'x-goog-api-key'),
         'Admin agent should share the same client rather than keep a second provider call');
@@ -1374,6 +1374,35 @@ $tests['AI transport diagnostics distinguish causes without assuming the provide
         assertTrue($client::isError($message), 'Transport failure must remain an agent error');
     }
     assertTrue(str_contains($client::describeFailure(500, '{"error":{"message":"Internal error"}}', 0), 'Internal error'), 'Provider response diagnostics must remain intact');
+};
+
+$tests['Gemma failover switches after three consecutive failures in both directions'] = function (): void {
+    $state = ['active_model' => App\Services\AiModelRouter::PRIMARY, 'primary_failures' => 0, 'fallback_failures' => 0];
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, false);
+    assertSame(App\Services\AiModelRouter::PRIMARY, $state['active_model'], 'First primary failure should stay on primary');
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, false);
+    assertSame(App\Services\AiModelRouter::PRIMARY, $state['active_model'], 'Second primary failure should stay on primary');
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, false);
+    assertSame(App\Services\AiModelRouter::FALLBACK, $state['active_model'], 'Third primary failure should switch to fallback');
+    assertSame(0, $state['primary_failures'], 'A completed primary failure window should reset');
+
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::FALLBACK, false);
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::FALLBACK, false);
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::FALLBACK, false);
+    assertSame(App\Services\AiModelRouter::PRIMARY, $state['active_model'], 'Third fallback failure should return to primary');
+    $state['primary_failures'] = 2;
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, true);
+    assertSame(0, $state['primary_failures'], 'A successful primary call should clear its consecutive failures');
+
+    $stale = ['active_model'=>App\Services\AiModelRouter::FALLBACK,'primary_failures'=>0,'fallback_failures'=>0];
+    $stale = App\Services\AiModelRouter::transition($stale, App\Services\AiModelRouter::PRIMARY, true);
+    assertSame(App\Services\AiModelRouter::FALLBACK, $stale['active_model'], 'A late primary completion must not reactivate it');
+
+    $admin = App\Services\AiModelRouter::initialState('google-gemma-admin', 'one');
+    $support = App\Services\AiModelRouter::initialState('google-gemma-support', 'one');
+    assertTrue($admin['id'] !== $support['id'], 'Public failures must not mutate admin routing state');
+    $reset = App\Services\AiModelRouter::initialState('google-gemma-admin', 'two');
+    assertSame(App\Services\AiModelRouter::PRIMARY, $reset['active_model'], 'A changed provider configuration should retry primary');
 };
 
 $tests['product breadcrumb uses the category identifier accepted by the shop'] = function (): void {
