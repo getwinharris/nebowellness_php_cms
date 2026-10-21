@@ -6,22 +6,24 @@ final class AiModelRouter
 {
     public const PRIMARY = 'gemma-4-31b-it';
     public const FALLBACK = 'gemma-4-26b-a4b-it';
-    private const STATE_ID = 'google-gemma-agent';
     private const FAILURE_LIMIT = 3;
 
-    public function __construct(private DatabaseService $store = new DatabaseService()) {}
+    public function __construct(
+        private DatabaseService $store = new DatabaseService(),
+        private string $scope = 'admin'
+    ) {}
 
     /** The configured primary stays authoritative; other configured models are untouched. */
-    public function modelFor(string $configuredModel): string
+    public function modelFor(string $configuredModel, string $fingerprint = ''): string
     {
         if ($configuredModel !== self::PRIMARY) return $configuredModel;
-        try {
-            $state = $this->state();
-            $active = (string)($state['active_model'] ?? self::PRIMARY);
-            return in_array($active, [self::PRIMARY, self::FALLBACK], true) ? $active : self::PRIMARY;
-        } catch (\Throwable) {
-            return self::PRIMARY;
+        $state = $this->state();
+        if ($fingerprint !== '' && !hash_equals((string)($state['config_fingerprint'] ?? ''), $fingerprint)) {
+            $state = self::initialState($this->stateId(), $fingerprint);
+            $this->store->upsert('ai_model_state', $state, 'id');
         }
+        $active = (string)($state['active_model'] ?? self::PRIMARY);
+        return in_array($active, [self::PRIMARY, self::FALLBACK], true) ? $active : self::PRIMARY;
     }
 
     public function recordSuccess(string $model): string
@@ -40,13 +42,14 @@ final class AiModelRouter
         if (!in_array($model, [self::PRIMARY, self::FALLBACK], true)) return $model;
         try {
             $next = self::transition($this->state(), $model, $success);
-            $next['id'] = self::STATE_ID;
+            $next['id'] = $this->stateId();
             $next['updated_at'] = date('c');
             $this->store->upsert('ai_model_state', $next, 'id');
             return (string)$next['active_model'];
-        } catch (\Throwable) {
+        } catch (\Throwable $error) {
             // Routing telemetry must never turn an otherwise useful model response into
             // a 500. If state storage is unavailable, keep using the current model.
+            error_log('AI model routing state could not be saved: ' . $error->getMessage());
             return $model;
         }
     }
@@ -54,18 +57,32 @@ final class AiModelRouter
     /** @return array<string,mixed> */
     private function state(): array
     {
-        return $this->store->find('ai_model_state', self::STATE_ID) ?? [
-            'id' => self::STATE_ID,
+        return $this->store->find('ai_model_state', $this->stateId()) ?? [
+            'id' => $this->stateId(),
             'active_model' => self::PRIMARY,
             'primary_failures' => 0,
             'fallback_failures' => 0,
         ];
     }
 
+    private function stateId(): string
+    {
+        return 'google-gemma-' . (preg_replace('/[^a-z0-9_-]+/i', '-', $this->scope) ?: 'admin');
+    }
+
+    /** @return array<string,mixed> */
+    public static function initialState(string $id, string $fingerprint): array
+    {
+        return ['id'=>$id, 'active_model'=>self::PRIMARY, 'primary_failures'=>0, 'fallback_failures'=>0, 'config_fingerprint'=>$fingerprint, 'updated_at'=>date('c')];
+    }
+
     /** Pure transition used by tests and by the persistent router. */
     public static function transition(array $state, string $model, bool $success): array
     {
         $state += ['active_model' => self::PRIMARY, 'primary_failures' => 0, 'fallback_failures' => 0];
+        // Another request may already have switched the route. A late completion from
+        // the old model must not undo that decision.
+        if (($state['active_model'] ?? self::PRIMARY) !== $model) return $state;
         $counter = $model === self::FALLBACK ? 'fallback_failures' : 'primary_failures';
         if ($success) {
             $state[$counter] = 0;

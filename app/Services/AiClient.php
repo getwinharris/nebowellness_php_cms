@@ -23,12 +23,15 @@ final class AiClient
     private int $transportError = 0;
     private SecretService $secrets;
     private AiModelRouter $router;
+    private string $lastModel = '';
 
-    public function __construct(?SecretService $secrets = null, ?AiModelRouter $router = null)
+    public function __construct(?SecretService $secrets = null, ?AiModelRouter $router = null, string $routingScope = 'admin')
     {
         $this->secrets = $secrets ?? new SecretService();
-        $this->router = $router ?? new AiModelRouter();
+        $this->router = $router ?? new AiModelRouter(scope: $routingScope);
     }
+
+    public function lastModel(): string { return $this->lastModel; }
 
     /** True when a key is present, so callers can skip the round trip. */
     public function configured(): bool
@@ -76,13 +79,17 @@ final class AiClient
         if (!function_exists('curl_init')) return 'AI request failed: cURL is not available on this server.';
 
         $configuredModel = (string)($config['model'] ?? AiModelRouter::PRIMARY);
-        $model = $this->router->modelFor($configuredModel);
+        try { $model = $this->router->modelFor($configuredModel, $this->configFingerprint($config)); }
+        catch (\Throwable) { return 'AI request failed: model routing state is unavailable. Run the database schema initializer and try again.'; }
+        $this->lastModel = $model;
+        $startedAt = microtime(true);
         $answer = $this->completeGoogleWithTools($config, $model, $prompt, $tools, $maxTokens, $temperature, $maxRounds);
         return $this->routeGoogleResult(
             $configuredModel,
             $model,
             $answer,
-            fn(string $next): string => $this->completeGoogleWithTools($config, $next, $prompt, $tools, $maxTokens, $temperature, $maxRounds)
+            fn(string $next, int $timeout): string => $this->completeGoogleWithTools($config, $next, $prompt, $tools, $maxTokens, $temperature, $maxRounds, $timeout),
+            $startedAt
         );
     }
 
@@ -93,13 +100,14 @@ final class AiClient
         AgentToolRegistry $tools,
         int $maxTokens,
         float $temperature,
-        int $maxRounds
+        int $maxRounds,
+        int $timeout = 20
     ): string {
         // The hosted 26B A4B model currently returns HTTP 500 when function
         // declarations are included, while ordinary generateContent succeeds. During
         // failover it still receives the grounded prompt, but skips optional lookups.
         if ($model === AiModelRouter::FALLBACK) {
-            return $this->completeGooglePlain($config, $model, $this->withAnswerFence($prompt), $maxTokens, $temperature);
+            return $this->completeGooglePlain($config, $model, $this->withAnswerFence($prompt), $maxTokens, $temperature, $timeout);
         }
 
         $endpoint = rtrim((string)($config['endpoint'] ?? ''), '/');
@@ -119,7 +127,7 @@ final class AiClient
                 ],
             ], JSON_UNESCAPED_SLASHES);
 
-            $body = $this->post($url, $payload, $headers, $status);
+            $body = $this->post($url, $payload, $headers, $status, $timeout);
             if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
 
             $result = json_decode((string)$body, true);
@@ -156,7 +164,8 @@ final class AiClient
             $model,
             $this->withAnswerFence($prompt . "\n\nAnswer now from what you already know. Do not ask for more lookups."),
             $maxTokens,
-            $temperature
+            $temperature,
+            $timeout
         );
     }
 
@@ -187,13 +196,17 @@ final class AiClient
 
         if ($provider === 'google') {
             $configuredModel = $model;
-            $model = $this->router->modelFor($configuredModel);
+            try { $model = $this->router->modelFor($configuredModel, $this->configFingerprint($config)); }
+            catch (\Throwable) { return 'AI request failed: model routing state is unavailable. Run the database schema initializer and try again.'; }
+            $this->lastModel = $model;
+            $startedAt = microtime(true);
             $answer = $this->completeGooglePlain($config, $model, $prompt, $maxTokens, $temperature);
             return $this->routeGoogleResult(
                 $configuredModel,
                 $model,
                 $answer,
-                fn(string $next): string => $this->completeGooglePlain($config, $next, $prompt, $maxTokens, $temperature)
+                fn(string $next, int $timeout): string => $this->completeGooglePlain($config, $next, $prompt, $maxTokens, $temperature, $timeout),
+                $startedAt
             );
         }
 
@@ -216,7 +229,7 @@ final class AiClient
         return (string)($result['choices'][0]['message']['content'] ?? '');
     }
 
-    private function completeGooglePlain(array $config, string $model, string $prompt, int $maxTokens, float $temperature): string
+    private function completeGooglePlain(array $config, string $model, string $prompt, int $maxTokens, float $temperature, int $timeout = 20): string
     {
         $endpoint = rtrim((string)($config['endpoint'] ?? ''), '/');
         $url = $endpoint . '/' . rawurlencode($model) . ':generateContent';
@@ -229,28 +242,38 @@ final class AiClient
             ],
         ], JSON_UNESCAPED_SLASHES);
         $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . trim((string)($config['apiKey'] ?? ''))];
-        $body = $this->post($url, $payload, $headers, $status);
+        $body = $this->post($url, $payload, $headers, $status, $timeout);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
         return self::answerFromParts($result['candidates'][0]['content']['parts'] ?? []);
     }
 
     /** Record the outcome and retry once only when the third failure switches model. */
-    private function routeGoogleResult(string $configuredModel, string $usedModel, string $answer, callable $retry): string
+    private function routeGoogleResult(string $configuredModel, string $usedModel, string $answer, callable $retry, float $startedAt): string
     {
         if ($configuredModel !== AiModelRouter::PRIMARY) return $answer;
-        if (!self::isError($answer)) {
+        if (!self::isError($answer) && trim($answer) !== '') {
             $this->router->recordSuccess($usedModel);
             return $answer;
         }
 
+        if (trim($answer) === '') $answer = 'AI request failed: the provider returned an empty response.';
         $nextModel = $this->router->recordFailure($usedModel);
         if ($nextModel === $usedModel) return $answer;
 
-        $retried = $retry($nextModel);
-        if (self::isError($retried)) $this->router->recordFailure($nextModel);
-        else $this->router->recordSuccess($nextModel);
+        $remaining = max(1, 29 - (int)ceil(microtime(true) - $startedAt));
+        $this->lastModel = $nextModel;
+        $retried = $retry($nextModel, min(8, $remaining));
+        if (self::isError($retried) || trim($retried) === '') {
+            $this->router->recordFailure($nextModel);
+            if (trim($retried) === '') $retried = 'AI request failed: the provider returned an empty response.';
+        } else $this->router->recordSuccess($nextModel);
         return $retried;
+    }
+
+    private function configFingerprint(array $config): string
+    {
+        return hash('sha256', (string)($config['endpoint'] ?? '') . "\0" . (string)($config['apiKey'] ?? ''));
     }
 
     private const ANSWER_OPEN = '<final_answer>';
@@ -335,7 +358,7 @@ final class AiClient
     }
 
     /** @return string|false */
-    private function post(string $url, string $payload, array $headers, ?int &$status)
+    private function post(string $url, string $payload, array $headers, ?int &$status, int $timeout = 20)
     {
         $ch = curl_init($url);
         curl_setopt_array($ch, [
@@ -345,8 +368,8 @@ final class AiClient
             CURLOPT_POSTFIELDS => $payload,
             // Leave time within the usual 30-second PHP request budget for the
             // caller's grounded fallback and outcome monitoring.
-            CURLOPT_TIMEOUT => 20,
-            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_TIMEOUT => max(1, $timeout),
+            CURLOPT_CONNECTTIMEOUT => min(10, max(1, $timeout)),
         ]);
         $body = curl_exec($ch);
         // Keep a bounded cause, never raw cURL diagnostics which can contain URLs.

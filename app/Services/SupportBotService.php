@@ -98,7 +98,7 @@ final class SupportBotService {
             . json_encode($context, JSON_UNESCAPED_SLASHES)
             . "\nCustomer question: " . $message
             . "\nSupport reply:";
-        return (new AiClient($this->secrets))->completeOrNull($prompt, 220, 0.2);
+        return (new AiClient($this->secrets, routingScope: 'support'))->completeOrNull($prompt, 220, 0.2);
     }
 
     private function cleanReply(string $reply): string {

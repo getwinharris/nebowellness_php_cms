@@ -298,6 +298,7 @@
                 'active_model' => ['type' => 'string'],
                 'primary_failures' => ['type' => 'number'],
                 'fallback_failures' => ['type' => 'number'],
+                'config_fingerprint' => ['type' => 'string'],
                 'updated_at' => ['type' => 'datetime'],
             ],
         ],
