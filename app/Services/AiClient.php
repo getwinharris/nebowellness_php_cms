@@ -21,8 +21,14 @@ final class AiClient
 {
     private const ERROR_PREFIXES = ['AI request failed', 'No AI API key'];
     private int $transportError = 0;
+    private SecretService $secrets;
+    private AiModelRouter $router;
 
-    public function __construct(private SecretService $secrets = new SecretService()) {}
+    public function __construct(?SecretService $secrets = null, ?AiModelRouter $router = null)
+    {
+        $this->secrets = $secrets ?? new SecretService();
+        $this->router = $router ?? new AiModelRouter();
+    }
 
     /** True when a key is present, so callers can skip the round trip. */
     public function configured(): bool
@@ -69,9 +75,36 @@ final class AiClient
         if ($key === '') return 'No AI API key is configured. Set ai_api_key in Admin → Integrations, then try again.';
         if (!function_exists('curl_init')) return 'AI request failed: cURL is not available on this server.';
 
+        $configuredModel = (string)($config['model'] ?? AiModelRouter::PRIMARY);
+        $model = $this->router->modelFor($configuredModel);
+        $answer = $this->completeGoogleWithTools($config, $model, $prompt, $tools, $maxTokens, $temperature, $maxRounds);
+        return $this->routeGoogleResult(
+            $configuredModel,
+            $model,
+            $answer,
+            fn(string $next): string => $this->completeGoogleWithTools($config, $next, $prompt, $tools, $maxTokens, $temperature, $maxRounds)
+        );
+    }
+
+    private function completeGoogleWithTools(
+        array $config,
+        string $model,
+        string $prompt,
+        AgentToolRegistry $tools,
+        int $maxTokens,
+        float $temperature,
+        int $maxRounds
+    ): string {
+        // The hosted 26B A4B model currently returns HTTP 500 when function
+        // declarations are included, while ordinary generateContent succeeds. During
+        // failover it still receives the grounded prompt, but skips optional lookups.
+        if ($model === AiModelRouter::FALLBACK) {
+            return $this->completeGooglePlain($config, $model, $this->withAnswerFence($prompt), $maxTokens, $temperature);
+        }
+
         $endpoint = rtrim((string)($config['endpoint'] ?? ''), '/');
-        $url = $endpoint . '/' . rawurlencode((string)($config['model'] ?? '')) . ':generateContent';
-        $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . $key];
+        $url = $endpoint . '/' . rawurlencode($model) . ':generateContent';
+        $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . trim((string)($config['apiKey'] ?? ''))];
 
         $contents = [['role' => 'user', 'parts' => [['text' => $this->withAnswerFence($prompt)]]]];
 
@@ -118,8 +151,10 @@ final class AiClient
 
         // Out of rounds: ask once more with no tools, so the owner gets an answer
         // built from what was already looked up rather than an empty reply.
-        return $this->complete(
-            $prompt . "\n\nAnswer now from what you already know. Do not ask for more lookups.",
+        return $this->completeGooglePlain(
+            $config,
+            $model,
+            $this->withAnswerFence($prompt . "\n\nAnswer now from what you already know. Do not ask for more lookups."),
             $maxTokens,
             $temperature
         );
@@ -151,29 +186,15 @@ final class AiClient
         $prompt = $this->withAnswerFence($prompt);
 
         if ($provider === 'google') {
-            $url = $endpoint . '/' . rawurlencode($model) . ':generateContent';
-            $payload = json_encode([
-                'contents' => [['parts' => [['text' => $prompt]]]],
-                'generationConfig' => [
-                    'temperature' => $temperature,
-                    'maxOutputTokens' => $maxTokens,
-                    // thinkingLevel must be nested inside thinkingConfig; at the top of
-                    // generationConfig the endpoint answers HTTP 400 "Unknown name
-                    // thinkingLevel". includeThoughts:false is accepted and then ignored
-                    // by this model family, and thinkingBudget is rejected. MINIMAL is
-                    // the one setting that actually stops the reasoning.
-                    //
-                    // This matters for cost and for truncation: on short prompts the
-                    // thinking is 85-95% of the generated tokens, so it exhausts
-                    // maxOutputTokens and the answer is cut off mid-sentence.
-                    'thinkingConfig' => ['thinkingLevel' => 'MINIMAL'],
-                ],
-            ], JSON_UNESCAPED_SLASHES);
-            $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . $key];
-            $body = $this->post($url, $payload, $headers, $status);
-            if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
-            $result = json_decode((string)$body, true);
-            return self::answerFromParts($result['candidates'][0]['content']['parts'] ?? []);
+            $configuredModel = $model;
+            $model = $this->router->modelFor($configuredModel);
+            $answer = $this->completeGooglePlain($config, $model, $prompt, $maxTokens, $temperature);
+            return $this->routeGoogleResult(
+                $configuredModel,
+                $model,
+                $answer,
+                fn(string $next): string => $this->completeGooglePlain($config, $next, $prompt, $maxTokens, $temperature)
+            );
         }
 
         $url = $endpoint . '/chat/completions';
@@ -193,6 +214,43 @@ final class AiClient
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
         return (string)($result['choices'][0]['message']['content'] ?? '');
+    }
+
+    private function completeGooglePlain(array $config, string $model, string $prompt, int $maxTokens, float $temperature): string
+    {
+        $endpoint = rtrim((string)($config['endpoint'] ?? ''), '/');
+        $url = $endpoint . '/' . rawurlencode($model) . ':generateContent';
+        $payload = json_encode([
+            'contents' => [['parts' => [['text' => $prompt]]]],
+            'generationConfig' => [
+                'temperature' => $temperature,
+                'maxOutputTokens' => $maxTokens,
+                'thinkingConfig' => ['thinkingLevel' => 'MINIMAL'],
+            ],
+        ], JSON_UNESCAPED_SLASHES);
+        $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . trim((string)($config['apiKey'] ?? ''))];
+        $body = $this->post($url, $payload, $headers, $status);
+        if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
+        $result = json_decode((string)$body, true);
+        return self::answerFromParts($result['candidates'][0]['content']['parts'] ?? []);
+    }
+
+    /** Record the outcome and retry once only when the third failure switches model. */
+    private function routeGoogleResult(string $configuredModel, string $usedModel, string $answer, callable $retry): string
+    {
+        if ($configuredModel !== AiModelRouter::PRIMARY) return $answer;
+        if (!self::isError($answer)) {
+            $this->router->recordSuccess($usedModel);
+            return $answer;
+        }
+
+        $nextModel = $this->router->recordFailure($usedModel);
+        if ($nextModel === $usedModel) return $answer;
+
+        $retried = $retry($nextModel);
+        if (self::isError($retried)) $this->router->recordFailure($nextModel);
+        else $this->router->recordSuccess($nextModel);
+        return $retried;
     }
 
     private const ANSWER_OPEN = '<final_answer>';

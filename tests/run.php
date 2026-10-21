@@ -1376,6 +1376,28 @@ $tests['AI transport diagnostics distinguish causes without assuming the provide
     assertTrue(str_contains($client::describeFailure(500, '{"error":{"message":"Internal error"}}', 0), 'Internal error'), 'Provider response diagnostics must remain intact');
 };
 
+$tests['Gemma failover switches after three consecutive failures in both directions'] = function (): void {
+    $state = ['active_model' => App\Services\AiModelRouter::PRIMARY, 'primary_failures' => 0, 'fallback_failures' => 0];
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, false);
+    assertSame(App\Services\AiModelRouter::PRIMARY, $state['active_model'], 'First primary failure should stay on primary');
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, false);
+    assertSame(App\Services\AiModelRouter::PRIMARY, $state['active_model'], 'Second primary failure should stay on primary');
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, false);
+    assertSame(App\Services\AiModelRouter::FALLBACK, $state['active_model'], 'Third primary failure should switch to fallback');
+    assertSame(0, $state['primary_failures'], 'A completed primary failure window should reset');
+
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::FALLBACK, false);
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::FALLBACK, false);
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::FALLBACK, false);
+    assertSame(App\Services\AiModelRouter::PRIMARY, $state['active_model'], 'Third fallback failure should return to primary');
+    $state = App\Services\AiModelRouter::transition($state, App\Services\AiModelRouter::PRIMARY, true);
+    assertSame(0, $state['primary_failures'], 'A successful primary call should clear its consecutive failures');
+
+    $client = file_get_contents(app_path('app/Services/AiClient.php'));
+    assertTrue(str_contains($client, 'routeGoogleResult'), 'Plain and tool-enabled calls should share the persistent router');
+    assertTrue(str_contains($client, 'AiModelRouter::FALLBACK'), 'The hosted fallback should use its compatible plain generation path');
+};
+
 $tests['product breadcrumb uses the category identifier accepted by the shop'] = function (): void {
     $product = file_get_contents(app_path('views/public/product.php'));
     assertTrue(str_contains($product, "rawurlencode(trim((string)\$product['category']))"), 'Category filter must use the encoded stored category, not an absent category_slug');

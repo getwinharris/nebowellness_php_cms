@@ -5,9 +5,9 @@
     "summary": {
         "routes": 115,
         "controllers": 12,
-        "services": 47,
+        "services": 48,
         "views": 43,
-        "collections": 22
+        "collections": 23
     },
     "routes": [
         {
@@ -152,6 +152,7 @@
                 "AgentToolRegistry",
                 "AiReplyCleaner",
                 "AiClient",
+                "AiModelRouter",
                 "AuthService"
             ]
         },
@@ -526,6 +527,7 @@
             "services": [
                 "SecretService",
                 "AiClient",
+                "AiModelRouter",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -1232,6 +1234,7 @@
                 "SupportTicketService",
                 "AuditLogService",
                 "AiClient",
+                "AiModelRouter",
                 "AiReplyCleaner"
             ]
         },
@@ -1295,6 +1298,7 @@
         "AgentDraftService",
         "AgentToolRegistry",
         "AiClient",
+        "AiModelRouter",
         "AiReplyCleaner",
         "AppointmentService",
         "AuditLogService",
@@ -1384,6 +1388,7 @@
     ],
     "collections": [
         "addresses",
+        "ai_model_state",
         "appointments",
         "audit_events",
         "campaign_pages",

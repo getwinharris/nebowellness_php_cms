@@ -290,6 +290,17 @@
                 'created_at' => ['type' => 'datetime'],
             ],
         ],
+        'ai_model_state' => [
+            'primary_key' => 'id',
+            'admin_managed' => false,
+            'fields' => [
+                'id' => ['type' => 'string'],
+                'active_model' => ['type' => 'string'],
+                'primary_failures' => ['type' => 'number'],
+                'fallback_failures' => ['type' => 'number'],
+                'updated_at' => ['type' => 'datetime'],
+            ],
+        ],
         'mail_queue' => [
             'primary_key' => 'id',
             'admin_managed' => false,

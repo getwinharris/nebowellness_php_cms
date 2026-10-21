@@ -36,16 +36,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 273
-  relationships: 240
+  concepts: 275
+  relationships: 243
   by_type:
     blog: 5
     controller: 12
     doc: 35
     image: 28
     route: 115
-    schema: 22
-    service: 47
+    schema: 23
+    service: 48
     skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -1874,6 +1874,7 @@ concepts:
       - "AgentToolRegistry"
       - "AiReplyCleaner"
       - "AiClient"
+      - "AiModelRouter"
       - "AuthService"
     view: "admin/agent"
   - id: "route:post__admin_appearance_save"
@@ -2192,6 +2193,7 @@ concepts:
     services:
       - "SecretService"
       - "AiClient"
+      - "AiModelRouter"
       - "AuditLogService"
       - "AuthService"
     view: "admin/integrations"
@@ -2578,6 +2580,7 @@ concepts:
       - "SupportTicketService"
       - "AuditLogService"
       - "AiClient"
+      - "AiModelRouter"
       - "AiReplyCleaner"
     view: "public/support"
   - id: "route:post__verify_payment"
@@ -2607,6 +2610,16 @@ concepts:
       - "schema"
     data_source: "remotedb"
     collection: "addresses"
+    schema_file: "storage/schema/collections.php"
+  - id: "schema:ai_model_state"
+    type: "schema"
+    title: "ai_model_state"
+    description: "Schema collection: ai_model_state"
+    resource: "storage/schema/collections.php"
+    tags:
+      - "schema"
+    data_source: "remotedb"
+    collection: "ai_model_state"
     schema_file: "storage/schema/collections.php"
   - id: "schema:appointments"
     type: "schema"
@@ -2863,6 +2876,14 @@ concepts:
     title: "AiClient"
     description: "Service: AiClient"
     resource: "app/Services/AiClient.php"
+    tags:
+      - "code"
+      - "service"
+  - id: "service:AiModelRouter"
+    type: "service"
+    title: "AiModelRouter"
+    description: "Service: AiModelRouter"
+    resource: "app/Services/AiModelRouter.php"
     tags:
       - "code"
       - "service"
@@ -3286,6 +3307,9 @@ relationships:
     to: "service:AiClient"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:AiModelRouter"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:AiReplyCleaner"
     relation: "uses"
   - from: "controller:AdminController"
@@ -3479,6 +3503,9 @@ relationships:
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AiClient"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:AiModelRouter"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AiReplyCleaner"
@@ -3860,6 +3887,9 @@ relationships:
     relation: "stores"
   - from: "service:AgentToolRegistry"
     to: "schema:campaign_pages"
+    relation: "stores"
+  - from: "service:AiModelRouter"
+    to: "schema:ai_model_state"
     relation: "stores"
   - from: "service:AppointmentService"
     to: "schema:appointments"

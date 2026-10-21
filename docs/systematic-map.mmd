@@ -7,12 +7,12 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 115 routes, 12 controllers, 47 services, 43 views, 0 data files, 19 tools"]
+  subgraph ARCH["Architecture Overview — 115 routes, 12 controllers, 48 services, 43 views, 0 data files, 19 tools"]
     arch_routes["> Routes: 115 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 12"]:::arch
-    arch_svc["> Services: 47"]:::arch
+    arch_svc["> Services: 48"]:::arch
     arch_views["> Views: 43"]:::arch
-    arch_data["> Collections: 22 schema | 0 files"]:::arch
+    arch_data["> Collections: 23 schema | 0 files"]:::arch
     arch_tools["> Tools: 19"]:::arch
     arch_gaps["> Gaps: 5"]:::arch
     arch_routes -.-> arch_ctrl -.-> arch_svc -.-> arch_data
@@ -179,6 +179,7 @@ flowchart LR
     service_agentdraftservice["AgentDraftService"]:::code
     service_agenttoolregistry["AgentToolRegistry"]:::code
     service_aiclient["AiClient"]:::code
+    service_aimodelrouter["AiModelRouter"]:::code
     service_aireplycleaner["AiReplyCleaner"]:::code
     service_appointmentservice["AppointmentService"]:::code
     service_auditlogservice["AuditLogService"]:::code
@@ -291,6 +292,7 @@ flowchart LR
     collection_categories["categories"]:::data
     collection_coupons["coupons"]:::data
     collection_audit_events["audit_events"]:::data
+    collection_ai_model_state["ai_model_state"]:::data
     collection_mail_queue["mail_queue"]:::data
     collection_mail_inbox["mail_inbox"]:::data
     collection_mail_outbox["mail_outbox"]:::data
@@ -572,6 +574,7 @@ flowchart LR
   controller_admincontroller --> service_agenttoolregistry
   controller_admincontroller --> service_aireplycleaner
   controller_admincontroller --> service_aiclient
+  controller_admincontroller --> service_aimodelrouter
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_agent
   route_get_admin_contact_submissions --> controller_admincontroller
@@ -683,6 +686,7 @@ flowchart LR
   route_post_admin_integrations_test_ai --> controller_admincontroller
   controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_aiclient
+  controller_admincontroller --> service_aimodelrouter
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_integrations
@@ -746,6 +750,7 @@ flowchart LR
   controller_supportcontroller --> service_supportticketservice
   controller_supportcontroller --> service_auditlogservice
   controller_supportcontroller --> service_aiclient
+  controller_supportcontroller --> service_aimodelrouter
   controller_supportcontroller --> service_aireplycleaner
   controller_supportcontroller -. renders .-> view_public_support
   route_get_docs --> controller_publiccontroller
@@ -832,6 +837,7 @@ flowchart LR
   service_agentcontextservice --> collection_appointments
   service_agentcontextservice --> collection_support_tickets
   service_agenttoolregistry --> collection_campaign_pages
+  service_aimodelrouter --> collection_ai_model_state
   service_appointmentservice --> collection_appointments
   service_auditlogservice --> collection_audit_events
   service_campaignpageservice --> collection_campaign_pages
