@@ -131,8 +131,17 @@ final class PublicController extends BaseController {
             if (!is_array($field)) continue;
             $key = preg_replace('/[^a-z0-9_]/', '', strtolower((string)($field['key'] ?? '')));
             if ($key === '') continue;
+            $type = (string)($field['type'] ?? 'text');
             $value = $_POST['custom'][$key] ?? '';
             $value = is_string($value) ? trim($value) : '';
+            if ($type === 'checkbox') $value = $value === 'Yes' ? 'Yes' : '';
+            if ($type === 'select' && $value !== '') {
+                $options = array_map('strval', is_array($field['options'] ?? null) ? $field['options'] : []);
+                if (!in_array($value, $options, true)) {
+                    $errors[] = 'Choose a valid option for ' . (string)($field['label'] ?? $key) . '.';
+                    $value = '';
+                }
+            }
             if (!empty($field['required']) && $value === '') $errors[] = 'Please enter ' . (string)($field['label'] ?? $key) . '.';
             $customValues[$key] = mb_substr($value, 0, 2000);
         }

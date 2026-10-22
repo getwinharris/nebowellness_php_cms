@@ -125,12 +125,16 @@ final class AdminController extends BaseController {
         }
         $allowedTypes = ['text','email','tel','textarea','select','checkbox'];
         $data['form_fields'] = [];
+        $usedFieldKeys = [];
         foreach (array_slice($decodedFields, 0, 20) as $field) {
             if (!is_array($field)) continue;
-            $key = preg_replace('/[^a-z0-9_]/', '', strtolower((string)($field['key'] ?? '')));
+            $key = substr(preg_replace('/[^a-z0-9_]/', '', strtolower((string)($field['key'] ?? ''))), 0, 50);
             $type = (string)($field['type'] ?? 'text');
-            if ($key === '' || !in_array($type, $allowedTypes, true)) continue;
-            $data['form_fields'][] = ['key'=>$key,'label'=>trim((string)($field['label'] ?? $key)),'type'=>$type,'required'=>!empty($field['required']),'options'=>array_values(array_slice(array_filter(array_map('strval', is_array($field['options'] ?? null) ? $field['options'] : [])),0,30))];
+            if ($key === '' || isset($usedFieldKeys[$key]) || !in_array($type, $allowedTypes, true)) continue;
+            $usedFieldKeys[$key] = true;
+            $options = array_map(static fn($option): string => mb_substr(trim((string)$option), 0, 80), is_array($field['options'] ?? null) ? $field['options'] : []);
+            $options = array_values(array_slice(array_unique(array_filter($options, static fn(string $option): bool => $option !== '')), 0, 30));
+            $data['form_fields'][] = ['key'=>$key,'label'=>mb_substr(trim((string)($field['label'] ?? $key)),0,80),'type'=>$type,'required'=>!empty($field['required']),'options'=>$options];
         }
         $uploaded = $this->uploadedMedia('campaign_pages');
         if ($uploaded && $data['image_url'] === '') $data['image_url'] = (string)$uploaded[0]['url'];

@@ -2100,9 +2100,13 @@ $tests['campaign custom forms and module controls are wired through schema and U
     assertSame('Campaign landing pages', App\Services\SettingsService::MODULES['campaigns'], 'Campaign pages have their own module switch');
     $layout = file_get_contents(app_path('views/layouts/admin.php'));
     assertTrue(str_contains($layout, "if (\$__modules['shop'])"), 'Commerce navigation is controlled by ecommerce module');
+    foreach (['menu-clinic','menu-content','menu-enquiries','menu-commerce','menu-appearance','menu-settings'] as $group) {
+        assertTrue(str_contains($layout, $group), 'Admin sidebar includes the expected ' . $group . ' group');
+    }
     assertTrue(str_contains($layout, 'menu-enquiries'), 'Contacts and support have a separate admin group');
     $publicController = file_get_contents(app_path('app/Controllers/PublicController.php'));
     assertTrue(str_contains($publicController, "\$submission['custom'] = \$customValues"), 'Campaign validation retains custom answers');
+    assertTrue(str_contains($publicController, "!in_array(\$value, \$options, true)"), 'Campaign select answers are checked against configured options');
     $campaignView = file_get_contents(app_path('views/public/campaign.php'));
     assertTrue(str_contains($campaignView, "\$formValues['custom'][\$key]"), 'Campaign custom fields restore retained values');
     $adminController = file_get_contents(app_path('app/Controllers/AdminController.php'));
