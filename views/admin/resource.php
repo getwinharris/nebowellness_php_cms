@@ -11,15 +11,16 @@
         <div class="admin-form__row" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));">
             <?php foreach($fields as $field): ?>
                 <label><?= e(ucwords(str_replace('_',' ',$field))) ?>
-                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description','form_intro','form_success'], true)): ?>
+                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description','form_intro','form_success','form_fields'], true)): ?>
                         <textarea name="<?= e($field) ?>" id="field-<?= e($field) ?>" rows="<?= $field === 'body' ? 10 : 3 ?>"></textarea>
+                        <?php if ($field === 'form_fields'): ?><small>JSON list, for example: [{"key":"preferred_time","label":"Preferred time","type":"select","required":true,"options":["Morning","Evening"]}]</small><?php endif; ?>
                     <?php elseif(in_array($field, ['form_phone','form_message'], true)): ?>
                         <select name="<?= e($field) ?>" id="field-<?= e($field) ?>">
                             <option value="optional">Optional</option><option value="required">Required</option><option value="hidden">Hidden</option>
                         </select>
-                    <?php elseif($field === 'active'): ?>
+                    <?php elseif(in_array($field, ['active','form_require_otp'], true)): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
-                            <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" checked> Active
+                            <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" <?= $field === 'active' ? 'checked' : '' ?>> <?= $field === 'active' ? 'Active' : 'Require email OTP before submission' ?>
                         </label>
                     <?php elseif($field === 'free_shipping'): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
@@ -161,7 +162,7 @@ document.querySelectorAll('.edit-item').forEach(button => {
                 if (el.type === 'checkbox') {
                     el.checked = !!item['<?= e($field) ?>'];
                 } else {
-                    el.value = Array.isArray(item['<?= e($field) ?>']) ? item['<?= e($field) ?>'].join("\n") : (item['<?= e($field) ?>'] ?? '');
+                    el.value = Array.isArray(item['<?= e($field) ?>']) ? (<?= json_encode($field === 'form_fields') ?> ? JSON.stringify(item['<?= e($field) ?>'], null, 2) : item['<?= e($field) ?>'].join("\n")) : (item['<?= e($field) ?>'] ?? '');
                 }
             }
         <?php endforeach; ?>

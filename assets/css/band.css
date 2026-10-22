@@ -4315,10 +4315,12 @@ body { overflow-x: clip; }
 .stack-ready > .editorial-stack-card:not(.home-hero) { position: sticky; top: min(var(--site-header-height, 114px), calc(100svh - var(--stack-height, 100svh))); }
 @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-        .editorial-stack-card:not(:first-child) > .container { animation: editorial-copy-in linear both; animation-timeline: view(); animation-range: entry 0% entry 35%; }
+        .editorial-stack-card:not(:first-child) > .container { animation: editorial-copy-in linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+        .campaign-motion { animation: campaign-editorial-in linear both; animation-timeline: view(); animation-range: entry 0% entry 50%; }
     }
 }
-@keyframes editorial-copy-in { from { opacity: .25; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
+@keyframes editorial-copy-in { from { opacity: .12; translate: 0 38px; } to { opacity: 1; translate: 0 0; } }
+@keyframes campaign-editorial-in { from { opacity: .18; translate: 0 32px; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) {
     .stack-ready > .editorial-stack-card:not(.home-hero) { position: relative; top: auto; }
 }

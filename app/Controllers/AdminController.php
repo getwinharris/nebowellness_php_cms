@@ -87,8 +87,9 @@ final class AdminController extends BaseController {
     }
     public function appointments(): void{$this->list('Sessions','appointments');}
     public function consultationAnalytics(): void{$this->render('admin/consultation-analytics',['pageTitle'=>'Consultation Analytics','metrics'=>(new ConsultationService())->analytics()]);}
-    public function campaigns(): void{$this->resource('Campaign Pages','campaign_pages',$this->schemaFields('campaign_pages',['title','slug','summary','body','image_url','cta_label','cta_url','seo_title','seo_description','status']));}
+    public function campaigns(): void{$this->requireModule('campaigns');$this->resource('Campaign Pages','campaign_pages',$this->schemaFields('campaign_pages',['title','slug','summary','body','image_url','cta_label','cta_url','form_title','form_intro','form_button','form_success','form_phone','form_message','form_fields','form_require_otp','seo_title','seo_description','status']));}
     public function saveCampaign(): void{
+        $this->requireModule('campaigns');
         $title = trim((string)($_POST['title'] ?? ''));
         $slug = trim((string)($_POST['slug'] ?? ''));
         if ($slug === '') $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title) ?? '', '-'));
@@ -115,6 +116,22 @@ final class AdminController extends BaseController {
         foreach (['form_phone', 'form_message'] as $field) {
             $data[$field] = in_array($_POST[$field] ?? '', ['optional','required','hidden'], true) ? $_POST[$field] : 'optional';
         }
+        $data['form_require_otp'] = !empty($_POST['form_require_otp']);
+        $fieldsJson = trim((string)($_POST['form_fields'] ?? ''));
+        $decodedFields = $fieldsJson === '' ? [] : json_decode($fieldsJson, true);
+        if (!is_array($decodedFields)) {
+            $this->flash('Custom form fields must be valid JSON.', 'error');
+            $this->redirect('/admin/campaigns');
+        }
+        $allowedTypes = ['text','email','tel','textarea','select','checkbox'];
+        $data['form_fields'] = [];
+        foreach (array_slice($decodedFields, 0, 20) as $field) {
+            if (!is_array($field)) continue;
+            $key = preg_replace('/[^a-z0-9_]/', '', strtolower((string)($field['key'] ?? '')));
+            $type = (string)($field['type'] ?? 'text');
+            if ($key === '' || !in_array($type, $allowedTypes, true)) continue;
+            $data['form_fields'][] = ['key'=>$key,'label'=>trim((string)($field['label'] ?? $key)),'type'=>$type,'required'=>!empty($field['required']),'options'=>array_values(array_slice(array_filter(array_map('strval', is_array($field['options'] ?? null) ? $field['options'] : [])),0,30))];
+        }
         $uploaded = $this->uploadedMedia('campaign_pages');
         if ($uploaded && $data['image_url'] === '') $data['image_url'] = (string)$uploaded[0]['url'];
         $data['status'] = ($_POST['status'] ?? '') === 'published' ? 'published' : 'draft';
@@ -126,6 +143,7 @@ final class AdminController extends BaseController {
         $this->redirect('/admin/campaigns');
     }
     public function deleteCampaign(): void{
+        $this->requireModule('campaigns');
         $id = trim((string)($_POST['id'] ?? ''));
         if ($id !== '') {
             (new ResourceService('campaign_pages'))->delete($id);

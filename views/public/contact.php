@@ -44,6 +44,14 @@
                     <label for="contact-message">Message</label>
                     <textarea id="contact-message" name="message" rows="5" required placeholder="Tell us what guidance or support you need"></textarea>
                 </div>
+                <div class="form-group email-otp" data-otp-context="contact">
+                    <label for="contact-email-otp">Email verification code</label>
+                    <div class="contact-form__row">
+                        <input id="contact-email-otp" name="email_otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="6-digit code">
+                        <button class="btn btn-secondary otp-send" type="button">Send code</button>
+                    </div>
+                    <small class="otp-status" role="status">We will send the code to the email address above.</small>
+                </div>
                 <button class="btn btn-primary btn-block" type="submit">Send Request</button>
             </form>
         </div>
@@ -101,3 +109,4 @@
     "url": "https://nebowellness.com/contact"
 }
 </script>
+<script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script>

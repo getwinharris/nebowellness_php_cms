@@ -43,6 +43,9 @@ abstract class BaseController {
         $key = $action . ':' . $ip;
         $limiter = new \App\Services\RateLimiter();
         if (!$limiter->consume($key, $maxAttempts, $windowSeconds)) {
+            if ($this->isApiRequest) {
+                $this->jsonResponse(['error' => 'Too many attempts. Please try again later.'], 429);
+            }
             $this->flash('Too many attempts. Please try again later.', 'error');
             $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
             return false;

@@ -2078,6 +2078,37 @@ $tests['smtp encodes long unicode HTML into bounded transport safe MIME lines'] 
     foreach (explode("\r\n", $match[1]) as $line) assertTrue(strlen($line) <= 76, 'Encoded body lines stay within MIME limits');
 };
 
+$tests['email OTP is scoped, expiring, one time and attempt limited'] = function (): void {
+    $_SESSION = [];
+    $service = new App\Services\EmailOtpService();
+    $keyMethod = new ReflectionMethod($service, 'key');
+    $key = $keyMethod->invoke($service, 'contact', 'guest@example.com');
+    $_SESSION['email_otps'][$key] = ['hash'=>password_hash('123456', PASSWORD_DEFAULT),'expires_at'=>time()+600,'sent_at'=>time(),'attempts'=>0,'verified'=>false];
+    assertSame(false, $service->verify('campaign:test', 'guest@example.com', '123456'), 'A code cannot cross form contexts');
+    assertSame(false, $service->verify('contact', 'guest@example.com', '000000'), 'Wrong code is rejected');
+    assertTrue($service->verify('contact', 'guest@example.com', '123456'), 'Correct code verifies the matching email and context');
+    assertTrue($service->isVerified('contact', 'guest@example.com'), 'Verified marker remains valid for the final submission');
+    $service->consume('contact', 'guest@example.com');
+    assertSame(false, $service->isVerified('contact', 'guest@example.com'), 'Consumed code cannot be reused');
+};
+
+$tests['campaign custom forms and module controls are wired through schema and UI'] = function (): void {
+    $schema = require app_path('storage/schema/collections.php');
+    assertTrue(isset($schema['collections']['campaign_pages']['fields']['form_fields']), 'Campaign schema declares custom fields');
+    assertTrue(isset($schema['collections']['campaign_pages']['fields']['form_require_otp']), 'Campaign schema declares OTP switch');
+    assertTrue(isset($schema['collections']['contact_submissions']['fields']['form_data']), 'Custom answers have a canonical storage field');
+    assertSame('Campaign landing pages', App\Services\SettingsService::MODULES['campaigns'], 'Campaign pages have their own module switch');
+    $layout = file_get_contents(app_path('views/layouts/admin.php'));
+    assertTrue(str_contains($layout, "if (\$__modules['shop'])"), 'Commerce navigation is controlled by ecommerce module');
+    assertTrue(str_contains($layout, 'menu-enquiries'), 'Contacts and support have a separate admin group');
+    $publicController = file_get_contents(app_path('app/Controllers/PublicController.php'));
+    assertTrue(str_contains($publicController, "\$submission['custom'] = \$customValues"), 'Campaign validation retains custom answers');
+    $campaignView = file_get_contents(app_path('views/public/campaign.php'));
+    assertTrue(str_contains($campaignView, "\$formValues['custom'][\$key]"), 'Campaign custom fields restore retained values');
+    $adminController = file_get_contents(app_path('app/Controllers/AdminController.php'));
+    assertTrue(str_contains($adminController, "requireModule('campaigns')"), 'Campaign admin routes respect the module toggle');
+};
+
 $tests['rate limiter reloads shared counts and rejects storage failure'] = function (): void {
     $dir = sys_get_temp_dir() . '/nebo-rate-' . bin2hex(random_bytes(6));
     mkdir($dir);
