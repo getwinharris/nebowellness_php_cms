@@ -69,11 +69,13 @@ final class PublicController extends BaseController {
     }
 
     public function campaigns(): void {
+        $this->requireModule('campaigns');
         $this->seoKey = 'campaigns';
         $this->render('public/campaigns', ['pages' => (new CampaignPageService())->published()]);
     }
 
     public function campaign(string $slug): void {
+        $this->requireModule('campaigns');
         $page = (new CampaignPageService())->findPublished($slug);
         if ($page === null) $this->renderNotFound();
         $this->seoKey = 'campaign';
@@ -87,6 +89,7 @@ final class PublicController extends BaseController {
     }
     
     public function campaignEnquire(string $slug): void {
+        $this->requireModule('campaigns');
         $page = (new CampaignPageService())->findPublished($slug);
         if ($page === null) $this->renderNotFound();
         $this->validateCsrf();
@@ -119,17 +122,50 @@ final class PublicController extends BaseController {
             if ($mode === 'required' && $submission[$field] === '') $errors[] = 'Please enter your ' . $field . '.';
         }
         if ($length($submission['phone']) > 40 || $length($submission['message']) > 5000) $errors[] = 'Keep your phone number under 40 characters and message under 5,000 characters.';
+        if (!empty($page['form_require_otp'])) {
+            $otp = trim((string)($_POST['email_otp'] ?? ''));
+            if (!(new \App\Services\EmailOtpService())->verify('campaign:' . $slug, $submission['email'], $otp)) $errors[] = 'Enter the valid 6-digit code sent to your email.';
+        }
+        $customValues = [];
+        foreach (is_array($page['form_fields'] ?? null) ? $page['form_fields'] : [] as $field) {
+            if (!is_array($field)) continue;
+            $key = preg_replace('/[^a-z0-9_]/', '', strtolower((string)($field['key'] ?? '')));
+            if ($key === '') continue;
+            $type = (string)($field['type'] ?? 'text');
+            $value = $_POST['custom'][$key] ?? '';
+            $value = is_string($value) ? trim($value) : '';
+            if ($type === 'checkbox') $value = $value === 'Yes' ? 'Yes' : '';
+            if ($type === 'select' && $value !== '') {
+                $options = array_map('strval', is_array($field['options'] ?? null) ? $field['options'] : []);
+                if (!in_array($value, $options, true)) {
+                    $errors[] = 'Choose a valid option for ' . (string)($field['label'] ?? $key) . '.';
+                    $value = '';
+                }
+            }
+            if ($type === 'email' && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                $errors[] = 'Enter a valid email for ' . (string)($field['label'] ?? $key) . '.';
+                $value = '';
+            }
+            if ($type === 'tel' && $value !== '' && !preg_match('/^[0-9+().\-\s]{5,40}$/', $value)) {
+                $errors[] = 'Enter a valid phone number for ' . (string)($field['label'] ?? $key) . '.';
+                $value = '';
+            }
+            if (!empty($field['required']) && $value === '') $errors[] = 'Please enter ' . (string)($field['label'] ?? $key) . '.';
+            $customValues[$key] = mb_substr($value, 0, 2000);
+        }
         if ($errors !== []) {
             foreach (['name'=>150,'email'=>254,'phone'=>40,'message'=>5000] as $field=>$limit) {
                 preg_match_all('/./us', $submission[$field], $characters);
                 $submission[$field] = implode('', array_slice($characters[0] ?? [], 0, $limit));
             }
+            $submission['custom'] = $customValues;
             $_SESSION['campaign_form'] = ['slug'=>$slug, 'errors'=>$errors, 'values'=>$submission];
             $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
         }
         $submission['campaign_slug'] = $slug;
         $submission['campaign_title'] = $page['title'];
         $submission['subject'] = 'Campaign enquiry: ' . $page['title'];
+        $submission['form_data'] = $customValues;
         $submission['id'] = 'campaign_' . substr(hash('sha256', session_id() . $slug . $token), 0, 24);
         $submission['id'] = (new ContactService())->save($submission);
         try {
@@ -138,14 +174,27 @@ final class PublicController extends BaseController {
         } catch (\Throwable $error) { error_log('Campaign receipt queue failed: ' . $error->getMessage()); }
         try {
             $queue = new \App\Services\MailQueueService();
-            $queue->notifyAdmin($submission['subject'], '<p>New campaign enquiry.</p><p>' . e($submission['name']) . ' · ' . e($submission['email']) . '</p><p>' . e($submission['phone']) . '</p><p>' . nl2br(e($submission['message'])) . '</p>');
+            $customHtml = '';
+            if ($customValues !== []) {
+                $customHtml = '<h3>Campaign answers</h3><dl>';
+                foreach ($customValues as $key => $value) {
+                    $customHtml .= '<dt>' . e(ucwords(str_replace('_', ' ', $key))) . '</dt><dd>' . e($value) . '</dd>';
+                }
+                $customHtml .= '</dl>';
+            }
+            $queue->notifyAdmin($submission['subject'], '<p>New campaign enquiry.</p><p>' . e($submission['name']) . ' · ' . e($submission['email']) . '</p><p>' . e($submission['phone']) . '</p><p>' . nl2br(e($submission['message'])) . '</p>' . $customHtml, [
+                'contact_id' => $submission['id'],
+                'idempotency_key' => 'campaign_admin:' . $submission['id'],
+            ]);
         } catch (\Throwable $error) { error_log('Campaign enquiry email failed: ' . $error->getMessage()); }
         $_SESSION['campaign_tokens'][$slug][$token] = 'done';
+        if (!empty($page['form_require_otp'])) (new \App\Services\EmailOtpService())->consume('campaign:' . $slug, $submission['email']);
         $_SESSION['campaign_form'] = ['slug'=>$slug, 'success'=>true];
         $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
     }
 
     public function shop(): void {
+        $this->requireModule('shop');
         $this->detectApiRequest();
         $category = $_GET['category'] ?? '';
         $categories = (new CategoryService())->all();
@@ -178,6 +227,7 @@ final class PublicController extends BaseController {
     }
 
     public function categories(): void {
+        $this->requireModule('shop');
         $this->detectApiRequest();
         $categories = (new CategoryService())->all();
         if ($this->isApiRequest) {
@@ -189,6 +239,7 @@ final class PublicController extends BaseController {
     }
     
     public function product(string $slug): void {
+        $this->requireModule('shop');
         $this->detectApiRequest();
         $adminPreview = ($_GET['preview'] ?? '') === '1';
         if ($adminPreview) {
@@ -225,6 +276,7 @@ final class PublicController extends BaseController {
     }
     
     public function cart(): void {
+        $this->requireModule('shop');
         $this->detectApiRequest();
         $this->seoKey = 'cart';
         $items = $this->resolveCartItems();
@@ -241,6 +293,7 @@ final class PublicController extends BaseController {
     }
     
     public function checkout(): void {
+        $this->requireModule('shop');
         $this->detectApiRequest();
         $this->seoKey = 'checkout';
         $items = [];
@@ -285,8 +338,8 @@ final class PublicController extends BaseController {
         }
         $blogPosts = [];
         try { $blogPosts = (new BlogService())->all(); } catch (\Throwable) {}
-        $campaignPages = (new CampaignPageService())->published();
-        $pages[] = '/campaigns';
+        $campaignPages = module_on('campaigns') ? (new CampaignPageService())->published() : [];
+        if (module_on('campaigns')) $pages[] = '/campaigns';
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
         $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
@@ -324,6 +377,11 @@ final class PublicController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->validateCsrf();
             $this->checkRateLimit('contact', 3, 120);
+            $token = trim((string)($_POST['submission_token'] ?? ''));
+            if (!preg_match('/^[a-f0-9]{32}$/', $token) || (($_SESSION['contact_tokens'][$token] ?? null) !== 'pending')) {
+                $this->flash('This contact form has expired. Please try again.', 'error');
+                $this->redirect('/contact#contact-form');
+            }
             $contactService = new ContactService();
             $submission = [
                 'name' => $_POST['name'] ?? '',
@@ -332,6 +390,12 @@ final class PublicController extends BaseController {
                 'subject' => $_POST['subject'] ?? '',
                 'message' => $_POST['message'] ?? '',
             ];
+            $otp = trim((string)($_POST['email_otp'] ?? ''));
+            if (!(new \App\Services\EmailOtpService())->verify('contact', (string)$submission['email'], $otp)) {
+                $this->flash('Enter the valid 6-digit code sent to your email.', 'error');
+                $this->redirect('/contact#contact-form');
+            }
+            $submission['id'] = 'contact_' . substr(hash('sha256', session_id() . $token), 0, 24);
             $submission['id'] = $contactService->save($submission);
             // The owner was never told a contact form had been submitted; it only
             // appeared under Admin -> Contacts if someone thought to look.
@@ -346,12 +410,41 @@ final class PublicController extends BaseController {
                     . '<dt>Email</dt><dd>' . e((string)($_POST['email'] ?? '')) . '</dd>'
                     . '<dt>Phone</dt><dd>' . e((string)($_POST['phone'] ?? '')) . '</dd>'
                     . '<dt>Subject</dt><dd>' . e((string)($_POST['subject'] ?? '')) . '</dd>'
-                    . '<dt>Message</dt><dd>' . nl2br(e((string)($_POST['message'] ?? '')), false) . '</dd></dl>'
+                    . '<dt>Message</dt><dd>' . nl2br(e((string)($_POST['message'] ?? '')), false) . '</dd></dl>',
+                    [
+                        'contact_id' => $submission['id'],
+                        'idempotency_key' => 'contact_admin:' . $submission['id'],
+                    ]
                 );
             } catch (\Throwable $e) { error_log('Contact notification failed: ' . $e->getMessage()); }
+            $_SESSION['contact_tokens'][$token] = 'done';
+            (new \App\Services\EmailOtpService())->consume('contact', (string)$submission['email']);
             $success = true;
         }
         $this->render('public/contact', ['success' => $success, 'subject' => $subject]);
+    }
+
+    public function sendEmailOtp(): void {
+        $this->detectApiRequest();
+        $this->isApiRequest = true;
+        $this->validateCsrf();
+        $this->checkRateLimit('email-otp', 4, 600);
+        $email = trim((string)($_POST['email'] ?? ''));
+        $context = trim((string)($_POST['context'] ?? 'contact'));
+        if ($context !== 'contact') {
+            if (!preg_match('/^campaign:([a-z0-9-]+)$/', $context, $match)) $this->jsonResponse(['error'=>'Invalid form context.'],422);
+            $this->requireModule('campaigns');
+            $page = (new CampaignPageService())->findPublished($match[1]);
+            if ($page === null || empty($page['form_require_otp'])) $this->jsonResponse(['error'=>'Email verification is not enabled for this form.'],422);
+        }
+        try {
+            (new \App\Services\EmailOtpService())->send($context, $email);
+            $this->jsonResponse(['success'=>true,'message'=>'A 6-digit code was sent. Check your inbox and spam folder.']);
+        } catch (\DomainException|\InvalidArgumentException $error) {
+            $this->jsonResponse(['error'=>$error->getMessage()],422);
+        } catch (\Throwable) {
+            $this->jsonResponse(['error'=>'The verification email could not be sent. Please try again, call +91 72001 82025, or email nebolifestyleclinic@gmail.com.'],503);
+        }
     }
     
     public function login(): void { 

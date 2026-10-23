@@ -9,16 +9,17 @@ final class RateLimiter {
     }
     public function consume(string $key, int $maxAttempts = 5, int $windowSeconds = 60): bool {
         $dir = dirname($this->file);
-        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) return false;
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) throw new \RuntimeException('Rate-limit storage directory is unavailable.');
         $lock = fopen($this->file . '.lock', 'c');
-        if ($lock === false) return false;
+        if ($lock === false) throw new \RuntimeException('Rate-limit lock is unavailable.');
         try {
-            if (!flock($lock, LOCK_EX)) return false;
+            if (!flock($lock, LOCK_EX)) throw new \RuntimeException('Rate-limit lock could not be acquired.');
             if (function_exists('opcache_invalidate')) opcache_invalidate($this->file, true);
             $this->data = is_file($this->file) ? require $this->file : [];
             if (!$this->check($key, $maxAttempts, $windowSeconds)) return false;
             $this->data[$key][] = time();
-            return $this->save();
+            $this->save();
+            return true;
         } finally { flock($lock, LOCK_UN); fclose($lock); }
     }
     public function check(string $key, int $maxAttempts = 5, int $windowSeconds = 60): bool {
@@ -44,17 +45,16 @@ final class RateLimiter {
             if (empty($this->data[$key])) unset($this->data[$key]);
         }
     }
-    private function save(): bool {
+    private function save(): void {
         $content = '<?php return ' . var_export($this->data, true) . ';';
         $dir = dirname($this->file);
-        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) return false;
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) throw new \RuntimeException('Rate-limit storage directory is unavailable.');
         $temp = tempnam($dir, '.rate-');
-        if ($temp === false) return false;
+        if ($temp === false) throw new \RuntimeException('Rate-limit storage could not create a temporary file.');
         try {
-            if (file_put_contents($temp, $content, LOCK_EX) !== strlen($content)) return false;
-            if (!rename($temp, $this->file)) return false;
+            if (file_put_contents($temp, $content, LOCK_EX) !== strlen($content)) throw new \RuntimeException('Rate-limit storage write failed.');
+            if (!rename($temp, $this->file)) throw new \RuntimeException('Rate-limit storage replace failed.');
             if (function_exists('opcache_invalidate')) opcache_invalidate($this->file, true);
-            return true;
         } finally { if (is_file($temp)) unlink($temp); }
     }
 }

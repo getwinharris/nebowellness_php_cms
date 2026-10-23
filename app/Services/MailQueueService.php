@@ -149,8 +149,16 @@ final class MailQueueService {
      */
     public function enqueue(string $type, string $to, string $subject, string $html, ?\DateTimeImmutable $availableAt = null, array $meta = [], string $audience = 'customer'): array {
         $html = $this->wrapHtml($html, $audience);
+        $idempotencyKey = trim((string)($meta['idempotency_key'] ?? ''));
+        $id = $idempotencyKey === ''
+            ? bin2hex(random_bytes(8))
+            : 'mail_' . substr(hash('sha256', $type . "\0" . $idempotencyKey), 0, 24);
+        if ($idempotencyKey !== '') {
+            $existing = $this->store->find('mail_queue', $id);
+            if ($existing !== null && (string)($existing['status'] ?? '') === 'sent') return $existing;
+        }
         $record = [
-            'id' => bin2hex(random_bytes(8)),
+            'id' => $id,
             'type' => $type,
             'to' => $to,
             'subject' => $subject,
@@ -256,8 +264,12 @@ final class MailQueueService {
                 'Reference' => e((string)($submission['id'] ?? '')),
                 'Subject' => e($subject),
             ])
-            . self::button('Visit the store', $this->siteUrl('/shop'));
-        return $this->enqueue('contact_customer_confirmation', $to, 'We received your enquiry — Nebo Lifestyle Clinic', $html, null, ['contact_id' => $submission['id'] ?? '']);
+            . self::button(module_on('shop') ? 'Visit the store' : 'Visit Nebo', $this->siteUrl(module_on('shop') ? '/shop' : '/'));
+        $contactId = (string)($submission['id'] ?? '');
+        return $this->enqueue('contact_customer_confirmation', $to, 'We received your enquiry — Nebo Lifestyle Clinic', $html, null, [
+            'contact_id' => $contactId,
+            'idempotency_key' => 'contact_customer:' . $contactId,
+        ]);
     }
 
     /**

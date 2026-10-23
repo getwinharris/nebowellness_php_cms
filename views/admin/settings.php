@@ -24,6 +24,7 @@
         <button class="btn btn-primary btn-sm">Save Admin Login</button>
     </form>
 </div>
+<?php $__settingsModules = (new \App\Services\SettingsService())->modules(); ?>
 <div class="admin-card">
     <h2 style="font-size:1rem; margin:0 0 var(--space-sm);">Site Modules</h2>
     <p style="margin:0 0 var(--space-lg); font-size:0.85rem; color:var(--color-text-muted);">
@@ -44,7 +45,7 @@
         <button type="submit" class="btn btn-primary">Save Modules</button>
     </form>
 </div>
-<div class="admin-card">
+<?php if ($__settingsModules['shop']): ?><div class="admin-card">
     <h2 style="font-size:1rem; margin:0 0 var(--space-lg);">Shipping Configuration</h2>
     <form class="admin-form" method="post" action="/admin/settings/save">
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
@@ -132,3 +133,4 @@
         <button class="btn btn-primary btn-sm">Save Settings</button>
     </form>
 </div>
+<?php endif; ?>

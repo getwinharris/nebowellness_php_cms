@@ -1,3 +1,8 @@
+<?php
+$contactToken = bin2hex(random_bytes(16));
+$_SESSION['contact_tokens'][$contactToken] = 'pending';
+$_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null, true);
+?>
 <section class="section nebo-contact-page">
     <div class="container container--narrow">
         <div style="text-align:center; margin-bottom:var(--space-2xl);">
@@ -14,6 +19,7 @@
             <form method="post" action="/contact" class="contact-form" style="max-width:720px; margin:0 auto;">
                 <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
                 <input type="hidden" name="_csrf" value="<?= $csrf ?>">
+                <input type="hidden" name="submission_token" value="<?= e($contactToken) ?>">
                 <div class="contact-form__row">
                     <div class="form-group">
                         <label for="contact-name">Name</label>
@@ -43,6 +49,14 @@
                 <div class="form-group">
                     <label for="contact-message">Message</label>
                     <textarea id="contact-message" name="message" rows="5" required placeholder="Tell us what guidance or support you need"></textarea>
+                </div>
+                <div class="form-group email-otp" data-otp-context="contact">
+                    <label for="contact-email-otp">Email verification code</label>
+                    <div class="contact-form__row">
+                        <input id="contact-email-otp" name="email_otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="6-digit code">
+                        <button class="btn btn-secondary otp-send" type="button">Send code</button>
+                    </div>
+                    <small class="otp-status" role="status">We will send the code to the email address above.</small>
                 </div>
                 <button class="btn btn-primary btn-block" type="submit">Send Request</button>
             </form>
@@ -101,3 +115,4 @@
     "url": "https://nebowellness.com/contact"
 }
 </script>
+<script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script>

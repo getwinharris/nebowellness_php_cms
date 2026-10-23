@@ -325,7 +325,7 @@ gtag('js', new Date());
         </a>
         <p class="nav-kicker">Explore Nebo</p>
         <a href="/#programs">Programs</a>
-        <a href="/campaigns"<?= str_starts_with($currentPath, '/campaign') ? ' aria-current="page"' : '' ?>>Campaigns</a>
+        <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= str_starts_with($currentPath, '/campaign') ? ' aria-current="page"' : '' ?>>Campaigns</a><?php endif; ?>
         <?php if ($__modules['shop']): ?>
         <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
         <?php endif; ?>
@@ -342,8 +342,10 @@ gtag('js', new Date());
         <?php endif; ?>
         <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
         <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
-        <?php if(!empty($_SESSION['user'])): ?>
+        <?php if(!empty($_SESSION['user']) && $__modules['shop']): ?>
             <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
+            <a href="/logout">Logout</a>
+        <?php elseif(!empty($_SESSION['user'])): ?>
             <a href="/logout">Logout</a>
         <?php else: ?>
             <a href="/login">Login</a>
@@ -353,10 +355,10 @@ gtag('js', new Date());
     <div class="header-actions">
         <a href="/contact" class="header-contact">Contact</a>
         <a href="/contact#contact-form" class="header-book">Book a consultation</a>
-        <a href="/cart" class="cart-btn" aria-label="Cart">
+        <?php if ($__modules['shop']): ?><a href="/cart" class="cart-btn" aria-label="Cart">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
             <?php $cartCount = 0; if(!empty($_SESSION['cart'])){foreach($_SESSION['cart'] as $c){$cartCount += $c['qty'] ?? 1;}} ?><span class="cart-count"><?= $cartCount ?></span>
-        </a>
+        </a><?php endif; ?>
     </div>
 </header>
 <main class="<?= $currentPath === '/' ? 'home-main' : '' ?>">
@@ -391,15 +393,15 @@ if ($__flash):
             <span>Blog</span>
         </a>
         <?php endif; ?>
-        <a href="/cart" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/cart') === 0 ? 'active' : '') ?>">
+        <?php if ($__modules['shop']): ?><a href="/cart" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/cart') === 0 ? 'active' : '') ?>">
             <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
             <span>Cart</span>
-        </a>
+        </a><?php endif; ?>
     </div>
 </nav>
 <?php endif; ?>
 
-<?php if ($currentPath !== '/cart'): ?>
+<?php if ($__modules['shop'] && $currentPath !== '/cart'): ?>
 <a href="/cart" class="mobile-cart-tray" id="mobile-cart-tray" <?= $cartCount > 0 ? '' : 'hidden' ?>>
     <span><strong id="mobile-cart-count"><?= (int)$cartCount ?></strong> <span id="mobile-cart-label"><?= $cartCount === 1 ? 'item' : 'items' ?></span> in cart</span>
     <span>View cart <span aria-hidden="true">→</span></span>
@@ -446,7 +448,7 @@ if ($__flash):
                 <ul class="footer-links">
                     <?php if ($__modules['shop']): ?><li><a href="/shop">All Products</a></li><?php endif; ?>
                     <li><a href="/#programs">Programs</a></li>
-                    <li><a href="/campaigns">Campaigns</a></li>
+                    <?php if ($__modules['campaigns']): ?><li><a href="/campaigns">Campaigns</a></li><?php endif; ?>
                     <li><a href="/about">About Nebo</a></li>
                     <?php if ($__modules['blog']): ?><li><a href="/blog">Blog</a></li><?php endif; ?>
                     <li><a href="/contact">Contact</a></li>

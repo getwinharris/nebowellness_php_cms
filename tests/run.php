@@ -952,7 +952,7 @@ $tests['contact form sends customer confirmation and owner notification'] = func
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
     $mail = file_get_contents(app_path('app/Services/MailQueueService.php'));
     assertTrue(str_contains($controller, 'enqueueContactConfirmation') && str_contains($controller, 'notifyAdmin'), 'Contact handler should queue both notifications');
-    foreach (['contact_customer_confirmation', 'We received your enquiry', "['contact_id'"] as $needle) {
+    foreach (['contact_customer_confirmation', 'We received your enquiry', "'contact_id' =>"] as $needle) {
         assertTrue(str_contains($mail, $needle), "Contact confirmation should include {$needle}");
     }
 };
@@ -1226,13 +1226,16 @@ $tests['every module toggle in the code refers to a module that exists'] = funct
 };
 
 $tests['the admin agent can look things up instead of guessing'] = function (): void {
-    $registry = new \App\Services\AgentToolRegistry();
+    $registry = new \App\Services\AgentToolRegistry(modules: ['shop'=>true,'blog'=>true,'campaigns'=>true]);
     $names = array_column($registry->declarations(), 'name');
     foreach (['find_order', 'product_status', 'sales_summary', 'coupon_status'] as $tool) {
         assertTrue(in_array($tool, $names, true), "The agent should be able to call {$tool}");
         assertTrue($registry->has($tool), "{$tool} should be recognised");
     }
     assertTrue(!$registry->has('delete_everything'), 'An unknown tool is not recognised');
+    $clinicOnly = new \App\Services\AgentToolRegistry(modules: ['shop'=>false,'blog'=>true,'campaigns'=>false]);
+    assertTrue(!$clinicOnly->has('find_order') && !$clinicOnly->has('product_status'), 'Disabled ecommerce removes commerce tools from the admin agent');
+    assertTrue(!$clinicOnly->has('campaign_pages'), 'Disabled campaigns remove the campaign tool from the admin agent');
 
     // Each declaration must carry a schema, or the model cannot call it.
     foreach ($registry->declarations() as $tool) {
@@ -2078,6 +2081,46 @@ $tests['smtp encodes long unicode HTML into bounded transport safe MIME lines'] 
     foreach (explode("\r\n", $match[1]) as $line) assertTrue(strlen($line) <= 76, 'Encoded body lines stay within MIME limits');
 };
 
+$tests['email OTP is scoped, expiring, one time and attempt limited'] = function (): void {
+    $_SESSION = [];
+    $service = new App\Services\EmailOtpService();
+    $keyMethod = new ReflectionMethod($service, 'key');
+    $key = $keyMethod->invoke($service, 'contact', 'guest@example.com');
+    $_SESSION['email_otps'][$key] = ['hash'=>password_hash('123456', PASSWORD_DEFAULT),'expires_at'=>time()+600,'sent_at'=>time(),'attempts'=>0,'verified'=>false];
+    assertSame(false, $service->verify('campaign:test', 'guest@example.com', '123456'), 'A code cannot cross form contexts');
+    assertSame(false, $service->verify('contact', 'guest@example.com', '000000'), 'Wrong code is rejected');
+    assertTrue($service->verify('contact', 'guest@example.com', '123456'), 'Correct code verifies the matching email and context');
+    assertTrue($service->isVerified('contact', 'guest@example.com'), 'Verified marker remains valid for the final submission');
+    $service->consume('contact', 'guest@example.com');
+    assertSame(false, $service->isVerified('contact', 'guest@example.com'), 'Consumed code cannot be reused');
+};
+
+$tests['campaign custom forms and module controls are wired through schema and UI'] = function (): void {
+    $schema = require app_path('storage/schema/collections.php');
+    assertTrue(isset($schema['collections']['campaign_pages']['fields']['form_fields']), 'Campaign schema declares custom fields');
+    assertTrue(isset($schema['collections']['campaign_pages']['fields']['form_require_otp']), 'Campaign schema declares OTP switch');
+    assertTrue(isset($schema['collections']['contact_submissions']['fields']['form_data']), 'Custom answers have a canonical storage field');
+    assertSame('Campaign landing pages', App\Services\SettingsService::MODULES['campaigns'], 'Campaign pages have their own module switch');
+    $layout = file_get_contents(app_path('views/layouts/admin.php'));
+    assertTrue(str_contains($layout, "if (\$__modules['shop'])"), 'Commerce navigation is controlled by ecommerce module');
+    $publicLayout = file_get_contents(app_path('views/layouts/app.php'));
+    assertTrue(str_contains($publicLayout, "\$__modules['shop'] && \$currentPath !== '/cart'"), 'Mobile cart tray is hidden with ecommerce');
+    foreach (['menu-clinic','menu-content','menu-enquiries','menu-commerce','menu-appearance','menu-settings'] as $group) {
+        assertTrue(str_contains($layout, $group), 'Admin sidebar includes the expected ' . $group . ' group');
+    }
+    assertTrue(str_contains($layout, 'menu-enquiries'), 'Contacts and support have a separate admin group');
+    $publicController = file_get_contents(app_path('app/Controllers/PublicController.php'));
+    assertTrue(substr_count($publicController, "requireModule('shop')") >= 5, 'Public ecommerce pages reject direct access while disabled');
+    assertTrue(str_contains($publicController, "\$submission['custom'] = \$customValues"), 'Campaign validation retains custom answers');
+    assertTrue(str_contains($publicController, "!in_array(\$value, \$options, true)"), 'Campaign select answers are checked against configured options');
+    $campaignView = file_get_contents(app_path('views/public/campaign.php'));
+    assertTrue(str_contains($campaignView, "\$formValues['custom'][\$key]"), 'Campaign custom fields restore retained values');
+    $adminController = file_get_contents(app_path('app/Controllers/AdminController.php'));
+    assertTrue(str_contains($adminController, "requireModule('campaigns')"), 'Campaign admin routes respect the module toggle');
+    assertTrue(str_contains($adminController, "'shopEnabled'=>module_on('shop')"), 'Admin agent UI receives the ecommerce module state');
+    assertTrue(str_contains($adminController, "Ecommerce is disabled. Enable it in Site Settings"), 'Admin agent rejects product drafts while ecommerce is disabled');
+};
+
 $tests['rate limiter reloads shared counts and rejects storage failure'] = function (): void {
     $dir = sys_get_temp_dir() . '/nebo-rate-' . bin2hex(random_bytes(6));
     mkdir($dir);
@@ -2092,11 +2135,22 @@ $tests['rate limiter reloads shared counts and rejects storage failure'] = funct
         assertTrue($second->consume('qa', 2, 60), 'Expired attempts do not block a new request');
         mkdir($dir . '/blocked.php.lock');
         set_error_handler(static fn() => true);
-        try { assertSame(false, (new App\Services\RateLimiter($dir . '/blocked.php'))->consume('qa'), 'Unavailable lock fails closed'); }
+        $threw = false;
+        try { (new App\Services\RateLimiter($dir . '/blocked.php'))->consume('qa'); }
+        catch (RuntimeException) { $threw = true; }
+        try { assertTrue($threw, 'Unavailable rate-limit storage must be reported separately from a throttle'); }
         finally { restore_error_handler(); }
     } finally {
         @unlink($path); @unlink($path . '.lock'); @rmdir($dir . '/blocked.php.lock'); @rmdir($dir);
     }
+};
+
+$tests['contact mail retries are idempotent and do not expose a disabled shop'] = function (): void {
+    $mail = file_get_contents(app_path('app/Services/MailQueueService.php'));
+    assertTrue(str_contains($mail, "'idempotency_key' => 'contact_customer:'"), 'Customer contact receipts use a stable queue key');
+    assertTrue(str_contains($mail, "module_on('shop') ? '/shop' : '/'"), 'Contact receipt links respect the ecommerce module');
+    $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
+    assertTrue(str_contains($controller, "'idempotency_key' => 'contact_admin:'"), 'Owner contact notifications use a stable queue key');
 };
 
 foreach ($tests as $name => $test) {

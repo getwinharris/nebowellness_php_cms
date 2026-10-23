@@ -8,6 +8,8 @@ description: Use when editing owner/admin pages, CRUD forms, media library, envi
 - Keep owner/admin UI PHP-template based.
 - Admin mutations should route through controllers/services and remain auditable.
 - Use schema-driven resource fields and the media library for product, campaign, and consultant media.
+- Keep the sidebar grouped as Clinic, Content, Enquiries, Commerce, Appearance, and Settings. `SettingsService::modules()` hides complete feature groups and related settings without hiding Enquiries.
+- Campaign landing forms are schema-driven: restrict custom definitions to the supported field allowlist, validate select values against configured options, retain safe values after errors, and keep existing campaigns compatible when no custom fields are defined.
 - Treat consultants as admin-managed public profiles. Historical appointments remain owner-only. Do not create or display provider login credentials unless authentication is explicitly added as a separate product change.
 - Validate with `php tests/run.php`; use a browser workflow for changed admin pages.
 

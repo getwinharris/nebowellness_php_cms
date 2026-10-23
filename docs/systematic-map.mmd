@@ -7,10 +7,10 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 115 routes, 12 controllers, 48 services, 43 views, 0 data files, 19 tools"]
-    arch_routes["> Routes: 115 (Public + Auth + Payment + Admin + Support)"]:::arch
+  subgraph ARCH["Architecture Overview — 116 routes, 12 controllers, 49 services, 43 views, 0 data files, 19 tools"]
+    arch_routes["> Routes: 116 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 12"]:::arch
-    arch_svc["> Services: 48"]:::arch
+    arch_svc["> Services: 49"]:::arch
     arch_views["> Views: 43"]:::arch
     arch_data["> Collections: 23 schema | 0 files"]:::arch
     arch_tools["> Tools: 19"]:::arch
@@ -44,6 +44,7 @@ flowchart LR
     route_get_sitemap_xml["GET /sitemap.xml"]:::route
     route_get_contact["GET /contact — Contact form GET"]:::route
     route_post_contact["POST /contact — Contact form POST submission"]:::route
+    route_post_forms_email_otp["POST /forms/email-otp"]:::route
     route_get_account_dashboard["GET /account/dashboard — Account dashboard entry — redirects to orders"]:::route
     route_get_account_dashboard_orders["GET /account/dashboard/orders — My Orders — product reviews"]:::route
     route_get_account_dashboard_sessions["GET /account/dashboard/sessions — Retired session URL — redirects to orders"]:::route
@@ -196,6 +197,7 @@ flowchart LR
     service_courierservice["CourierService"]:::code
     service_databaseservice["DatabaseService"]:::code
     service_docsmapservice["DocsMapService"]:::code
+    service_emailotpservice["EmailOtpService"]:::code
     service_envservice["EnvService"]:::code
     service_imageoptimizerservice["ImageOptimizerService"]:::code
     service_knowledgegraphservice["KnowledgeGraphService"]:::code
@@ -410,6 +412,11 @@ flowchart LR
   controller_publiccontroller -. renders .-> view_public_contact
   route_post_contact --> controller_publiccontroller
   controller_publiccontroller --> service_contactservice
+  controller_publiccontroller -. renders .-> view_public_contact
+  route_post_forms_email_otp --> controller_publiccontroller
+  controller_publiccontroller --> service_emailotpservice
+  controller_publiccontroller --> service_smtpmailer
+  controller_publiccontroller --> service_secretservice
   controller_publiccontroller -. renders .-> view_public_contact
   route_get_login --> controller_publiccontroller
   controller_publiccontroller --> service_authservice
