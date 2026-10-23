@@ -1,3 +1,8 @@
+<?php
+$contactToken = bin2hex(random_bytes(16));
+$_SESSION['contact_tokens'][$contactToken] = 'pending';
+$_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null, true);
+?>
 <section class="section nebo-contact-page">
     <div class="container container--narrow">
         <div style="text-align:center; margin-bottom:var(--space-2xl);">
@@ -14,6 +19,7 @@
             <form method="post" action="/contact" class="contact-form" style="max-width:720px; margin:0 auto;">
                 <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
                 <input type="hidden" name="_csrf" value="<?= $csrf ?>">
+                <input type="hidden" name="submission_token" value="<?= e($contactToken) ?>">
                 <div class="contact-form__row">
                     <div class="form-group">
                         <label for="contact-name">Name</label>

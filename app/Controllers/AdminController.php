@@ -10,8 +10,9 @@ final class AdminController extends BaseController {
     }
 
     public function dashboard(): void{
-        $productCount = count((new ResourceService('products'))->all());
-        $orderCount = count((new ResourceService('orders'))->all());
+        $shopEnabled = module_on('shop');
+        $productCount = $shopEnabled ? count((new ResourceService('products'))->all()) : 0;
+        $orderCount = $shopEnabled ? count((new ResourceService('orders'))->all()) : 0;
         // Public consultation booking has been retired, but historical requests remain
         // an owner responsibility. Keep them visible from the admin dashboard rather
         // than making their recovery depend on a public-site module flag.
@@ -30,25 +31,29 @@ final class AdminController extends BaseController {
             'bookingCount' => count($appointments),
             'appointments' => array_slice($appointments, 0, 5),
             'agentMonitoring' => $agentMonitoring,
+            'shopEnabled' => $shopEnabled,
+            'campaignsEnabled' => module_on('campaigns'),
         ]);
     }
     public function products(): void{
+        $this->requireModule('shop');
         $this->render('admin/product-form',['pageTitle'=>'Products','title'=>'Products','collection'=>'products','items'=>(new ResourceService('products'))->all(),'categories'=>(new ResourceService('categories'))->all(),'mediaFiles'=>$this->mediaFor('products')]);
     }
-    public function saveProduct(): void{$this->saveProductRecord();}
-    public function deleteProduct(): void{$this->delete('products');}
-    public function categories(): void{$this->resource('Categories','categories',['name','description']);}
-    public function saveCategory(): void{$this->save('categories');}
-    public function deleteCategory(): void{$this->delete('categories');}
-    public function coupons(): void{$this->resource('Coupons','coupons',[
+    public function saveProduct(): void{$this->requireModule('shop');$this->saveProductRecord();}
+    public function deleteProduct(): void{$this->requireModule('shop');$this->delete('products');}
+    public function categories(): void{$this->requireModule('shop');$this->resource('Categories','categories',['name','description']);}
+    public function saveCategory(): void{$this->requireModule('shop');$this->save('categories');}
+    public function deleteCategory(): void{$this->requireModule('shop');$this->delete('categories');}
+    public function coupons(): void{$this->requireModule('shop');$this->resource('Coupons','coupons',[
         'code','discount_type','discount_value','max_discount',
         'starts_at','ends_at','min_spend','max_spend',
         'usage_limit','usage_limit_per_customer','free_shipping','active',
     ]);}
-    public function saveCoupon(): void{$this->save('coupons');}
-    public function deleteCoupon(): void{$this->delete('coupons');}
-    public function orders(): void{$this->list('Orders','orders');}
+    public function saveCoupon(): void{$this->requireModule('shop');$this->save('coupons');}
+    public function deleteCoupon(): void{$this->requireModule('shop');$this->delete('coupons');}
+    public function orders(): void{$this->requireModule('shop');$this->list('Orders','orders');}
     public function order(string $id): void{
+        $this->requireModule('shop');
         $orders = (new ResourceService('orders'))->all();
         $order = null;
         foreach ($orders as $item) {
@@ -57,6 +62,7 @@ final class AdminController extends BaseController {
         $this->render('admin/detail',['pageTitle' => 'Order '.$id, 'title' => 'Order '.$id, 'order' => $order]);
     }
     public function saveOrderStatus(string $id): void{
+        $this->requireModule('shop');
         $status = (string)($_POST['status'] ?? 'confirmed');
         $tracking = [
             'tracking_id'  => (string)($_POST['tracking_id'] ?? ''),
@@ -76,7 +82,7 @@ final class AdminController extends BaseController {
         }
         $this->redirect('/admin/orders/'.$id);
     }
-    public function shipping(): void{$this->render('admin/settings',['pageTitle' => 'Shipping', 'title' => 'Shipping']);}
+    public function shipping(): void{$this->requireModule('shop');$this->render('admin/settings',['pageTitle' => 'Shipping', 'title' => 'Shipping']);}
     public function consultants(): void{
         $this->render('admin/consultant-form',['pageTitle'=>'Consultants','title'=>'Consultants','collection'=>'consultants','items'=>(new ResourceService('consultants'))->all(),'mediaFiles'=>$this->mediaFor('consultants')]);
     }
@@ -134,7 +140,12 @@ final class AdminController extends BaseController {
             $usedFieldKeys[$key] = true;
             $options = array_map(static fn($option): string => mb_substr(trim((string)$option), 0, 80), is_array($field['options'] ?? null) ? $field['options'] : []);
             $options = array_values(array_slice(array_unique(array_filter($options, static fn(string $option): bool => $option !== '')), 0, 30));
-            $data['form_fields'][] = ['key'=>$key,'label'=>mb_substr(trim((string)($field['label'] ?? $key)),0,80),'type'=>$type,'required'=>!empty($field['required']),'options'=>$options];
+            $required = !empty($field['required']);
+            if ($type === 'select' && $options === []) {
+                $this->flash('Every select field needs at least one option.', 'error');
+                $this->redirect('/admin/campaigns');
+            }
+            $data['form_fields'][] = ['key'=>$key,'label'=>mb_substr(trim((string)($field['label'] ?? $key)),0,80),'type'=>$type,'required'=>$required,'options'=>$options];
         }
         $uploaded = $this->uploadedMedia('campaign_pages');
         if ($uploaded && $data['image_url'] === '') $data['image_url'] = (string)$uploaded[0]['url'];
@@ -189,7 +200,7 @@ final class AdminController extends BaseController {
         // Everything the owner may write @ against, so the chat can autocomplete rather
         // than making them remember slugs and filenames.
         $attachables = (new \App\Services\AgentAttachmentService())->catalogue();
-        $this->render('admin/agent',['pageTitle'=>'AI Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables]);
+        $this->render('admin/agent',['pageTitle'=>'AI Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop')]);
     }
     public function agentAsk(): void{
         $message = trim((string)($_POST['message'] ?? ''));
@@ -206,6 +217,10 @@ final class AdminController extends BaseController {
             // through the same route the normal admin screens post to.
             $command = \App\Services\AgentDraftService::command($message);
             if ($command !== null) {
+                if ($command === 'product' && !module_on('shop')) {
+                    $this->jsonResponse(['error'=>'Ecommerce is disabled. Enable it in Site Settings before drafting a product.'],409);
+                    return;
+                }
                 $draft = (new \App\Services\AgentDraftService())->draft(
                     $command,
                     \App\Services\AgentDraftService::subject($message),
@@ -219,9 +234,10 @@ final class AdminController extends BaseController {
             $secrets = new SecretService();
             $db = new \App\Services\DatabaseService();
             $modelConfig = $secrets->getModelConfig();
-            $orders = $db->read('orders');
+            $shopEnabled = module_on('shop');
+            $orders = $shopEnabled ? $db->read('orders') : [];
             $users = $db->read('users');
-            $products = $db->read('products');
+            $products = $shopEnabled ? $db->read('products') : [];
             $userCount = count($users);
             $orderCount = count($orders);
             $productCount = count($products);
@@ -265,20 +281,23 @@ final class AdminController extends BaseController {
             }
             if ($topProductsStr === '') $topProductsStr = "\n  - no confirmed sales yet";
 
-            $context = "You are the admin AI assistant. You have full access to site data.\n\n"
+            $commerceContext = $shopEnabled
+                ? "- Total orders: {$orderCount} (confirmed: " . count($confirmedOrders) . ", pending: " . count($pendingOrders) . ")\n"
+                    . "- Products: {$productCount}\n"
+                    . "- Total revenue: ₹" . number_format($totalRevenue, 2) . "\n"
+                    . "- Confirmed revenue: ₹" . number_format($confirmedRevenue, 2) . "\n"
+                    . "- Pending revenue (unconfirmed): ₹" . number_format($pendingRevenue, 2) . "\n"
+                    . "- Average order value: ₹" . number_format($avgOrderValue, 2) . "\n"
+                    . "- Top 5 products by units sold:" . $topProductsStr . "\n"
+                    . "- Top 5 customers by revenue:" . $topUsersStr
+                : "- Ecommerce is disabled. Do not offer or discuss products, orders, revenue, coupons, shipping, or checkout.";
+            $context = "You are the admin AI assistant. You have full access to enabled site data.\n\n"
                 . "Site data:\n"
                 . "- Total users: {$userCount}\n"
-                . "- Total orders: {$orderCount} (confirmed: " . count($confirmedOrders) . ", pending: " . count($pendingOrders) . ")\n"
-                . "- Products: {$productCount}\n"
                 . "- Consultants: {$consultantCount}\n"
                 . "- Appointments: {$appointmentCount}\n"
                 . "- Support tickets: {$ticketCount}\n"
-                . "- Total revenue: ₹" . number_format($totalRevenue, 2) . "\n"
-                . "- Confirmed revenue: ₹" . number_format($confirmedRevenue, 2) . "\n"
-                . "- Pending revenue (unconfirmed): ₹" . number_format($pendingRevenue, 2) . "\n"
-                . "- Average order value: ₹" . number_format($avgOrderValue, 2) . "\n"
-                . "- Top 5 products by units sold:" . $topProductsStr . "\n"
-                . "- Top 5 customers by revenue:" . $topUsersStr
+                . $commerceContext
                 . ($attachments['context'] !== '' ? "\n\nDocuments the owner attached with @:" . $attachments['context'] : '')
                 . "\n\nUse this data to answer. Never repeat it back unless asked for it. "
                 . "Never list customer email addresses unless the question is specifically about customers.";
@@ -678,6 +697,7 @@ final class AdminController extends BaseController {
         $this->jsonResponse(['content' => trim($result)]);
     }
     public function taxReport(): void{
+        $this->requireModule('shop');
         $orders = (new OrderService())->all();
         $orders = array_values(array_filter($orders, fn($o) => !empty($o['invoice_number'])));
         $from = (string)($_GET['from'] ?? '');

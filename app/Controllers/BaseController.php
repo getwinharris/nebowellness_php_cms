@@ -42,7 +42,14 @@ abstract class BaseController {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $key = $action . ':' . $ip;
         $limiter = new \App\Services\RateLimiter();
-        if (!$limiter->consume($key, $maxAttempts, $windowSeconds)) {
+        try { $allowed = $limiter->consume($key, $maxAttempts, $windowSeconds); }
+        catch (\Throwable $error) {
+            error_log('Rate limiter storage failure: ' . $error->getMessage());
+            if ($this->isApiRequest) $this->jsonResponse(['error' => 'Request protection is temporarily unavailable. Please try again.'], 503);
+            $this->flash('Request protection is temporarily unavailable. Please try again.', 'error');
+            $this->redirect($_SERVER['HTTP_REFERER'] ?? '/');
+        }
+        if (!$allowed) {
             if ($this->isApiRequest) {
                 $this->jsonResponse(['error' => 'Too many attempts. Please try again later.'], 429);
             }

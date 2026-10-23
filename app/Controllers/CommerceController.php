@@ -4,6 +4,10 @@ use App\Services\{CartService,ProductService,SecretService,PaymentService,Databa
 use App\Integrations\Razorpay\RazorpayClient;
 use App\Integrations\Stripe\StripeClient;
 final class CommerceController extends BaseController {
+    public function __construct() {
+        $this->requireModule('shop');
+    }
+
     public function addToCart(): void {
         $this->validateCsrf();
         $slug = trim($_POST['slug'] ?? '');
