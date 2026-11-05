@@ -24,13 +24,17 @@ namespace App\Services;
  */
 final class AgentToolRegistry
 {
+    private array $modules;
+
     public function __construct(
         private DatabaseService $store = new DatabaseService(),
         private ?ProductService $products = null,
-        private ?OrderService $orders = null
+        private ?OrderService $orders = null,
+        ?array $modules = null
     ) {
         $this->products ??= new ProductService($this->store);
         $this->orders ??= new OrderService($this->store);
+        $this->modules = $modules ?? (new SettingsService($this->store))->modules();
     }
 
     /**
@@ -40,7 +44,7 @@ final class AgentToolRegistry
      */
     public function declarations(): array
     {
-        return [
+        $tools = [
             [
                 'name' => 'find_order',
                 'description' => 'Look up one order by its id, or the most recent orders for a customer email. '
@@ -124,6 +128,15 @@ final class AgentToolRegistry
                 ],
             ],
         ];
+        if (empty($this->modules['shop'])) {
+            $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], [
+                'find_order', 'product_status', 'sales_summary', 'coupon_status',
+            ], true)));
+        }
+        if (empty($this->modules['campaigns'])) {
+            $tools = array_values(array_filter($tools, static fn(array $tool): bool => $tool['name'] !== 'campaign_pages'));
+        }
+        return $tools;
     }
 
     public function has(string $name): bool
@@ -143,6 +156,7 @@ final class AgentToolRegistry
      */
     public function run(string $name, array $args): array
     {
+        if (!$this->has($name)) return ['error' => 'That feature is currently disabled.'];
         try {
             return match ($name) {
                 'find_order' => $this->findOrder($args),

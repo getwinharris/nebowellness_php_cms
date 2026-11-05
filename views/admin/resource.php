@@ -1,4 +1,5 @@
 <?php $listFields = $collection === 'campaign_pages' ? ['title','slug','status','form_title'] : $fields; ?>
+<?php $showFormData = !empty($formDataColumn); ?>
 <div class="admin-card">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-sm); margin-bottom:var(--space-lg);">
         <h2 style="margin:0; font-size:1.1rem;"><?= e($title) ?></h2>
@@ -11,15 +12,16 @@
         <div class="admin-form__row" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));">
             <?php foreach($fields as $field): ?>
                 <label><?= e(ucwords(str_replace('_',' ',$field))) ?>
-                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description','form_intro','form_success'], true)): ?>
+                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description','form_intro','form_success','form_fields'], true)): ?>
                         <textarea name="<?= e($field) ?>" id="field-<?= e($field) ?>" rows="<?= $field === 'body' ? 10 : 3 ?>"></textarea>
+                        <?php if ($field === 'form_fields'): ?><small>JSON list, for example: [{"key":"preferred_time","label":"Preferred time","type":"select","required":true,"options":["Morning","Evening"]}]</small><?php endif; ?>
                     <?php elseif(in_array($field, ['form_phone','form_message'], true)): ?>
                         <select name="<?= e($field) ?>" id="field-<?= e($field) ?>">
                             <option value="optional">Optional</option><option value="required">Required</option><option value="hidden">Hidden</option>
                         </select>
-                    <?php elseif($field === 'active'): ?>
+                    <?php elseif(in_array($field, ['active','form_require_otp'], true)): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
-                            <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" checked> Active
+                            <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" <?= $field === 'active' ? 'checked' : '' ?>> <?= $field === 'active' ? 'Active' : 'Require email OTP before submission' ?>
                         </label>
                     <?php elseif($field === 'free_shipping'): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
@@ -102,10 +104,10 @@
 <div class="admin-card">
     <div class="table-wrap">
         <table>
-            <thead><tr><?php foreach($listFields as $field): ?><th><?= e(ucwords(str_replace('_',' ',$field))) ?></th><?php endforeach; ?><th>Actions</th></tr></thead>
+            <thead><tr><?php foreach($listFields as $field): ?><th><?= e(ucwords(str_replace('_',' ',$field))) ?></th><?php endforeach; ?><?php if($showFormData): ?><th>Campaign answers</th><?php endif; ?><th>Actions</th></tr></thead>
             <tbody>
             <?php if(empty($items)): ?>
-                <tr><td colspan="<?= count($listFields) + 1 ?>" class="text-center" style="color:var(--color-text-muted); padding:var(--space-2xl);">No records yet. Add one using the form above.</td></tr>
+                <tr><td colspan="<?= count($listFields) + ($showFormData ? 2 : 1) ?>" class="text-center" style="color:var(--color-text-muted); padding:var(--space-2xl);">No records yet. Add one using the form above.</td></tr>
             <?php else: ?>
                 <?php foreach($items as $item): ?>
                     <tr>
@@ -126,6 +128,21 @@
                                 <?php endif; ?>
                             </td>
                         <?php endforeach; ?>
+                        <?php if($showFormData): ?>
+                            <?php $formAnswers = is_array($item['form_data'] ?? null) ? $item['form_data'] : []; ?>
+                            <td style="max-width:260px; white-space:normal;">
+                                <?php if($formAnswers === []): ?>
+                                    <span style="color:var(--color-text-muted);">—</span>
+                                <?php else: ?>
+                                    <dl style="margin:0;">
+                                        <?php foreach($formAnswers as $answerKey => $answerValue): ?>
+                                            <dt style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; color:var(--color-text-muted);"><?= e(ucwords(str_replace('_',' ',(string)$answerKey))) ?></dt>
+                                            <dd style="margin:0 0 var(--space-2xs); word-break:break-word;"><?= e(is_scalar($answerValue) ? (string)$answerValue : (string)json_encode($answerValue)) ?></dd>
+                                        <?php endforeach; ?>
+                                    </dl>
+                                <?php endif; ?>
+                            </td>
+                        <?php endif; ?>
                         <td>
                             <div style="display:flex; gap:var(--space-xs);">
                                 <button type="button" class="btn btn-sm btn-ghost edit-item" data-item='<?= e(json_encode(array_merge($item, ['__id' => $item['id'] ?? '', '__revision' => \App\Services\ResourceService::revision($item)]), JSON_HEX_APOS | JSON_INVALID_UTF8_SUBSTITUTE)) ?>'>
@@ -161,7 +178,7 @@ document.querySelectorAll('.edit-item').forEach(button => {
                 if (el.type === 'checkbox') {
                     el.checked = !!item['<?= e($field) ?>'];
                 } else {
-                    el.value = Array.isArray(item['<?= e($field) ?>']) ? item['<?= e($field) ?>'].join("\n") : (item['<?= e($field) ?>'] ?? '');
+                    el.value = Array.isArray(item['<?= e($field) ?>']) ? (<?= json_encode($field === 'form_fields') ?> ? JSON.stringify(item['<?= e($field) ?>'], null, 2) : item['<?= e($field) ?>'].join("\n")) : (item['<?= e($field) ?>'] ?? '');
                 }
             }
         <?php endforeach; ?>

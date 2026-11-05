@@ -28,7 +28,7 @@ final class AuthController extends BaseController {
     session_write_close();
    if ($role === 'admin') { $this->redirect('/admin'); return; }
    if ($role === 'consultant') { $_SESSION = []; $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
-    $this->redirect('/account/dashboard');
+    $this->redirect(module_on('shop') ? '/account/dashboard' : '/');
   }
  public function logout(): void {
   $_SESSION = [];
@@ -51,7 +51,7 @@ final class AuthController extends BaseController {
  private function post(string $url,array $data): array { $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query($data),CURLOPT_TIMEOUT=>10]); $body=curl_exec($ch); curl_close($ch); return json_decode($body,true)?:[]; }
  private function get(string $url,string $token): array { $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_HTTPHEADER=>['Authorization: Bearer '.$token],CURLOPT_TIMEOUT=>10]); $body=curl_exec($ch); curl_close($ch); return json_decode($body,true)?:[]; }
   public function register(): void {
-     if (!empty($_SESSION['user'])) $this->redirect((($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : '/account/dashboard');
+     if (!empty($_SESSION['user'])) $this->redirect((($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : (module_on('shop') ? '/account/dashboard' : '/'));
      $this->seoKey = 'register';
      $secrets = (new \App\Services\SecretService())->all();
      $this->render('public/register', [
@@ -121,7 +121,7 @@ final class AuthController extends BaseController {
             $_SESSION['user'] = ['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'consultant_slug'=>$u['consultant_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)];
             $this->flash('Signed in.','success');
             session_write_close();
-            $this->redirect(($u['role'] ?? '') === 'customer' ? '/account/dashboard' : '/');
+            $this->redirect(($u['role'] ?? '') === 'customer' && module_on('shop') ? '/account/dashboard' : '/');
         }
     }
     $this->flash('Invalid credentials.','error');

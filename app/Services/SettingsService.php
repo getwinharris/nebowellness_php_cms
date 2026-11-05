@@ -8,6 +8,7 @@ final class SettingsService {
     public const MODULES = [
         'shop'    => 'Ecommerce',
         'blog'    => 'Blog',
+        'campaigns' => 'Campaign landing pages',
     ];
 
     /** Request-level memo. DatabaseService has no caching and every read is a full table scan. */

@@ -32,12 +32,13 @@ final class AgentContextService {
     }
 
     private function siteContext(): array {
-        $campaigns = array_map(static fn(array $page): array => [
+        $modules = (new SettingsService($this->store))->modules();
+        $campaigns = empty($modules['campaigns']) ? [] : array_map(static fn(array $page): array => [
             'title' => $page['title'],
             'summary' => mb_substr((string)($page['summary'] ?? ''), 0, 400),
             'url' => '/campaigns/' . $page['slug'],
         ], array_slice((new CampaignPageService($this->store))->published(), 0, 12));
-        $products = array_map(fn($item) => [
+        $products = empty($modules['shop']) ? [] : array_map(fn($item) => [
             'name' => $item['name'] ?? '',
             'slug' => $item['slug'] ?? '',
             'url' => '/product/' . ($item['slug'] ?? ''),
@@ -50,15 +51,12 @@ final class AgentContextService {
         // Visible only, and priced through the offer window: the support bot must never
         // recommend a product the shopper cannot buy, or quote an offer that has ended.
         ], array_slice((new ProductService($this->store))->visible(), 0, 20));
+        $pages = ['contact' => '/contact'];
+        if (!empty($modules['shop'])) $pages += ['shop'=>'/shop','cart'=>'/cart','checkout'=>'/checkout','orders'=>'/account/dashboard/orders'];
+        if (!empty($modules['campaigns'])) $pages['campaigns'] = '/campaigns';
+        if (!empty($modules['blog'])) $pages['blog'] = '/blog';
         return [
-            'pages' => [
-                'shop' => '/shop',
-                'cart' => '/cart',
-                'checkout' => '/checkout',
-                'contact' => '/contact',
-                'campaigns' => '/campaigns',
-                'orders' => '/account/dashboard/orders',
-            ],
+            'pages' => $pages,
             'campaigns' => $campaigns,
             'products' => $products,
             'support_scope' => 'Answer only from this JSON context and public site links. Do not access tools, files, admin data, or other users.',

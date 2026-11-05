@@ -7,6 +7,10 @@ final class AccountController extends BaseController {
         $this->seoKey = 'account';
     }
 
+    // A customer's order history is not a shopping flow. These pages must stay
+    // reachable after Ecommerce is switched off — the order and invoice are the only
+    // record of a completed purchase, and login lands here. New shopping flows
+    // (shop, cart, checkout) remain gated in PublicController/CommerceController.
     public function dashboard(): void { $this->redirect('/account/dashboard/orders'); }
     public function legacyOrders(): void { $this->redirect('/account/dashboard/orders'); }
     public function legacyBookings(): void { $this->redirect('/account/dashboard/orders'); }

@@ -3,9 +3,9 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 115,
+        "routes": 116,
         "controllers": 12,
-        "services": 48,
+        "services": 49,
         "views": 43,
         "collections": 23
     },
@@ -1030,6 +1030,18 @@
             ]
         },
         {
+            "method": "POST",
+            "path": "/forms/email-otp",
+            "name": "forms.email-otp",
+            "controller": "PublicController@sendEmailOtp",
+            "view": "public/contact",
+            "services": [
+                "EmailOtpService",
+                "SmtpMailer",
+                "SecretService"
+            ]
+        },
+        {
             "method": "GET",
             "path": "/help/{slug}",
             "name": "help.show",
@@ -1315,6 +1327,7 @@
         "CourierService",
         "DatabaseService",
         "DocsMapService",
+        "EmailOtpService",
         "EnvService",
         "ImageOptimizerService",
         "KnowledgeGraphService",

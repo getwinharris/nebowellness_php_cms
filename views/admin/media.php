@@ -6,7 +6,7 @@
             <label>Context
                 <select name="context">
                     <option value="shared">Shared</option>
-                    <option value="products">Products</option>
+                    <?php if (module_on('shop')): ?><option value="products">Products</option><?php endif; ?>
                     <option value="campaigns">Campaigns</option>
                     <option value="consultants">Consultants</option>
                 </select>

@@ -5,14 +5,16 @@ use App\Services\{ProductService,CategoryService};
 
 final class ApiController extends BaseController {
     public function index(): void {
+        $shopEnabled = module_on('shop');
+        $endpoints = [];
+        if ($shopEnabled) $endpoints = ['/api/shop', '/api/categories', '/api/product/{slug}'];
         $this->jsonResponse(['success' => true, 'endpoints' => [
-            '/api/shop',
-            '/api/categories',
-            '/api/product/{slug}',
+            ...$endpoints,
         ]]);
     }
 
     public function shop(): void {
+        $this->requireModule('shop');
         $service = new ProductService();
         // The public API is a storefront surface: hidden products stay out of it.
         $products = $service->visible();
@@ -21,11 +23,13 @@ final class ApiController extends BaseController {
     }
 
     public function categories(): void {
+        $this->requireModule('shop');
         $categories = (new CategoryService())->all();
         $this->jsonResponse(['success' => true, 'categories' => $categories]);
     }
 
     public function product(string $slug): void {
+        $this->requireModule('shop');
         $service = new ProductService();
         $products = $service->visible();
         $product = null;

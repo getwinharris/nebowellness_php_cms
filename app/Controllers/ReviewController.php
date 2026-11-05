@@ -26,6 +26,7 @@ final class ReviewController extends BaseController {
     }
 
     public function saveProduct(): void {
+        $this->requireModule('shop');
         $this->validateCsrf();
         try {
             (new ReviewService())->saveProductReview([

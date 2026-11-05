@@ -1,9 +1,14 @@
+<?php $__campaignsEnabled = !empty($campaignsEnabled); ?>
 <div class="admin-card">
     <div class="agent-head">
         <div>
             <h2 class="agent-head__title">AI Agent</h2>
             <p class="agent-head__sub">
-                Ask about users, orders, revenue, top customers or products, or paste content to draft a blog post.
+                <?= !empty($shopEnabled)
+                    ? 'Ask about users, orders, revenue, top customers or products, or paste content to draft a blog post.'
+                    : ($__campaignsEnabled
+                        ? 'Ask about users, clinic activity, campaigns, support enquiries, or paste content to draft a blog post.'
+                        : 'Ask about users, clinic activity, support enquiries, or paste content to draft a blog post.') ?>
             </p>
         </div>
         <div class="agent-head__meta">
@@ -27,13 +32,24 @@
         <div class="agent-row agent-row--bot">
             <div class="agent-avatar agent-avatar--bot" aria-hidden="true">AI</div>
             <div class="agent-bubble agent-bubble--bot">
-                Ask me about users, revenue, top customers or products — or give me content and I'll draft a blog post.
+                <?= !empty($shopEnabled)
+                    ? "Ask me about users, revenue, top customers or products — or give me content and I'll draft a blog post."
+                    : ($__campaignsEnabled
+                        ? "Ask me about users, clinic activity, campaigns or support enquiries — or give me content and I'll draft a blog post."
+                        : "Ask me about users, clinic activity or support enquiries — or give me content and I'll draft a blog post.") ?>
             </div>
         </div>
     </div>
 
     <div class="agent-suggestions" id="agent-suggestions">
-        <?php foreach (['Which products sell best?', 'What is the revenue this month?', '/create-blog benefits of rudraksha', '/add-product brass oil lamp'] as $__s): ?>
+        <?php $__suggestions = !empty($shopEnabled)
+            ? ['Which products sell best?', 'What is the revenue this month?', '/create-blog benefits of gut health', '/add-product wellness guide']
+            : array_values(array_filter([
+                'How many support enquiries are open?',
+                $__campaignsEnabled ? 'Summarise current campaigns' : null,
+                '/create-blog benefits of gut health',
+            ])); ?>
+        <?php foreach ($__suggestions as $__s): ?>
             <button type="button" class="agent-suggestion" data-q="<?= e($__s) ?>"><?= e($__s) ?></button>
         <?php endforeach; ?>
     </div>
@@ -57,7 +73,7 @@
     </div>
     <p class="agent-hint">
         Enter to send · Shift+Enter for a new line · <code>@terms</code> or <code>@filename</code> to attach ·
-        <code>/create-blog</code> and <code>/add-product</code> to draft
+        <code>/create-blog</code><?= !empty($shopEnabled) ? ' and <code>/add-product</code>' : '' ?> to draft
     </p>
 
     <?php // Uploads here land in the media library, the same as every other admin upload. ?>
