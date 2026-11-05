@@ -1,5 +1,5 @@
 <div class="editorial-stack" data-editorial-stack>
-<section class="editorial-stack-card home-hero nebo-home-hero" style="--stack-order:1" data-stack-card>
+<section class="editorial-stack-card home-hero nebo-home-hero" style="--stack-order:1" data-stack-card data-nebo-chapter="arrival">
     <div class="container home-hero-inner">
         <div class="hero-copy">
             <span class="eyebrow">Integrative Health · Natural Healing · Lifestyle Medicine</span>
@@ -14,16 +14,17 @@
 </section>
 
 <!-- About Nebo Foundation -->
-<section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card>
+<section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card data-nebo-chapter="foundation">
     <div class="container">
         <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.png" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
         <div class="section-header">
+            <span class="eyebrow serif-accent">About Us</span>
             <h2 class="section-title">The Nebo Foundation</h2>
             <p class="lede">Nebo Lifestyle Clinic is a flagship initiative of the Nebo Foundation, dedicated to making integrative, root-cause healthcare accessible and sustainable.</p>
         </div>
         <div style="max-width:900px; margin:0 auto;">
             <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Vision</h3>
-            <p>To transform how people approach chronic disease and wellness, combining the wisdom of naturopathy with the precision of functional medicine, all delivered through compassionate, personalized care.</p>
+            <p>To transform how people approach chronic disease and wellness—by combining the wisdom of naturopathy with the precision of functional medicine, all delivered through compassionate, personalized care.</p>
 
             <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Pillars</h3>
             <ul style="list-style:none; padding:0; margin:var(--space-md) 0;">
@@ -36,9 +37,10 @@
 </section>
 
 <!-- Focus Areas -->
-<section class="editorial-stack-card section" style="--stack-order:3" data-stack-card>
+<section class="editorial-stack-card section" style="--stack-order:3" data-stack-card data-nebo-chapter="focus">
     <div class="container">
         <div class="section-header">
+            <span class="eyebrow serif-accent">What We Treat</span>
             <h2 class="section-title">Our Focus Areas</h2>
         </div>
         <div class="value-strip">
@@ -74,28 +76,11 @@
     </div>
 </section>
 
-<!-- One question before you book: the page's only authored silence. -->
-<section class="editorial-stack-card section scap-question" style="--stack-order:4" data-stack-card data-sc-act="flow" data-nebo-question aria-labelledby="scap-question-title">
-    <div class="container">
-        <div class="scap-question__lead" aria-hidden="true"></div>
-        <div class="scap-question__inner" data-sc-in data-sc-stagger="80">
-            <h2 class="section-title scap-question__title" id="scap-question-title">One question before you book</h2>
-            <p class="scap-question__prompt">Which area would you like to understand first?</p>
-            <ul class="scap-answers">
-                <li><a class="scap-answer" href="/contact?focus=gut#contact-form" data-nebo-answer="gut"><span>Gut Health</span><span class="scap-answer__mark" aria-hidden="true" data-nebo-answer-mark>→</span></a></li>
-                <li><a class="scap-answer" href="/contact?focus=metabolic#contact-form" data-nebo-answer="metabolic"><span>Metabolic Diseases</span><span class="scap-answer__mark" aria-hidden="true" data-nebo-answer-mark>→</span></a></li>
-                <li><a class="scap-answer" href="/contact?focus=lifestyle#contact-form" data-nebo-answer="lifestyle"><span>Lifestyle Transformation</span><span class="scap-answer__mark" aria-hidden="true" data-nebo-answer-mark>→</span></a></li>
-                <li><a class="scap-answer" href="/contact?focus=fertility#contact-form" data-nebo-answer="fertility"><span>Maternal &amp; Fertility Wellness</span><span class="scap-answer__mark" aria-hidden="true" data-nebo-answer-mark>→</span></a></li>
-            </ul>
-            <p class="scap-question__note">Choose one and we will start there.</p>
-        </div>
-    </div>
-</section>
-
 <!-- Why Choose Nebo -->
-<section class="editorial-stack-card section section--warm" style="--stack-order:5" data-stack-card>
+<section class="editorial-stack-card section section--warm" style="--stack-order:4" data-stack-card data-nebo-chapter="confidence">
     <div class="container">
         <div class="section-header">
+            <span class="eyebrow serif-accent">Why Nebo</span>
             <h2 class="section-title">Why Choose Nebo Wellness?</h2>
         </div>
         <div class="value-strip" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
@@ -116,11 +101,12 @@
 </section>
 
 <!-- Programs -->
-<section class="editorial-stack-card section" id="programs" style="--stack-order:6" data-stack-card data-sc-act="flow">
+<section class="editorial-stack-card section" id="programs" style="--stack-order:5" data-stack-card data-nebo-chapter="programs">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
-                <h2 class="section-title" data-sc-cue="0.02" data-sc-kinetic="lines">Our Programs</h2>
+                <span class="eyebrow serif-accent">Our Services</span>
+                <h2 class="section-title">Our Programs</h2>
                 <p class="lede">Personalised, practitioner-led pathways designed around your health goals.</p>
             </div>
             <div class="rail-controls" aria-label="Program slides">
@@ -152,10 +138,11 @@
 </section>
 
 <!-- Team -->
-<section class="editorial-stack-card section section--alt" style="--stack-order:7" data-stack-card>
+<section class="editorial-stack-card section section--alt" style="--stack-order:6" data-stack-card data-nebo-chapter="team">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
+                <span class="eyebrow serif-accent">Expert Care</span>
                 <h2 class="section-title">Meet Our Team</h2>
                 <p class="lede">A multidisciplinary team of naturopathy and wellness practitioners.</p>
             </div>
@@ -188,12 +175,13 @@
 </section>
 
 <!-- Client-provided testimonials -->
-<section class="editorial-stack-card section" style="--stack-order:8" data-stack-card data-sc-act="flow">
+<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card data-nebo-chapter="stories">
     <div class="container">
         <div class="section-header">
+            <span class="eyebrow serif-accent">Client Stories</span>
             <h2 class="section-title">Experiences shared by Nebo clients</h2>
         </div>
-        <div class="nebo-testimonials" aria-label="Client testimonials" data-sc-reveal="up" data-sc-reveal-at="0.15 0.55">
+        <div class="nebo-testimonials" aria-label="Client testimonials">
             <figure class="nebo-testimonial value-card reveal">
                 <blockquote>“After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again.”</blockquote>
                 <figcaption>Priya S. <span>Bengaluru</span></figcaption>
@@ -207,15 +195,14 @@
 </section>
 
 <!-- Contact CTA -->
-<section class="editorial-stack-card section section--warm" style="--stack-order:9" data-stack-card>
+<section class="editorial-stack-card section section--warm" style="--stack-order:8" data-stack-card data-nebo-chapter="resolve">
     <div class="container">
         <div class="consultation-invitation">
             <div class="consultation-invitation__copy">
-                <p class="scap-focus-chip" data-nebo-focus-chip aria-live="polite"></p>
                 <span class="eyebrow serif-accent">Your next chapter</span>
                 <h2>Begin your journey<br>to better wellbeing.</h2>
                 <p>Share your health goals with Nebo. Our team will help you understand the programs, meet the right practitioner, and choose a practical next step.</p>
-                <a class="btn btn-primary" href="/contact#contact-form" data-nebo-cta><span data-nebo-cta-label>Book Your Consultation</span> <span aria-hidden="true">↗</span></a>
+                <a class="btn btn-primary" href="/contact#contact-form">Request a consultation <span aria-hidden="true">↗</span></a>
             </div>
             <ol class="consultation-invitation__steps" aria-label="What happens next">
                 <li><span aria-hidden="true">01</span><div><h3>Tell us what matters</h3><p>Let us know your goals and the support you are looking for.</p></div></li>

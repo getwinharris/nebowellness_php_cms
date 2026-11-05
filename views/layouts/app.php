@@ -9,16 +9,6 @@
 <meta name="robots" content="<?= e($metaRobots ?? 'index, follow') ?>">
 <?php $__seoKeywords = $seo['keywords'] ?? ''; if ($__seoKeywords !== ''): ?><meta name="keywords" content="<?= e($__seoKeywords) ?>"><?php endif; ?>
 <?php
-// Scroll-craft pilot: PublicController::home() flags the one page that loads the
-// motion layer. Every other page ships none of these assets.
-$__scrollcraft = !empty($scrollcraft ?? false);
-$__scVersion = static function (string $relative): int {
-    $path = app_path($relative);
-    return is_file($path) ? (int) filemtime($path) : 0;
-};
-?>
-<?php if ($__scrollcraft): ?><script>document.documentElement.classList.add('sc-js');</script><?php endif; ?>
-<?php
 $__settings = (new \App\Services\SettingsService())->public();
 $__modules = (new \App\Services\SettingsService())->modules();
 $__logo = (string)($__settings['logo_url'] ?? '');
@@ -240,14 +230,8 @@ nav.open{display:flex}
 echo $critical;
 ?>
 </style>
-<?php if ($__scrollcraft): ?><link rel="stylesheet" href="/assets/vendor/scrollcraft/scrollcraft.css?v=<?= $__scVersion('assets/vendor/scrollcraft/scrollcraft.css') ?>"><?php endif; ?>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-status.js') ?>" defer></script>
-<?php if ($__scrollcraft): ?>
-<script src="/assets/vendor/scrollcraft/scrollcraft.js?v=<?= $__scVersion('assets/vendor/scrollcraft/scrollcraft.js') ?>" defer></script>
-<script>document.addEventListener('DOMContentLoaded',function(){if(!window.ScrollCraft||typeof window.ScrollCraft.mount!=='function'){document.documentElement.classList.remove('sc-js');return;}try{window.ScrollCraft.mount(document.body);}catch(error){document.documentElement.classList.remove('sc-js');}});</script>
-<script src="/assets/nebo-focus.js?v=<?= $__scVersion('assets/nebo-focus.js') ?>" defer></script>
-<?php endif; ?>
 <style>
 <?php
 $__palette_semantic = [
@@ -267,7 +251,6 @@ $__palette_css .= '}';
 echo $__palette_css;
 ?>
 </style>
-<?php if ($__scrollcraft): ?><link rel="stylesheet" href="/assets/css/scrollcraft-nebo.css?v=<?= $__scVersion('assets/css/scrollcraft-nebo.css') ?>"><?php endif; ?>
 <style>
 .document-page__header{max-width:760px;margin:0 auto var(--space-2xl)}.document-page__content{max-width:760px;margin:0 auto;padding:clamp(24px,4vw,48px);border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-white);box-shadow:var(--shadow-sm)}.document-page__content h2{margin:2rem 0 .65rem;color:var(--color-maroon);font-size:1.35rem}.document-page__content h2:first-child{margin-top:0}.document-page__content p,.document-page__content li{color:var(--color-text-muted);line-height:1.7}.document-page__content ul{padding-left:1.25rem}.document-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-md)}.document-index__item{display:grid;gap:var(--space-xs);padding:var(--space-lg);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white);color:inherit;text-decoration:none;box-shadow:var(--shadow-sm);transition:transform var(--transition-base),box-shadow var(--transition-base),border-color var(--transition-base)}.document-index__item:hover{transform:translateY(-3px);border-color:var(--color-gold);box-shadow:var(--shadow-md)}.document-index__item h2{margin:0;color:var(--color-maroon);font-size:1.15rem}.document-index__item p{margin:0;color:var(--color-text-muted);line-height:1.55}.document-index__link{color:var(--color-maroon);font-weight:700;font-size:.82rem;margin-top:var(--space-sm)}
 .blog-page{padding:var(--space-3xl) 0}.blog-page .container{max-width:1180px}.page-title{margin:0 0 var(--space-lg);font-size:clamp(1.8rem,4vw,2.6rem);color:var(--color-ink)}.blog-categories{display:flex;flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-2xl)}.blog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-xl)}.blog-card{overflow:hidden;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white);box-shadow:var(--shadow-sm)}.blog-card__body{display:grid;gap:var(--space-sm);padding:var(--space-lg)}.blog-card__title{margin:0;font-size:1.15rem;line-height:1.3}.blog-card__title a{color:var(--color-maroon)}.blog-card__excerpt{margin:0;color:var(--color-text-muted);line-height:1.55}.blog-card__date{font-size:.8rem;color:var(--color-text-soft)}.blog-card__category{font-size:.72rem;color:var(--color-maroon);font-weight:700;text-transform:uppercase}
@@ -586,7 +569,7 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
     if(footer){
         footer.classList.add('editorial-stack-card','landing-footer-card');
         footer.setAttribute('data-stack-card','');
-        footer.style.setProperty('--stack-order','10');
+        footer.style.setProperty('--stack-order','9');
         stack.appendChild(footer);
     }
     var cards=Array.from(stack.querySelectorAll('[data-stack-card]'));
