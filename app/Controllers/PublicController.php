@@ -10,7 +10,7 @@ final class PublicController extends BaseController {
         try { $consultants = (new ConsultantService())->all(); }
         catch (\Throwable $error) { error_log('Home consultant profiles unavailable: ' . $error->getMessage()); }
         if ($consultants === []) $consultants = $this->defaultConsultants();
-        $this->render('public/home', ['consultants' => $consultants]);
+        $this->render('public/home', ['consultants' => $consultants, 'scrollcraft' => true]);
     }
 
     /**
