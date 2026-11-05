@@ -1,4 +1,5 @@
 <?php $listFields = $collection === 'campaign_pages' ? ['title','slug','status','form_title'] : $fields; ?>
+<?php $showFormData = !empty($formDataColumn); ?>
 <div class="admin-card">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:var(--space-sm); margin-bottom:var(--space-lg);">
         <h2 style="margin:0; font-size:1.1rem;"><?= e($title) ?></h2>
@@ -103,10 +104,10 @@
 <div class="admin-card">
     <div class="table-wrap">
         <table>
-            <thead><tr><?php foreach($listFields as $field): ?><th><?= e(ucwords(str_replace('_',' ',$field))) ?></th><?php endforeach; ?><th>Actions</th></tr></thead>
+            <thead><tr><?php foreach($listFields as $field): ?><th><?= e(ucwords(str_replace('_',' ',$field))) ?></th><?php endforeach; ?><?php if($showFormData): ?><th>Campaign answers</th><?php endif; ?><th>Actions</th></tr></thead>
             <tbody>
             <?php if(empty($items)): ?>
-                <tr><td colspan="<?= count($listFields) + 1 ?>" class="text-center" style="color:var(--color-text-muted); padding:var(--space-2xl);">No records yet. Add one using the form above.</td></tr>
+                <tr><td colspan="<?= count($listFields) + ($showFormData ? 2 : 1) ?>" class="text-center" style="color:var(--color-text-muted); padding:var(--space-2xl);">No records yet. Add one using the form above.</td></tr>
             <?php else: ?>
                 <?php foreach($items as $item): ?>
                     <tr>
@@ -127,6 +128,21 @@
                                 <?php endif; ?>
                             </td>
                         <?php endforeach; ?>
+                        <?php if($showFormData): ?>
+                            <?php $formAnswers = is_array($item['form_data'] ?? null) ? $item['form_data'] : []; ?>
+                            <td style="max-width:260px; white-space:normal;">
+                                <?php if($formAnswers === []): ?>
+                                    <span style="color:var(--color-text-muted);">—</span>
+                                <?php else: ?>
+                                    <dl style="margin:0;">
+                                        <?php foreach($formAnswers as $answerKey => $answerValue): ?>
+                                            <dt style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; color:var(--color-text-muted);"><?= e(ucwords(str_replace('_',' ',(string)$answerKey))) ?></dt>
+                                            <dd style="margin:0 0 var(--space-2xs); word-break:break-word;"><?= e(is_scalar($answerValue) ? (string)$answerValue : (string)json_encode($answerValue)) ?></dd>
+                                        <?php endforeach; ?>
+                                    </dl>
+                                <?php endif; ?>
+                            </td>
+                        <?php endif; ?>
                         <td>
                             <div style="display:flex; gap:var(--space-xs);">
                                 <button type="button" class="btn btn-sm btn-ghost edit-item" data-item='<?= e(json_encode(array_merge($item, ['__id' => $item['id'] ?? '', '__revision' => \App\Services\ResourceService::revision($item)]), JSON_HEX_APOS | JSON_INVALID_UTF8_SUBSTITUTE)) ?>'>

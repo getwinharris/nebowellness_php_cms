@@ -7,12 +7,15 @@ final class AccountController extends BaseController {
         $this->seoKey = 'account';
     }
 
-    public function dashboard(): void { $this->requireModule('shop'); $this->redirect('/account/dashboard/orders'); }
-    public function legacyOrders(): void { $this->requireModule('shop'); $this->redirect('/account/dashboard/orders'); }
-    public function legacyBookings(): void { $this->requireModule('shop'); $this->redirect('/account/dashboard/orders'); }
+    // A customer's order history is not a shopping flow. These pages must stay
+    // reachable after Ecommerce is switched off — the order and invoice are the only
+    // record of a completed purchase, and login lands here. New shopping flows
+    // (shop, cart, checkout) remain gated in PublicController/CommerceController.
+    public function dashboard(): void { $this->redirect('/account/dashboard/orders'); }
+    public function legacyOrders(): void { $this->redirect('/account/dashboard/orders'); }
+    public function legacyBookings(): void { $this->redirect('/account/dashboard/orders'); }
 
     public function orders(): void {
-        $this->requireModule('shop');
         $userEmail = $_SESSION['user']['email'] ?? '';
         $orders = (new OrderService())->all();
         if ($userEmail !== '') {
@@ -38,7 +41,6 @@ final class AccountController extends BaseController {
      * ?placed=1, which is the first time the customer sees what they actually bought.
      */
     public function order(string $orderId): void {
-        $this->requireModule('shop');
         $order = $this->ownedOrder($orderId);
         if (!$order) { $this->renderNotFound(); return; }
         $justPlaced = isset($_GET['placed']);
@@ -57,7 +59,6 @@ final class AccountController extends BaseController {
     }
 
     public function invoice(string $orderId): void {
-        $this->requireModule('shop');
         $userEmail = $_SESSION['user']['email'] ?? '';
         $orders = (new OrderService())->all();
         $order = null;

@@ -4,11 +4,11 @@ use App\Services\{CartService,ProductService,SecretService,PaymentService,Databa
 use App\Integrations\Razorpay\RazorpayClient;
 use App\Integrations\Stripe\StripeClient;
 final class CommerceController extends BaseController {
-    public function __construct() {
-        $this->requireModule('shop');
-    }
-
+    // A constructor-wide gate 404'd /payment/verify and the Stripe return after the
+    // customer had already paid, so the order was never persisted or confirmed. Gate
+    // the shopping flows individually instead; the settlement methods stay reachable.
     public function addToCart(): void {
+        $this->requireModule('shop');
         $this->validateCsrf();
         $slug = trim($_POST['slug'] ?? '');
         $qty = max(1, min(99, (int)($_POST['qty'] ?? 1)));
@@ -51,6 +51,7 @@ final class CommerceController extends BaseController {
         $this->redirect($redirect);
     }
     public function removeFromCart(): void {
+        $this->requireModule('shop');
         $this->validateCsrf();
         $slug = trim($_POST['slug'] ?? '');
         if (!empty($_SESSION['cart'])) {
@@ -60,6 +61,7 @@ final class CommerceController extends BaseController {
         $this->redirect('/cart');
     }
     public function updateCart(): void {
+        $this->requireModule('shop');
         $this->validateCsrf();
         $slug = trim($_POST['slug'] ?? '');
         $action = $_POST['action'] ?? '';
@@ -103,6 +105,7 @@ final class CommerceController extends BaseController {
         return ['slug' => $slug, 'quantity' => $quantity, 'cart_count' => $cartCount, 'summary' => $summary];
     }
     public function createOrder(): void {
+        $this->requireModule('shop');
         $this->isApiRequest = true;
         $this->validateCsrf();
         $secrets = (new SecretService())->all();

@@ -151,12 +151,20 @@ final class PublicController extends BaseController {
                 $value = '';
             }
             if (!empty($field['required']) && $value === '') $errors[] = 'Please enter ' . (string)($field['label'] ?? $key) . '.';
-            $customValues[$key] = mb_substr($value, 0, 2000);
+            // Reject an over-long answer instead of silently shortening it, so the
+            // visitor knows the answer was not stored. The matching controls carry
+            // maxlength="2000" in views/public/campaign.php.
+            if ($length($value) > 2000) $errors[] = 'Keep ' . (string)($field['label'] ?? $key) . ' under 2,000 characters.';
+            $customValues[$key] = $value;
         }
         if ($errors !== []) {
             foreach (['name'=>150,'email'=>254,'phone'=>40,'message'=>5000] as $field=>$limit) {
                 preg_match_all('/./us', $submission[$field], $characters);
                 $submission[$field] = implode('', array_slice($characters[0] ?? [], 0, $limit));
+            }
+            foreach ($customValues as $customKey => $customValue) {
+                preg_match_all('/./us', $customValue, $characters);
+                $customValues[$customKey] = implode('', array_slice($characters[0] ?? [], 0, 2000));
             }
             $submission['custom'] = $customValues;
             $_SESSION['campaign_form'] = ['slug'=>$slug, 'errors'=>$errors, 'values'=>$submission];
@@ -374,6 +382,10 @@ final class PublicController extends BaseController {
         $this->seoKey = 'contact';
         $success = false;
         $subject = $_GET['subject'] ?? '';
+        // A failed verification must not throw the visitor's answers away. The previous
+        // POST stores them here; this request re-renders them against a fresh token.
+        $formState = is_array($_SESSION['contact_form'] ?? null) ? $_SESSION['contact_form'] : [];
+        unset($_SESSION['contact_form']);
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->validateCsrf();
             $this->checkRateLimit('contact', 3, 120);
@@ -383,17 +395,25 @@ final class PublicController extends BaseController {
                 $this->redirect('/contact#contact-form');
             }
             $contactService = new ContactService();
-            $submission = [
-                'name' => $_POST['name'] ?? '',
-                'email' => $_POST['email'] ?? '',
-                'phone' => $_POST['phone'] ?? '',
-                'subject' => $_POST['subject'] ?? '',
-                'message' => $_POST['message'] ?? '',
-            ];
-            $otp = trim((string)($_POST['email_otp'] ?? ''));
-            if (!(new \App\Services\EmailOtpService())->verify('contact', (string)$submission['email'], $otp)) {
-                $this->flash('Enter the valid 6-digit code sent to your email.', 'error');
-                $this->redirect('/contact#contact-form');
+            $submission = [];
+            foreach (['name','email','phone','subject','message'] as $field) {
+                $value = $_POST[$field] ?? '';
+                $submission[$field] = is_string($value) ? trim($value) : '';
+            }
+            $otpService = new \App\Services\EmailOtpService();
+            if ($otpService->available()) {
+                $otp = trim((string)($_POST['email_otp'] ?? ''));
+                if (!$otpService->verify('contact', $submission['email'], $otp)) {
+                    $_SESSION['contact_form'] = [
+                        'errors' => ['Enter the valid 6-digit code sent to your email.'],
+                        'values' => $submission,
+                    ];
+                    $this->redirect('/contact#contact-form');
+                }
+            } else {
+                // No usable SMTP: requiring a code would reject every visitor. Accept the
+                // message and log the misconfiguration for the owner.
+                error_log('Contact form accepted without email verification: SMTP is not configured or recently failed. Configure SMTP in Admin → Integrations.');
             }
             $submission['id'] = 'contact_' . substr(hash('sha256', session_id() . $token), 0, 24);
             $submission['id'] = $contactService->save($submission);
@@ -406,11 +426,11 @@ final class PublicController extends BaseController {
                 (new \App\Services\MailQueueService())->notifyAdmin(
                     'New contact form submission',
                     '<p>A new message came in through the contact form.</p><dl>'
-                    . '<dt>Name</dt><dd>' . e((string)($_POST['name'] ?? '')) . '</dd>'
-                    . '<dt>Email</dt><dd>' . e((string)($_POST['email'] ?? '')) . '</dd>'
-                    . '<dt>Phone</dt><dd>' . e((string)($_POST['phone'] ?? '')) . '</dd>'
-                    . '<dt>Subject</dt><dd>' . e((string)($_POST['subject'] ?? '')) . '</dd>'
-                    . '<dt>Message</dt><dd>' . nl2br(e((string)($_POST['message'] ?? '')), false) . '</dd></dl>',
+                    . '<dt>Name</dt><dd>' . e($submission['name']) . '</dd>'
+                    . '<dt>Email</dt><dd>' . e($submission['email']) . '</dd>'
+                    . '<dt>Phone</dt><dd>' . e($submission['phone']) . '</dd>'
+                    . '<dt>Subject</dt><dd>' . e($submission['subject']) . '</dd>'
+                    . '<dt>Message</dt><dd>' . nl2br(e($submission['message']), false) . '</dd></dl>',
                     [
                         'contact_id' => $submission['id'],
                         'idempotency_key' => 'contact_admin:' . $submission['id'],
@@ -418,10 +438,16 @@ final class PublicController extends BaseController {
                 );
             } catch (\Throwable $e) { error_log('Contact notification failed: ' . $e->getMessage()); }
             $_SESSION['contact_tokens'][$token] = 'done';
-            (new \App\Services\EmailOtpService())->consume('contact', (string)$submission['email']);
+            $otpService->consume('contact', $submission['email']);
             $success = true;
         }
-        $this->render('public/contact', ['success' => $success, 'subject' => $subject]);
+        $this->render('public/contact', [
+            'success' => $success,
+            'subject' => $subject,
+            'formValues' => $formState['values'] ?? [],
+            'formErrors' => $formState['errors'] ?? [],
+            'otpAvailable' => (new \App\Services\EmailOtpService())->available(),
+        ]);
     }
 
     public function sendEmailOtp(): void {
@@ -437,8 +463,16 @@ final class PublicController extends BaseController {
             $page = (new CampaignPageService())->findPublished($match[1]);
             if ($page === null || empty($page['form_require_otp'])) $this->jsonResponse(['error'=>'Email verification is not enabled for this form.'],422);
         }
+        // Unconfigured or failing SMTP must not offer a code field the visitor can never
+        // complete. The contact page falls back to a plain submission; this endpoint
+        // points the visitor at the direct phone/email path instead.
+        $otpService = new \App\Services\EmailOtpService();
+        if (!$otpService->available()) {
+            error_log('Email OTP unavailable: SMTP is not configured or recently failed. Configure SMTP in Admin → Integrations.');
+            $this->jsonResponse(['error'=>'Email verification is temporarily unavailable. Please call +91 72001 82025 or email nebolifestyleclinic@gmail.com and our team will help you directly.'],503);
+        }
         try {
-            (new \App\Services\EmailOtpService())->send($context, $email);
+            $otpService->send($context, $email);
             $this->jsonResponse(['success'=>true,'message'=>'A 6-digit code was sent. Check your inbox and spam folder.']);
         } catch (\DomainException|\InvalidArgumentException $error) {
             $this->jsonResponse(['error'=>$error->getMessage()],422);
@@ -450,8 +484,12 @@ final class PublicController extends BaseController {
     public function login(): void { 
         $this->detectApiRequest();
         // Someone already signed in has no business on the sign-in page; send them to
-        // their dashboard instead of offering a second login.
-        if (!empty($_SESSION['user'])) $this->redirect((($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : '/account/dashboard');
+        // their dashboard instead of offering a second login. /account/dashboard is a
+        // 404 while the shop module is off, so those customers go home instead.
+        if (!empty($_SESSION['user'])) {
+            $target = (($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : (module_on('shop') ? '/account/dashboard' : '/');
+            $this->redirect($target);
+        }
         $this->seoKey = 'login';
         $secrets = (new \App\Services\SecretService())->all();
         $this->render('public/login', [

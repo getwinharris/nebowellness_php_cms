@@ -1,9 +1,14 @@
+<?php $__campaignsEnabled = !empty($campaignsEnabled); ?>
 <div class="admin-card">
     <div class="agent-head">
         <div>
             <h2 class="agent-head__title">AI Agent</h2>
             <p class="agent-head__sub">
-                <?= !empty($shopEnabled) ? 'Ask about users, orders, revenue, top customers or products, or paste content to draft a blog post.' : 'Ask about users, clinic activity, campaigns, support enquiries, or paste content to draft a blog post.' ?>
+                <?= !empty($shopEnabled)
+                    ? 'Ask about users, orders, revenue, top customers or products, or paste content to draft a blog post.'
+                    : ($__campaignsEnabled
+                        ? 'Ask about users, clinic activity, campaigns, support enquiries, or paste content to draft a blog post.'
+                        : 'Ask about users, clinic activity, support enquiries, or paste content to draft a blog post.') ?>
             </p>
         </div>
         <div class="agent-head__meta">
@@ -27,7 +32,11 @@
         <div class="agent-row agent-row--bot">
             <div class="agent-avatar agent-avatar--bot" aria-hidden="true">AI</div>
             <div class="agent-bubble agent-bubble--bot">
-                <?= !empty($shopEnabled) ? "Ask me about users, revenue, top customers or products — or give me content and I'll draft a blog post." : "Ask me about users, clinic activity, campaigns or support enquiries — or give me content and I'll draft a blog post." ?>
+                <?= !empty($shopEnabled)
+                    ? "Ask me about users, revenue, top customers or products — or give me content and I'll draft a blog post."
+                    : ($__campaignsEnabled
+                        ? "Ask me about users, clinic activity, campaigns or support enquiries — or give me content and I'll draft a blog post."
+                        : "Ask me about users, clinic activity or support enquiries — or give me content and I'll draft a blog post.") ?>
             </div>
         </div>
     </div>
@@ -35,7 +44,11 @@
     <div class="agent-suggestions" id="agent-suggestions">
         <?php $__suggestions = !empty($shopEnabled)
             ? ['Which products sell best?', 'What is the revenue this month?', '/create-blog benefits of gut health', '/add-product wellness guide']
-            : ['How many support enquiries are open?', 'Summarise current campaigns', '/create-blog benefits of gut health']; ?>
+            : array_values(array_filter([
+                'How many support enquiries are open?',
+                $__campaignsEnabled ? 'Summarise current campaigns' : null,
+                '/create-blog benefits of gut health',
+            ])); ?>
         <?php foreach ($__suggestions as $__s): ?>
             <button type="button" class="agent-suggestion" data-q="<?= e($__s) ?>"><?= e($__s) ?></button>
         <?php endforeach; ?>

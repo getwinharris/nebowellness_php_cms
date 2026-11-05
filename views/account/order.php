@@ -48,7 +48,12 @@ $__first = $__name !== '' ? explode(' ', $__name)[0] : '';
                         <br>A confirmation is being sent to <strong><?= e((string)($order['customer_email'] ?? '')) ?></strong>.
                     </p>
                     <div class="order-thanks__actions">
-                        <a href="/shop" class="btn btn-primary">Continue shopping</a>
+                        <?php // /shop is a gated module; keep a live primary action when Ecommerce is off. ?>
+                        <?php if (module_on('shop')): ?>
+                            <a href="/shop" class="btn btn-primary">Continue shopping</a>
+                        <?php else: ?>
+                            <a href="/" class="btn btn-primary">Back to home</a>
+                        <?php endif; ?>
                         <a href="/account/dashboard/orders" class="btn btn-ghost">All my orders</a>
                     </div>
                 </div>

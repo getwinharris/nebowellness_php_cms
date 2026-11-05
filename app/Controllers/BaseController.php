@@ -41,9 +41,14 @@ abstract class BaseController {
     protected function checkRateLimit(string $action, int $maxAttempts = 5, int $windowSeconds = 60): bool {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $key = $action . ':' . $ip;
-        $limiter = new \App\Services\RateLimiter();
-        try { $allowed = $limiter->consume($key, $maxAttempts, $windowSeconds); }
-        catch (\Throwable $error) {
+        $allowed = false;
+        // Construct inside the handler: an unreadable rate_limit.php throws from the
+        // constructor, and that must become the same storage-failure response instead
+        // of escaping as an uncaught error.
+        try {
+            $limiter = new \App\Services\RateLimiter();
+            $allowed = $limiter->consume($key, $maxAttempts, $windowSeconds);
+        } catch (\Throwable $error) {
             error_log('Rate limiter storage failure: ' . $error->getMessage());
             if ($this->isApiRequest) $this->jsonResponse(['error' => 'Request protection is temporarily unavailable. Please try again.'], 503);
             $this->flash('Request protection is temporarily unavailable. Please try again.', 'error');

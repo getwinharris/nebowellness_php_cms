@@ -2,6 +2,10 @@
 $contactToken = bin2hex(random_bytes(16));
 $_SESSION['contact_tokens'][$contactToken] = 'pending';
 $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null, true);
+// Values retained by a failed email-verification POST, so the visitor never has to
+// retype the form. The controller clears the session entry after this render.
+$contactValues = is_array($formValues ?? null) ? $formValues : [];
+$contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 ?>
 <section class="section nebo-contact-page">
     <div class="container container--narrow">
@@ -16,6 +20,11 @@ $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null
             <?php if(!empty($success)): ?>
                 <script>document.addEventListener('DOMContentLoaded',function(){showToast('Thank you. Nebo Lifestyle Clinic will contact you soon.','success');});</script>
             <?php endif; ?>
+            <?php if ($contactErrors !== []): ?>
+                <div class="flash flash--error" role="alert" style="max-width:720px; margin:0 auto var(--space-md);">
+                    <?php foreach ($contactErrors as $contactError): ?><p style="margin:0;"><?= e($contactError) ?></p><?php endforeach; ?>
+                </div>
+            <?php endif; ?>
             <form method="post" action="/contact" class="contact-form" style="max-width:720px; margin:0 auto;">
                 <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
                 <input type="hidden" name="_csrf" value="<?= $csrf ?>">
@@ -23,33 +32,34 @@ $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null
                 <div class="contact-form__row">
                     <div class="form-group">
                         <label for="contact-name">Name</label>
-                        <input id="contact-name" type="text" name="name" required placeholder="Your name">
+                        <input id="contact-name" type="text" name="name" required placeholder="Your name" value="<?= e((string)($contactValues['name'] ?? '')) ?>">
                     </div>
                     <div class="form-group">
                         <label for="contact-email">Email</label>
-                        <input id="contact-email" type="email" name="email" required placeholder="your@email.com">
+                        <input id="contact-email" type="email" name="email" required placeholder="your@email.com" value="<?= e((string)($contactValues['email'] ?? '')) ?>">
                     </div>
                 </div>
                 <div class="contact-form__row">
                     <div class="form-group">
                         <label for="contact-phone">Phone</label>
-                        <input id="contact-phone" type="tel" name="phone" placeholder="+91 XXXXX XXXXX">
+                        <input id="contact-phone" type="tel" name="phone" placeholder="+91 XXXXX XXXXX" value="<?= e((string)($contactValues['phone'] ?? '')) ?>">
                     </div>
                     <div class="form-group">
                         <label for="contact-subject">Subject</label>
                         <select id="contact-subject" name="subject" required>
                             <option value="">Select a subject</option>
-                            <option value="gut">Gut Health Program</option>
-                            <option value="metabolic">Metabolic Reset</option>
-                            <option value="fertility">Fertility & Maternal Wellness</option>
-                            <option value="general">General Question</option>
+                            <option value="gut" <?= ($contactValues['subject'] ?? '') === 'gut' ? 'selected' : '' ?>>Gut Health Program</option>
+                            <option value="metabolic" <?= ($contactValues['subject'] ?? '') === 'metabolic' ? 'selected' : '' ?>>Metabolic Reset</option>
+                            <option value="fertility" <?= ($contactValues['subject'] ?? '') === 'fertility' ? 'selected' : '' ?>>Fertility & Maternal Wellness</option>
+                            <option value="general" <?= ($contactValues['subject'] ?? '') === 'general' ? 'selected' : '' ?>>General Question</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="contact-message">Message</label>
-                    <textarea id="contact-message" name="message" rows="5" required placeholder="Tell us what guidance or support you need"></textarea>
+                    <textarea id="contact-message" name="message" rows="5" required placeholder="Tell us what guidance or support you need"><?= e((string)($contactValues['message'] ?? '')) ?></textarea>
                 </div>
+                <?php if (!empty($otpAvailable)): ?>
                 <div class="form-group email-otp" data-otp-context="contact">
                     <label for="contact-email-otp">Email verification code</label>
                     <div class="contact-form__row">
@@ -58,6 +68,12 @@ $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null
                     </div>
                     <small class="otp-status" role="status">We will send the code to the email address above.</small>
                 </div>
+                <?php else: ?>
+                <div class="flash flash--info" role="status" style="margin:var(--space-md) 0;">
+                    <p style="margin:0;">Email verification is temporarily unavailable, so this form will send your message without a code. We still receive and reply to every enquiry.</p>
+                    <p style="margin:var(--space-xs) 0 0;">For an immediate reply, call <a href="tel:+917200182025">+91 72001 82025</a> or email <a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a>.</p>
+                </div>
+                <?php endif; ?>
                 <button class="btn btn-primary btn-block" type="submit">Send Request</button>
             </form>
         </div>
@@ -115,4 +131,4 @@ $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null
     "url": "https://nebowellness.com/contact"
 }
 </script>
-<script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script>
+<?php if (!empty($otpAvailable)): ?><script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script><?php endif; ?>

@@ -200,7 +200,7 @@ final class AdminController extends BaseController {
         // Everything the owner may write @ against, so the chat can autocomplete rather
         // than making them remember slugs and filenames.
         $attachables = (new \App\Services\AgentAttachmentService())->catalogue();
-        $this->render('admin/agent',['pageTitle'=>'AI Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop')]);
+        $this->render('admin/agent',['pageTitle'=>'AI Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns')]);
     }
     public function agentAsk(): void{
         $message = trim((string)($_POST['message'] ?? ''));
@@ -455,7 +455,12 @@ final class AdminController extends BaseController {
         if ($changed) (new AuditLogService())->record('save','appearance','palette',['changed_fields'=>$changed,'reset'=>!empty($_POST['reset_palette'])]);
         $this->flash($e ?: 'Appearance saved.','success'); $this->redirect('/admin/appearance');
     }
-    public function contactSubmissions(): void{$this->resource('Contact Submissions','contact_submissions',['name','email','phone','subject','message','status']);}
+    public function contactSubmissions(): void{
+        // Campaign enquiries store their custom answers in form_data, which the generic
+        // field list never showed. Pass the column flag so the saved answers appear in
+        // the same review table the owner already uses; output is escaped in the view.
+        $this->resource('Contact Submissions','contact_submissions',['name','email','phone','subject','message','status'],['formDataColumn'=>true]);
+    }
     public function saveContactSubmission(): void{$this->save('contact_submissions');}
     public function deleteContactSubmission(): void{$this->delete('contact_submissions');}
     public function supportTickets(): void{$this->render('admin/list',['pageTitle'=>'Support Tickets','title'=>'Support Tickets','collection'=>'support_tickets','items'=>(new \App\Services\SupportTicketService())->all()]);}
@@ -724,7 +729,7 @@ final class AdminController extends BaseController {
         $this->render('admin/tax-report', ['pageTitle'=>'GST Tax Report','title'=>'GST Product Sales Report','orders'=>$orders,'from'=>$from,'to'=>$to,'totals'=>$totals]);
     }
     private function list(string $title, ?string $collection = null): void{$this->render('admin/list',['pageTitle' => $title, 'title' => $title, 'collection' => $collection, 'items'=>$collection ? (new ResourceService($collection))->all() : []]);}
-    private function resource(string $title,string $collection,array $fields): void{$this->render('admin/resource',['pageTitle' => $title, 'title' => $title, 'collection' => $collection, 'fields' => $fields, 'items'=>(new ResourceService($collection))->all(), 'mediaFiles'=>$this->mediaFor($collection)]);}
+    private function resource(string $title,string $collection,array $fields,array $extra=[]): void{$this->render('admin/resource',array_merge(['pageTitle' => $title, 'title' => $title, 'collection' => $collection, 'fields' => $fields, 'items'=>(new ResourceService($collection))->all(), 'mediaFiles'=>$this->mediaFor($collection)], $extra));}
     private function save(string $collection): void{
         $data=$this->cleanPost();
         // Saving the blank form created an empty record. Every collection here is
