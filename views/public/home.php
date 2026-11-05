@@ -1,5 +1,5 @@
 <div class="editorial-stack" data-editorial-stack>
-<section class="editorial-stack-card home-hero nebo-home-hero" style="--stack-order:1" data-stack-card>
+<section class="editorial-stack-card home-hero nebo-home-hero" style="--stack-order:1" data-stack-card data-nebo-chapter="arrival">
     <div class="container home-hero-inner">
         <div class="hero-copy">
             <span class="eyebrow">Integrative Health · Natural Healing · Lifestyle Medicine</span>
@@ -14,7 +14,7 @@
 </section>
 
 <!-- About Nebo Foundation -->
-<section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card>
+<section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card data-nebo-chapter="foundation">
     <div class="container">
         <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.png" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
         <div class="section-header">
@@ -37,7 +37,7 @@
 </section>
 
 <!-- Focus Areas -->
-<section class="editorial-stack-card section" style="--stack-order:3" data-stack-card>
+<section class="editorial-stack-card section" style="--stack-order:3" data-stack-card data-nebo-chapter="focus">
     <div class="container">
         <div class="section-header">
             <span class="eyebrow serif-accent">What We Treat</span>
@@ -77,7 +77,7 @@
 </section>
 
 <!-- Why Choose Nebo -->
-<section class="editorial-stack-card section section--warm" style="--stack-order:4" data-stack-card>
+<section class="editorial-stack-card section section--warm" style="--stack-order:4" data-stack-card data-nebo-chapter="confidence">
     <div class="container">
         <div class="section-header">
             <span class="eyebrow serif-accent">Why Nebo</span>
@@ -101,7 +101,7 @@
 </section>
 
 <!-- Programs -->
-<section class="editorial-stack-card section" id="programs" style="--stack-order:5" data-stack-card>
+<section class="editorial-stack-card section" id="programs" style="--stack-order:5" data-stack-card data-nebo-chapter="programs">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -138,7 +138,7 @@
 </section>
 
 <!-- Team -->
-<section class="editorial-stack-card section section--alt" style="--stack-order:6" data-stack-card>
+<section class="editorial-stack-card section section--alt" style="--stack-order:6" data-stack-card data-nebo-chapter="team">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -175,7 +175,7 @@
 </section>
 
 <!-- Client-provided testimonials -->
-<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card>
+<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card data-nebo-chapter="stories">
     <div class="container">
         <div class="section-header">
             <span class="eyebrow serif-accent">Client Stories</span>
@@ -195,7 +195,7 @@
 </section>
 
 <!-- Contact CTA -->
-<section class="editorial-stack-card section section--warm" style="--stack-order:8" data-stack-card>
+<section class="editorial-stack-card section section--warm" style="--stack-order:8" data-stack-card data-nebo-chapter="resolve">
     <div class="container">
         <div class="consultation-invitation">
             <div class="consultation-invitation__copy">

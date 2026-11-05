@@ -3526,7 +3526,8 @@ body { background: var(--color-bg); }
     grid-template-columns: 1fr auto 1fr;
     min-height: 82px;
     padding: 12px clamp(18px, 4vw, 72px);
-    background: rgba(255,255,255,.98);
+    /* An opaque surface keeps the sticky stack from showing through navigation. */
+    background: #fff;
     border-bottom: 1px solid #e6e8e9;
 }
 .site-header .brand { grid-column: 2; justify-self: center; display: inline-flex; align-items: center; gap: 10px; color: #263036; font-size: .94rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
@@ -4191,22 +4192,20 @@ body.nav-open { overflow: hidden; }
 .nebo-testimonial figcaption { margin-top: 1.25rem; color: var(--color-primary); font-weight: 700; }
 .nebo-testimonial figcaption span { display: block; margin-top: .2rem; color: var(--color-text-muted); font-size: .82rem; font-weight: 500; }
 
-/* Motion follows a build/breathe rhythm: varied, short entrances and then stillness. */
-.motion-ready .reveal { opacity: 0; transform: translateY(28px); }
-.motion-ready .reveal:nth-child(2n) { transform: translateX(26px); }
-.motion-ready .reveal:nth-child(3n) { transform: scale(.975); }
+/* Nebo's copy-in has one calm direction: arrive, settle, then remain still. */
+.motion-ready .reveal { opacity: 0; transform: translateY(22px); }
 .motion-ready .reveal.revealed {
     opacity: 1;
     transform: none;
-    transition: opacity .72s cubic-bezier(.16,1,.3,1), transform .84s cubic-bezier(.16,1,.3,1);
+    transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
 }
-.motion-ready .editorial-rail .reveal { opacity: 0; transform: translateY(30px); }
+.motion-ready .editorial-rail .reveal { opacity: 0; transform: translateY(22px); }
 .motion-ready .editorial-rail.rail-entered .reveal { opacity: 1; transform: translateY(0); }
 .motion-ready .editorial-rail.rail-entered .reveal:nth-child(2) { transition-delay: .08s; }
 .motion-ready .editorial-rail.rail-entered .reveal:nth-child(3) { transition-delay: .16s; }
 .motion-ready .editorial-rail.rail-entered .reveal:nth-child(4) { transition-delay: .24s; }
 .motion-ready .editorial-rail.rail-entered .reveal:nth-child(5) { transition-delay: .32s; }
-.motion-ready .editorial-rail.rail-entered .reveal.is-rail-current { z-index: 2; opacity: 1; transform: none; box-shadow: 0 20px 38px rgba(34,34,34,.14); }
+.motion-ready .editorial-rail.rail-entered .reveal.is-rail-current { z-index: 2; opacity: 1; transform: none; box-shadow: 0 16px 32px rgba(34,34,34,.11); }
 
 /* Final footer authority: charcoal surface, white hierarchy, no brand-palette leak. */
 .site-footer { background: #2f3437; color: #fff; border-top: 1px solid rgba(255,255,255,.18); }
@@ -4272,8 +4271,10 @@ body.nav-open { overflow: hidden; }
 /* SHA board composition: labelled previews, featured portrait, separate biography. */
 .team-showcase { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 48px; align-items: center; }
 .team-showcase .team-rail { display: flex; align-items: center; gap: 18px; min-width: 0; overflow: hidden; }
-.team-showcase .team-slide { transition: none; flex: 0 0 21%; align-self: center; display: block; border: 0; background: transparent; min-width: 0; }
+.team-showcase .team-slide { transition: opacity .45s ease, transform .55s cubic-bezier(.16,1,.3,1); flex: 0 0 21%; align-self: center; display: block; border: 0; background: transparent; min-width: 0; }
 .team-showcase .team-slide.is-rail-current { flex-basis: 44%; }
+.team-enhanced .team-slide:not(.is-rail-current) { opacity: .72; transform: translateY(10px); }
+.team-enhanced .team-slide.is-rail-current { opacity: 1; transform: translateY(0); }
 .team-showcase .team-slide__media { display: block; width: 100%; height: 270px; padding: 0; border: 0; cursor: pointer; position: relative; background: #fff; transition: none; }
 .team-showcase .is-rail-current .team-slide__media { height: 400px; }
 .team-showcase .team-slide__media img { object-fit: cover; object-position: center; }
@@ -4315,11 +4316,12 @@ body { overflow-x: clip; }
 .stack-ready > .editorial-stack-card:not(.home-hero) { position: sticky; top: min(var(--site-header-height, 114px), calc(100svh - var(--stack-height, 100svh))); }
 @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
-        .editorial-stack-card:not(:first-child) > .container { animation: editorial-copy-in linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+        .editorial-stack-card:not(:first-child) > .container { animation: editorial-copy-in linear both; animation-timeline: view(); animation-range: entry 0% entry 48%; }
+        .editorial-stack-card[data-nebo-chapter] .section-header { animation: editorial-copy-in linear both; animation-timeline: view(); animation-range: entry 3% entry 40%; }
         .campaign-motion { animation: campaign-editorial-in linear both; animation-timeline: view(); animation-range: entry 0% entry 50%; }
     }
 }
-@keyframes editorial-copy-in { from { opacity: .12; translate: 0 38px; } to { opacity: 1; translate: 0 0; } }
+@keyframes editorial-copy-in { from { opacity: .08; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
 @keyframes campaign-editorial-in { from { opacity: .18; translate: 0 32px; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) {
     .stack-ready > .editorial-stack-card:not(.home-hero) { position: relative; top: auto; }
@@ -4347,7 +4349,8 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     overflow: clip;
 }
 .editorial-stack-card > .container { width: 100%; min-width: 0; max-width: var(--container-max); }
-.editorial-stack-card p, .editorial-stack-card h3 { overflow-wrap: anywhere; }
+.editorial-stack-card p, .editorial-stack-card h3, .editorial-stack-card .program-slide__link { overflow-wrap: anywhere; }
+.editorial-stack-card .program-slide, .editorial-stack-card .team-slide, .editorial-stack-card .value-card { min-width: 0; overflow: hidden; }
 @media (min-width: 981px) {
     .editorial-stack-card .section-header { margin-bottom: 24px; }
     .editorial-stack-card .section-title { font-size: clamp(2rem, 5svh, 3rem); }

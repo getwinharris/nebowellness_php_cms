@@ -231,12 +231,14 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
   type on blue or charcoal headers, an 8px blue action, and “Owner notification” for
   admin-only mail. It must not describe Nebo as a store or use legacy colour names in
   customer-visible copy.
-- **Scroll motion:** establish the complete static layout first. Reveals are optional
-  enhancement: 0.7–0.85 second decelerating entrances with varied translate/scale
-  origins, followed by stillness. The important item moves first, total stagger stays
-  below 500ms, and `prefers-reduced-motion` removes all transforms and smooth scroll.
-  Never animate layout dimensions, loop ambient movement, or hide content when script
-  execution fails.
+- **Scroll motion:** establish the complete static layout first. The Nebo home page
+  uses an editorial layer system: an incoming opaque chapter rises over the preceding
+  chapter, then becomes still. Copy uses a quiet copy-in, not alternating sideways,
+  scaling, bouncing, or looping effects. A card can have one entrance and one selected
+  state only. The important item moves first, total stagger stays below 500ms, and
+  `prefers-reduced-motion` removes transforms and smooth scrolling. Never animate
+  layout dimensions, loop ambient movement, or hide content when script execution
+  fails.
 - **Documents and guides:** Markdown-backed pages use the same warm canvas and a constrained reading column. The page header is centered and quiet; the content surface is white with a single soft border, 14px-20px radius, and `shadow-sm`. Use blue `h2` headings, muted body text at 1.6-1.7 line-height, generous section spacing, and green only for eyebrows, links, and small metadata. Documentation indexes use a two-column desktop grid and one-column mobile layout with clear titles, summaries, and a visible `Read guide` action. Do not render legal or customer documentation as long unstructured text or nested cards.
 
 ## Do's and Don'ts
@@ -292,6 +294,68 @@ section pins at the viewport top while the next layer naturally scrolls over it.
 A tall section scrolls to its bottom before pinning so all text and actions remain
 reachable on mobile. Content reveals use a viewport timeline where supported;
 unsupported browsers retain visible copy. Reduced motion restores normal flow.
+
+### Home motion vocabulary
+
+Use these terms consistently in product copy, implementation notes, and code review:
+
+- **Arrival:** the unpinned hero at the start of the visit. It establishes the clinic
+  and its primary action, then scrolls away normally.
+- **Editorial layer:** one opaque home section in the sticky sequence. Layers have an
+  increasing stack order and cover the preceding layer cleanly.
+- **Copy-in:** a short opacity-and-upward-translate entrance tied to the incoming
+  layer's viewport progress. It ends in a still, fully legible composition.
+- **Content composition:** the complete group of heading, media, supporting copy, and
+  action within a layer. It is vertically centered below navigation when it fits, and
+  grows naturally when the content is taller than the viewport.
+- **Selection rail:** the horizontal program or practitioner control. Arrow actions
+  advance exactly one item. The rail never auto-advances.
+- **Featured portrait:** the one selected practitioner portrait. It is larger than the
+  preview portraits; previews always retain the practitioner name while biography and
+  action live in the separate detail column.
+- **Handoff:** a useful, explicit movement from a selected program or practitioner to
+  a consultation action. It must arise from a user selection, not an automatic prompt
+  or a generic quiz.
+- **Resolve:** the final consultation layer and the full footer layer. Both are calm,
+  complete end states rather than banners floating in empty space.
+- **Motion brief:** the written statement of audience, intent, feeling curve, content
+  priority, and accessibility constraints before a new scroll sequence is built.
+- **Feeling curve:** the planned emotional sequence of arrival, grounding, clarity,
+  confidence, trust, evidence, and resolve. It guides emphasis; it is not text that
+  appears on the site.
+- **Grammar:** the reusable composition rule for a page. Nebo home uses its own
+  editorial sticky-stack grammar because the product requires persistent navigation.
+- **Device:** one restrained scroll mechanism, such as a copy-in, media crop, selection
+  rail, or layer overlay. A page uses only the devices needed by its story.
+- **Signature move:** one Nebo-specific, purposeful interaction that connects a real
+  user choice to the next step. It must be designed and tested before it is added.
+- **Fingerprint:** the combination of hierarchy, type, colour, motion, and interaction
+  that makes the implementation recognisably Nebo rather than a cloned reference.
+- **Motion score:** a short review of pacing, hierarchy, continuity, restraint,
+  accessibility, and cross-device behaviour before a motion change is approved.
+
+The vocabulary is a Nebo-specific adaptation of the Scroll Craft method, not a copied
+vendor page or a requirement to use its engine. Keep the pinned white navigation as a
+product requirement. It is deliberately above the editorial layers and its measured
+height defines their safe top offset.
+
+### Home motion quality gate
+
+- Start with semantic PHP content that is readable with JavaScript and CSS motion
+  disabled. Enhancement may add classes, never remove information.
+- Use scroll-linked motion only for `opacity` and `transform`. Avoid scroll-linked
+  `height`, `width`, grid tracks, and layout shifts.
+- Use one directional copy-in per layer. Do not alternate card directions simply to
+  create movement, and do not add decorative scroll counters, fake progress, or
+  autoplaying rails.
+- Keep every horizontal card's text in its own card with `min-width: 0`, wrapping and
+  clipping of decorative art only. Copy, labels, controls, and touch targets must not
+  be clipped.
+- Respect reduced motion by disabling the stack pinning and all entrance transforms.
+  Keyboard, touch, arrows, and manual horizontal scrolling must continue to work.
+- Verify the whole sequence at desktop and 375px: header stays pinned, each incoming
+  layer covers the prior layer, one arrow click changes one rail item, the featured
+  portrait remains distinct, no text overflows, and the footer becomes the final layer.
 
 
 ## Pinned navigation and portrait alignment
