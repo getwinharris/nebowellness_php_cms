@@ -51,7 +51,6 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
                             <option value="gut" <?= ($contactValues['subject'] ?? '') === 'gut' ? 'selected' : '' ?>>Gut Health Program</option>
                             <option value="metabolic" <?= ($contactValues['subject'] ?? '') === 'metabolic' ? 'selected' : '' ?>>Metabolic Reset</option>
                             <option value="fertility" <?= ($contactValues['subject'] ?? '') === 'fertility' ? 'selected' : '' ?>>Fertility & Maternal Wellness</option>
-                            <option value="lifestyle" <?= ($contactValues['subject'] ?? '') === 'lifestyle' ? 'selected' : '' ?>>Lifestyle Transformation</option>
                             <option value="general" <?= ($contactValues['subject'] ?? '') === 'general' ? 'selected' : '' ?>>General Question</option>
                         </select>
                     </div>
@@ -131,36 +130,5 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
     "description": "Contact Nebo Lifestyle Clinic for wellness consultations, naturopathy services, and integrative health programs.",
     "url": "https://nebowellness.com/contact"
 }
-</script>
-<script>
-/* Page-local enhancement: carry the home page's chosen focus into this form.
-   The query parameter wins; the session copy keeps a return visit aligned.
-   Nothing the visitor already typed or chose is overwritten. */
-(function () {
-    var focus = '';
-    try {
-        var params = new URLSearchParams(window.location.search);
-        focus = params.get('focus') || '';
-        if (!focus) focus = window.sessionStorage.getItem('nebo.focus') || '';
-    } catch (error) {
-        focus = '';
-    }
-    var openings = {
-        gut: 'I would like to understand gut health support first.',
-        metabolic: 'I would like to understand metabolic health support first.',
-        lifestyle: 'I would like to understand lifestyle transformation support first.',
-        fertility: 'I would like to understand fertility and maternal wellness support first.'
-    };
-    if (!Object.prototype.hasOwnProperty.call(openings, focus)) return;
-    var subject = document.getElementById('contact-subject');
-    var message = document.getElementById('contact-message');
-    if (subject && subject.value === '') subject.value = focus;
-    if (message && message.value.trim() === '') message.value = openings[focus];
-    try {
-        window.sessionStorage.setItem('nebo.focus', focus);
-    } catch (error) {
-        /* Storage can be blocked; the prefill above still happened. */
-    }
-})();
 </script>
 <?php if (!empty($otpAvailable)): ?><script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script><?php endif; ?>
