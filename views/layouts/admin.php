@@ -199,9 +199,18 @@ const sidebar = document.getElementById('admin-sidebar');
 const toggle = document.getElementById('sidebarToggle');
 if (sidebar && toggle) {
     const mobile = window.matchMedia('(max-width: 768px)');
+    let sidebarHadFocus = sidebar.contains(document.activeElement);
+    document.addEventListener('focusin', (e) => {
+        sidebarHadFocus = sidebar.contains(e.target);
+    });
     const setSidebarOpen = (open) => {
+        const active = document.activeElement;
+        // A click on plain content or a viewport change may already have blurred the link.
+        const restoreFocus = !open && mobile.matches &&
+            (sidebar.contains(active) || (active === document.body && sidebarHadFocus));
         sidebar.classList.toggle('open', open);
         toggle.setAttribute('aria-expanded', String(open));
+        if (restoreFocus) toggle.focus();
     };
     toggle.addEventListener('click', () => {
         const open = !sidebar.classList.contains('open');
@@ -209,7 +218,7 @@ if (sidebar && toggle) {
         if (open) sidebar.querySelector('nav a')?.focus();
     });
     document.addEventListener('click', (e) => {
-        if (mobile.matches && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+        if (mobile.matches && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
             setSidebarOpen(false);
         }
     });
