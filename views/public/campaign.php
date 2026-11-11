@@ -1,4 +1,5 @@
 <?php
+use App\Services\CampaignPageService;
 $ctaUrl = trim((string)($campaign['cta_url'] ?? ''));
 if ($ctaUrl === '' || !str_starts_with($ctaUrl, '/') || str_starts_with($ctaUrl, '//')) $ctaUrl = '/contact';
 $ctaLabel = trim((string)($campaign['cta_label'] ?? '')) ?: 'Talk to our team';
@@ -41,7 +42,7 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
   </div>
   <section class="campaign-enquiry" id="campaign-enquiry" aria-labelledby="campaign-form-title">
     <div class="container campaign-enquiry__layout">
-      <div class="campaign-enquiry__intro"><span class="eyebrow">Enquire with Nebo</span><h2 id="campaign-form-title"><?= e($copy('form_title', 'Enquire about this program')) ?></h2><p><?= e($copy('form_intro', 'Tell us how to reach you so we can discuss the program with you.')) ?></p><p class="campaign-enquiry__note">Submitting this form sends an enquiry. A session is arranged separately with the clinic.</p></div>
+      <div class="campaign-enquiry__intro"><span class="eyebrow">Enquire with Nebo</span><h2 id="campaign-form-title"><?= e($copy('form_title', CampaignPageService::FORM_DEFAULTS['form_title'])) ?></h2><p><?= e($copy('form_intro', CampaignPageService::FORM_DEFAULTS['form_intro'])) ?></p><p class="campaign-enquiry__note"><?= e(CampaignPageService::FORM_NOTE) ?></p></div>
       <div class="campaign-enquiry__card">
       <?php if (!empty($formState['success'])): ?>
         <p class="campaign-form-success" role="status"><?= e($copy('form_success', 'Thank you. Your enquiry has reached Nebo and our team will contact you soon.')) ?></p>
@@ -66,7 +67,7 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
           <?php endforeach; ?>
           <?php if (!empty($campaign['form_require_otp'])): ?><div class="form-group email-otp" data-otp-context="campaign:<?= e($campaign['slug']) ?>" data-email-input="campaign-email"><label for="campaign-email-otp">Email verification code</label><div class="contact-form__row"><input id="campaign-email-otp" name="email_otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="6-digit code"><button class="btn btn-secondary otp-send" type="button">Send code</button></div><small class="otp-status" role="status">We will send the code to the email address above.</small></div><?php endif; ?>
           <p class="campaign-enquiry__privacy">We use these details to respond to this enquiry. <a href="/privacy">Privacy policy</a></p>
-          <button class="btn btn-primary" type="submit"><?= e($copy('form_button', 'Request a call back')) ?></button>
+          <button class="btn btn-primary" type="submit"><?= e($copy('form_button', CampaignPageService::FORM_DEFAULTS['form_button'])) ?></button>
         </form>
       <?php endif; ?>
       </div>

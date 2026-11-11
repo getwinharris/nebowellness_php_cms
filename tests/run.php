@@ -2168,6 +2168,29 @@ $tests['email OTP is scoped, expiring, one time and attempt limited'] = function
     assertSame(false, $service->isVerified('contact', 'guest@example.com'), 'Consumed code cannot be reused');
 };
 
+$tests['campaign field edits preserve saved keys and reject invalid definitions by row'] = function (): void {
+    $service = \App\Services\CampaignPageService::class;
+    $definitions = json_decode('[
+        {"key":"preferred_time","label":"Visit time","type":"select","required":true,"options":["Morning","Evening"]},
+        {"key":"goals","label":"Your goals","type":"textarea","required":false,"options":[]},
+        {"key":"","label":"Agreed","type":"checkbox","required":true,"options":[]}
+    ]');
+    [$fields, $errors] = $service::validateFields(array_reverse($definitions));
+    assertSame([], $errors, 'Valid definitions can be reordered and renamed');
+    assertSame(['goals', 'preferred_time'], array_column(array_slice($fields, 1), 'key'), 'Saved answer keys follow their fields');
+    assertTrue(str_starts_with($fields[0]['key'], 'field_'), 'The server assigns an independent key to a new field');
+    assertSame(['Morning', 'Evening'], $fields[2]['options'], 'Dropdown option values and order are preserved');
+
+    $definitions[1]->key = 'preferred_time';
+    $definitions[1]->type = 'radio';
+    $definitions[1]->label = '';
+    $definitions[0]->options = ['Morning', 'Morning', ' '];
+    [, $errors] = $service::validateFields($definitions);
+    assertSame([0, 1], array_keys($errors), 'Each invalid row can display its own errors');
+    assertSame(2, count($errors[0]), 'Duplicate and blank options both surface');
+    assertSame(3, count($errors[1]), 'Duplicate keys, unsupported types and blank labels all surface');
+};
+
 $tests['campaign custom forms and module controls are wired through schema and UI'] = function (): void {
     $schema = require app_path('storage/schema/collections.php');
     assertTrue(isset($schema['collections']['campaign_pages']['fields']['form_fields']), 'Campaign schema declares custom fields');
