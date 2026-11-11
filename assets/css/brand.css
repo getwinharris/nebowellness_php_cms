@@ -122,7 +122,6 @@
     color: var(--brand-deep-blue);
     font-size: 1.9rem;
     font-weight: 550;
-    letter-spacing: -.035em;
     text-wrap: balance;
 }
 
@@ -164,7 +163,7 @@
     border-color: var(--brand-rule);
     border-block-start: 2px solid var(--brand-deep-blue);
     border-radius: 0 0 8px 8px;
-    box-shadow: 0 12px 28px rgba(35, 58, 89, .08);
+    box-shadow: var(--shadow-sm);
 }
 
 .nebo-contact-page .contact-form-card__title {
