@@ -24,7 +24,7 @@
         </div>
         <div style="max-width:900px; margin:0 auto;">
             <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Vision</h3>
-            <p>To transform how people approach chronic disease and wellness—by combining the wisdom of naturopathy with the precision of functional medicine, all delivered through compassionate, personalized care.</p>
+            <p>To transform how people approach chronic disease and wellness by combining the wisdom of naturopathy with the precision of functional medicine, all delivered through compassionate, personalized care.</p>
 
             <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Pillars</h3>
             <ul style="list-style:none; padding:0; margin:var(--space-md) 0;">
@@ -103,7 +103,6 @@
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
-                <span class="eyebrow serif-accent">Our Services</span>
                 <h2 class="section-title">Our Programs</h2>
                 <p class="lede">Personalised, practitioner-led pathways designed around your health goals.</p>
             </div>
@@ -141,7 +140,6 @@
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
-                <span class="eyebrow serif-accent">Expert Care</span>
                 <h2 class="section-title">Meet Our Team</h2>
                 <p class="lede">A multidisciplinary team of naturopathy and wellness practitioners.</p>
             </div>

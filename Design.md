@@ -324,12 +324,14 @@ Use these terms consistently in product copy, implementation notes, and code rev
   scroll sequence is built.
 - **Feeling curve:** the planned emotional sequence of arrival, grounding, clarity,
   confidence, trust, evidence, and resolve. It guides emphasis; it is not text that
-  appears on the site.
+  appears on the site. Give each act a distinct emotion and on-screen cause; document
+  any reason for repeating a feeling across adjacent acts.
 - **Grammar:** the reusable structural rule for a page, including navigation, sequence,
   ending, and explicit bans. Nebo home uses its own editorial sticky-stack grammar
   because the product requires persistent navigation.
 - **Device:** one restrained scroll mechanism, such as a copy-in, media crop, selection
-  rail, or sticky stack. A page uses only the devices needed by its story.
+  rail, or sticky stack. Use only the devices needed by the story; the clinic brief
+  overrides a cinematic four-device quota.
 - **Signature move:** one Nebo-specific, purposeful interaction that connects a real
   user choice to the next step. It must be designed and tested before it is added.
 - **Fingerprint:** the combination of hierarchy, type, colour, motion, and interaction
@@ -354,8 +356,6 @@ visual system.
   is self-authored.
 - **Journey:** the ordered shifts in what a visitor understands. An act that produces
   neither a new understanding nor a new feeling is removed rather than animated.
-- **Feeling curve:** one distinct emotion and its on-screen cause per act. Adjacent
-  acts cannot repeat the same feeling without a documented reason.
 - **Peak:** the single memorable contrast moment. Nebo's peak is the selected
   practitioner becoming the featured portrait and revealing a direct consultation
   handoff; it is preceded by quieter programme choice.
@@ -365,10 +365,6 @@ visual system.
 - **Layer contract:** a written account of the necessary visual planes, their depth,
   movement, and copy-safe area. Only add a plane when genuine source media supports
   it; never duplicate a subject merely to imitate parallax.
-- **Device:** the one interaction or scroll mechanism assigned to an act. Nebo's
-  restrained device set is normal-flow arrival, sticky-stack handoff, copy-in,
-  program rail, featured portrait selection, and resolve. The explicit clinic brief
-  overrides a cinematic four-device quota.
 - **Anchor:** the intended copy or focal-media placement in an act. Re-anchor mobile
   deliberately; do not uniformly shrink desktop composition.
 - **Cue:** semantic, selectable heading, copy, or action that remains readable at
