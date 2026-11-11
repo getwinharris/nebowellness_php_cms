@@ -4301,18 +4301,25 @@ body { overflow-x: clip; }
 .editorial-stack-card.section--alt, .editorial-stack-card.section--warm { background: var(--color-bg-alt, #edf3f6); }
 .stack-ready > .editorial-stack-card:not(.home-hero) { position: sticky; top: min(var(--site-header-height, 114px), calc(100svh - var(--stack-height, 100svh))); }
 @media (prefers-reduced-motion: no-preference) {
-    .editorial-stack > .chapter-arrived > .container > * {
+    .editorial-stack > .chapter-arrived > .container > :not(.hero-copy, .consultation-invitation),
+    .editorial-stack > .chapter-arrived .hero-copy > *,
+    .editorial-stack > .chapter-arrived .consultation-invitation__copy > *,
+    .editorial-stack > .chapter-arrived .consultation-invitation__steps {
         animation: nebo-chapter-arrival .8s cubic-bezier(.25,.8,.25,1) backwards;
     }
     .editorial-stack > .chapter-arrived > .container > :nth-child(2) { animation-delay: 60ms; }
     .editorial-stack > .chapter-arrived > .container > :nth-child(n+3) { animation-delay: 120ms; }
+    .editorial-stack > .chapter-arrived :is(.hero-copy, .consultation-invitation__copy) > h2,
+    .editorial-stack > .chapter-arrived .hero-copy > h1 { animation-delay: 60ms; }
+    .editorial-stack > .chapter-arrived :is(.hero-copy, .consultation-invitation__copy) > :is(p, a, .hero-actions),
+    .editorial-stack > .chapter-arrived .consultation-invitation__steps { animation-delay: 120ms; }
 }
 @keyframes nebo-chapter-arrival { from { translate: 0 16px; } to { translate: 0 0; } }
 
 .analytics-overview { display: grid; gap: var(--space-lg); }
 .analytics-summary { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2fr); gap: var(--space-lg); }
 .analytics-total { border-inline-end: 1px solid var(--color-border-light); padding-inline-end: var(--space-lg); }
-.analytics-total strong { display: block; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1.1; }
+.analytics-total strong { display: block; font-size: 3.5rem; line-height: 1.1; }
 .analytics-overview h2 { margin: 0 0 .5rem; font-size: 1.15rem; }
 .analytics-overview p { margin: .4rem 0 0; color: var(--color-text-muted); }
 .analytics-bars { display: grid; gap: .9rem; list-style: none; padding: 0; margin: .8rem 0 0; }
@@ -4324,6 +4331,7 @@ body { overflow-x: clip; }
 @media(max-width:743px) {
     .analytics-summary { grid-template-columns: minmax(0,1fr); }
     .analytics-total { border-inline-end: 0; padding-inline-end: 0; border-bottom: 1px solid var(--color-border-light); padding-bottom: 1rem; }
+    .analytics-total strong { font-size: 2.25rem; }
 }
 @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {

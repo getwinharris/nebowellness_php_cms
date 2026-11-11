@@ -7,7 +7,7 @@ $statusRows = [
 $detailRows = [
     'Messages' => number_format((int) ($metrics['message_count'] ?? 0)),
     'Credits spent' => number_format((int) ($metrics['credits_spent'] ?? 0)),
-    'Average completed session' => !empty($metrics['completed_sessions']) ? number_format((int) ($metrics['average_duration_seconds'] ?? 0)) . ' sec' : '—',
+    'Average completed session' => ($metrics['average_duration_seconds'] ?? null) !== null ? number_format((int) $metrics['average_duration_seconds']) . ' sec' : '—',
     'Average response' => ($metrics['average_response_seconds'] ?? null) !== null ? number_format((int) $metrics['average_response_seconds']) . ' sec' : '—',
 ];
 ?>

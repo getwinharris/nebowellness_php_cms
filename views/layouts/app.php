@@ -613,11 +613,13 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
         var chapterObserver=new IntersectionObserver(function(entries){
             entries.forEach(function(entry){
                 if(!entry.isIntersecting)return;
-                entry.target.classList.add('chapter-arrived');
+                entry.target.closest('[data-stack-card]').classList.add('chapter-arrived');
                 chapterObserver.unobserve(entry.target);
             });
         },{rootMargin:'0px 0px -72px 0px'});
-        cards.forEach(function(card){chapterObserver.observe(card);});
+        cards.forEach(function(card){
+            chapterObserver.observe(card.querySelector('h1, h2') || card);
+        });
     }
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');

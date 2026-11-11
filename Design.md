@@ -300,7 +300,7 @@ enhancement, every profile renders with its own readable biography.
 Home sections use opaque sticky sections in increasing stacking order. A short
 section sticks at the viewport top while the next section naturally scrolls over it.
 A tall section scrolls to its bottom before sticking so all text and actions remain
-reachable on mobile. Each chapter plays one short entrance as it comes into view,
+reachable on mobile. Each chapter plays one short entrance as its heading comes into view,
 then stays still at its sticky position. The heading and content arrive in order,
 with up to 120ms between groups. No input is intercepted. Without observer support,
 copy stays in its final position. Reduced motion restores normal flow.
