@@ -11,6 +11,7 @@ category: docs
 
 ### Changed
 
+- Therapy campaigns appear under Products, with the newest published offering featured on the homepage.
 - Home chapters settle in short, staggered entrances while preserving native scrolling.
 - Admin consultation analytics compares historical session counts and completion shares.
 - Owner agent starters fill an empty composer for review and preserve unsent messages.

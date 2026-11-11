@@ -42,7 +42,7 @@ query_examples:
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
   concepts: 279
-  relationships: 251
+  relationships: 252
   by_type:
     blog: 5
     controller: 12
@@ -803,10 +803,10 @@ concepts:
     usage_count: 6
     used_in:
       - "app/Controllers/PublicController.php"
+      - "views/partials/therapy-products.php"
       - "views/public/blog-post.php"
       - "views/public/blog.php"
       - "views/public/campaign.php"
-      - "views/public/campaigns.php"
       - "views/public/home.php"
   - id: "image:assets/images/nebo-symbol.png"
     type: "image"
@@ -893,7 +893,9 @@ concepts:
     method: "GET"
     path: "/"
     controller: "PublicController@home"
-    services: []
+    services:
+      - "CampaignPageService"
+      - "ConsultantService"
     view: "public/home"
   - id: "route:get__about"
     type: "route"
@@ -3518,6 +3520,9 @@ relationships:
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:CategoryService"
+    relation: "uses"
+  - from: "controller:PublicController"
+    to: "service:ConsultantService"
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:ContactService"

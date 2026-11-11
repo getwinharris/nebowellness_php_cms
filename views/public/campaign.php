@@ -18,7 +18,7 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
 <article class="campaign-page">
   <header class="campaign-hero">
     <div class="campaign-hero__inner">
-      <a class="campaign-hero__back" href="/campaigns">← All programs</a>
+      <a class="campaign-hero__back" href="/campaigns">← All products</a>
       <p class="eyebrow">Nebo Lifestyle Clinic · Therapy programs</p>
       <h1><?= e($campaign['title']) ?></h1>
       <p class="campaign-hero__summary"><?= e($campaign['summary'] ?? '') ?></p>
