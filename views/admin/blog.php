@@ -1,4 +1,4 @@
-<div class="admin-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg)">
+<div class="admin-bar" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-lg)">
     <h2 style="margin:0"><?= e($title ?? 'Blog') ?></h2>
     <button class="btn btn-primary" type="button" onclick="toggleForm()">+ New Post</button>
 </div>
@@ -102,7 +102,7 @@
             </div>
         </div>
 
-        <label class="admin-blog-editor__wide" style="display:flex;align-items:center;gap:8px;font-weight:600">
+        <label class="admin-blog-editor__wide" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-weight:600">
             <input type="checkbox" name="notify_subscribers" value="1" style="width:16px;height:16px;margin:0">
             Email this article to registered customers
             <small style="font-weight:400;color:var(--color-text-muted)">Only on a new post, never on an edit.</small>
@@ -114,7 +114,8 @@
     </div>
 </form>
 
-<table class="table-wrap" style="width:100%;background:var(--color-white);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+<div class="table-wrap" style="background:var(--color-white);border-radius:var(--radius-md);border:1px solid var(--color-border)">
+<table>
     <thead><tr><th>Title</th><th>Category</th><th>Published</th><th>Date</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($posts as $post): ?>
@@ -148,6 +149,7 @@
     <?php endforeach; ?>
     </tbody>
 </table>
+</div>
 
 <script>
 function toggleForm(){var f=document.getElementById('blog-form');f.hidden=!f.hidden;if(f.hidden)f.reset();}
@@ -163,6 +165,7 @@ function generateDraft(){var f=document.getElementById('blog-form');var fd=new F
 .be-settings>summary::-webkit-details-marker{display:none}
 .be-settings>summary::before{content:'▸';color:var(--color-text-muted);transition:transform .15s}
 .be-settings[open]>summary::before{transform:rotate(90deg)}
+.be-settings>summary{flex-wrap:wrap}
 .be-settings>summary span{font-weight:400;font-size:.78rem;color:var(--color-text-muted)}
 .be-settings .admin-blog-editor__grid{padding:0 14px 14px}
 .be-tabs{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
@@ -190,6 +193,8 @@ function generateDraft(){var f=document.getElementById('blog-form');var fd=new F
 .be-hint{font-size:.75rem;color:var(--color-text-muted);margin:6px 0 0}
 .be-media{margin-top:14px;padding:12px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-white)}
 .be-media__row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.be-media__row input[type="file"]{min-width:0;max-width:100%}
+.be-media__grid[hidden]{display:none}
 .be-media__grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:10px;max-height:230px;overflow-y:auto}
 .be-media__item{padding:0;border:2px solid transparent;border-radius:6px;background:none;cursor:pointer;overflow:hidden}
 .be-media__item img{width:100%;height:78px;object-fit:cover;display:block}

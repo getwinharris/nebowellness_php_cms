@@ -7,7 +7,7 @@
     <form method="post" action="/admin/appearance/save" class="admin-form" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
         <h3 style="font-size:1rem; margin:0 0 var(--space-md);">Site Logo</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-xl); align-items:start;">
+        <div class="admin-form__row" style="gap:var(--space-xl); align-items:start;">
             <div>
                 <label>Upload Logo</label>
                 <div style="background:var(--color-bg-alt); border:2px dashed var(--color-border); border-radius:var(--radius-md); padding:var(--space-lg); text-align:center; margin-bottom:var(--space-sm);">
@@ -31,7 +31,7 @@
         </div>
 
         <h3 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-md);">Favicon</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-xl); align-items:start;">
+        <div class="admin-form__row" style="gap:var(--space-xl); align-items:start;">
             <div>
                 <label>Upload Favicon</label>
                 <div style="background:var(--color-bg-alt); border:2px dashed var(--color-border); border-radius:var(--radius-md); padding:var(--space-lg); text-align:center; margin-bottom:var(--space-sm);">
@@ -56,7 +56,7 @@
 
         <h3 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-md);">Color Palette</h3>
         <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">Customize brand colors site-wide. Uses the <code>--color-*</code> CSS custom property naming.</p>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md) var(--space-xl);">
+        <div class="admin-form__row" style="column-gap:var(--space-xl);">
             <div>
                 <label>Primary <span style="font-weight:400; font-size:0.8rem; color:var(--color-text-muted);">(clinic blue)</span></label>
                 <div style="display:flex; gap:var(--space-sm); align-items:center;">
@@ -101,7 +101,7 @@
             <div class="flash flash--success" style="margin-top:var(--space-md);"><?= e($upload_success) ?></div>
         <?php endif; ?>
 
-        <div style="display:flex; gap:var(--space-md); margin-top:var(--space-lg);">
+        <div class="admin-card__actions" style="gap:var(--space-md); margin-top:var(--space-lg);">
             <button class="btn btn-primary">Save Appearance</button>
             <button type="submit" name="reset_palette" value="1" class="btn btn-ghost">Reset to Defaults</button>
         </div>
