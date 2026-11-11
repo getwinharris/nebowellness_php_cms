@@ -559,6 +559,17 @@ $tests['public pages expose general enquiry ctas'] = function (): void {
     assertTrue(str_contains($css, '.page-cta-card.reveal.revealed:hover'), 'Shared CTA hover animation should win after scroll reveal');
 };
 
+$tests['public anchor scrolling respects reduced motion before and after styles load'] = function (): void {
+    $smoothRoot = 'html\s*\{[^}]*\bscroll-behavior\s*:\s*smooth\b[^}]*\}';
+    $optIn = '/@media\s*\(prefers-reduced-motion:\s*no-preference\)\s*\{\s*' . $smoothRoot . '\s*\}/';
+    foreach (['views/layouts/app.php', 'assets/css/band.css'] as $path) {
+        $source = file_get_contents(app_path($path));
+        assertTrue(preg_match($optIn, $source) === 1, "{$path} should enable smooth anchors for visitors without a reduced motion preference");
+        $remaining = preg_replace($optIn, '', $source);
+        assertTrue(preg_match('/' . $smoothRoot . '/', $remaining) === 0, "{$path} should leave smooth anchor scrolling off outside that preference");
+    }
+};
+
 $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] = function (): void {
     $css = file_get_contents(app_path('assets/css/band.css'));
     if ($css === false) throw new RuntimeException('Unable to read the landing-page stylesheet.');

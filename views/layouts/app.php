@@ -50,7 +50,9 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 $critical = '
 :root{--color-ink:#222222;--color-ink-light:#3f3f3f;--color-gold:#70AD47;--color-gold-light:#e7f2df;--color-gold-dark:#55853a;--color-maroon:#4472C4;--color-maroon-deep:#2f5aa8;--color-accent:#70AD47;--color-accent-light:#8cc069;--color-bg:#f7f9fa;--color-bg-alt:#eef2f4;--color-bg-warm:#edf3f6;--color-border:#d7e1e6;--color-border-light:#e6ecef;--color-text-muted:#5b6872;--color-white:#ffffff;--color-success:#2d8a4e;--color-error:#d64045;--color-rating:#d68641;--font-display:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-serif:Georgia,"Times New Roman",serif;--font-accent:"Playfair Display",Georgia,serif;--shadow-sm:0 1px 2px rgba(0,0,0,0.08);--shadow-md:0 2px 8px rgba(0,0,0,0.12);--shadow-lg:0 2px 8px rgba(0,0,0,0.12);--radius-md:8px;--radius-lg:8px;--radius-xl:8px;--radius-pill:999px;--space-xs:0.5rem;--space-sm:0.75rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem}
 *,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
-html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: no-preference) {
+    html{scroll-behavior:smooth}
+}
 body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--color-bg);color:var(--color-ink);line-height:1.55;overflow-x:hidden}
 a{color:var(--color-maroon);text-decoration:none}
 img{max-width:100%;height:auto;display:block}
@@ -548,6 +550,7 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
             card.querySelector('button').tabIndex=active?0:-1;
         });
         detail.replaceChildren(cards[selected].querySelector('.team-slide__body').cloneNode(true));
+        rail.scrollLeft=rail.scrollWidth-rail.clientWidth;
         if(previous)previous.disabled=cards.length<2;
         if(next)next.disabled=cards.length<2;
     }
@@ -555,7 +558,8 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
     if(previous)previous.addEventListener('click',function(){select(selected-1);});
     if(next)next.addEventListener('click',function(){select(selected+1);});
     rail.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
-    select(0);showcase.classList.add('team-enhanced');
+    showcase.classList.add('team-enhanced');
+    select(0);
 });
 var pinnedHeader=document.querySelector('.site-header');
 if(pinnedHeader){
