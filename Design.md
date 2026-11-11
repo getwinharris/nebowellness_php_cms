@@ -301,13 +301,13 @@ Use these terms consistently in product copy, implementation notes, and code rev
 
 - **Arrival:** the unpinned hero at the start of the visit. It establishes the clinic
   and its primary action, then scrolls away normally.
-- **Editorial layer:** one opaque home section in the sticky sequence. Layers have an
-  increasing stack order and cover the preceding layer cleanly.
+- **Act:** one meaningful visitor state in the home sequence. Nebo uses opaque sticky
+  sections in increasing stack order, each of which cleanly covers the preceding act.
 - **Copy-in:** a short upward-translate entrance tied to the incoming layer's viewport
   progress. Essential copy remains fully legible throughout and ends in a still
   composition.
 - **Content composition:** the complete group of heading, media, supporting copy, and
-  action within a layer. It is vertically centered below navigation when it fits, and
+  action within an act. It is vertically centered below navigation when it fits, and
   grows naturally when the content is taller than the viewport.
 - **Selection rail:** the horizontal program or practitioner control. Arrow actions
   advance exactly one item. The rail never auto-advances.
@@ -317,34 +317,75 @@ Use these terms consistently in product copy, implementation notes, and code rev
 - **Handoff:** a useful, explicit movement from a selected program or practitioner to
   a consultation action. It must arise from a user selection, not an automatic prompt
   or a generic quiz.
-- **Resolve:** the final consultation layer and the full footer layer. Both are calm,
+- **Resolve:** the final consultation act and the full footer act. Both are calm,
   complete end states rather than banners floating in empty space.
-- **Motion brief:** the written statement of audience, intent, feeling curve, content
-  priority, and accessibility constraints before a new scroll sequence is built.
+- **Motion brief:** the written statement of audience, journey, intent, feeling curve,
+  peak, content priority, visual world, and accessibility constraints before a new
+  scroll sequence is built.
 - **Feeling curve:** the planned emotional sequence of arrival, grounding, clarity,
   confidence, trust, evidence, and resolve. It guides emphasis; it is not text that
   appears on the site.
-- **Grammar:** the reusable composition rule for a page. Nebo home uses its own
-  editorial sticky-stack grammar because the product requires persistent navigation.
+- **Grammar:** the reusable structural rule for a page, including navigation, sequence,
+  ending, and explicit bans. Nebo home uses its own editorial sticky-stack grammar
+  because the product requires persistent navigation.
 - **Device:** one restrained scroll mechanism, such as a copy-in, media crop, selection
   rail, or sticky stack. A page uses only the devices needed by its story.
 - **Signature move:** one Nebo-specific, purposeful interaction that connects a real
   user choice to the next step. It must be designed and tested before it is added.
 - **Fingerprint:** the combination of hierarchy, type, colour, motion, and interaction
   that makes the implementation recognisably Nebo rather than a cloned reference.
-- **Motion score:** a short review of pacing, hierarchy, continuity, restraint,
-  accessibility, and cross-device behaviour before a motion change is approved.
+- **Motion score:** the act-by-act table of feeling, visitor learning, device, pacing,
+  and purpose. It is reviewed for hierarchy, continuity, restraint, accessibility, and
+  cross-device behaviour before a motion change is approved.
 
 The vocabulary is a Nebo-specific adaptation of the Scroll Craft method, not a copied
 vendor page or a requirement to use its engine. Keep the sticky white navigation as a
-product requirement. It is deliberately above the editorial layers and its measured
+product requirement. It is deliberately above the editorial stack and its measured
 height defines their safe top offset.
+
+### Scroll Craft planning terms
+
+Use the following source-method terms when they clarify the work. They are planning
+and review language, not permission to import a vendor runtime or copy another site's
+visual system.
+
+- **Brief:** recorded audience, visitor action, owned assets, visual world, journey,
+  feeling curve, one peak, and accessibility limits. A self-authored brief must say it
+  is self-authored.
+- **Journey:** the ordered shifts in what a visitor understands. An act that produces
+  neither a new understanding nor a new feeling is removed rather than animated.
+- **Feeling curve:** one distinct emotion and its on-screen cause per act. Adjacent
+  acts cannot repeat the same feeling without a documented reason.
+- **Peak:** the single memorable contrast moment. Nebo's peak is the selected
+  practitioner becoming the featured portrait and revealing a direct consultation
+  handoff; it is preceded by quieter programme choice.
+- **World:** the genuine visual material and art direction used by an act. Nebo uses
+  supplied clinic photography, portraits, and its blue/green identity; generated clay,
+  low-poly scenes, fabricated outcomes, and generic wellness imagery are prohibited.
+- **Layer contract:** a written account of the necessary visual planes, their depth,
+  movement, and copy-safe area. Only add a plane when genuine source media supports
+  it; never duplicate a subject merely to imitate parallax.
+- **Device:** the one interaction or scroll mechanism assigned to an act. Nebo's
+  restrained device set is normal-flow arrival, sticky-stack handoff, copy-in,
+  program rail, featured portrait selection, and resolve. The explicit clinic brief
+  overrides a cinematic four-device quota.
+- **Anchor:** the intended copy or focal-media placement in an act. Re-anchor mobile
+  deliberately; do not uniformly shrink desktop composition.
+- **Cue:** semantic, selectable heading, copy, or action that remains readable at
+  every supported scroll position. A cue never relies on a timed opacity state.
+- **Close pattern:** the way the final act resolves. Nebo resolves through one
+  consultation action and the complete charcoal footer, never an empty fade-out.
+- **Feel check:** a cold scroll with one felt word recorded for each act, compared to
+  the planned feeling curve before approval.
+- **Fingerprint gate:** compare grammar, navigation, hero/world treatment, act
+  sequence, close pattern, and signature move against relevant prior work. Change the
+  plan when it feels derivative; do not rename a pattern to pass the gate.
 
 ### Home motion score
 
 - **Arrival:** the hero establishes Nebo and scrolls away in normal flow; no sticky
   treatment delays the first action.
-- **Foundation:** the clinic story enters as the first opaque sticky section, using a
+- **Foundation:** the clinic story enters as the first opaque sticky act, using a
   small upward copy-in to settle the image and copy together.
 - **Focus:** the focus-area grid follows as a still, readable composition; card motion
   is limited to the section entrance.
@@ -365,7 +406,7 @@ height defines their safe top offset.
   disabled. Enhancement may add classes, never remove information.
 - Use scroll-linked motion only for `opacity` and `transform`. Avoid scroll-linked
   `height`, `width`, grid tracks, and layout shifts.
-- Use one directional copy-in per layer. Do not alternate card directions simply to
+- Use one directional copy-in per act. Do not alternate card directions simply to
   create movement, and do not add decorative scroll counters, fake progress, or
   autoplaying rails.
 - Keep every horizontal card's text in its own card with `min-width: 0`, wrapping and
@@ -376,6 +417,9 @@ height defines their safe top offset.
 - Verify the whole sequence at desktop and 375px: header stays sticky, each incoming
   layer covers the prior layer, one arrow click changes one rail item, the featured
   portrait remains distinct, no text overflows, and the footer becomes the final layer.
+- Run the feel check after visual verification. Confirm that the selected portrait is
+  the one engineered peak, the quieter programs act precedes it, and the resolve holds
+  as a complete end state rather than trailing into unused page space.
 
 
 ## Sticky navigation and portrait alignment

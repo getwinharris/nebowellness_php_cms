@@ -40,7 +40,6 @@
 <section class="editorial-stack-card section" style="--stack-order:3" data-stack-card data-nebo-chapter="focus">
     <div class="container">
         <div class="section-header">
-            <span class="eyebrow serif-accent">What We Treat</span>
             <h2 class="section-title">Our Focus Areas</h2>
         </div>
         <div class="value-strip">
@@ -80,7 +79,6 @@
 <section class="editorial-stack-card section section--warm" style="--stack-order:4" data-stack-card data-nebo-chapter="confidence">
     <div class="container">
         <div class="section-header">
-            <span class="eyebrow serif-accent">Why Nebo</span>
             <h2 class="section-title">Why Choose Nebo Wellness?</h2>
         </div>
         <div class="value-strip" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
@@ -178,7 +176,6 @@
 <section class="editorial-stack-card section" style="--stack-order:7" data-stack-card data-nebo-chapter="stories">
     <div class="container">
         <div class="section-header">
-            <span class="eyebrow serif-accent">Client Stories</span>
             <h2 class="section-title">Experiences shared by Nebo clients</h2>
         </div>
         <div class="nebo-testimonials" aria-label="Client testimonials">
