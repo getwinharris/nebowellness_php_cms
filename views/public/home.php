@@ -98,8 +98,20 @@
     </div>
 </section>
 
+<?php if (!empty($therapyProducts)): ?>
+<section class="editorial-stack-card section therapy-products" id="therapy-products" style="--stack-order:5" data-stack-card data-nebo-chapter="products" aria-labelledby="therapy-products-title">
+    <div class="container">
+        <header class="therapy-products__heading">
+            <div><h2 class="section-title" id="therapy-products-title">Therapy Products</h2><p class="lede">Explore clinic-led therapies and request a session with the Nebo team.</p></div>
+            <a class="therapy-product__link" href="/campaigns">All products <span aria-hidden="true">↗</span></a>
+        </header>
+        <?php require __DIR__ . '/../partials/therapy-products.php'; ?>
+    </div>
+</section>
+<?php endif; ?>
+
 <!-- Programs -->
-<section class="editorial-stack-card section" id="programs" style="--stack-order:5" data-stack-card data-nebo-chapter="programs">
+<section class="editorial-stack-card section" id="programs" style="--stack-order:6" data-stack-card data-nebo-chapter="programs">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -135,7 +147,7 @@
 </section>
 
 <!-- Team -->
-<section class="editorial-stack-card section section--alt" style="--stack-order:6" data-stack-card data-nebo-chapter="team">
+<section class="editorial-stack-card section section--alt" style="--stack-order:7" data-stack-card data-nebo-chapter="team">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -171,7 +183,7 @@
 </section>
 
 <!-- Client-provided testimonials -->
-<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card data-nebo-chapter="stories">
+<section class="editorial-stack-card section" style="--stack-order:8" data-stack-card data-nebo-chapter="stories">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Experiences shared by Nebo clients</h2>
@@ -190,7 +202,7 @@
 </section>
 
 <!-- Contact CTA -->
-<section class="editorial-stack-card section section--warm" style="--stack-order:8" data-stack-card data-nebo-chapter="resolve">
+<section class="editorial-stack-card section section--warm" style="--stack-order:9" data-stack-card data-nebo-chapter="resolve">
     <div class="container">
         <div class="consultation-invitation">
             <div class="consultation-invitation__copy">

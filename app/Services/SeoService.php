@@ -82,8 +82,8 @@ final class SeoService {
                 'robots' => 'index, follow',
             ],
             'campaigns' => [
-                'title' => 'Wellness Campaigns – ' . $brand,
-                'description' => 'Explore focused Nebo Lifestyle Clinic campaigns and find a practical next step for your wellness goals.',
+                'title' => 'Therapy Products – ' . $brand,
+                'description' => 'Explore Nebo Lifestyle Clinic therapies and request a session with the clinic team.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
             ],

@@ -7,12 +7,12 @@ final class ProjectMapService {
 
     public const SHARED_CONTROLLERS = ['BaseController'];
     public const SHARED_SERVICES = ['SeoService', 'SmtpMailer', 'ImageOptimizerService', 'DocsMapService', 'RateLimiter', 'KnowledgeGraphService'];
-    public const SHARED_VIEWS = ['account/_nav', 'layouts/admin', 'layouts/app', 'public/404', 'admin/environment'];
+    public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'partials/therapy-products', 'public/404', 'admin/environment'];
     public const KNOWN_UNWIRED_COLLECTIONS = ['wallet_transactions', 'media_files'];
 
     public static function registry(): array {
         $routes = [
-            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>[]],
+            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['CampaignPageService','ConsultantService']],
             ['method'=>'GET','path'=>'/about','name'=>'about','page'=>'public/about','controller'=>'PublicController@about','services'=>[]],
             ['method'=>'GET','path'=>'/sri-panchami-spiritual','name'=>'spiritual','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
             ['method'=>'GET','path'=>'/spiritual','name'=>'spiritual.short','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
@@ -98,7 +98,7 @@ final class ProjectMapService {
             ['method'=>'POST','path'=>'/admin/coupons/delete','name'=>'admin.coupons.delete','page'=>'admin/resource','controller'=>'AdminController@deleteCoupon','services'=>['ResourceService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/consultants/save','name'=>'admin.consultants.save','page'=>'admin/consultant-form','controller'=>'AdminController@saveConsultant','services'=>['ResourceService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/consultants/delete','name'=>'admin.consultants.delete','page'=>'admin/consultant-form','controller'=>'AdminController@deleteConsultant','services'=>['ResourceService','AuditLogService']],
-            ['method'=>'POST','path'=>'/admin/campaign_pages/save','name'=>'admin.campaigns.save','page'=>'admin/resource','controller'=>'AdminController@saveCampaign','services'=>['ResourceService','AuditLogService']],
+            ['method'=>'POST','path'=>'/admin/campaign_pages/save','name'=>'admin.campaigns.save','page'=>'admin/resource','controller'=>'AdminController@saveCampaign','services'=>['ResourceService','CampaignPageService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/campaign_pages/delete','name'=>'admin.campaigns.delete','page'=>'admin/resource','controller'=>'AdminController@deleteCampaign','services'=>['ResourceService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/integrations/test-email','name'=>'admin.integrations.test-email','page'=>'admin/integrations','controller'=>'AdminController@testEmail','services'=>['SecretService','SmtpMailer','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/integrations/test-ai','name'=>'admin.integrations.test-ai','page'=>'admin/integrations','controller'=>'AdminController@testAi','services'=>['SecretService','AiClient','AiModelRouter','AuditLogService']],
@@ -431,6 +431,7 @@ final class ProjectMapService {
                 $lines[] = '  ' . self::controllerId($controllerClass) . ' -. renders .-> ' . self::viewId((string)$route['page']);
             }
         }
+        $lines[] = '  ' . self::viewId('admin/resource') . ' -. includes .-> ' . self::viewId('admin/_campaign-fields');
 
         $routeByGetPath = [];
         foreach ($scan['routes'] as $route) {

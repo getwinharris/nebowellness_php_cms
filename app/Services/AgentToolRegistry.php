@@ -197,7 +197,8 @@ final class AgentToolRegistry
         foreach ($rows as $row) {
             $campaign = trim((string)($row['campaign_slug'] ?? ''));
             if ($campaign === '' || ($slug !== '' && $slug !== $campaign)) continue;
-            $created = strtotime((string)($row['created_at'] ?? ''));
+            $rawCreated = trim((string)($row['created_at'] ?? ''));
+            $created = ctype_digit($rawCreated) ? (int) $rawCreated : strtotime($rawCreated);
             if ($created === false || $created < $now - $days * 86400 || $created > $now) continue;
             $status = $row['status'] ?? 'new';
             $statuses[is_string($status) && isset($statuses[$status]) ? $status : 'other']++;

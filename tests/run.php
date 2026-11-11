@@ -59,19 +59,37 @@ function assertMinCount(int $min, array $items, string $msg): void {
 $failures = [];
 $tests = [];
 
+function runAdminAgentFixture(string $mode, string $message): array {
+    $capture = tempnam(sys_get_temp_dir(), 'nebo-prompt-');
+    $pipes = [];
+    $process = proc_open([PHP_BINARY, app_path('tests/fixtures/admin-agent-prompt.php'), $mode, $capture, $message], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (!is_resource($process)) throw new RuntimeException('Could not start admin prompt fixture');
+    $response = stream_get_contents($pipes[1]);
+    $errors = stream_get_contents($pipes[2]);
+    fclose($pipes[1]); fclose($pipes[2]);
+    $exitCode = proc_close($process);
+    $prompt = file_get_contents($capture);
+    unlink($capture);
+    assertSame(0, $exitCode, 'Admin prompt fixture must succeed: ' . $errors);
+    return [$response, $prompt];
+}
+
+$tests['admin agent product drafting follows the shop module'] = function (): void {
+    [$response, $prompt] = runAdminAgentFixture('off', '/add-product fixture product');
+    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+    assertTrue(str_contains($data['error'] ?? '', 'Ecommerce is disabled'), 'Disabled shop must reject the product draft command');
+    assertSame('', $prompt, 'Disabled shop must not send a product draft prompt to the model');
+    assertTrue(!isset($data['draft']), 'Disabled shop must not provide a product form');
+
+    [$response, $prompt] = runAdminAgentFixture('on', '/add-product fixture product');
+    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+    assertTrue(str_contains($prompt, 'fixture product'), 'Enabled shop allows product draft generation');
+    assertSame('/admin/products/save', $data['draft']['action'] ?? '', 'Product draft still requires the ordinary save form');
+};
+
 $tests['admin unrelated question sends only bounded context to the model'] = function (): void {
     foreach (['on', 'off'] as $mode) {
-        $capture = tempnam(sys_get_temp_dir(), 'nebo-prompt-');
-        $pipes = [];
-        $process = proc_open([PHP_BINARY, app_path('tests/fixtures/admin-agent-prompt.php'), $mode, $capture], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
-        if (!is_resource($process)) throw new RuntimeException('Could not start admin prompt fixture');
-        $response = stream_get_contents($pipes[1]);
-        $errors = stream_get_contents($pipes[2]);
-        fclose($pipes[1]); fclose($pipes[2]);
-        $exitCode = proc_close($process);
-        $prompt = file_get_contents($capture);
-        unlink($capture);
-        assertSame(0, $exitCode, 'Admin prompt fixture must succeed: ' . $errors);
+        [$response, $prompt] = runAdminAgentFixture($mode, 'What can you help me with?');
         assertTrue(str_contains($response, 'answer') && str_contains($prompt, 'What can you help me with?'), 'Unrelated question must reach the model boundary');
         assertTrue(!str_contains($prompt, 'private@example.test') && !str_contains($prompt, 'Private Person'), 'Model prompt must exclude customer identities');
         if ($mode === 'off') assertTrue(str_contains($prompt, 'Ecommerce is disabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Disabled commerce must not enter the model prompt');
@@ -597,7 +615,7 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
 $tests['therapy enquiry tool returns only bounded aggregate counts'] = function (): void {
     $now = strtotime('2026-11-11T12:00:00Z');
     $rows = [
-        ['campaign_slug'=>'gut','status'=>'new','created_at'=>'2026-11-10T10:00:00Z','email'=>'private@example.test','form_data'=>['health'=>'private']],
+        ['campaign_slug'=>'gut','status'=>'new','created_at'=>$now - 3600,'email'=>'private@example.test','form_data'=>['health'=>'private']],
         ['campaign_slug'=>'gut','status'=>'closed','created_at'=>'2026-11-09T10:00:00Z'],
         ['campaign_slug'=>'metabolic','status'=>'read','created_at'=>'2026-11-10T10:00:00Z'],
         ['campaign_slug'=>'gut','status'=>'new','created_at'=>'2026-08-01T10:00:00Z'],
@@ -2163,6 +2181,29 @@ $tests['email OTP is scoped, expiring, one time and attempt limited'] = function
     assertTrue($service->isVerified('contact', 'guest@example.com'), 'Verified marker remains valid for the final submission');
     $service->consume('contact', 'guest@example.com');
     assertSame(false, $service->isVerified('contact', 'guest@example.com'), 'Consumed code cannot be reused');
+};
+
+$tests['campaign field edits preserve saved keys and reject invalid definitions by row'] = function (): void {
+    $service = \App\Services\CampaignPageService::class;
+    $definitions = json_decode('[
+        {"key":"preferred_time","label":"Visit time","type":"select","required":true,"options":["Morning","Evening"]},
+        {"key":"goals","label":"Your goals","type":"textarea","required":false,"options":[]},
+        {"key":"","label":"Agreed","type":"checkbox","required":true,"options":[]}
+    ]');
+    [$fields, $errors] = $service::validateFields(array_reverse($definitions));
+    assertSame([], $errors, 'Valid definitions can be reordered and renamed');
+    assertSame(['goals', 'preferred_time'], array_column(array_slice($fields, 1), 'key'), 'Saved answer keys follow their fields');
+    assertTrue(str_starts_with($fields[0]['key'], 'field_'), 'The server assigns an independent key to a new field');
+    assertSame(['Morning', 'Evening'], $fields[2]['options'], 'Dropdown option values and order are preserved');
+
+    $definitions[1]->key = 'preferred_time';
+    $definitions[1]->type = 'radio';
+    $definitions[1]->label = '';
+    $definitions[0]->options = ['Morning', 'Morning', ' '];
+    [, $errors] = $service::validateFields($definitions);
+    assertSame([0, 1], array_keys($errors), 'Each invalid row can display its own errors');
+    assertSame(2, count($errors[0]), 'Duplicate and blank options both surface');
+    assertSame(3, count($errors[1]), 'Duplicate keys, unsupported types and blank labels all surface');
 };
 
 $tests['campaign custom forms and module controls are wired through schema and UI'] = function (): void {

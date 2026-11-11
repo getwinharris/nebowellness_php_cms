@@ -10,7 +10,12 @@ final class PublicController extends BaseController {
         try { $consultants = (new ConsultantService())->all(); }
         catch (\Throwable $error) { error_log('Home consultant profiles unavailable: ' . $error->getMessage()); }
         if ($consultants === []) $consultants = $this->defaultConsultants();
-        $this->render('public/home', ['consultants' => $consultants]);
+        $therapyProducts = [];
+        if (module_on('campaigns')) {
+            try { $therapyProducts = array_slice((new CampaignPageService())->newestPublished(), 0, 3); }
+            catch (\Throwable $error) { error_log('Home therapy products unavailable: ' . $error->getMessage()); }
+        }
+        $this->render('public/home', ['consultants' => $consultants, 'therapyProducts' => $therapyProducts]);
     }
 
     /**
@@ -71,7 +76,7 @@ final class PublicController extends BaseController {
     public function campaigns(): void {
         $this->requireModule('campaigns');
         $this->seoKey = 'campaigns';
-        $this->render('public/campaigns', ['pages' => (new CampaignPageService())->published()]);
+        $this->render('public/campaigns', ['pages' => (new CampaignPageService())->newestPublished()]);
     }
 
     public function campaign(string $slug): void {

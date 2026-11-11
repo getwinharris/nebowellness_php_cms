@@ -7,11 +7,11 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 116 routes, 12 controllers, 49 services, 43 views, 0 data files, 19 tools"]
+  subgraph ARCH["Architecture Overview — 116 routes, 12 controllers, 49 services, 45 views, 0 data files, 19 tools"]
     arch_routes["> Routes: 116 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 12"]:::arch
     arch_svc["> Services: 49"]:::arch
-    arch_views["> Views: 43"]:::arch
+    arch_views["> Views: 45"]:::arch
     arch_data["> Collections: 23 schema | 0 files"]:::arch
     arch_tools["> Tools: 19"]:::arch
     arch_gaps["> Gaps: 5"]:::arch
@@ -231,6 +231,7 @@ flowchart LR
     view_account_invoice["account/invoice"]:::code
     view_account_order["account/order"]:::code
     view_account_orders["account/orders"]:::code
+    view_admin_campaign_fields["admin/_campaign-fields"]:::code
     view_admin_agent["admin/agent"]:::code
     view_admin_appearance["admin/appearance"]:::code
     view_admin_blog["admin/blog"]:::code
@@ -248,6 +249,7 @@ flowchart LR
     view_admin_tax_report["admin/tax-report"]:::code
     view_layouts_admin["layouts/admin"]:::code
     view_layouts_app["layouts/app"]:::code
+    view_partials_therapy_products["partials/therapy-products"]:::code
     view_public_404["public/404"]:::code
     view_public_about["public/about"]:::code
     view_public_blog["public/blog"]:::code
@@ -336,6 +338,8 @@ flowchart LR
   end
 
   route_get --> controller_publiccontroller
+  controller_publiccontroller --> service_campaignpageservice
+  controller_publiccontroller --> service_consultantservice
   controller_publiccontroller -. renders .-> view_public_home
   route_get_about --> controller_publiccontroller
   controller_publiccontroller -. renders .-> view_public_about
@@ -678,6 +682,7 @@ flowchart LR
   controller_admincontroller -. renders .-> view_admin_consultant_form
   route_post_admin_campaign_pages_save --> controller_admincontroller
   controller_admincontroller --> service_resourceservice
+  controller_admincontroller --> service_campaignpageservice
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_resource
@@ -819,6 +824,7 @@ flowchart LR
   controller_admincontroller --> service_blogdraftservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
+  view_admin_resource -. includes .-> view_admin_campaign_fields
   nav_contact --> route_get_contact
   nav_account_dashboard --> route_get_account_dashboard
   nav_account_dashboard_orders --> route_get_account_dashboard_orders

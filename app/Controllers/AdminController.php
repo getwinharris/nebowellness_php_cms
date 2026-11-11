@@ -1,6 +1,6 @@
 <?php
 namespace App\Controllers;
-use App\Services\{AuditLogService,MailQueueService,AuthService,BlogDraftService,ConsultationService,EnvService,MailStorageService,MarkdownRenderer,MediaService,OrderService,ResourceService,SchemaService,SecretService,SettingsService,StoragePermissionService};
+use App\Services\{AuditLogService,MailQueueService,AuthService,BlogDraftService,CampaignPageService,ConsultationService,EnvService,MailStorageService,MarkdownRenderer,MediaService,OrderService,ResourceService,SchemaService,SecretService,SettingsService,StoragePermissionService};
 final class AdminController extends BaseController {
     protected string $layout = 'admin';
     public function __construct() {
@@ -100,20 +100,17 @@ final class AdminController extends BaseController {
         $slug = trim((string)($_POST['slug'] ?? ''));
         if ($slug === '') $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title) ?? '', '-'));
         if ($title === '' || !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug)) {
-            $this->flash('Enter a title and a URL slug using lowercase letters, numbers, and hyphens.', 'error');
-            $this->redirect('/admin/campaigns');
+            $this->campaignSaveError('Enter a title and a URL slug using lowercase letters, numbers, and hyphens.');
         }
         $data = ['slug' => $slug, 'title' => $title];
         $id = trim((string)($_POST['id'] ?? ''));
         if ($id !== '') $data['id'] = $id;
         foreach ((new ResourceService('campaign_pages'))->all() as $existing) {
             if ($id !== '' && (string)($existing['id'] ?? '') === $id && !hash_equals(ResourceService::revision($existing), (string)($_POST['revision'] ?? ''))) {
-                $this->flash('This campaign changed since you opened it. Reload and edit the latest version.', 'error');
-                $this->redirect('/admin/campaigns');
+                $this->campaignSaveError('This campaign changed since you opened it. Reload and edit the latest version.', status: 409);
             }
             if (($existing['slug'] ?? '') === $slug && (string)($existing['id'] ?? '') !== $id) {
-                $this->flash('That URL slug belongs to another campaign. Choose a unique slug.', 'error');
-                $this->redirect('/admin/campaigns');
+                $this->campaignSaveError('That URL slug belongs to another campaign. Choose a unique slug.');
             }
         }
         foreach (['summary','body','image_url','cta_label','cta_url','form_title','form_intro','form_button','form_success','seo_title','seo_description'] as $field) {
@@ -123,38 +120,33 @@ final class AdminController extends BaseController {
             $data[$field] = in_array($_POST[$field] ?? '', ['optional','required','hidden'], true) ? $_POST[$field] : 'optional';
         }
         $data['form_require_otp'] = !empty($_POST['form_require_otp']);
-        $fieldsJson = trim((string)($_POST['form_fields'] ?? ''));
-        $decodedFields = $fieldsJson === '' ? [] : json_decode($fieldsJson, true);
-        if (!is_array($decodedFields)) {
-            $this->flash('Custom form fields must be valid JSON.', 'error');
-            $this->redirect('/admin/campaigns');
+        $fieldsJson = $_POST['form_fields'] ?? '';
+        $decodedFields = is_string($fieldsJson) ? (trim($fieldsJson) === '' ? [] : json_decode($fieldsJson)) : null;
+        if (!is_array($decodedFields)) $this->campaignSaveError('Send the custom fields as a list.');
+        if (count($decodedFields) > CampaignPageService::MAX_FIELDS) {
+            $this->campaignSaveError('Add at most ' . CampaignPageService::MAX_FIELDS . ' custom fields.');
         }
-        $allowedTypes = ['text','email','tel','textarea','select','checkbox'];
-        $data['form_fields'] = [];
-        $usedFieldKeys = [];
-        foreach (array_slice($decodedFields, 0, 20) as $field) {
-            if (!is_array($field)) continue;
-            $key = substr(preg_replace('/[^a-z0-9_]/', '', strtolower((string)($field['key'] ?? ''))), 0, 50);
-            $type = (string)($field['type'] ?? 'text');
-            if ($key === '' || isset($usedFieldKeys[$key]) || !in_array($type, $allowedTypes, true)) continue;
-            $usedFieldKeys[$key] = true;
-            $options = array_map(static fn($option): string => mb_substr(trim((string)$option), 0, 80), is_array($field['options'] ?? null) ? $field['options'] : []);
-            $options = array_values(array_slice(array_unique(array_filter($options, static fn(string $option): bool => $option !== '')), 0, 30));
-            $required = !empty($field['required']);
-            if ($type === 'select' && $options === []) {
-                $this->flash('Every select field needs at least one option.', 'error');
-                $this->redirect('/admin/campaigns');
-            }
-            $data['form_fields'][] = ['key'=>$key,'label'=>mb_substr(trim((string)($field['label'] ?? $key)),0,80),'type'=>$type,'required'=>$required,'options'=>$options];
-        }
+        [$data['form_fields'], $fieldErrors] = CampaignPageService::validateFields($decodedFields);
+        if ($fieldErrors !== []) $this->campaignSaveError('Correct the highlighted custom fields and save again.', $fieldErrors);
         $uploaded = $this->uploadedMedia('campaign_pages');
         if ($uploaded && $data['image_url'] === '') $data['image_url'] = (string)$uploaded[0]['url'];
         $data['status'] = ($_POST['status'] ?? '') === 'published' ? 'published' : 'draft';
         try { $record = (new ResourceService('campaign_pages'))->save($data, $id !== '' ? (string)($_POST['revision'] ?? '') : null); }
-        catch (\DomainException $error) { $this->flash($error->getMessage(), 'error'); $this->redirect('/admin/campaigns'); }
+        catch (\DomainException $error) { $this->campaignSaveError($error->getMessage(), status: 409); }
         if ($uploaded) (new MediaService())->recordUsage($uploaded, 'campaign_pages', (string)$record['id'], $title);
         (new AuditLogService())->record('save','campaign_pages',(string)$record['id'],['fields'=>array_keys($data),'uploaded_media'=>count($uploaded)]);
         $this->flash('Campaign page saved.', 'success');
+        if ($this->wantsCampaignJson()) $this->jsonResponse(['redirect' => '/admin/campaigns']);
+        $this->redirect('/admin/campaigns');
+    }
+    private function wantsCampaignJson(): bool {
+        return ($_SERVER['HTTP_ACCEPT'] ?? '') === 'application/json';
+    }
+    private function campaignSaveError(string $message, array $fieldErrors = [], int $status = 422): never {
+        if ($this->wantsCampaignJson()) {
+            $this->jsonResponse(['error' => $message, 'fieldErrors' => (object)$fieldErrors], $status);
+        }
+        $this->flash($message, 'error');
         $this->redirect('/admin/campaigns');
     }
     public function deleteCampaign(): void{
@@ -220,7 +212,7 @@ final class AdminController extends BaseController {
             // through the same route the normal admin screens post to.
             $command = \App\Services\AgentDraftService::command($message);
             if ($command !== null) {
-                if ($command === 'product' && !module_on('shop')) {
+                if ($command === 'add-product' && !module_on('shop')) {
                     $this->jsonResponse(['error'=>'Ecommerce is disabled. Enable it in Site Settings before drafting a product.'],409);
                     return;
                 }
