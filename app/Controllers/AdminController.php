@@ -232,75 +232,11 @@ final class AdminController extends BaseController {
                 return;
             }
             $secrets = new SecretService();
-            $db = new \App\Services\DatabaseService();
             $modelConfig = $secrets->getModelConfig();
-            $shopEnabled = module_on('shop');
-            $orders = $shopEnabled ? $db->read('orders') : [];
-            $users = $db->read('users');
-            $products = $shopEnabled ? $db->read('products') : [];
-            $userCount = count($users);
-            $orderCount = count($orders);
-            $productCount = count($products);
-            $consultantCount = count($db->read('consultants'));
-            $appointmentCount = count($db->read('appointments'));
-            $ticketCount = count($db->read('support_tickets'));
-            $totalRevenue = array_sum(array_column($orders, 'total'));
-            $confirmedOrders = array_filter($orders, fn($o) => ($o['status'] ?? '') === 'confirmed');
-            $pendingOrders = array_filter($orders, fn($o) => ($o['status'] ?? '') === 'pending');
-            $confirmedRevenue = array_sum(array_column($confirmedOrders, 'total'));
-            $pendingRevenue = array_sum(array_column($pendingOrders, 'total'));
-            $avgOrderValue = $orderCount > 0 ? $totalRevenue / $orderCount : 0;
-            $revenueByUser = [];
-            foreach ($confirmedOrders as $o) {
-                $email = $o['customer_email'] ?? 'guest';
-                $revenueByUser[$email] = ($revenueByUser[$email] ?? 0) + (float)($o['total'] ?? 0);
+            $context = (new \App\Services\AgentContextService())->forAdmin(module_on('shop'));
+            if ($attachments['context'] !== '') {
+                $context .= "\n\nDocuments the owner attached with @:" . $attachments['context'];
             }
-            arsort($revenueByUser);
-            $topUsers = array_slice($revenueByUser, 0, 5);
-            $topUsersStr = '';
-            foreach ($topUsers as $email => $amount) {
-                $topUsersStr .= "\n  - {$email}: ₹" . number_format($amount, 2);
-            }
-            // Per-product sales. "Which products sell best?" could not be answered before,
-            // because only a product count reached the model.
-            $unitsBySlug = [];
-            $revenueBySlug = [];
-            foreach ($confirmedOrders as $o) {
-                foreach (($o['items'] ?? []) as $item) {
-                    $key = (string)($item['name'] ?? $item['slug'] ?? '');
-                    if ($key === '') continue;
-                    $qty = (int)($item['qty'] ?? 1);
-                    $unitsBySlug[$key] = ($unitsBySlug[$key] ?? 0) + $qty;
-                    $revenueBySlug[$key] = ($revenueBySlug[$key] ?? 0) + (float)($item['line_total'] ?? 0);
-                }
-            }
-            arsort($unitsBySlug);
-            $topProductsStr = '';
-            foreach (array_slice($unitsBySlug, 0, 5, true) as $name => $units) {
-                $topProductsStr .= "\n  - {$name}: {$units} sold, ₹" . number_format($revenueBySlug[$name] ?? 0, 2);
-            }
-            if ($topProductsStr === '') $topProductsStr = "\n  - no confirmed sales yet";
-
-            $commerceContext = $shopEnabled
-                ? "- Total orders: {$orderCount} (confirmed: " . count($confirmedOrders) . ", pending: " . count($pendingOrders) . ")\n"
-                    . "- Products: {$productCount}\n"
-                    . "- Total revenue: ₹" . number_format($totalRevenue, 2) . "\n"
-                    . "- Confirmed revenue: ₹" . number_format($confirmedRevenue, 2) . "\n"
-                    . "- Pending revenue (unconfirmed): ₹" . number_format($pendingRevenue, 2) . "\n"
-                    . "- Average order value: ₹" . number_format($avgOrderValue, 2) . "\n"
-                    . "- Top 5 products by units sold:" . $topProductsStr . "\n"
-                    . "- Top 5 customers by revenue:" . $topUsersStr
-                : "- Ecommerce is disabled. Do not offer or discuss products, orders, revenue, coupons, shipping, or checkout.";
-            $context = "You are the admin AI assistant. You have full access to enabled site data.\n\n"
-                . "Site data:\n"
-                . "- Total users: {$userCount}\n"
-                . "- Consultants: {$consultantCount}\n"
-                . "- Appointments: {$appointmentCount}\n"
-                . "- Support tickets: {$ticketCount}\n"
-                . $commerceContext
-                . ($attachments['context'] !== '' ? "\n\nDocuments the owner attached with @:" . $attachments['context'] : '')
-                . "\n\nUse this data to answer. Never repeat it back unless asked for it. "
-                . "Never list customer email addresses unless the question is specifically about customers.";
             if (!empty($modelConfig['apiKey'])) {
                 $answer = $this->callAiApi($modelConfig, $message, $context);
             } else {

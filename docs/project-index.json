@@ -145,7 +145,7 @@
             "view": "admin/agent",
             "services": [
                 "SecretService",
-                "DatabaseService",
+                "AgentContextService",
                 "AuditLogService",
                 "AgentAttachmentService",
                 "AgentDraftService",

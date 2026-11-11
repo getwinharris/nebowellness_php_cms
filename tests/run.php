@@ -59,6 +59,50 @@ function assertMinCount(int $min, array $items, string $msg): void {
 $failures = [];
 $tests = [];
 
+$tests['admin unrelated question sends only bounded context to the model'] = function (): void {
+    foreach (['on', 'off'] as $mode) {
+        $capture = tempnam(sys_get_temp_dir(), 'nebo-prompt-');
+        $pipes = [];
+        $process = proc_open([PHP_BINARY, app_path('tests/fixtures/admin-agent-prompt.php'), $mode, $capture], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        if (!is_resource($process)) throw new RuntimeException('Could not start admin prompt fixture');
+        $response = stream_get_contents($pipes[1]);
+        $errors = stream_get_contents($pipes[2]);
+        fclose($pipes[1]); fclose($pipes[2]);
+        $exitCode = proc_close($process);
+        $prompt = file_get_contents($capture);
+        unlink($capture);
+        assertSame(0, $exitCode, 'Admin prompt fixture must succeed: ' . $errors);
+        assertTrue(str_contains($response, 'answer') && str_contains($prompt, 'What can you help me with?'), 'Unrelated question must reach the model boundary');
+        assertTrue(!str_contains($prompt, 'private@example.test') && !str_contains($prompt, 'Private Person'), 'Model prompt must exclude customer identities');
+        if ($mode === 'off') assertTrue(str_contains($prompt, 'Ecommerce is disabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Disabled commerce must not enter the model prompt');
+        else assertTrue(str_contains($prompt, 'Fixture Product') && str_contains($prompt, 'Total orders: 1'), 'Enabled commerce retains bounded aggregates');
+    }
+};
+
+$tests['admin context contains aggregates without customer identities'] = function (): void {
+    $users = [['email' => 'private@example.test', 'name' => 'Private Person']];
+    $orders = [['customer_email' => 'private@example.test', 'status' => 'confirmed', 'total' => 100,
+        'items' => [['name' => 'Wellness product', 'qty' => 2, 'line_total' => 100]]]];
+    $summary = \App\Services\AgentContextService::adminSummary(true, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
+    assertTrue(!str_contains($summary, 'private@example.test') && !str_contains($summary, 'Private Person'), 'Customer identity must not enter the admin model context');
+    assertTrue(str_contains($summary, 'Wellness product: 2 sold') && str_contains($summary, 'Confirmed or fulfilled revenue: ₹100.00'), 'Useful sales aggregates should remain available');
+    $sales = \App\Services\AgentContextService::adminSummary(true, [], [
+        ['status' => 'shipped', 'total' => 100, 'items' => [['slug' => 'p', 'name' => 'Product', 'qty' => 1]]],
+        ['status' => 'cancelled', 'total' => 900], ['status' => 'refunded', 'total' => 500],
+    ], [], 0, 0, 0);
+    assertTrue(str_contains($sales, 'Total revenue: ₹100.00') && str_contains($sales, 'Average order value: ₹100.00') && str_contains($sales, 'Product: 1 sold'), 'Exclude cancelled and refunded orders and include shipped sales');
+    $renamed = [['status' => 'confirmed', 'items' => [['slug' => 'same', 'name' => 'Old', 'qty' => 1], ['slug' => 'same', 'name' => str_repeat('x', 200), 'qty' => 2]]]];
+    $bounded = \App\Services\AgentContextService::adminSummary(true, [], $renamed, [], 0, 0, 0);
+    assertTrue(str_contains($bounded, str_repeat('x', 120) . ': 3 sold') && !str_contains($bounded, str_repeat('x', 121)), 'Sales group by slug and product names remain bounded');
+    $method = new ReflectionMethod(\App\Services\AgentToolRegistry::class, 'summariseOrder');
+    $orderSummary = $method->invoke(new \App\Services\AgentToolRegistry(modules: ['shop' => true]), $orders[0]);
+    assertTrue(!array_key_exists('customer_email', $orderSummary), 'Order tool responses must omit customer email');
+    $disabled = \App\Services\AgentContextService::adminSummary(false, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
+    assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product') && !str_contains($disabled, 'Total orders:') && !str_contains($disabled, 'revenue:'), 'Disabled commerce must exclude sales details');
+    $controller = fileRead('app/Controllers/AdminController.php');
+    assertTrue(str_contains($controller, '$context = (new \\App\\Services\\AgentContextService())->forAdmin(') && str_contains($controller, '$this->callAiApi($modelConfig, $message, $context)'), 'The admin request must pass the service summary to the model');
+};
+
 $tests['database service can connect to MySQL'] = function (): void {
     try {
         // Quick pre-check: verify the host is reachable before attempting PDO

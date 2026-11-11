@@ -15,6 +15,73 @@ final class AgentContextService {
         ];
     }
 
+    /** Bounded aggregate summary for the authenticated owner; never includes customer identities. */
+    public function forAdmin(bool $shopEnabled): string {
+        return self::adminSummary(
+            $shopEnabled,
+            $this->store->read('users'),
+            $shopEnabled ? $this->store->read('orders') : [],
+            $shopEnabled ? $this->store->read('products') : [],
+            count($this->store->read('consultants')),
+            count($this->store->read('appointments')),
+            count($this->store->read('support_tickets'))
+        );
+    }
+
+    public static function adminSummary(bool $shopEnabled, array $users, array $orders, array $products, int $consultantCount, int $appointmentCount, int $ticketCount): string {
+            if (!$shopEnabled) { $orders = []; $products = []; }
+            $userCount = count($users);
+            $orderCount = count($orders);
+            $productCount = count($products);
+            $revenueOrders = array_filter($orders, fn($o) => !in_array((string)($o['status'] ?? 'unknown'), ['cancelled', 'refunded'], true));
+            $totalRevenue = array_sum(array_column($revenueOrders, 'total'));
+            $confirmedOrders = array_filter($orders, fn($o) => in_array(($o['status'] ?? ''), ['confirmed', 'processing', 'packed', 'shipped', 'delivered'], true));
+            $pendingOrders = array_filter($orders, fn($o) => ($o['status'] ?? '') === 'pending');
+            $confirmedRevenue = array_sum(array_column($confirmedOrders, 'total'));
+            $pendingRevenue = array_sum(array_column($pendingOrders, 'total'));
+            $avgOrderValue = count($revenueOrders) > 0 ? $totalRevenue / count($revenueOrders) : 0;
+            // Per-product sales. "Which products sell best?" could not be answered before,
+            // because only a product count reached the model.
+            $unitsBySlug = [];
+            $revenueBySlug = [];
+            $productNames = [];
+            foreach ($confirmedOrders as $o) {
+                foreach (($o['items'] ?? []) as $item) {
+                    $key = (string)($item['slug'] ?? $item['name'] ?? '');
+                    if ($key === '') continue;
+                    $productNames[$key] = mb_substr((string)($item['name'] ?? $key), 0, 120);
+                    $qty = (int)($item['qty'] ?? 1);
+                    $unitsBySlug[$key] = ($unitsBySlug[$key] ?? 0) + $qty;
+                    $revenueBySlug[$key] = ($revenueBySlug[$key] ?? 0) + (float)($item['line_total'] ?? 0);
+                }
+            }
+            arsort($unitsBySlug);
+            $topProductsStr = '';
+            foreach (array_slice($unitsBySlug, 0, 5, true) as $slug => $units) {
+                $topProductsStr .= "\n  - {$productNames[$slug]}: {$units} sold, ₹" . number_format($revenueBySlug[$slug] ?? 0, 2);
+            }
+            if ($topProductsStr === '') $topProductsStr = "\n  - no confirmed sales yet";
+
+            $commerceContext = $shopEnabled
+                ? "- Total orders: {$orderCount} (confirmed or fulfilled: " . count($confirmedOrders) . ", pending: " . count($pendingOrders) . ")\n"
+                    . "- Products: {$productCount}\n"
+                    . "- Total revenue: ₹" . number_format($totalRevenue, 2) . "\n"
+                    . "- Confirmed or fulfilled revenue: ₹" . number_format($confirmedRevenue, 2) . "\n"
+                    . "- Pending revenue (unconfirmed): ₹" . number_format($pendingRevenue, 2) . "\n"
+                    . "- Average order value: ₹" . number_format($avgOrderValue, 2) . "\n"
+                    . "- Top 5 products by units sold:" . $topProductsStr
+                : "- Ecommerce is disabled. Do not offer or discuss products, orders, revenue, coupons, shipping, or checkout.";
+            return "You are the admin AI assistant. You have access to the aggregate site data below.\n\n"
+                . "Site data:\n"
+                . "- Total users: {$userCount}\n"
+                . "- Consultants: {$consultantCount}\n"
+                . "- Appointments: {$appointmentCount}\n"
+                . "- Support tickets: {$ticketCount}\n"
+                . $commerceContext
+                . "\n\nUse this data to answer. Never repeat it back unless asked for it. "
+                . "Customer identities are not included in this summary.";
+    }
+
     private function owned(string $collection, string $field, string $email): array {
         $records = array_values(array_filter($this->store->read($collection), fn($item) => strtolower((string)($item[$field] ?? '')) === $email));
         $fields = $this->schema->agentContextFields($collection);
