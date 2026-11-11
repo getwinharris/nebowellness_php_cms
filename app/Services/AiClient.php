@@ -25,7 +25,7 @@ final class AiClient
     private AiModelRouter $router;
     private string $lastModel = '';
 
-    public function __construct(?SecretService $secrets = null, ?AiModelRouter $router = null, string $routingScope = 'admin')
+    public function __construct(?SecretService $secrets = null, ?AiModelRouter $router = null, string $routingScope = 'admin', private ?AgentRunTrace $trace = null)
     {
         $this->secrets = $secrets ?? new SecretService();
         $this->router = $router ?? new AiModelRouter(scope: $routingScope);
@@ -128,7 +128,7 @@ final class AiClient
             ], JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
 
             $status = 0;
-            $body = $this->post($url, $payload, $headers, $status, $timeout);
+            $body = $this->post($url, $payload, $headers, $status, $timeout, 'google', $model);
             if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
 
             $result = json_decode((string)$body, true);
@@ -148,11 +148,13 @@ final class AiClient
             foreach ($calls as $call) {
                 $name = (string)$call['name'];
                 $args = is_array($call['args'] ?? null) ? $call['args'] : [];
+                $allowed = $tools->has($name);
+                $toolStarted = microtime(true);
+                $toolResult = $allowed ? $tools->run($name, $args) : ['error' => 'No such tool.'];
+                $this->trace?->tool($allowed ? $name : 'rejected', isset($toolResult['error']) ? 'error' : 'ok', $toolStarted);
                 $responses[] = ['functionResponse' => [
                     'name' => $name,
-                    'response' => $tools->has($name)
-                        ? $tools->run($name, $args)
-                        : ['error' => 'No such tool: ' . $name],
+                    'response' => $toolResult,
                 ]];
             }
             $contents[] = ['role' => 'user', 'parts' => $responses];
@@ -224,7 +226,7 @@ final class AiClient
         } else {
             $headers[] = 'Authorization: Bearer ' . $key;
         }
-        $body = $this->post($url, $payload, $headers, $status);
+        $body = $this->post($url, $payload, $headers, $status, 20, $provider, $model);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
         return (string)($result['choices'][0]['message']['content'] ?? '');
@@ -244,7 +246,7 @@ final class AiClient
         ], JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . trim((string)($config['apiKey'] ?? ''))];
         $status = 0;
-        $body = $this->post($url, $payload, $headers, $status, $timeout);
+        $body = $this->post($url, $payload, $headers, $status, $timeout, 'google', $model);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
         return self::answerFromParts($result['candidates'][0]['content']['parts'] ?? []);
@@ -360,8 +362,9 @@ final class AiClient
     }
 
     /** @return string|false */
-    private function post(string $url, string $payload, array $headers, ?int &$status, int $timeout = 20)
+    private function post(string $url, string $payload, array $headers, ?int &$status, int $timeout, string $provider, string $model)
     {
+        $started = microtime(true);
         $ch = curl_init($url);
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
@@ -377,6 +380,7 @@ final class AiClient
         // Keep a bounded cause, never raw cURL diagnostics which can contain URLs.
         $this->transportError = curl_errno($ch);
         $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $this->trace?->provider($provider, $model, $status, $this->transportError, $started);
         // CurlHandle is released automatically in PHP 8; curl_close is a no-op
         // deprecated in 8.5 and its warning can corrupt JSON responses.
         // https://www.php.net/manual/en/function.curl-close.php

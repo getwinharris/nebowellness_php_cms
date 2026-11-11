@@ -24,6 +24,7 @@ namespace App\Services;
 final class AgentToolRegistry
 {
     public const THERAPY_SUMMARY_PROMPT = 'Summarise therapy session requests in the last 30 days';
+    public const APPOINTMENTS_PROMPT = 'Summarise historical appointments';
 
     private array $modules;
 
@@ -46,6 +47,9 @@ final class AgentToolRegistry
     public function declarations(): array
     {
         $tools = [
+            ['name' => 'appointment_summary', 'description' => 'Count historical appointment records by status. These are not current bookings or therapy campaign requests.', 'parameters' => ['type' => 'object']],
+            ['name' => 'recent_orders', 'description' => 'List up to 10 recent orders: reference, date, status and total. No customer details.', 'parameters' => ['type' => 'object']],
+            ['name' => 'catalog_categories', 'description' => 'List up to 15 ecommerce categories by name and slug.', 'parameters' => ['type' => 'object']],
             [
                 'name' => 'find_order',
                 'description' => 'Look up one order by its id, or the most recent orders for a customer email. '
@@ -61,7 +65,7 @@ final class AgentToolRegistry
             [
                 'name' => 'product_status',
                 'description' => 'Stock, price, current offer and whether a product is hidden. '
-                    . 'Omit the slug to list every product.',
+                    . 'Omit the slug to list up to 10 products.',
                 'parameters' => [
                     'type' => 'object',
                     'properties' => [
@@ -142,7 +146,7 @@ final class AgentToolRegistry
         ];
         if (empty($this->modules['shop'])) {
             $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], [
-                'find_order', 'product_status', 'sales_summary', 'coupon_status',
+                'find_order', 'product_status', 'sales_summary', 'coupon_status', 'recent_orders', 'catalog_categories',
             ], true)));
         }
         if (empty($this->modules['campaigns'])) {
@@ -171,6 +175,9 @@ final class AgentToolRegistry
         if (!$this->has($name)) return ['error' => 'That feature is currently disabled.'];
         try {
             return match ($name) {
+                'appointment_summary' => self::summariseAppointments($this->store->read('appointments')),
+                'recent_orders' => $this->recentOrders(),
+                'catalog_categories' => ['categories' => array_map(static fn(array $row): array => array_intersect_key($row, ['name' => true, 'slug' => true]), array_slice($this->store->read('categories'), 0, 15))],
                 'find_order' => $this->findOrder($args),
                 'product_status' => $this->productStatus($args),
                 'sales_summary' => $this->salesSummary($args),
@@ -182,9 +189,30 @@ final class AgentToolRegistry
                 default => ['error' => 'No such tool: ' . $name],
             };
         } catch (\Throwable $e) {
-            error_log('Agent tool ' . $name . ' failed: ' . $e->getMessage());
+            error_log('Agent tool ' . $name . ' failed: ' . get_class($e));
             return ['error' => 'That lookup is unavailable right now.'];
         }
+    }
+
+    public static function summariseAppointments(array $rows): array
+    {
+        $counts = [];
+        foreach ($rows as $row) {
+            $status = $row['status'] ?? '';
+            if (!in_array($status, ['requested', 'queued', 'accepted', 'active', 'completed', 'declined', 'cancelled'], true)) $status = 'other';
+            $counts[$status] = ($counts[$status] ?? 0) + 1;
+        }
+        ksort($counts);
+        return ['total' => count($rows), 'by_status' => $counts, 'scope' => 'Historical appointments only'];
+    }
+
+    private function recentOrders(): array
+    {
+        $rows = $this->orders->all();
+        usort($rows, static fn(array $a, array $b): int => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
+        return ['orders' => array_map(static fn(array $row): array => array_intersect_key($row, [
+            'id' => true, 'status' => true, 'total' => true, 'created_at' => true,
+        ]), array_slice($rows, 0, 10))];
     }
 
     public static function summariseTherapyEnquiries(array $rows, array $args, ?int $now = null): array
@@ -285,7 +313,7 @@ final class AgentToolRegistry
             ];
         }
         if ($out === []) return ['found' => 0, 'message' => 'No product matched.'];
-        return ['found' => count($out), 'products' => $out];
+        return ['found' => count($out), 'products' => array_slice($out, 0, 10)];
     }
 
     private function salesSummary(array $args): array

@@ -9,12 +9,25 @@ final class SupportTicketService {
     }
 
     public function forUser(string $email): array {
-        return array_values(array_filter($this->all(), fn($t) => ($t['customer_email'] ?? '') === $email));
+        if (trim($email) === '') return [];
+        return array_values(array_filter($this->all(), fn($t) => strcasecmp((string)($t['customer_email'] ?? ''), $email) === 0));
     }
 
-    public function create(string $customerEmail, string $message, string $context = ''): array {
+    public function track(string $email, string $reference): ?array {
+        if (trim($email) === '' || !preg_match('/^(?:[a-f0-9]{16}|[a-f0-9]{32})$/D', $reference)) return null;
+        return self::visibleStatus($this->store->find('support_tickets', $reference), $email);
+    }
+
+    public static function visibleStatus(?array $ticket, string $email): ?array {
+        if ($ticket === null || trim($email) === '' || strcasecmp((string)($ticket['customer_email'] ?? ''), $email) !== 0) return null;
+        return array_intersect_key($ticket, array_flip(['id', 'status', 'reply']));
+    }
+
+    public function create(string $customerEmail, string $message, string $context = '', ?string $requestId = null): array {
+        $id = $requestId === null ? bin2hex(random_bytes(8)) : substr(hash('sha256', strtolower($customerEmail) . ':' . $requestId), 0, 32);
+        if ($requestId !== null && ($existing = $this->track($customerEmail, $id)) !== null) return $existing;
         $ticket = [
-            'id' => bin2hex(random_bytes(8)),
+            'id' => $id,
             'customer_email' => $customerEmail,
             'message' => $message,
             'context' => $context,

@@ -8,7 +8,8 @@ final class SupportBotService {
     public function __construct(
         private SecretService $secrets = new SecretService(),
         private DatabaseService $store = new DatabaseService(),
-        private AgentContextService $agentContext = new AgentContextService()
+        private AgentContextService $agentContext = new AgentContextService(),
+        private ?AgentRunTrace $trace = null
     ) {}
 
     public function answer(string $message, ?array $user): array {
@@ -16,16 +17,41 @@ final class SupportBotService {
         $outcome = 'fallback';
         $message = trim($message);
         if ($message === '') throw new \InvalidArgumentException('Message is required.');
+        $ticketReply = $this->ticketReply($message, (string)($user['email'] ?? ''));
+        if ($ticketReply !== null) {
+            $this->trace?->tool('track_support_ticket', 'ok', $startedAt);
+            return $this->finishReply($ticketReply, 'fallback', $startedAt);
+        }
         $starter = match ($message) {
             self::PROGRAMS_PROMPT => 'Explore gut health, metabolic wellness, fertility and maternal support, and lifestyle programs at /#programs.',
             self::CONSULTATION_PROMPT => 'Use /contact to request a consultation. The clinic team can discuss your goals and next steps. Sending an enquiry does not confirm a booking.',
             default => null,
         };
         if ($starter !== null) {
-            (new AuditLogService($this->store))->agentRun('support', 'fallback', $startedAt);
-            return ['reply' => $starter, 'ticket_id' => null, 'memory' => 'browser_session', 'actions' => $this->extractActions($starter)];
+            return $this->finishReply($starter, 'fallback', $startedAt);
         }
         $context = $this->customerContext($user);
+        $destination = $this->destination($message, $context);
+        if ($destination !== null) {
+            if ($destination['path'] === '/account/dashboard/orders' && empty($context['signed_in'])) {
+                return $this->finishReply('Sign in at /login to see your orders.', 'private_account', $startedAt);
+            }
+            $this->trace?->tool('public_navigation', 'ok', $startedAt);
+            $result = $this->finishReply('Opening ' . $destination['label'] . '.', 'fallback', $startedAt);
+            $result['open'] = $destination['path'];
+            $result['actions'] = [['type' => 'navigate', 'label' => $destination['label'], 'path' => $destination['path']]];
+            return $result;
+        }
+        if (preg_match('/^(?:please )?(?:open|go to|take me to|navigate to)\s+/i', $message)) {
+            return $this->finishReply('I could not match that page. Try “Open programs”, or use the exact title of a published article or clinic page.', 'fallback', $startedAt);
+        }
+        if (preg_match('/^(?:tell me about|explain|what is)\s+(?:the\s+)?(.+?)\s*[?.!]*$/i', $message, $match)) {
+            $entry = $this->destinations($context)[mb_strtolower(trim($match[1]))] ?? [];
+            if (!empty($entry['summary'])) {
+                $this->trace?->tool('public_content_lookup', 'ok', $startedAt);
+                return $this->finishReply($entry['summary'] . ' Read more at ' . $entry['path'] . '.', 'fallback', $startedAt, $context);
+            }
+        }
         // A guest reaches the model too. Assigning them a canned reply first meant the
         // AI never ran for the public widget, so every question returned the same menu.
         // Their prompt carries no personal data: forUserEmail('') yields user => null
@@ -46,22 +72,71 @@ final class SupportBotService {
             }
         }
         $reply ??= $this->fallbackReply($message, $context);
-        $result = ['reply' => $reply, 'ticket_id' => null, 'memory' => 'browser_session'];
-        $email = !empty($user['email']) ? (string)$user['email'] : '';
-        $escalated = $this->shouldEscalate($message, $user);
-        if ($escalated && $email !== '') {
-            try {
-                $ticket = (new SupportTicketService())->create($email, $message, 'escalated from support bot');
-                $result['ticket_id'] = $ticket['id'];
-                $result['reply'] .= ' A support ticket was sent to the clinic team. Reference: ' . $ticket['id'] . '.';
-            } catch (\Throwable) {
-                $result['reply'] .= ' The support ticket could not be created. Please reach the clinic at /contact.';
+        return $this->finishReply($reply, $outcome, $startedAt, $context);
+    }
+
+    private function finishReply(string $reply, string $outcome, float $started, array $context = []): array {
+        (new AuditLogService($this->store))->agentRun('support', $outcome, $started, $this->trace);
+        $allowed = array_column($this->destinations($context), 'path');
+        $actions = array_values(array_filter($this->extractActions($reply), static fn(array $action): bool => in_array($action['path'], $allowed, true)));
+        return ['reply' => $reply, 'ticket_id' => null, 'memory' => 'browser_session', 'actions' => $actions];
+    }
+
+    private function ticketReply(string $message, string $email): ?string {
+        if (preg_match('/^(?:human|talk to (?:a person|the clinic)|contact support|speak to (?:a person|the clinic))[?.!]*$/i', $message)) {
+            return $email === '' ? 'Contact the clinic at /contact.' : 'To send a support ticket, enter your message and select Send to clinic. You can also use /contact.';
+        }
+        $list = preg_match('/^(?:show |list )?(?:my )?(?:support )?tickets[?.!]*$/i', $message);
+        if (!$list && !preg_match('/^(?:track|check|status of) (?:support )?ticket\s+([a-f0-9]{16,32})[?.!]*$/i', $message, $match)) return null;
+        if ($email === '') return 'Sign in at /login to see your support tickets, or contact the clinic at /contact.';
+        $tickets = new SupportTicketService($this->store);
+        if (!$list) {
+            $ticket = $tickets->track($email, strtolower($match[1]));
+            if ($ticket === null) return 'No ticket with that reference was found for this account.';
+            return 'Ticket ' . $ticket['id'] . ' is ' . ($ticket['status'] ?? 'open') . '.'
+                . (empty($ticket['reply']) ? '' : ' Clinic reply: ' . $ticket['reply']);
+        }
+        $rows = $tickets->forUser($email);
+        usort($rows, static fn(array $a, array $b): int => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
+        $recent = array_map(static fn(array $row): string => $row['id'] . ' (' . ($row['status'] ?? 'open') . ')', array_slice($rows, 0, 5));
+        return $recent === [] ? 'You have no support tickets.' : 'Recent tickets: ' . implode(', ', $recent) . '. Type “track ticket” followed by a reference to check its status and clinic reply.';
+    }
+
+    private function destination(string $message, array $context): ?array {
+        if (!preg_match('/^(?:please )?(?:open|go to|take me to|navigate to)\s+(?:the\s+)?(.+?)\s*[?.!]*$/i', $message, $match)) return null;
+        $target = mb_strtolower(trim($match[1]));
+        return $this->destinations($context)[$target] ?? null;
+    }
+
+    private function destinations(array $context): array {
+        $pages = [
+            'home' => ['path' => '/', 'label' => 'Nebo home'],
+            'programs' => ['path' => '/#programs', 'label' => 'Nebo programs'],
+            'about' => ['path' => '/about', 'label' => 'About Nebo'],
+            'about nebo' => ['path' => '/about', 'label' => 'About Nebo'],
+            'sign in' => ['path' => '/login', 'label' => 'Sign in'],
+            'contact' => ['path' => '/contact', 'label' => 'Contact the clinic'],
+            'support' => ['path' => '/support', 'label' => 'Support'],
+        ];
+        foreach ($context['site']['pages'] ?? [] as $name => $path) {
+            $pages[$name] ??= ['path' => $path, 'label' => ucfirst($name)];
+        }
+        $aliases = ['campaigns' => ['therapy products', 'campaign pages'], 'blog' => ['journal'], 'orders' => ['my orders']];
+        foreach ($aliases as $key => $names) {
+            if (isset($pages[$key])) foreach ($names as $name) $pages[$name] = $pages[$key];
+        }
+        $items = array_merge($context['articles'] ?? [], $context['site']['campaigns'] ?? [], $context['site']['products'] ?? []);
+        foreach ($items as $item) {
+            $title = trim((string)($item['title'] ?? $item['name'] ?? ''));
+            $path = (string)($item['url'] ?? '');
+            if ($title !== '' && preg_match('#^/(?:blog|campaigns|product)/[a-z0-9-]+$#D', $path)) {
+                $pages[mb_strtolower($title)] ??= [
+                    'path' => $path, 'label' => $title,
+                    'summary' => mb_substr(trim(strip_tags((string)($item['summary'] ?? $item['description'] ?? ''))), 0, 400),
+                ];
             }
         }
-        $actions = $this->extractActions($result['reply']);
-        if ($actions !== []) $result['actions'] = $actions;
-        (new AuditLogService($this->store))->agentRun('support', $outcome, $startedAt);
-        return $result;
+        return $pages;
     }
 
     private function customerContext(?array $user): array {
@@ -114,7 +189,7 @@ final class SupportBotService {
             . json_encode($context, JSON_UNESCAPED_SLASHES)
             . "\nCustomer question: " . $message
             . "\nSupport reply:";
-        return (new AiClient($this->secrets, routingScope: 'support'))->completeOrNull($prompt, 220, 0.2);
+        return (new AiClient($this->secrets, routingScope: 'support', trace: $this->trace))->completeOrNull($prompt, 220, 0.2);
     }
 
     private function cleanReply(string $reply): string {
@@ -331,15 +406,8 @@ final class SupportBotService {
         );
     }
 
-    private function shouldEscalate(string $message, ?array $user): bool {
-        if (empty($user['email'])) return false;
-        if (preg_match('/\b(human|agent|escalate|talk to (a|someone)|speak to|contact support)\b/i', $message)) return true;
-        if (preg_match('/\b(complaint|refund|cancel|cancellation|return|wrong|broken|not working|issue|problem)\b/i', $message)) return true;
-        return false;
-    }
-
     private function extractActions(string $reply): array {
-        preg_match_all('/\/(?:#programs|shop|cart|checkout|contact|campaigns(?:\/[a-z0-9-]+)?|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
+        preg_match_all('/\/(?:#programs|shop|cart|checkout|contact|login|about|support|campaigns(?:\/[a-z0-9-]+)?|blog(?:\/category\/[a-z0-9-]+|\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
         $seen = [];
         $actions = [];
         foreach ($matches[0] as $path) {

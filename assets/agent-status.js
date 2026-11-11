@@ -28,16 +28,18 @@
             const timer = setInterval(update, 1000);
             let finished = false;
             return {
-                finish: function (failed) {
+                finish: function (failed, mode) {
                     if (finished) return;
                     finished = true;
                     clearInterval(timer);
                     update();
                     detail.dataset.state = failed ? 'error' : 'complete';
-                    label.textContent = failed ? 'Request failed' : 'Response ready';
+                    label.textContent = failed ? 'Request failed' : mode === 'manual' ? 'Manual form ready' : mode === 'unavailable' ? 'Draft unavailable' : 'Response ready';
                     note.textContent = failed
                         ? 'The request did not complete successfully. You can retry; no success is implied.'
-                        : 'The response is shown below. Elapsed time includes network and server processing; it is not a measure of answer accuracy.';
+                        : mode === 'manual' || mode === 'unavailable'
+                            ? 'No content was generated. You can fill out the form below.'
+                            : 'The response is shown below. Elapsed time includes network and server processing; it is not a measure of answer accuracy.';
                     bar.remove();
                     detail.open = false;
                 }

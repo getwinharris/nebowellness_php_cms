@@ -9,14 +9,14 @@ final class AuditLogService {
     }
 
     /** Operational metadata only: never retain prompts, replies, identities or secrets. */
-    public function agentRun(string $surface, string $outcome, float $startedAt): void {
+    public function agentRun(string $surface, string $outcome, float $startedAt, ?AgentRunTrace $trace = null): void {
         if (!in_array($surface, ['support', 'admin'], true)) return;
-        if (!in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'error'], true)) return;
+        if (!in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'manual', 'draft_unavailable', 'error'], true)) return;
         $this->record('run', 'agent', $surface, [
             'surface' => $surface,
             'outcome' => $outcome,
             'duration_ms' => max(0, (int)round((microtime(true) - $startedAt) * 1000)),
-        ], ['email' => 'system', 'name' => 'Agent monitoring']);
+        ] + ($trace?->metadata() ?? []), ['email' => 'system', 'name' => 'Agent monitoring']);
     }
 
     public static function agentSummary(array $events, ?int $now = null): array {
@@ -25,7 +25,7 @@ final class AuditLogService {
         $summary = [];
         $durations = ['support' => [], 'admin' => []];
         foreach (['support', 'admin'] as $surface) {
-            $summary[$surface] = ['requests' => 0, 'model' => 0, 'fallback' => 0, 'private_account' => 0, 'draft' => 0, 'error' => 0, 'duration_ms' => 0, 'last_seen' => ''];
+            $summary[$surface] = ['requests' => 0, 'model' => 0, 'fallback' => 0, 'private_account' => 0, 'draft' => 0, 'manual' => 0, 'draft_unavailable' => 0, 'error' => 0, 'duration_ms' => 0, 'last_seen' => ''];
         }
         foreach ($events as $event) {
             if (($event['event'] ?? '') !== 'agent.run') continue;
@@ -35,7 +35,7 @@ final class AuditLogService {
             $outcome = $meta['outcome'] ?? '';
             $created = (string)($event['created_at'] ?? '');
             $timestamp = strtotime($created);
-            if (!isset($summary[$surface]) || !in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'error'], true) || $timestamp === false || $timestamp < $cutoff || $timestamp > $now) continue;
+            if (!isset($summary[$surface]) || !in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'manual', 'draft_unavailable', 'error'], true) || $timestamp === false || $timestamp < $cutoff || $timestamp > $now) continue;
             $summary[$surface]['requests']++;
             $summary[$surface][$outcome]++;
             $duration = max(0, (int)($meta['duration_ms'] ?? 0));

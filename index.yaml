@@ -41,8 +41,8 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 280
-  relationships: 255
+  concepts: 281
+  relationships: 259
   by_type:
     blog: 5
     controller: 12
@@ -50,7 +50,7 @@ summary:
     image: 28
     route: 116
     schema: 23
-    service: 50
+    service: 51
     skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -1902,6 +1902,7 @@ concepts:
       - "AgentAttachmentService"
       - "AgentDraftService"
       - "AgentToolRegistry"
+      - "AgentRunTrace"
       - "AiReplyCleaner"
       - "AiClient"
       - "AiModelRouter"
@@ -2626,6 +2627,7 @@ concepts:
       - "AgentContextService"
       - "SupportTicketService"
       - "AuditLogService"
+      - "AgentRunTrace"
       - "AiClient"
       - "AiModelRouter"
       - "AiReplyCleaner"
@@ -2907,6 +2909,14 @@ concepts:
     title: "AgentDraftService"
     description: "Service: AgentDraftService"
     resource: "app/Services/AgentDraftService.php"
+    tags:
+      - "code"
+      - "service"
+  - id: "service:AgentRunTrace"
+    type: "service"
+    title: "AgentRunTrace"
+    description: "Service: AgentRunTrace"
+    resource: "app/Services/AgentRunTrace.php"
     tags:
       - "code"
       - "service"
@@ -3367,6 +3377,9 @@ relationships:
     to: "service:AgentDraftService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:AgentRunTrace"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:AgentToolRegistry"
     relation: "uses"
   - from: "controller:AdminController"
@@ -3584,6 +3597,9 @@ relationships:
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AgentContextService"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:AgentRunTrace"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AiClient"
@@ -3982,7 +3998,13 @@ relationships:
     to: "schema:users"
     relation: "stores"
   - from: "service:AgentToolRegistry"
+    to: "schema:appointments"
+    relation: "stores"
+  - from: "service:AgentToolRegistry"
     to: "schema:campaign_pages"
+    relation: "stores"
+  - from: "service:AgentToolRegistry"
+    to: "schema:categories"
     relation: "stores"
   - from: "service:AgentToolRegistry"
     to: "schema:contact_submissions"

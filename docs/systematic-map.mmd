@@ -7,10 +7,10 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 116 routes, 12 controllers, 50 services, 45 views, 0 data files, 19 tools"]
+  subgraph ARCH["Architecture Overview — 116 routes, 12 controllers, 51 services, 45 views, 0 data files, 19 tools"]
     arch_routes["> Routes: 116 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 12"]:::arch
-    arch_svc["> Services: 50"]:::arch
+    arch_svc["> Services: 51"]:::arch
     arch_views["> Views: 45"]:::arch
     arch_data["> Collections: 23 schema | 0 files"]:::arch
     arch_tools["> Tools: 19"]:::arch
@@ -178,6 +178,7 @@ flowchart LR
     service_agentattachmentservice["AgentAttachmentService"]:::code
     service_agentcontextservice["AgentContextService"]:::code
     service_agentdraftservice["AgentDraftService"]:::code
+    service_agentruntrace["AgentRunTrace"]:::code
     service_agenttoolregistry["AgentToolRegistry"]:::code
     service_aiclient["AiClient"]:::code
     service_aimodelrouter["AiModelRouter"]:::code
@@ -589,6 +590,7 @@ flowchart LR
   controller_admincontroller --> service_agentattachmentservice
   controller_admincontroller --> service_agentdraftservice
   controller_admincontroller --> service_agenttoolregistry
+  controller_admincontroller --> service_agentruntrace
   controller_admincontroller --> service_aireplycleaner
   controller_admincontroller --> service_aiclient
   controller_admincontroller --> service_aimodelrouter
@@ -767,6 +769,7 @@ flowchart LR
   controller_supportcontroller --> service_agentcontextservice
   controller_supportcontroller --> service_supportticketservice
   controller_supportcontroller --> service_auditlogservice
+  controller_supportcontroller --> service_agentruntrace
   controller_supportcontroller --> service_aiclient
   controller_supportcontroller --> service_aimodelrouter
   controller_supportcontroller --> service_aireplycleaner
@@ -857,6 +860,8 @@ flowchart LR
   service_agentcontextservice --> collection_appointments
   service_agentcontextservice --> collection_support_tickets
   service_agentcontextservice --> collection_settings
+  service_agenttoolregistry --> collection_appointments
+  service_agenttoolregistry --> collection_categories
   service_agenttoolregistry --> collection_contact_submissions
   service_agenttoolregistry --> collection_campaign_pages
   service_aimodelrouter --> collection_ai_model_state

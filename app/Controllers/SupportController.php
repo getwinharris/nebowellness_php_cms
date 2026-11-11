@@ -1,6 +1,6 @@
 <?php
 namespace App\Controllers;
-use App\Services\{AuthService,SupportBotService,SupportTicketService};
+use App\Services\{AgentRunTrace,AuditLogService,AuthService,SupportBotService,SupportTicketService};
 
 final class SupportController extends BaseController {
     public function page(): void {
@@ -9,28 +9,46 @@ final class SupportController extends BaseController {
         $this->render('public/support', ['supportNav' => $supportNav]);
     }
 
-    public function latestMessage(): void {
-        $tickets = (new \App\Services\DatabaseService())->read('support_tickets');
-        usort($tickets, fn(array $a, array $b): int => strcmp($b['created_at'] ?? '', $a['created_at'] ?? ''));
-        $latest = $tickets[0] ?? null;
-        if ($latest) {
-            $this->jsonResponse(['success' => true, 'message' => ['id' => $latest['id'], 'text' => $latest['message'] . "\n\n" . $latest['reply']]]);
-        } else {
-            $this->jsonResponse(['success' => false, 'message' => null]);
-        }
-    }
-
     public function ask(): void {
         $this->isApiRequest = true;
         $this->checkRateLimit('support', 10, 60);
         $startedAt = microtime(true);
+        $trace = new AgentRunTrace();
+        header('X-Agent-Trace: ' . $trace->id);
         try {
             $user = (new AuthService())->user();
-            $answer = (new SupportBotService())->answer($_POST['message'] ?? '', $user);
+            $message = is_string($_POST['message'] ?? null) ? trim($_POST['message']) : '';
+            if ($message === '' || mb_strlen($message) > 2000) {
+                $this->jsonResponse(['error' => 'Enter a message of 1 to 2,000 characters.'], 422);
+                return;
+            }
+            if (($_POST['intent'] ?? '') === 'ticket') {
+                $requestId = $_POST['request_id'] ?? null;
+                $expected = $_SESSION['csrf_token'] ?? '';
+                $submitted = $_POST['_csrf'] ?? null;
+                if (!is_string($submitted) || $expected === '' || !hash_equals($expected, $submitted)) {
+                    $this->jsonResponse(['error' => 'Refresh this page before sending a ticket.'], 419);
+                    return;
+                }
+                if (empty($user['email'])) {
+                    $this->jsonResponse(['error' => 'Sign in before sending a support ticket.'], 401);
+                    return;
+                }
+                if (!is_string($requestId) || !preg_match('/^[a-f0-9]{32}$/D', $requestId)) {
+                    $this->jsonResponse(['error' => 'Refresh the page and try again.'], 422);
+                    return;
+                }
+                $ticket = (new SupportTicketService())->create((string)$user['email'], $message, 'support chat', $requestId);
+                $trace->tool('create_support_ticket', 'ok', $startedAt);
+                (new AuditLogService())->agentRun('support', 'fallback', $startedAt, $trace);
+                $this->jsonResponse(['reply' => 'Sent to the clinic team. Track ticket ' . $ticket['id'] . ' in this chat.', 'ticket_id' => $ticket['id']]);
+                return;
+            }
+            $answer = (new SupportBotService(trace: $trace))->answer($message, $user);
             $this->jsonResponse($answer);
         } catch (\Throwable $e) {
-            (new \App\Services\AuditLogService())->agentRun('support', 'error', $startedAt);
-            $this->jsonResponse(['error' => 'Unable to answer right now. Please try again.'], 400);
+            (new AuditLogService())->agentRun('support', 'error', $startedAt, $trace);
+            $this->jsonResponse(['error' => 'Support is temporarily unavailable. Please try again or contact the clinic.'], 503);
         }
     }
 

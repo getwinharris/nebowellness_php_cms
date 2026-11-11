@@ -425,13 +425,22 @@ if ($__flash):
         <p>Ask about Nebo programs or how to reach the clinic. Please leave medical details out of chat.</p>
     </div>
     <form class="support-panel__form" id="support-form">
+        <input type="hidden" name="_csrf" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
         <div class="support-starters" aria-label="Suggested questions">
             <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::PROGRAMS_PROMPT) ?>">Explore programs</button>
             <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::CONSULTATION_PROMPT) ?>">Request a consultation</button>
+            <?php if (!empty($_SESSION['user']['email'])): ?>
+                <button type="button" class="btn btn-outline btn-sm" data-support-prompt="My support tickets">My tickets</button>
+            <?php endif; ?>
         </div>
-        <textarea name="message" rows="2" required aria-label="Support message" placeholder="Ask about Nebo"></textarea>
+        <textarea name="message" rows="2" maxlength="2000" required aria-label="Support message" placeholder="Try “Open programs” or ask about Nebo"></textarea>
         <div class="support-starters">
             <button class="btn btn-primary btn-sm">Send</button>
+            <?php if (!empty($_SESSION['user']['email'])): ?>
+                <button class="btn btn-outline btn-sm" type="submit" value="ticket" title="Share this message with clinic staff">Send to clinic</button>
+            <?php else: ?>
+                <a href="/login">Sign in to track tickets</a>
+            <?php endif; ?>
             <a href="/contact#contact-form">Contact the clinic team</a>
         </div>
     </form>
@@ -630,10 +639,11 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
 function supportEscape(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
+function supportActionPath(path){return typeof path==='string' && /^\/(?!\/)[a-z0-9/#-]*$/i.test(path);}
 function supportActionsHtml(actions){
     if(!Array.isArray(actions)||!actions.length)return '';
     return '<div class="support-actions">'+actions.filter(function(action){
-        return action.type==='navigate' && typeof action.path==='string' && /^\/(?!\/)[a-z0-9/#-]*$/i.test(action.path);
+        return action.type==='navigate' && supportActionPath(action.path);
     }).map(function(action){
         return '<a class="btn btn-sm btn-outline support-action-btn" href="'+supportEscape(action.path)+'">'+supportEscape(action.label)+'</a>';
     }).join('')+'</div>';
@@ -644,7 +654,7 @@ function supportToggle(open){
     supportFab.setAttribute('aria-expanded',String(open));
     (open?supportClose:supportFab).focus();
 }
-function supportSaveLog(){try{if(!supportPanel||!supportLog)return;sessionStorage.setItem(supportPanel.dataset.supportKey,supportLog.innerHTML);}catch(e){}}
+function supportSaveLog(){try{if(!supportPanel||!supportLog)return;var copy=supportLog.cloneNode(true);copy.querySelectorAll('[data-support-private]').forEach(function(node){node.remove();});sessionStorage.setItem(supportPanel.dataset.supportKey,copy.innerHTML);}catch(e){}}
 function supportLoadLog(){try{if(!supportPanel||!supportLog)return;var saved=sessionStorage.getItem(supportPanel.dataset.supportKey);if(saved){supportLog.innerHTML=saved;}}catch(e){}}
 if(supportFab&&supportPanel){supportLoadLog();
 supportFab.addEventListener('click',function(){supportToggle(supportPanel.hidden);});
@@ -656,28 +666,44 @@ if(supportForm) supportForm.querySelectorAll('[data-support-prompt]').forEach(fu
         supportForm.requestSubmit();
     });
 });
-if(supportForm){supportForm.addEventListener('submit',async function(e){
+if(supportForm){var ticketMessage='',ticketNonce='';supportForm.addEventListener('submit',async function(e){
     e.preventDefault();
     if(supportForm.dataset.busy==='true')return;
     var data=new FormData(supportForm),msg=String(data.get('message')||'').trim();
     if(!msg||!supportLog)return;
+    var ticket=e.submitter?.value==='ticket';
+    var privateTurn=ticket||/\btickets?\b/i.test(msg);
+    if(ticket){
+        if(ticketMessage!==msg||!ticketNonce){
+            ticketNonce=Array.from(crypto.getRandomValues(new Uint8Array(16)),function(byte){return byte.toString(16).padStart(2,'0');}).join('');
+            ticketMessage=msg;
+        }
+        data.set('intent','ticket');data.set('request_id',ticketNonce);
+    }
     supportForm.dataset.busy='true';
     var controls=Array.from(supportForm.querySelectorAll('textarea,button'));
     controls.forEach(function(control){control.disabled=true;});
-    supportLog.insertAdjacentHTML('beforeend','<p><strong>You:</strong> '+supportEscape(msg)+'</p>');
-    supportSaveLog();supportForm.reset();
-    var progress=window.AgentRequestStatus.start(supportLog),failed=false;
+    var turn=document.createElement('div');
+    if(privateTurn)turn.dataset.supportPrivate='';
+    supportLog.append(turn);
+    turn.insertAdjacentHTML('beforeend','<p><strong>You:</strong> '+supportEscape(msg)+'</p>');
+    supportForm.reset();
+    var progress=window.AgentRequestStatus.start(turn),failed=false,openPath=null;
     supportLog.scrollTop=supportLog.scrollHeight;
     var abort=new AbortController(),timeout=setTimeout(function(){abort.abort();},35000);
     try{
         var r=await fetch('/support/ask',{method:'POST',body:data,signal:abort.signal});
         var j=await r.json();failed=!r.ok||!!j.error;
-        supportLog.insertAdjacentHTML('beforeend','<p><strong>Support:</strong> '+supportEscape(j.reply||j.error||'Unable to answer right now.')+'</p>'+supportActionsHtml(j.actions));
-    }catch(err){failed=true;supportLog.insertAdjacentHTML('beforeend','<p><strong>Support:</strong> Unable to answer right now. Please try again.</p>');}
+        turn.insertAdjacentHTML('beforeend','<p><strong>Support:</strong> '+supportEscape(j.reply||j.error||'Unable to answer right now.')+'</p>'+supportActionsHtml(j.actions));
+        if(!failed && ticket){ticketNonce='';ticketMessage='';}
+        if(!failed && supportActionPath(j.open) && Array.isArray(j.actions) && j.actions.some(function(action){return action.type==='navigate'&&action.path===j.open;}))openPath=j.open;
+    }catch(err){failed=true;turn.insertAdjacentHTML('beforeend','<p><strong>Support:</strong> Unable to answer right now. Please try again.</p>');}
     finally{
         clearTimeout(timeout);progress.finish(failed);
         supportForm.dataset.busy='false';controls.forEach(function(control){control.disabled=false;});
+        if(failed)supportForm.elements.message.value=msg;
         supportSaveLog();supportLog.scrollTop=supportLog.scrollHeight;
+        if(openPath)location.assign(openPath);
     }
 });}
 function showToast(msg,type){type=type||'info';var c=document.getElementById('toast-container');if(!c){c=document.createElement('div');c.id='toast-container';document.body.appendChild(c);}var t=document.createElement('div');t.className='toast toast--'+type;var icons={success:'✓',error:'✕',warning:'⚠',info:'ℹ'};t.innerHTML='<span class="toast__icon">'+(icons[type]||'ℹ')+'</span><span class="toast__text">'+msg+'</span><button class="toast__close" aria-label="Dismiss">&times;</button>';t.querySelector('.toast__close').addEventListener('click',function(e){e.stopPropagation();dismiss(t);});t.addEventListener('click',function(){dismiss(t);});c.appendChild(t);var timer=setTimeout(function(){dismiss(t);},4000);function dismiss(el){if(el.classList.contains('toast--out'))return;el.classList.add('toast--out');clearTimeout(timer);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},250);}}

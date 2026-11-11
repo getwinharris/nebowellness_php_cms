@@ -193,19 +193,44 @@ final class AdminController extends BaseController {
         // than making them remember slugs and filenames.
         $attachables = (new \App\Services\AgentAttachmentService())->catalogue();
         $agentMonitoring = null;
-        try { $agentMonitoring = AuditLogService::agentSummary((new AuditLogService())->all()); }
-        catch (\Throwable $error) { error_log('Agent workspace monitoring unavailable: ' . $error->getMessage()); }
-        $this->render('admin/agent',['pageTitle'=>'Enterprise Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns'),'agentMonitoring'=>$agentMonitoring]);
+        $agentTraces = [];
+        try {
+            $events = (new AuditLogService())->all();
+            $agentMonitoring = AuditLogService::agentSummary($events);
+            usort($events, static fn(array $a, array $b): int => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
+            $agentTraces = array_slice(array_values(array_filter($events, static fn(array $event): bool =>
+                ($event['event'] ?? '') === 'agent.run' && isset($event['meta']['trace_id'])
+            )), 0, 12);
+        }
+        catch (\Throwable $error) { error_log('Agent workspace monitoring unavailable: ' . get_class($error)); }
+        $this->render('admin/agent',['pageTitle'=>'Enterprise Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns'),'agentMonitoring'=>$agentMonitoring,'agentTraces'=>$agentTraces]);
     }
     public function agentAsk(): void{
         $message = trim((string)($_POST['message'] ?? ''));
         if ($message === '') {$this->jsonResponse(['error'=>'Message is required'],400); return;}
         $startedAt = microtime(true);
+        $trace = new \App\Services\AgentRunTrace();
+        header('X-Agent-Trace: ' . $trace->id);
         try {
+            if ($message === \App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT) {
+                $summary = (new \App\Services\AgentToolRegistry())->run('appointment_summary', []);
+                $failed = isset($summary['error']);
+                $trace->tool('appointment_summary', $failed ? 'error' : 'ok', $startedAt);
+                (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'fallback', $startedAt, $trace);
+                if ($failed) {
+                    $this->jsonResponse(['error' => $summary['error']], 503);
+                    return;
+                }
+                $answer = 'Historical appointments: ' . $summary['total'] . '. These are archived records, separate from current campaign enquiries.';
+                foreach ($summary['by_status'] as $status => $count) $answer .= "\n- " . ucfirst($status) . ': ' . $count;
+                $this->jsonResponse(['answer' => $answer]);
+                return;
+            }
             if ($message === \App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT) {
                 $summary = (new \App\Services\AgentToolRegistry())->run('therapy_enquiry_summary', ['days' => 30]);
+                $trace->tool('therapy_enquiry_summary', isset($summary['error']) ? 'error' : 'ok', $startedAt);
                 if (isset($summary['error'])) {
-                    (new AuditLogService())->agentRun('admin', 'error', $startedAt);
+                    (new AuditLogService())->agentRun('admin', 'error', $startedAt, $trace);
                     $this->jsonResponse(['error' => $summary['error']], 503);
                     return;
                 }
@@ -214,7 +239,7 @@ final class AdminController extends BaseController {
                     'The Contacts inbox recorded %d therapy campaign enquiries in the last %d days: %d new, %d read, %d closed and %d with another status.',
                     $summary['request_count'], $summary['days'], $status['new'], $status['read'], $status['closed'], $status['other']
                 );
-                (new AuditLogService())->agentRun('admin', 'fallback', $startedAt);
+                (new AuditLogService())->agentRun('admin', 'fallback', $startedAt, $trace);
                 $this->jsonResponse(['answer' => $answer, 'missing' => []]);
                 return;
             }
@@ -233,13 +258,18 @@ final class AdminController extends BaseController {
                     $this->jsonResponse(['error'=>'Ecommerce is disabled. Enable it in Site Settings before drafting a product.'],409);
                     return;
                 }
-                $draft = (new \App\Services\AgentDraftService())->draft(
+                $draft = (new \App\Services\AgentDraftService(ai: new \App\Services\AiClient(trace: $trace)))->draft(
                     $command,
                     \App\Services\AgentDraftService::subject($message),
                     $attachments['context']
                 );
                 $draft['missing'] = $attachments['missing'];
-                (new AuditLogService())->agentRun('admin', 'draft', $startedAt);
+                $outcome = match ($draft['mode']) {
+                    'generated' => 'draft',
+                    'manual' => 'manual',
+                    default => 'draft_unavailable',
+                };
+                (new AuditLogService())->agentRun('admin', $outcome, $startedAt, $trace);
                 $this->jsonResponse(['draft' => $draft]);
                 return;
             }
@@ -250,19 +280,19 @@ final class AdminController extends BaseController {
                 $context .= "\n\nDocuments the owner attached with @:" . $attachments['context'];
             }
             if (!empty($modelConfig['apiKey'])) {
-                $answer = $this->callAiApi($modelConfig, $message, $context);
+                $answer = $this->callAiApi($modelConfig, $message, $context, $trace);
             } else {
                 $answer = "AI model not configured. Go to Admin → Integrations and set api_endpoint, ai_api_key, and agent_model.";
             }
-            $failed = empty($modelConfig['apiKey']) || \App\Services\AiClient::isError($answer);
-            (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'model', $startedAt);
+            $failed = empty($modelConfig['apiKey']) || trim($answer) === '' || \App\Services\AiClient::isError($answer);
+            (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'model', $startedAt, $trace);
             if ($failed) {
                 $this->jsonResponse(['error'=>'The model could not answer. Try again or use a clinic workflow from the sidebar.', 'missing'=>$attachments['missing']],502);
                 return;
             }
             $this->jsonResponse(['answer'=>$answer, 'missing'=>$attachments['missing']]);
         } catch (\Throwable $e) {
-            (new AuditLogService())->agentRun('admin', 'error', $startedAt);
+            (new AuditLogService())->agentRun('admin', 'error', $startedAt, $trace);
             error_log('Owner agent failed: ' . get_class($e));
             $this->jsonResponse(['error'=>'The agent could not complete the request. Please try again.'],500);
         }
@@ -292,7 +322,7 @@ final class AdminController extends BaseController {
      * admin had configured here. This method keeps the admin's prompt and its
      * error-to-screen behaviour.
      */
-    private function callAiApi(array $config, string $message, string $context): string {
+    private function callAiApi(array $config, string $message, string $context, ?\App\Services\AgentRunTrace $trace = null): string {
         // "Answer directly / give only the final answer" produced a bare "5" for
         // "how many enquiries came for orders" — and that 5 was the order count from
         // the statistics blob, not enquiries, of which there are none. A number with no
@@ -314,7 +344,7 @@ final class AdminController extends BaseController {
             . "\n{$context}\n\nQuestion: {$message}";
         // With tools the agent can answer "where is order 9426" — the data was always
         // there, but nothing let the model ask for it.
-        $client = new \App\Services\AiClient();
+        $client = new \App\Services\AiClient(trace: $trace);
         $tools = new \App\Services\AgentToolRegistry();
         $answer = $client->completeWithTools($prompt, $tools);
         if (\App\Services\AiClient::isError($answer)) return $answer;
