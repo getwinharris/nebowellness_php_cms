@@ -202,6 +202,23 @@ final class AdminController extends BaseController {
         if ($message === '') {$this->jsonResponse(['error'=>'Message is required'],400); return;}
         $startedAt = microtime(true);
         try {
+            if ($message === \App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT) {
+                $summary = (new \App\Services\AgentToolRegistry())->run('therapy_enquiry_summary', ['days' => 30]);
+                if (isset($summary['error'])) {
+                    (new AuditLogService())->agentRun('admin', 'error', $startedAt);
+                    $this->jsonResponse(['error' => $summary['error']], 503);
+                    return;
+                }
+                $status = $summary['inbox_status'];
+                $answer = sprintf(
+                    'The Contacts inbox recorded %d therapy campaign enquiries in the last %d days: %d new, %d read, %d closed and %d with another status.',
+                    $summary['request_count'], $summary['days'], $status['new'], $status['read'], $status['closed'], $status['other']
+                );
+                (new AuditLogService())->agentRun('admin', 'fallback', $startedAt);
+                $this->jsonResponse(['answer' => $answer, 'missing' => []]);
+                return;
+            }
+
             // @terms, @privacy, @some-article and @filename.jpg pull that document into
             // the prompt. Resolved here so both a draft command and an ordinary question
             // can refer to one.

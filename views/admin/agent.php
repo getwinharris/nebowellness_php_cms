@@ -50,7 +50,7 @@
                 $__campaignsEnabled ? 'Summarise current campaigns' : null,
                 '/create-blog benefits of gut health',
             ])); ?>
-        <?php if ($__campaignsEnabled) array_unshift($__suggestions, 'Summarise therapy session requests in the last 30 days'); ?>
+        <?php if ($__campaignsEnabled) array_unshift($__suggestions, \App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT); ?>
         <?php foreach ($__suggestions as $__s): ?>
             <button type="button" class="agent-suggestion" data-q="<?= e($__s) ?>"><?= e($__s) ?></button>
         <?php endforeach; ?>

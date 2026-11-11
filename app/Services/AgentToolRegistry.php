@@ -23,6 +23,8 @@ namespace App\Services;
  */
 final class AgentToolRegistry
 {
+    public const THERAPY_SUMMARY_PROMPT = 'Summarise therapy session requests in the last 30 days';
+
     private array $modules;
 
     public function __construct(
