@@ -136,6 +136,8 @@
             "view": "admin/agent",
             "services": [
                 "SecretService",
+                "AgentAttachmentService",
+                "AuditLogService",
                 "DatabaseService",
                 "AuthService"
             ]

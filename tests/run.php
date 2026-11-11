@@ -612,6 +612,21 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     assertTrue(str_contains($css, '.editorial-stack-card.landing-footer-card { background: #2f3437; color: #fff; margin-top: 0; }'), 'The final footer card should meet the preceding card without an inherited gap');
 };
 
+$tests['therapy enquiry tool returns only bounded aggregate counts'] = function (): void {
+    $now = strtotime('2026-11-11T12:00:00Z');
+    $rows = [
+        ['campaign_slug'=>'gut','status'=>'new','created_at'=>$now - 3600,'email'=>'private@example.test','form_data'=>['health'=>'private']],
+        ['campaign_slug'=>'gut','status'=>'closed','created_at'=>'2026-11-09T10:00:00Z'],
+        ['campaign_slug'=>'metabolic','status'=>'read','created_at'=>'2026-11-10T10:00:00Z'],
+        ['campaign_slug'=>'gut','status'=>'new','created_at'=>'2026-08-01T10:00:00Z'],
+        ['status'=>'new','created_at'=>'2026-11-10T10:00:00Z'],
+    ];
+    $result = \App\Services\AgentToolRegistry::summariseTherapyEnquiries($rows, ['days'=>7,'slug'=>'gut'], $now);
+    assertSame(['days'=>7,'request_count'=>2,'inbox_status'=>['new'=>1,'read'=>0,'closed'=>1,'other'=>0],'admin_url'=>'/admin/contact-submissions'], $result, 'Only matching requests contribute, and no customer fields leave the tool');
+    $disabled = new \App\Services\AgentToolRegistry(modules: ['campaigns'=>false]);
+    assertTrue(!$disabled->has('therapy_enquiry_summary'), 'Disabled campaigns remove therapy enquiry access');
+};
+
 $tests['admin integrations explain api setup and support bot keys'] = function (): void {
     $view = file_get_contents(app_path('views/admin/integrations.php'));
     foreach ([

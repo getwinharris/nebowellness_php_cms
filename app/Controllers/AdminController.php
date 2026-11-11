@@ -192,7 +192,10 @@ final class AdminController extends BaseController {
         // Everything the owner may write @ against, so the chat can autocomplete rather
         // than making them remember slugs and filenames.
         $attachables = (new \App\Services\AgentAttachmentService())->catalogue();
-        $this->render('admin/agent',['pageTitle'=>'AI Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns')]);
+        $agentMonitoring = null;
+        try { $agentMonitoring = AuditLogService::agentSummary((new AuditLogService())->all()); }
+        catch (\Throwable $error) { error_log('Agent workspace monitoring unavailable: ' . $error->getMessage()); }
+        $this->render('admin/agent',['pageTitle'=>'AI Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns'),'agentMonitoring'=>$agentMonitoring]);
     }
     public function agentAsk(): void{
         $message = trim((string)($_POST['message'] ?? ''));

@@ -115,6 +115,17 @@ final class AgentToolRegistry
                 ],
             ],
             [
+                'name' => 'therapy_enquiry_summary',
+                'description' => 'Count therapy session requests by inbox status over a recent period. Requests are not confirmed bookings. Returns aggregate counts only.',
+                'parameters' => [
+                    'type' => 'object',
+                    'properties' => [
+                        'days' => ['type' => 'integer', 'description' => 'Days to include, from 1 to 90. Defaults to 30.'],
+                        'slug' => ['type' => 'string', 'description' => 'Optional exact therapy campaign slug.'],
+                    ],
+                ],
+            ],
+            [
                 'name' => 'coupon_status',
                 'description' => 'Whether a coupon is currently usable, and why not if it is refused: '
                     . 'expired, not started, spend limits, usage limits.',
@@ -133,7 +144,7 @@ final class AgentToolRegistry
             ], true)));
         }
         if (empty($this->modules['campaigns'])) {
-            $tools = array_values(array_filter($tools, static fn(array $tool): bool => $tool['name'] !== 'campaign_pages'));
+            $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], ['campaign_pages', 'therapy_enquiry_summary'], true)));
         }
         return $tools;
     }
@@ -164,13 +175,35 @@ final class AgentToolRegistry
                 'support_enquiries' => $this->supportEnquiries($args),
                 'search_articles' => $this->searchArticles($args),
                 'campaign_pages' => $this->campaignPages($args),
+                'therapy_enquiry_summary' => self::summariseTherapyEnquiries($this->store->read('contact_submissions'), $args),
                 'coupon_status' => $this->couponStatus($args),
                 default => ['error' => 'No such tool: ' . $name],
             };
         } catch (\Throwable $e) {
             error_log('Agent tool ' . $name . ' failed: ' . $e->getMessage());
-            return ['error' => 'That lookup failed: ' . $e->getMessage()];
+            return ['error' => 'That lookup is unavailable right now.'];
         }
+    }
+
+    public static function summariseTherapyEnquiries(array $rows, array $args, ?int $now = null): array
+    {
+        $now ??= time();
+        $days = max(1, min(90, is_numeric($args['days'] ?? null) ? (int)$args['days'] : 30));
+        $slug = is_string($args['slug'] ?? null) ? strtolower(trim($args['slug'])) : '';
+        if ($slug !== '' && (strlen($slug) > 120 || !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $slug))) {
+            return ['error' => 'Provide a valid therapy campaign slug.'];
+        }
+        $statuses = ['new' => 0, 'read' => 0, 'closed' => 0, 'other' => 0];
+        foreach ($rows as $row) {
+            $campaign = trim((string)($row['campaign_slug'] ?? ''));
+            if ($campaign === '' || ($slug !== '' && $slug !== $campaign)) continue;
+            $rawCreated = trim((string)($row['created_at'] ?? ''));
+            $created = ctype_digit($rawCreated) ? (int) $rawCreated : strtotime($rawCreated);
+            if ($created === false || $created < $now - $days * 86400 || $created > $now) continue;
+            $status = $row['status'] ?? 'new';
+            $statuses[is_string($status) && isset($statuses[$status]) ? $status : 'other']++;
+        }
+        return ['days' => $days, 'request_count' => array_sum($statuses), 'inbox_status' => $statuses, 'admin_url' => '/admin/contact-submissions'];
     }
 
     private function campaignPages(array $args): array
