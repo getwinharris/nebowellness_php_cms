@@ -18,9 +18,8 @@ namespace App\Services;
  * follows would be the owner's first notice. Writes stay with AgentDraftService, which
  * fills in a form the owner reads and saves.
  *
- * Customer email addresses are only ever returned by the tool the owner points at a
- * specific customer. The statistics context leaked them into unrelated answers once
- * already.
+ * Customer email addresses may be supplied as a search filter, but are not included
+ * in tool results returned to the model.
  */
 final class AgentToolRegistry
 {
@@ -225,7 +224,6 @@ final class AgentToolRegistry
             'status' => (string)($order['status'] ?? ''),
             'total' => (float)($order['total'] ?? 0),
             'placed_on' => substr((string)($order['created_at'] ?? ''), 0, 10),
-            'customer_email' => (string)($order['customer_email'] ?? ''),
             'shipping_city' => (string)($order['shipping_city'] ?? ''),
             'courier' => (string)($order['courier_name'] ?? ''),
             'tracking_id' => (string)($order['tracking_id'] ?? ''),
