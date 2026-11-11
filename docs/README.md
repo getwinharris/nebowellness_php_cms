@@ -22,6 +22,27 @@ Start with the root [`README.md`](../README.md) for human navigation and
 
 Generated files point to original sources. Do not hand-edit them.
 
+## Feature lookup
+
+Start with an exact path and inspect its GET and POST entries independently:
+
+```sh
+jq --arg path '/campaigns/{slug}' '[.routes[] | select(.path == $path)]' docs/project-index.json
+rg -n -A12 'id: "schema:campaign_pages"' index.yaml
+```
+
+| Task | Search the route inventory for | Next source |
+|---|---|---|
+| Home, motion, logo | `GET /` | Home view, shared layout, then `Design.md` and `assets/css/band.css` |
+| Campaign forms | `/campaigns/{slug}`, `/campaigns/{slug}/enquire` | Campaign view/service, then the `campaign_pages` schema |
+| Email verification | `/contact`, `/forms/email-otp` | `EmailOtpService`, `SmtpMailer`, [email setup](email-setup.md) |
+| AI agents | `/admin/agent`, `/support/ask` | `AgentContextService`, `AiModelRouter`, [agent comparison](support-agent-comparison.md) |
+| Hosted database | `/remotedb` | `RemoteDbController`, `DatabaseService`, [remote DB guide](modules/remote-db.md) |
+
+Use the route record's controller, services, and view to open the original code.
+Check [release history](changelog.md) for shipped scope and the [release guide](releases.md)
+for tagging and production verification.
+
 ## Maintainer guides
 
 - [`architecture.md`](architecture.md)

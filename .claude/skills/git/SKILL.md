@@ -29,9 +29,11 @@ git commit -m "fix: describe the change"
 git push -u origin HEAD
 ```
 
-Pushing `codex/**`, `fix/**`, or `feat/**` lets `branch-pr.yml` create a PR when
+Pushing `bapX/**`, `codex/**`, `fix/**`, or `feat/**` lets `branch-pr.yml` create a PR when
 repository permissions allow it. Validation runs for pull requests and pushes to
 `main`; verify the actual Action result.
+
+Follow `docs/releases.md` for commit subjects, changelog entries, and release tags.
 
 ## Hostinger
 
