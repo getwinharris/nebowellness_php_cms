@@ -615,16 +615,29 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
     }
     stack.classList.add('stack-ready');
     if(supportsIntersectionObserver){
-        // Each chapter gets one entrance; its sticky surface remains in native flow.
         var chapterObserver=new IntersectionObserver(function(entries){
             entries.forEach(function(entry){
                 if(!entry.isIntersecting)return;
-                entry.target.closest('[data-stack-card]').classList.add('chapter-arrived');
+                var chapter=entry.target.closest('[data-stack-card]');
+                if(entry.target.matches('[data-stack-card], h1, h2')){
+                    chapter.classList.add('chapter-arrived');
+                }else{
+                    entry.target.classList.add('chapter-item-arrived');
+                }
                 chapterObserver.unobserve(entry.target);
             });
-        },{rootMargin:'0px 0px -72px 0px'});
+        },{threshold:0.15,rootMargin:'0px 0px -48px 0px'});
+        var itemSelector=[
+            '.value-strip > .value-card', '.therapy-feature', '.therapy-product',
+            '.editorial-rail > .program-slide', '.team-rail .team-slide', '.team-detail',
+            '.nebo-testimonials > figure', '.consultation-invitation__steps > li', '.footer-grid > div'
+        ].join(',');
         cards.forEach(function(card){
             chapterObserver.observe(card.querySelector('h1, h2') || card);
+            card.querySelectorAll(itemSelector).forEach(function(item,index){
+                item.style.setProperty('--chapter-delay',(60 + Math.min(index,3)*75)+'ms');
+                chapterObserver.observe(item);
+            });
         });
     }
 });

@@ -594,9 +594,9 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     $layout = file_get_contents(app_path('views/layouts/app.php'));
     $contact = file_get_contents(app_path('views/public/contact.php'));
     foreach ([
-        '.stack-ready > .editorial-stack-card:not(.home-hero) { position: sticky;',
+        '.stack-ready > .editorial-stack-card { position: sticky;',
         '@media (prefers-reduced-motion: reduce)',
-        '.stack-ready > .editorial-stack-card:not(.home-hero) { position: relative; top: auto; }',
+        '.stack-ready > .editorial-stack-card { position: relative; top: auto; }',
         '@media (max-width: 1128px) and (min-width: 744px)',
         '.team-enhanced .team-slide:not(.is-rail-current) .team-placeholder',
         'top: calc(var(--site-header-height, 114px) + 16px)',

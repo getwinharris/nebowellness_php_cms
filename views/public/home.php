@@ -43,28 +43,28 @@
             <h2 class="section-title">Our Focus Areas</h2>
         </div>
         <div class="value-strip">
-            <article class="value-card reveal">
+            <article class="value-card">
                 <div class="value-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                 </div>
                 <h3>Gut Health</h3>
                 <p>Explore practitioner-led nutrition and lifestyle support for digestion, bloating, IBS symptoms, and everyday gut wellbeing.</p>
             </article>
-            <article class="value-card reveal">
+            <article class="value-card">
                 <div class="value-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
                 <h3>Metabolic Diseases</h3>
                 <p>Support insulin sensitivity, PCOS and thyroid care, and sustainable weight goals alongside appropriate medical treatment.</p>
             </article>
-            <article class="value-card reveal">
+            <article class="value-card">
                 <div class="value-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
                 <h3>Lifestyle Transformation</h3>
                 <p>Build lasting habits with personalized nutrition, stress management, and movement plans designed for your unique biology and life stage.</p>
             </article>
-            <article class="value-card reveal">
+            <article class="value-card">
                 <div class="value-card__icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
@@ -82,15 +82,15 @@
             <h2 class="section-title">Why Choose Nebo Wellness?</h2>
         </div>
         <div class="value-strip">
-            <article class="value-card reveal">
+            <article class="value-card">
                 <h3>Root-cause, personalized care</h3>
                 <p>Nebo considers digestion, hormones, metabolism, stress, history, and goals when shaping a personalised care plan.</p>
             </article>
-            <article class="value-card reveal">
+            <article class="value-card">
                 <h3>Safe, expert-led, measurable</h3>
                 <p>Practitioner-led, non-invasive wellbeing support with clear goals, review points, and coordination with existing medical care.</p>
             </article>
-            <article class="value-card reveal">
+            <article class="value-card">
                 <h3>Integrative, maternal-first, sustainable</h3>
                 <p>Combines naturopathy, nutrition, lifestyle medicine, and evidence-based testing; offers specialized preconception/pregnancy/postpartum protocols; delivers practical, culturally relevant plans you can maintain long-term.</p>
             </article>
@@ -133,7 +133,7 @@
         <?php $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle']; ?>
         <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
             <?php foreach ($programs as $index => $program): ?>
-            <article class="program-slide reveal">
+            <article class="program-slide">
                 <div class="program-slide__body">
                     <span class="program-slide__meta"><?= e($program[1]) ?></span>
                     <h3><?= e($program[0]) ?></h3>
@@ -189,11 +189,11 @@
             <h2 class="section-title">Experiences shared by Nebo clients</h2>
         </div>
         <div class="nebo-testimonials" aria-label="Client testimonials">
-            <figure class="nebo-testimonial value-card reveal">
+            <figure class="nebo-testimonial value-card">
                 <blockquote>“After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again.”</blockquote>
                 <figcaption>Priya S. <span>Bengaluru</span></figcaption>
             </figure>
-            <figure class="nebo-testimonial value-card reveal">
+            <figure class="nebo-testimonial value-card">
                 <blockquote>“The IV nutrition and ozone therapy transformed my chronic fatigue. I can finally keep up with my kids and work without crashing.”</blockquote>
                 <figcaption>Nebo client <span>Client-provided testimonial</span></figcaption>
             </figure>
