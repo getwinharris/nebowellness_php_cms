@@ -55,7 +55,7 @@ final class AgentDraftService
     }
 
     /**
-     * @return array{kind:string, action:string, title:string, fields:array, note:string}
+     * @return array{mode:string, kind:string, action:string, title:string, fields:array, note:string}
      */
     public function draft(string $command, string $subject, string $attachments = ''): array
     {
@@ -88,6 +88,7 @@ final class AgentDraftService
         unset($field);
 
         return [
+            'mode' => $subject === '' ? 'manual' : ($values === [] ? 'unavailable' : 'generated'),
             'kind' => $isBlog ? 'blog' : 'product',
             'action' => $isBlog ? '/admin/blog/save' : '/admin/products/save',
             'title' => $isBlog ? 'Draft blog post' : 'Draft product',

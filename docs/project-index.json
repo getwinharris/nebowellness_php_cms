@@ -5,7 +5,7 @@
     "summary": {
         "routes": 116,
         "controllers": 12,
-        "services": 50,
+        "services": 51,
         "views": 45,
         "collections": 23
     },
@@ -155,6 +155,7 @@
                 "AgentAttachmentService",
                 "AgentDraftService",
                 "AgentToolRegistry",
+                "AgentRunTrace",
                 "AiReplyCleaner",
                 "AiClient",
                 "AiModelRouter",
@@ -1254,6 +1255,7 @@
                 "AgentContextService",
                 "SupportTicketService",
                 "AuditLogService",
+                "AgentRunTrace",
                 "AiClient",
                 "AiModelRouter",
                 "AiReplyCleaner"
@@ -1317,6 +1319,7 @@
         "AgentAttachmentService",
         "AgentContextService",
         "AgentDraftService",
+        "AgentRunTrace",
         "AgentToolRegistry",
         "AiClient",
         "AiModelRouter",

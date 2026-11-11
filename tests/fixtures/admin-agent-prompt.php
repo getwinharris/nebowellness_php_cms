@@ -14,6 +14,7 @@ namespace App\Services {
         public function upsert(string $table, array $record, string $key = 'id'): void {}
     }
     final class AiClient {
+        public function __construct(?AgentRunTrace $trace = null) {}
         public static function isError(string $answer): bool { return false; }
         public function configured(): bool { return true; }
         public function completeOrNull(string $prompt, int $maxTokens, float $temperature): ?string {
@@ -22,6 +23,7 @@ namespace App\Services {
         }
         public function completeWithTools(string $prompt, AgentToolRegistry $tools): string {
             file_put_contents($GLOBALS['fixtureOutput'], $prompt);
+            if (str_contains($prompt, 'fixture empty response')) return '';
             return 'The fixture has no further information.';
         }
     }

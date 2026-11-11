@@ -97,6 +97,13 @@ $tests['admin unrelated question sends only bounded context to the model'] = fun
     }
 };
 
+$tests['admin empty model output returns an error rather than a completed turn'] = function (): void {
+    [$response, $prompt] = runAdminAgentFixture('off', 'fixture empty response');
+    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+    assertTrue(str_contains($prompt, 'fixture empty response'), 'The provider fixture must be reached');
+    assertTrue(isset($data['error']) && !isset($data['answer']), 'An empty provider response must produce a retryable error');
+};
+
 $tests['admin context contains aggregates without customer identities'] = function (): void {
     $users = [['email' => 'private@example.test', 'name' => 'Private Person']];
     $orders = [['customer_email' => 'private@example.test', 'status' => 'confirmed', 'total' => 100,
@@ -118,7 +125,7 @@ $tests['admin context contains aggregates without customer identities'] = functi
     $disabled = \App\Services\AgentContextService::adminSummary(false, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
     assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product') && !str_contains($disabled, 'Total orders:') && !str_contains($disabled, 'revenue:'), 'Disabled commerce must exclude sales details');
     $controller = fileRead('app/Controllers/AdminController.php');
-    assertTrue(str_contains($controller, '$context = (new \\App\\Services\\AgentContextService())->forAdmin(') && str_contains($controller, '$this->callAiApi($modelConfig, $message, $context)'), 'The admin request must pass the service summary to the model');
+    assertTrue(str_contains($controller, '$context = (new \\App\\Services\\AgentContextService())->forAdmin(') && str_contains($controller, '$this->callAiApi($modelConfig, $message, $context, $trace)'), 'The admin request must pass the service summary to the model');
 };
 
 $tests['database service can connect to MySQL'] = function (): void {
@@ -1380,7 +1387,7 @@ $tests['every module toggle in the code refers to a module that exists'] = funct
 $tests['the admin agent can look things up instead of guessing'] = function (): void {
     $registry = new \App\Services\AgentToolRegistry(modules: ['shop'=>true,'blog'=>true,'campaigns'=>true]);
     $names = array_column($registry->declarations(), 'name');
-    foreach (['find_order', 'product_status', 'sales_summary', 'coupon_status'] as $tool) {
+    foreach (['find_order', 'product_status', 'sales_summary', 'coupon_status', 'appointment_summary', 'recent_orders', 'catalog_categories'] as $tool) {
         assertTrue(in_array($tool, $names, true), "The agent should be able to call {$tool}");
         assertTrue($registry->has($tool), "{$tool} should be recognised");
     }
@@ -1388,6 +1395,7 @@ $tests['the admin agent can look things up instead of guessing'] = function (): 
     $clinicOnly = new \App\Services\AgentToolRegistry(modules: ['shop'=>false,'blog'=>true,'campaigns'=>false]);
     assertTrue(!$clinicOnly->has('find_order') && !$clinicOnly->has('product_status'), 'Disabled ecommerce removes commerce tools from the admin agent');
     assertTrue(!$clinicOnly->has('campaign_pages'), 'Disabled campaigns remove the campaign tool from the admin agent');
+    assertTrue(!$clinicOnly->has('recent_orders') && !$clinicOnly->has('catalog_categories') && $clinicOnly->has('appointment_summary'), 'Commerce and clinic data have independent availability');
 
     // Each declaration must carry a schema, or the model cannot call it.
     foreach ($registry->declarations() as $tool) {
@@ -1576,7 +1584,7 @@ $tests['both chat surfaces share accessible bounded request status'] = function 
     foreach (['views/layouts/app.php', 'views/admin/agent.php'] as $path) {
         $source = file_get_contents(app_path($path));
         assertTrue(str_contains($source, 'window.AgentRequestStatus.start('), "{$path} must use shared request status");
-        assertTrue(str_contains($source, 'progress.finish(failed)') && str_contains($source, '35000'), "{$path} must settle status and bound waiting");
+        assertTrue(str_contains($source, 'progress.finish(failed') && str_contains($source, '35000'), "{$path} must settle status and bound waiting");
     }
     $css = file_get_contents(app_path('assets/css/band.css'));
     assertTrue(str_contains($css, '.ai-request-status summary:focus-visible') && str_contains($css, 'prefers-reduced-motion'), 'Status needs focus and reduced-motion behavior');
@@ -1584,6 +1592,23 @@ $tests['both chat surfaces share accessible bounded request status'] = function 
     assertTrue(str_contains($controller, "'The model could not answer.") && str_contains($controller, "'missing'=>\$attachments['missing']],502"), 'Provider failures must return safe guidance with a non-success status');
     $admin = file_get_contents(app_path('views/layouts/admin.php'));
     assertTrue(str_contains($admin, 'min-width: 0;') && str_contains($admin, 'flex-wrap: wrap; gap: var(--space-sm)'), 'Admin grid and mobile header must shrink without horizontal overflow');
+};
+
+$tests['ticket tracking isolates owners and traces exclude chat content'] = function (): void {
+    $ticket = ['id' => '0123456789abcdef', 'customer_email' => 'customer@example.test', 'status' => 'answered',
+        'message' => 'Private customer message', 'reply' => 'Clinic reply'];
+    assertSame(null, \App\Services\SupportTicketService::visibleStatus($ticket, 'other@example.test'), 'Another account cannot track this ticket');
+    assertSame(null, \App\Services\SupportTicketService::visibleStatus($ticket, ''), 'Guests cannot track tickets');
+    assertSame(['id' => $ticket['id'], 'status' => 'answered', 'reply' => 'Clinic reply'],
+        \App\Services\SupportTicketService::visibleStatus($ticket, 'Customer@example.test'), 'Only the owner sees status and staff reply');
+    $trace = new \App\Services\AgentRunTrace();
+    $trace->provider('google', 'gemma-4-31b-it', 503, 0, microtime(true));
+    $trace->tool('track_support_ticket', 'ok', microtime(true));
+    $meta = $trace->metadata();
+    assertTrue((bool)preg_match('/^[a-f0-9]{16}$/D', $meta['trace_id']), 'Trace is an opaque correlation ID');
+    assertSame(['kind', 'name', 'model', 'status', 'outcome', 'duration_ms'], array_keys($meta['steps'][0]), 'Provider trace only contains operational metadata');
+    assertSame(['kind', 'name', 'outcome', 'duration_ms'], array_keys($meta['steps'][1]), 'Tool trace excludes arguments and results');
+    assertSame('http_error', $meta['steps'][0]['outcome'], 'A provider failure is retained even if the agent can fall back');
 };
 
 $tests['admin product preview protects hidden catalog content and disables purchase'] = function (): void {

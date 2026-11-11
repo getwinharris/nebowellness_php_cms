@@ -55,6 +55,7 @@
                 '/create-blog benefits of gut health',
             ])); ?>
         <?php if ($__campaignsEnabled) array_unshift($__suggestions, \App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT); ?>
+        <?php $__suggestions[] = \App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT; ?>
         <?php foreach ($__suggestions as $__s): ?>
             <button type="button" class="agent-suggestion" data-q="<?= e($__s) ?>"><?= e($__s) ?></button>
         <?php endforeach; ?>
@@ -107,7 +108,27 @@
                     </dl>
                 </div>
             <?php endforeach; ?>
+            <p>Owner drafts: <?= (int)$agentMonitoring['admin']['draft'] ?> generated · <?= (int)$agentMonitoring['admin']['manual'] ?> manual · <?= (int)$agentMonitoring['admin']['draft_unavailable'] ?> unavailable</p>
         <?php endif; ?>
+    </section>
+    <section class="admin-card agent-workspace__panel" aria-labelledby="agent-traces-title">
+        <h3 id="agent-traces-title">Recent agent runs</h3>
+        <p>Provider and tool activity for both agents. Chat messages and tool data are excluded.</p>
+        <?php if (empty($agentTraces)): ?><p>No traced runs yet.</p><?php endif; ?>
+        <?php foreach ($agentTraces ?? [] as $run): $meta = $run['meta']; ?>
+            <details class="agent-trace">
+                <summary><?= ($meta['surface'] ?? '') === 'support' ? 'Support' : 'Owner' ?> · <?= e(str_replace('_', ' ', $meta['outcome'] ?? '')) ?> · <?= (int)($meta['duration_ms'] ?? 0) ?> ms</summary>
+                <p>Trace <code><?= e($meta['trace_id']) ?></code></p>
+                <?php if (empty($meta['steps'])): ?><p>No provider or tool call.</p><?php endif; ?>
+                <?php foreach ($meta['steps'] ?? [] as $step): ?>
+                    <p><?= e($step['kind']) ?>: <?= e($step['name']) ?>
+                        <?= isset($step['model']) ? e($step['model']) : '' ?>
+                        <?= !empty($step['status']) ? 'HTTP ' . (int)$step['status'] : '' ?>
+                        · <?= e(str_replace('_', ' ', $step['outcome'])) ?> · <?= (int)$step['duration_ms'] ?> ms
+                    </p>
+                <?php endforeach; ?>
+            </details>
+        <?php endforeach; ?>
     </section>
     <nav class="admin-card agent-workspace__panel" aria-label="Operations links">
         <h3>Open a workflow</h3>
@@ -134,6 +155,9 @@
 .agent-workspace__metric dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:0; }
 .agent-workspace__metric dt { font-size:.72rem; color:var(--color-text-muted); }
 .agent-workspace__metric dd { margin:0; font-weight:650; font-variant-numeric:tabular-nums; }
+.agent-trace { padding-block:10px; border-block-start:1px solid var(--color-border); overflow-wrap:anywhere; }
+.agent-trace summary { cursor:pointer; font-size:.85rem; }
+.agent-trace p { margin:6px 0 0; }
 @media (max-width:1080px) { .agent-workspace { grid-template-columns:minmax(0,1fr); } }
 .agent-head { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-md); flex-wrap:wrap; }
 .agent-head__title { font-size:1.05rem; margin:0 0 var(--space-2xs); }
@@ -255,7 +279,7 @@
         return out;
     }
 
-    function addRow(who, html) {
+    function addRow(who, html, before = null) {
         const row = document.createElement('div');
         row.className = 'agent-row agent-row--' + who;
         const avatar = document.createElement('div');
@@ -266,7 +290,7 @@
         bubble.className = 'agent-bubble agent-bubble--' + who;
         bubble.innerHTML = html;
         row.appendChild(avatar); row.appendChild(bubble);
-        messages.appendChild(row);
+        messages.insertBefore(row, before);
         messages.scrollTop = messages.scrollHeight;
         return bubble;
     }
@@ -401,21 +425,24 @@
         });
     }
 
-    window.askAgent = async function (e) {
+    window.askAgent = async function (e, retryMessage = null, retryRow = null) {
         e.preventDefault();
-        const msg = input.value.trim();
+        const msg = retryMessage ?? input.value.trim();
         if (!msg || submit.disabled) return false;
 
-        addRow('user', escapeHtml(msg).replace(/\n/g, '<br>'));
-        input.value = ''; autoGrow();
+        if (retryMessage === null) {
+            addRow('user', escapeHtml(msg).replace(/\n/g, '<br>'));
+            input.value = ''; autoGrow();
+        }
         input.disabled = true; submit.disabled = true; clear.disabled = true;
         suggestions.style.display = 'none';
 
-        const thinking = addRow('bot', '');
+        const thinking = addRow('bot', '', retryRow);
+        if (retryRow) retryRow.remove();
         const progress = window.AgentRequestStatus.start(thinking);
         const response = document.createElement('div');
         thinking.appendChild(response);
-        let failed = false;
+        let failed = false, retry = false, mode, traceId;
         const abort = new AbortController();
         const timeout = setTimeout(() => abort.abort(), 35000);
 
@@ -430,11 +457,14 @@
                 signal: abort.signal
             });
             const data = await resp.json().catch(() => ({ error: 'The server returned an unreadable response.' }));
+            traceId = resp.headers.get('X-Agent-Trace');
             if (!resp.ok || data.error) {
                 failed = true;
+                retry = resp.status >= 500;
                 thinking.className = 'agent-bubble agent-bubble--error';
                 response.textContent = data.error || 'The request failed. Please try again.';
             } else if (data.draft) {
+                mode = data.draft.mode;
                 response.appendChild(buildDraftForm(data.draft));
             } else {
                 response.innerHTML = renderMarkdown(data.answer || 'No response.');
@@ -445,11 +475,26 @@
             }
         } catch (err) {
             failed = true;
+            retry = true;
             thinking.className = 'agent-bubble agent-bubble--error';
             response.textContent = 'Could not reach the server. Check your connection and try again.';
         } finally {
             clearTimeout(timeout);
-            progress.finish(failed);
+            progress.finish(failed, mode);
+        }
+        if (/^[a-f0-9]{16}$/.test(traceId || '')) {
+            const reference = document.createElement('small');
+            reference.textContent = 'Trace ' + traceId;
+            reference.style.display = 'block';
+            response.append(reference);
+        }
+        if (retry) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-outline btn-sm';
+            button.textContent = 'Retry request';
+            button.addEventListener('click', event => window.askAgent(event, msg, thinking.parentElement));
+            response.append(button);
         }
 
         input.disabled = false; submit.disabled = false; clear.disabled = false;
