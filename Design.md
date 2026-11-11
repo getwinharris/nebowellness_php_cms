@@ -320,8 +320,8 @@ Use these terms consistently in product copy, implementation notes, and code rev
 - **Resolve:** the final consultation act and the full footer act. Both are calm,
   complete end states rather than banners floating in empty space.
 - **Motion brief:** the written statement of audience, journey, intent, feeling curve,
-  peak, content priority, visual world, and accessibility constraints before a new
-  scroll sequence is built.
+  peak, visitor action, owned assets, content priority, visual world, and accessibility
+  constraints before a new scroll sequence is built. Identify a self-authored brief.
 - **Feeling curve:** the planned emotional sequence of arrival, grounding, clarity,
   confidence, trust, evidence, and resolve. It guides emphasis; it is not text that
   appears on the site. Give each act a distinct emotion and on-screen cause; document
@@ -351,9 +351,6 @@ Use the following source-method terms when they clarify the work. They are plann
 and review language, not permission to import a vendor runtime or copy another site's
 visual system.
 
-- **Brief:** recorded audience, visitor action, owned assets, visual world, journey,
-  feeling curve, one peak, and accessibility limits. A self-authored brief must say it
-  is self-authored.
 - **Journey:** the ordered shifts in what a visitor understands. An act that produces
   neither a new understanding nor a new feeling is removed rather than animated.
 - **Peak:** the single memorable contrast moment. Nebo's peak is the selected
