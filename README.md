@@ -22,15 +22,18 @@ blog posts, and file-based images. There is no SPA or frontend build step.
 | What is a live editable value? | hosted MySQL through `DatabaseService` | lowercase `/remotedb` fallback |
 | What controls UI? | `Design.md` | `assets/css/band.css` and PHP view |
 
-Do not read all of `index.yaml`. Read its first 90 lines, copy the applicable narrow
+Do not read all of `index.yaml`. Read its discovery header, copy the applicable narrow
 query, open the returned original source, and stop when the source answers the question.
 
 ```bash
-sed -n '1,90p' index.yaml
+sed -n '1,/^concepts:$/p' index.yaml
 rg -n -B4 -A14 'path: "/shop"' index.yaml
 rg -n -B4 -A14 'id: "schema:products"' index.yaml
 rg -n -B4 -A12 'filename: "<image-name>"' index.yaml
 ```
+
+Use the [feature lookup guide](docs/README.md#feature-lookup) for common workflows
+and the [release guide](docs/releases.md) and [changelog](docs/changelog.md) for history.
 
 ## Source-of-truth boundaries
 

@@ -27,21 +27,26 @@ discovery:
     use: "concepts filtered by type=image; query by filename or resource"
   - question: "What repository instructions or skill apply?"
     use: "AGENTS.md, CLAUDE.md, then .claude/skills"
+  - question: "Where do I start debugging a feature or release?"
+    use: "docs/README.md"
+  - question: "What changed in a release or is awaiting release?"
+    use: "docs/changelog.md; verify the Git tag and production deployment separately"
 query_examples:
-  - "sed -n '1,90p' index.yaml"
+  - "sed -n '1,/^concepts:$/p' index.yaml"
+  - "jq --arg path \"/contact\" '[.routes[] | select(.path == $path)]' docs/project-index.json"
   - "rg -n -B4 -A14 'id: \"<concept-id>\"' index.yaml"
-  - "rg -n -A12 'type: \"blog\"' index.yaml"
+  - "rg -n -A10 'id: \"blog:gut-friendly-meals\"' index.yaml"
   - "rg -n -B4 -A12 'filename: \"<name>\"' index.yaml"
   - "rg -n -B4 -A14 'path: \"/shop\"' index.yaml"
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 277
-  relationships: 249
+  concepts: 279
+  relationships: 250
   by_type:
     blog: 5
     controller: 12
-    doc: 35
+    doc: 37
     image: 28
     route: 116
     schema: 23
@@ -288,6 +293,15 @@ concepts:
       - "module"
     filename: "catalog.md"
     header_image: ""
+  - id: "doc:changelog"
+    type: "doc"
+    title: "Nebo changelog"
+    description: "Notable changes grouped by release."
+    resource: "docs/changelog.md"
+    tags:
+      - "docs"
+    filename: "changelog.md"
+    header_image: ""
   - id: "doc:checkout"
     type: "doc"
     title: "Checkout Page"
@@ -448,6 +462,15 @@ concepts:
     tags:
       - "module"
     filename: "razorpay.md"
+    header_image: ""
+  - id: "doc:releases"
+    type: "doc"
+    title: "Release and commit workflow"
+    description: "How to record changes, select a version, and verify deployment."
+    resource: "docs/releases.md"
+    tags:
+      - "docs"
+    filename: "releases.md"
     header_image: ""
   - id: "doc:remote-db"
     type: "doc"
@@ -3555,6 +3578,9 @@ relationships:
   - from: "controller:SupportController"
     to: "service:SupportTicketService"
     relation: "uses"
+  - from: "doc:releases"
+    to: "doc:changelog"
+    relation: "references"
   - from: "route:get"
     to: "controller:PublicController"
     relation: "handled_by"
