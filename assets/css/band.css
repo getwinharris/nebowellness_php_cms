@@ -1165,16 +1165,16 @@ nav a:hover { color: var(--color-maroon); }
 }
 .auth-card h1 { font-family: var(--font-serif); font-size: 2.2rem; color: var(--color-maroon); margin-bottom: var(--space-xs); text-align: center; }
 .auth-card > p { text-align: center; color: var(--color-text-muted); margin-bottom: var(--space-xl); font-size: 0.95rem; }
-.auth-form { display: grid; gap: var(--space-md); }
-.auth-form__row { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
+.auth-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
+.auth-form__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-md); }
 .booking-request-form { display:grid; gap:var(--space-md); margin-top:var(--space-md); }
 .booking-request-form .form-group { margin:0; }
 .checkout-address-options { display:grid; gap:var(--space-sm); padding-bottom:8px; }
 .checkout-address-options label { display:flex; align-items:center; gap:var(--space-sm); }
-@media (max-width: 743px) { .auth-form__row { grid-template-columns:1fr; gap:0; } }
+@media (max-width: 743px) { .auth-form__row { grid-template-columns: minmax(0, 1fr); gap: var(--space-md); } }
 .form-check { display: flex; align-items: center; gap: var(--space-sm); }
-.form-check .checkbox-label { display: flex; align-items: center; gap: var(--space-sm); cursor: pointer; font-size: 0.7rem; color: var(--color-text-muted); line-height: 1; white-space: nowrap; }
-.form-check .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--color-maroon); flex-shrink: 0; margin: 0; }
+.form-check .checkbox-label { display: flex; align-items: flex-start; gap: var(--space-sm); cursor: pointer; font-size: 0.7rem; color: var(--color-text-muted); line-height: 1.5; }
+.form-check .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; min-height: 0; padding: 0; accent-color: var(--color-maroon); flex-shrink: 0; margin: 0; }
 .form-check .checkbox-label a { color: var(--color-maroon); font-weight: 600; text-decoration: underline; }
 .auth-footer { margin-top: var(--space-lg); text-align: center; font-size: 0.9rem; color: var(--color-text-muted); }
 .auth-footer a { color: var(--color-maroon); font-weight: 600; }
@@ -2768,7 +2768,7 @@ tr:hover td { background: var(--color-bg-alt); }
     .about-feature-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 860px) {
-    .auth-page { grid-template-columns: 1fr; }
+    .auth-page { grid-template-columns: minmax(0, 1fr); }
     .auth-visual { display: none; }
     .auth-form-container { background: linear-gradient(135deg, rgba(68,114,196,0.9), rgba(112,173,71,0.8)); }
     .home-hero-inner { grid-template-columns: 1fr; text-align: center; padding-top: var(--space-2xl); }
@@ -2946,6 +2946,7 @@ tr:hover td { background: var(--color-bg-alt); }
      .auth-card { padding: var(--space-lg); border-radius: var(--radius-lg); }
      .auth-card h1 { font-size: 1.4rem; }
      .auth-page { min-height: auto; }
+     .auth-form-container { padding-inline: var(--space-md); }
 
     .form-group input, .form-group select, .form-group textarea { min-height: 48px; font-size: 1rem; }
     .btn { min-height: 48px; }
