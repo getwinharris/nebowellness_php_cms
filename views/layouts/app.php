@@ -416,18 +416,24 @@ if ($__flash):
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
     <span class="sr-only">Support</span>
 </button>
-<section class="support-panel" id="support-panel" data-support-key="sps-support-chat-<?= !empty($_SESSION['user']['email']) ? e(strtolower((string)$_SESSION['user']['email'])) : 'guest' ?>" hidden>
+<section class="support-panel" id="support-panel" aria-labelledby="support-title" data-support-key="nebo-support-chat-<?= !empty($_SESSION['user']['email']) ? hash('sha256', strtolower((string)$_SESSION['user']['email'])) : 'guest' ?>" hidden>
     <div class="support-panel__head">
-        <strong>Support</strong>
+        <strong id="support-title">Nebo Support</strong>
         <button type="button" class="support-panel__close" aria-label="Close support">×</button>
     </div>
     <div class="support-panel__body" id="support-log" aria-live="polite">
-        <p>Ask about programs, consultations, wellness plans, or bookings.</p>
-        <?php if(empty($_SESSION['user'])): ?><p>Sign in to ask about your personal booking data.</p><?php endif; ?>
+        <p>Ask about Nebo programs or how to reach the clinic. Please leave medical details out of chat.</p>
     </div>
     <form class="support-panel__form" id="support-form">
-        <textarea name="message" rows="3" required aria-label="Support message" placeholder="Ask about a program, consultation, or booking"></textarea>
-        <button class="btn btn-primary btn-sm">Send</button>
+        <div class="support-starters" aria-label="Suggested questions">
+            <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::PROGRAMS_PROMPT) ?>">Explore programs</button>
+            <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::CONSULTATION_PROMPT) ?>">Request a consultation</button>
+        </div>
+        <textarea name="message" rows="2" required aria-label="Support message" placeholder="Ask about Nebo"></textarea>
+        <div class="support-starters">
+            <button class="btn btn-primary btn-sm">Send</button>
+            <a href="/contact#contact-form">Contact the clinic team</a>
+        </div>
     </form>
 </section>
 <?php endif; ?>
@@ -624,14 +630,32 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
 function supportEscape(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
-function supportReplyHtml(value){var safe=supportEscape(value);var allowed=/\/(?:#programs|shop|cart|checkout|contact|blog(?:\/[a-z0-9-]+|\/category\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=$|[\s.,)])/g;return safe.replace(allowed,function(path){return '<a class="support-action" href="'+path+'">Open '+supportEscape(path.replace(/^\//,'').replace(/[-/]/g,' '))+'</a>';});}
-function supportActionsHtml(actions){if(!actions||!actions.length)return'';var h='<div class="support-actions">';for(var i=0;i<actions.length;i++){var a=actions[i];if(a.type==='navigate'&&a.path){h+='<a class="btn btn-sm btn-outline support-action-btn" href="'+supportEscape(a.path)+'">'+supportEscape(a.label)+'</a>';}}return h+'</div>';}
-function supportToggle(open){if(!supportPanel||!supportFab)return;supportPanel.hidden=!open;supportFab.setAttribute('aria-expanded',open?'true':'false');}
+function supportActionsHtml(actions){
+    if(!Array.isArray(actions)||!actions.length)return '';
+    return '<div class="support-actions">'+actions.filter(function(action){
+        return action.type==='navigate' && typeof action.path==='string' && /^\/(?!\/)[a-z0-9/#-]*$/i.test(action.path);
+    }).map(function(action){
+        return '<a class="btn btn-sm btn-outline support-action-btn" href="'+supportEscape(action.path)+'">'+supportEscape(action.label)+'</a>';
+    }).join('')+'</div>';
+}
+function supportToggle(open){
+    if(!supportPanel||!supportFab)return;
+    supportPanel.hidden=!open;
+    supportFab.setAttribute('aria-expanded',String(open));
+    (open?supportClose:supportFab).focus();
+}
 function supportSaveLog(){try{if(!supportPanel||!supportLog)return;sessionStorage.setItem(supportPanel.dataset.supportKey,supportLog.innerHTML);}catch(e){}}
 function supportLoadLog(){try{if(!supportPanel||!supportLog)return;var saved=sessionStorage.getItem(supportPanel.dataset.supportKey);if(saved){supportLog.innerHTML=saved;}}catch(e){}}
 if(supportFab&&supportPanel){supportLoadLog();
 supportFab.addEventListener('click',function(){supportToggle(supportPanel.hidden);});
-supportClose.addEventListener('click',function(){supportToggle(false);});}
+supportClose.addEventListener('click',function(){supportToggle(false);});
+supportPanel.addEventListener('keydown',function(event){if(event.key==='Escape')supportToggle(false);});}
+if(supportForm) supportForm.querySelectorAll('[data-support-prompt]').forEach(function(button){
+    button.addEventListener('click',function(){
+        supportForm.elements.message.value=button.dataset.supportPrompt;
+        supportForm.requestSubmit();
+    });
+});
 if(supportForm){supportForm.addEventListener('submit',async function(e){
     e.preventDefault();
     if(supportForm.dataset.busy==='true')return;
@@ -648,7 +672,7 @@ if(supportForm){supportForm.addEventListener('submit',async function(e){
     try{
         var r=await fetch('/support/ask',{method:'POST',body:data,signal:abort.signal});
         var j=await r.json();failed=!r.ok||!!j.error;
-        supportLog.insertAdjacentHTML('beforeend','<p><strong>Support:</strong> '+supportReplyHtml(j.reply||j.error||'Unable to answer right now.')+'</p>'+(j.actions?supportActionsHtml(j.actions):''));
+        supportLog.insertAdjacentHTML('beforeend','<p><strong>Support:</strong> '+supportEscape(j.reply||j.error||'Unable to answer right now.')+'</p>'+supportActionsHtml(j.actions));
     }catch(err){failed=true;supportLog.insertAdjacentHTML('beforeend','<p><strong>Support:</strong> Unable to answer right now. Please try again.</p>');}
     finally{
         clearTimeout(timeout);progress.finish(failed);

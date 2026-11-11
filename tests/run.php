@@ -846,7 +846,7 @@ $tests['support assistant widget uses browser session memory and google model se
     $layout = file_get_contents(app_path('views/layouts/app.php'));
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
     routeExists('/support/ask', 'Support ask route should be registered');
-    foreach (['support-fab', 'support-panel', '/support/ask', 'programs, consultations, wellness plans, or bookings', 'sessionStorage', 'data-support-key'] as $needle) {
+    foreach (['support-fab', 'support-panel', '/support/ask', 'data-support-prompt', 'sessionStorage', 'data-support-key'] as $needle) {
         assertTrue(str_contains($layout, $needle), "Support widget should include {$needle}");
     }
     foreach (['Customer context JSON', 'browser_session'] as $needle) {
@@ -1581,7 +1581,7 @@ $tests['both chat surfaces share accessible bounded request status'] = function 
     $css = file_get_contents(app_path('assets/css/band.css'));
     assertTrue(str_contains($css, '.ai-request-status summary:focus-visible') && str_contains($css, 'prefers-reduced-motion'), 'Status needs focus and reduced-motion behavior');
     $controller = file_get_contents(app_path('app/Controllers/AdminController.php'));
-    assertTrue(str_contains($controller, "['error'=>\$answer, 'missing'=>\$attachments['missing']],502"), 'Provider failures must not be returned as successful answers');
+    assertTrue(str_contains($controller, "'The model could not answer.") && str_contains($controller, "'missing'=>\$attachments['missing']],502"), 'Provider failures must return safe guidance with a non-success status');
     $admin = file_get_contents(app_path('views/layouts/admin.php'));
     assertTrue(str_contains($admin, 'min-width: 0;') && str_contains($admin, 'flex-wrap: wrap; gap: var(--space-sm)'), 'Admin grid and mobile header must shrink without horizontal overflow');
 };
@@ -2090,7 +2090,7 @@ $tests['support assistant exposes only allowlisted internal navigation actions']
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
     $layout = file_get_contents(app_path('views/layouts/app.php'));
     assertTrue(str_contains($service, 'exact internal path') && str_contains($service, 'Never invent admin paths'), 'Support prompt should ground navigation');
-    assertTrue(str_contains($layout, 'function supportReplyHtml') && str_contains($layout, 'class="support-action"'), 'Support UI should render safe internal actions');
+    assertTrue(str_contains($layout, 'function supportActionsHtml') && str_contains($layout, 'supportEscape(action.path)') && str_contains($layout, 'supportEscape(j.reply'), 'Support UI should render server-approved actions separately from escaped reply text');
     assertTrue(!str_contains($layout, 'innerHTML=j.reply'), 'Support reply must not inject model HTML');
 };
 
@@ -2168,6 +2168,8 @@ $tests['agent monitoring counts bounded outcomes without treating fallbacks as m
     assertSame(1, $rows['support']['model'], 'Fallbacks and private guidance are not model responses');
     assertSame(1, $rows['support']['fallback'], 'Fallbacks remain visible');
     assertSame(150, $rows['support']['average_ms'], 'Average uses valid request durations');
+    assertSame(300, $rows['support']['p95_ms'], 'P95 uses the nearest rank among recent runs');
+    assertSame(50.0, $rows['admin']['error_percent'], 'Error rate uses all recorded runs for that surface');
     assertSame(1, $rows['admin']['error'], 'Admin provider failures stay visible');
     assertSame(1, $rows['admin']['draft'], 'Admin drafts are a separate path');
     assertSame(null, App\Services\AuditLogService::agentSummary([], $now)['admin']['average_ms'], 'No traffic is not zero-latency success');

@@ -195,7 +195,7 @@ final class AdminController extends BaseController {
         $agentMonitoring = null;
         try { $agentMonitoring = AuditLogService::agentSummary((new AuditLogService())->all()); }
         catch (\Throwable $error) { error_log('Agent workspace monitoring unavailable: ' . $error->getMessage()); }
-        $this->render('admin/agent',['pageTitle'=>'AI Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns'),'agentMonitoring'=>$agentMonitoring]);
+        $this->render('admin/agent',['pageTitle'=>'Enterprise Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns'),'agentMonitoring'=>$agentMonitoring]);
     }
     public function agentAsk(): void{
         $message = trim((string)($_POST['message'] ?? ''));
@@ -257,13 +257,14 @@ final class AdminController extends BaseController {
             $failed = empty($modelConfig['apiKey']) || \App\Services\AiClient::isError($answer);
             (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'model', $startedAt);
             if ($failed) {
-                $this->jsonResponse(['error'=>$answer, 'missing'=>$attachments['missing']],502);
+                $this->jsonResponse(['error'=>'The model could not answer. Try again or use a clinic workflow from the sidebar.', 'missing'=>$attachments['missing']],502);
                 return;
             }
             $this->jsonResponse(['answer'=>$answer, 'missing'=>$attachments['missing']]);
         } catch (\Throwable $e) {
             (new AuditLogService())->agentRun('admin', 'error', $startedAt);
-            $this->jsonResponse(['error'=>'Agent error: '.$e->getMessage()],500);
+            error_log('Owner agent failed: ' . get_class($e));
+            $this->jsonResponse(['error'=>'The agent could not complete the request. Please try again.'],500);
         }
     }
     /**

@@ -46,10 +46,14 @@ final class SupportController extends BaseController {
                 if ($current) $sections[] = $current;
                 $current = ['section' => trim($m[1]), 'links' => []];
             } elseif ($current && preg_match('/^\s+-\s+(\S+):\s*(.+)$/', $line, $m)) {
-                $current['links'][] = ['path' => trim($m[1]), 'label' => trim($m[2])];
+                $path = trim($m[1]);
+                if (preg_match('#^/(shop|cart|checkout|account)(/|$)#', $path) && !module_on('shop')) continue;
+                if (preg_match('#^/campaigns(/|$)#', $path) && !module_on('campaigns')) continue;
+                if (preg_match('#^/blog(/|$)#', $path) && !module_on('blog')) continue;
+                $current['links'][] = ['path' => $path, 'label' => trim($m[2])];
             }
         }
         if ($current) $sections[] = $current;
-        return $sections;
+        return array_values(array_filter($sections, static fn(array $section): bool => $section['links'] !== []));
     }
 }

@@ -20,8 +20,10 @@ final class AuditLogService {
     }
 
     public static function agentSummary(array $events, ?int $now = null): array {
-        $cutoff = ($now ?? time()) - 86400;
+        $now ??= time();
+        $cutoff = $now - 86400;
         $summary = [];
+        $durations = ['support' => [], 'admin' => []];
         foreach (['support', 'admin'] as $surface) {
             $summary[$surface] = ['requests' => 0, 'model' => 0, 'fallback' => 0, 'private_account' => 0, 'draft' => 0, 'error' => 0, 'duration_ms' => 0, 'last_seen' => ''];
         }
@@ -33,13 +35,21 @@ final class AuditLogService {
             $outcome = $meta['outcome'] ?? '';
             $created = (string)($event['created_at'] ?? '');
             $timestamp = strtotime($created);
-            if (!isset($summary[$surface]) || !in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'error'], true) || $timestamp === false || $timestamp < $cutoff || $timestamp > ($now ?? time())) continue;
+            if (!isset($summary[$surface]) || !in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'error'], true) || $timestamp === false || $timestamp < $cutoff || $timestamp > $now) continue;
             $summary[$surface]['requests']++;
             $summary[$surface][$outcome]++;
-            $summary[$surface]['duration_ms'] += max(0, (int)($meta['duration_ms'] ?? 0));
+            $duration = max(0, (int)($meta['duration_ms'] ?? 0));
+            $summary[$surface]['duration_ms'] += $duration;
+            $durations[$surface][] = $duration;
             if ($created > $summary[$surface]['last_seen']) $summary[$surface]['last_seen'] = $created;
         }
-        foreach ($summary as &$row) $row['average_ms'] = $row['requests'] ? (int)round($row['duration_ms'] / $row['requests']) : null;
+        foreach ($summary as $surface => &$row) {
+            $count = $row['requests'];
+            $row['average_ms'] = $count ? (int)round($row['duration_ms'] / $count) : null;
+            $row['error_percent'] = $count ? round(100 * $row['error'] / $count, 1) : null;
+            sort($durations[$surface], SORT_NUMERIC);
+            $row['p95_ms'] = $count ? $durations[$surface][(int)ceil(.95 * $count) - 1] : null;
+        }
         return $summary;
     }
 
