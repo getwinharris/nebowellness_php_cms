@@ -4192,14 +4192,15 @@ body.nav-open { overflow: hidden; }
 .nebo-testimonial figcaption { margin-top: 1.25rem; color: var(--color-primary); font-weight: 700; }
 .nebo-testimonial figcaption span { display: block; margin-top: .2rem; color: var(--color-text-muted); font-size: .82rem; font-weight: 500; }
 
-/* Nebo's copy-in has one calm direction: arrive, settle, then remain still. */
-.motion-ready .reveal { opacity: 0; transform: translateY(22px); }
+/* Nebo's copy-in has one calm direction: arrive, settle, then remain still.
+   Never make a content block depend on JavaScript to become readable. */
+.motion-ready .reveal { opacity: 1; transform: translateY(22px); }
 .motion-ready .reveal.revealed {
     opacity: 1;
     transform: none;
-    transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1);
+    transition: transform .8s cubic-bezier(.16,1,.3,1);
 }
-.motion-ready .editorial-rail .reveal { opacity: 0; transform: translateY(22px); }
+.motion-ready .editorial-rail .reveal { opacity: 1; transform: translateY(22px); }
 .motion-ready .editorial-rail.rail-entered .reveal { opacity: 1; transform: translateY(0); }
 .motion-ready .editorial-rail.rail-entered .reveal:nth-child(2) { transition-delay: .08s; }
 .motion-ready .editorial-rail.rail-entered .reveal:nth-child(3) { transition-delay: .16s; }
