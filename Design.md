@@ -303,7 +303,7 @@ Use these terms consistently in product copy, implementation notes, and code rev
   and its primary action, then scrolls away normally.
 - **Act:** one meaningful visitor state in the home sequence. Nebo uses opaque sticky
   sections in increasing stack order, each of which cleanly covers the preceding act.
-- **Copy-in:** a short upward-translate entrance tied to the incoming layer's viewport
+- **Copy-in:** a short upward-translate entrance with a subtle opacity fade tied to the incoming layer's viewport
   progress. Essential copy remains fully legible throughout and ends in a still
   composition.
 - **Content composition:** the complete group of heading, media, supporting copy, and
