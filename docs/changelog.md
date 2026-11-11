@@ -13,6 +13,7 @@ category: docs
 
 - Home chapters settle in short, staggered entrances while preserving native scrolling.
 - Admin consultation analytics compares historical session counts and completion shares.
+- Owner agent starters fill an empty composer for review and preserve unsent messages.
 
 ### Documentation
 
