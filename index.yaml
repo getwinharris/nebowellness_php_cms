@@ -37,7 +37,7 @@ query_examples:
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
   concepts: 288
-  relationships: 248
+  relationships: 249
   by_type:
     blog: 5
     controller: 12
@@ -1937,7 +1937,7 @@ concepts:
     controller: "AdminController@agentAsk"
     services:
       - "SecretService"
-      - "DatabaseService"
+      - "AgentContextService"
       - "AuditLogService"
       - "AgentAttachmentService"
       - "AgentDraftService"
@@ -3397,6 +3397,9 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:AgentAttachmentService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:AgentContextService"
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:AgentDraftService"

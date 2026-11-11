@@ -33,12 +33,13 @@ final class AgentContextService {
             $userCount = count($users);
             $orderCount = count($orders);
             $productCount = count($products);
-            $totalRevenue = array_sum(array_column($orders, 'total'));
-            $confirmedOrders = array_filter($orders, fn($o) => ($o['status'] ?? '') === 'confirmed');
+            $revenueOrders = array_filter($orders, fn($o) => !in_array((string)($o['status'] ?? 'unknown'), ['cancelled', 'refunded'], true));
+            $totalRevenue = array_sum(array_column($revenueOrders, 'total'));
+            $confirmedOrders = array_filter($orders, fn($o) => in_array(($o['status'] ?? ''), ['confirmed', 'processing', 'packed', 'shipped', 'delivered'], true));
             $pendingOrders = array_filter($orders, fn($o) => ($o['status'] ?? '') === 'pending');
             $confirmedRevenue = array_sum(array_column($confirmedOrders, 'total'));
             $pendingRevenue = array_sum(array_column($pendingOrders, 'total'));
-            $avgOrderValue = $orderCount > 0 ? $totalRevenue / $orderCount : 0;
+            $avgOrderValue = count($revenueOrders) > 0 ? $totalRevenue / count($revenueOrders) : 0;
             // Per-product sales. "Which products sell best?" could not be answered before,
             // because only a product count reached the model.
             $unitsBySlug = [];
@@ -62,10 +63,10 @@ final class AgentContextService {
             if ($topProductsStr === '') $topProductsStr = "\n  - no confirmed sales yet";
 
             $commerceContext = $shopEnabled
-                ? "- Total orders: {$orderCount} (confirmed: " . count($confirmedOrders) . ", pending: " . count($pendingOrders) . ")\n"
+                ? "- Total orders: {$orderCount} (confirmed or fulfilled: " . count($confirmedOrders) . ", pending: " . count($pendingOrders) . ")\n"
                     . "- Products: {$productCount}\n"
                     . "- Total revenue: ₹" . number_format($totalRevenue, 2) . "\n"
-                    . "- Confirmed revenue: ₹" . number_format($confirmedRevenue, 2) . "\n"
+                    . "- Confirmed or fulfilled revenue: ₹" . number_format($confirmedRevenue, 2) . "\n"
                     . "- Pending revenue (unconfirmed): ₹" . number_format($pendingRevenue, 2) . "\n"
                     . "- Average order value: ₹" . number_format($avgOrderValue, 2) . "\n"
                     . "- Top 5 products by units sold:" . $topProductsStr

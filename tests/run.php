@@ -65,7 +65,12 @@ $tests['admin context contains aggregates without customer identities'] = functi
         'items' => [['name' => 'Wellness product', 'qty' => 2, 'line_total' => 100]]]];
     $summary = \App\Services\AgentContextService::adminSummary(true, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
     assertTrue(!str_contains($summary, 'private@example.test') && !str_contains($summary, 'Private Person'), 'Customer identity must not enter the admin model context');
-    assertTrue(str_contains($summary, 'Wellness product: 2 sold') && str_contains($summary, 'Confirmed revenue: ₹100.00'), 'Useful sales aggregates should remain available');
+    assertTrue(str_contains($summary, 'Wellness product: 2 sold') && str_contains($summary, 'Confirmed or fulfilled revenue: ₹100.00'), 'Useful sales aggregates should remain available');
+    $sales = \App\Services\AgentContextService::adminSummary(true, [], [
+        ['status' => 'shipped', 'total' => 100, 'items' => [['slug' => 'p', 'name' => 'Product', 'qty' => 1]]],
+        ['status' => 'cancelled', 'total' => 900], ['status' => 'refunded', 'total' => 500],
+    ], [], 0, 0, 0);
+    assertTrue(str_contains($sales, 'Total revenue: ₹100.00') && str_contains($sales, 'Average order value: ₹100.00') && str_contains($sales, 'Product: 1 sold'), 'Exclude cancelled and refunded orders and include shipped sales');
     $renamed = [['status' => 'confirmed', 'items' => [['slug' => 'same', 'name' => 'Old', 'qty' => 1], ['slug' => 'same', 'name' => str_repeat('x', 200), 'qty' => 2]]]];
     $bounded = \App\Services\AgentContextService::adminSummary(true, [], $renamed, [], 0, 0, 0);
     assertTrue(str_contains($bounded, str_repeat('x', 120) . ': 3 sold') && !str_contains($bounded, str_repeat('x', 121)), 'Sales group by slug and product names remain bounded');
