@@ -119,6 +119,7 @@
             ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.','program-card--mist'],
             ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.','program-card--violet'],
         ]; ?>
+        <?php $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle']; ?>
         <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
             <?php foreach ($programs as $index => $program): ?>
             <article class="program-slide reveal <?= e($program[3]) ?>">
@@ -127,7 +128,7 @@
                     <span class="program-slide__meta"><?= e($program[1]) ?></span>
                     <h3><?= e($program[0]) ?></h3>
                     <p><?= e($program[2]) ?></p>
-                    <a href="/contact?program=<?= rawurlencode($program[0]) ?>#contact-form" class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></a>
+                    <a href="/contact?subject=<?= e($programSubjects[$index]) ?>#contact-form" class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <?php endforeach; ?>

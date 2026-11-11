@@ -5,6 +5,9 @@ $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null
 // Values retained by a failed email-verification POST, so the visitor never has to
 // retype the form. The controller clears the session entry after this render.
 $contactValues = is_array($formValues ?? null) ? $formValues : [];
+if (!array_key_exists('subject', $contactValues) && in_array($subject ?? '', ['gut', 'metabolic', 'fertility', 'lifestyle', 'general'], true)) {
+    $contactValues['subject'] = $subject;
+}
 $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 ?>
 <section class="section nebo-contact-page">
