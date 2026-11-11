@@ -4073,19 +4073,7 @@ body.nav-open { overflow: hidden; }
 .campaign-card__body p { color: var(--color-text-muted); }
 .campaign-card__link { display: inline-flex; gap: .4rem; margin-top: .75rem; font-weight: 700; }
 .campaign-empty { max-width: 720px; padding: 2.5rem; background: #fff; border: 1px solid var(--color-border); }
-.campaign-hero { position: relative; display: flex; align-items: end; min-height: min(70vw, 650px); color: #fff; background: #2f5aa8; overflow: hidden; }
-.campaign-hero__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.campaign-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(18,42,82,.9), rgba(18,42,82,.42) 65%, rgba(18,42,82,.15)); }
-.campaign-hero__inner { position: relative; z-index: 1; padding-top: 6rem; padding-bottom: 5rem; }
-.campaign-hero h1 { max-width: 850px; margin: .5rem 0 1rem; font-size: clamp(2.4rem, 6vw, 5.5rem); line-height: 1.04; color: #fff; }
-.campaign-hero p { max-width: 58ch; margin-bottom: 2rem; font-size: clamp(1rem, 2vw, 1.25rem); }
-.campaign-page__layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); gap: clamp(2rem, 5vw, 5rem); padding-top: clamp(3rem, 6vw, 6rem); }
-.campaign-page__body { max-width: 72ch; line-height: 1.8; }
-.campaign-page__body h2 { margin: 2rem 0 .7rem; color: var(--color-primary); }
-.campaign-page__aside { align-self: start; padding: 2rem; background: #eef4f8; border-top: 4px solid var(--color-secondary); }
-.campaign-page__aside h2 { margin: .7rem 0; }
-.campaign-page__back { padding: 2.5rem 0 4rem; }
-@media(max-width:700px) { .campaign-grid,.campaign-page__layout { grid-template-columns: 1fr; } .campaign-hero { min-height: 560px; } .campaign-hero__inner { padding-top: 4rem; padding-bottom: 3rem; } }
+@media (max-width: 700px) { .campaign-grid { grid-template-columns: 1fr; } }
 
 /* SHA-inspired editorial rails, adapted to Nebo's program-only clinic journey. */
 .home-rail-section { overflow: hidden; }
@@ -4234,24 +4222,6 @@ body.nav-open { overflow: hidden; }
     .motion-ready .editorial-rail .reveal,
     .motion-ready .editorial-rail.rail-entered .reveal,
     .motion-ready .editorial-rail.rail-entered .reveal.is-rail-current { opacity: 1; transform: none; transition: none; }
-}
-
-/* Promotion enquiry band: open editorial copy beside a focused form. */
-.campaign-enquiry { background: #2f3437; color: #fff; padding: 88px 0; scroll-margin-top: 24px; }
-.campaign-enquiry__layout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 72px; align-items: start; }
-.campaign-enquiry h2 { font-size: 2.75rem; font-weight: 300; line-height: 1.12; margin: 16px 0 24px; }
-.campaign-enquiry p { color: #e0e6e9; line-height: 1.65; }
-.campaign-enquiry .eyebrow, .campaign-enquiry label, .campaign-enquiry a { color: #fff; }
-.campaign-enquiry input, .campaign-enquiry textarea { width: 100%; min-width: 0; background: #fff; color: #222; border: 1px solid #d7e1e6; border-radius: 4px; padding: 14px; font: inherit; }
-.campaign-enquiry input:focus-visible, .campaign-enquiry textarea:focus-visible { outline: 3px solid #8cc069; outline-offset: 3px; }
-.campaign-enquiry__privacy { font-size: .8rem; }
-.campaign-enquiry__privacy a { text-decoration: underline; }
-.campaign-form-errors { border-left: 3px solid #f4b7b7; padding-left: 16px; margin-bottom: 24px; }
-.campaign-form-success { border: 1px solid #8cc069; padding: 24px; }
-@media (max-width: 743px) {
-    .campaign-enquiry { padding: 48px 0; }
-    .campaign-enquiry__layout { grid-template-columns: minmax(0,1fr); gap: 28px; }
-    .campaign-enquiry h2 { font-size: 2rem; }
 }
 
 /* SHA board composition: labelled previews, featured portrait, separate biography. */
