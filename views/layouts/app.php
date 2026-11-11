@@ -259,6 +259,7 @@ echo $__palette_css;
 @media(max-width:900px){.blog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.document-index,.blog-grid{grid-template-columns:1fr}.blog-page{padding:var(--space-2xl) 0}}
 </style>
 <noscript><link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>"></noscript>
+<link rel="stylesheet" href="/assets/css/brand.css?v=<?= filemtime(__DIR__ . '/../../assets/css/brand.css') ?>">
 <?php $__secrets_org = (new \App\Services\SecretService())->all(); $__phone = $__secrets_org['phone'] ?? ''; $__telephone = $__phone !== '' ? '["' . e($__phone) . '"]' : '["+917200182025","+919585182025"]'; ?>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":["MedicalClinic"],"name":"<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>","description":"Naturopathy, functional medicine, nutritional therapy, and integrative wellness solutions.","url":"https://<?= e($_SERVER['HTTP_HOST']) ?>","telephone":<?= $__telephone ?>,"email":"nebolifestyleclinic@gmail.com"}

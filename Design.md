@@ -103,7 +103,7 @@ components:
 
 ## Overview
 
-Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for everything customer-facing in `views/` and `assets/css/band.css`.
+Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for the customer-facing templates. `assets/css/band.css` owns shared layout and interaction primitives. `assets/css/brand.css` adds public art direction after the configured palette.
 
 Design inspiration from SHA Wellness (shawellness.com) informs the use of:
 - Clean, spacious card layouts with clear separation
@@ -185,9 +185,9 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 - **Header:** soft white, pinned to the viewport top, with a hairline bottom border and the complete client-supplied Nebo logo centered. The drawer repeats this logo as a home link; account/cart actions remain right aligned.
 - **Home hero (editorial):** Use `nebo-clinic-hero.png` as a full-width photo with a dark blue text scrim. Left-align the headline and consultation action; keep the people and clinic setting visible at the right. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff.
-- **Program rail:** a horizontal, equal-height scroll-snap editorial rail with three cards visible on
-  wide screens and one partial next card visible on mobile. Each card uses an abstract
-  colour field, duration label, program name, short factual description, and enquiry
+- **Program rail:** a horizontal, equal-height scroll-snap editorial rail with a partial next card
+  visible on mobile. Each card uses a blue-paper surface, a single deep-blue top rule,
+  duration label, prominent program name, short factual description, and enquiry
   link. Each arrow action advances exactly one card plus its grid gap; keyboard and touch scrolling remain
   available. When the rail enters view, its cards use one short staggered rise; only the current card receives a subtle lift. Nebo offers programs only: never introduce destinations, accommodation,
   room selection, stay length, or hotel booking concepts.
@@ -207,15 +207,22 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Editorial media:** every blog post uses one intentional 16:9 image for both its listing thumbnail and article hero. UI guides use a legible screenshot of the exact page, cropped around the relevant interface rather than a decorative stock image, and link the represented page below the article.
 - **Buttons (`button-primary` / `button-secondary`):** `48px` minimum height, `8px` radius, no uppercase, no letter-spacing. Primary is solid blue with a darker-blue hover; hover moves from `shadow-md` to `shadow-lg` and lifts 2px, no more. Secondary is solid green with white text. Hover states never shift layout.
 - **Forms:** white fields (`on-primary`), `8px` radius, `48px` height, clear labels, a single-value focus ring (`--shadow-focus`) -- no glow.
+- **Consultation form:** the form is the one elevated work surface. Give it a blue top rule and keep hours, address, and contact details on open ruled rows below it. Preserve the form's field order, verification controls, and confirmation behavior.
 - **Search/filter:** one rounded (`pill`) search control, or a quiet grouped filter row. No nested cards for filters.
 - **Product cards (`product-card`):** linked image/title, short description, price, Buy Now and one stateful cart control. Initially show Add to Cart; adding one unit replaces it in place with `− quantity +`. The number is the actual cart quantity. Each press updates the cart immediately; decrementing the final unit restores Add to Cart. Keep 44px targets, native form fallback, visible focus and disabled controls during requests. Do not show a separate Quantity row or redundant in-cart link.
 - **Cart quantity:** provide `−` and `+` controls beside every product, update line totals and the cart count, and remove the line when decreased to zero. Repeated additions of the same product merge into one line. Distinguish selecting a quantity to add from editing the quantity already in the cart.
 - **Commerce responsiveness:** use `minmax(0, 1fr)` for purchase-button columns, wrap quantity labels when space is tight, and keep keyboard focus visible. Verify home, shop, product and cart at 375px and desktop in the built-in Browser. Do not shrink purchase controls to 30px to force them onto one row.
 - **Consultant cards (`card-consultant`):** white, `8px` radius, face-forward portrait, name, speciality, language/experience metadata, review summary when present, and one clear profile/booking action. Every card uses equal media and content tracks so rows align.
-- **Section rhythm:** Alternate an image-led introduction, clean focus-area cards, a three-column why-Nebo band, and five program cards. About uses a wide tropical-garden image before the story cards. Generated images are illustrative and never presented as actual Nebo staff, premises, or clinical outcomes. The primary action opens the contact form.
+- **Section rhythm:** Alternate an image-led introduction, open focus-area entries in two columns, a single list of care principles with split title and copy, and a rail of five program cards. Below 744px, stack focus entries and place each care principle's copy under its title. About uses a wide tropical-garden image before the story cards. Generated images are illustrative and never presented as actual Nebo staff, premises, or clinical outcomes. The primary action opens the contact form.
 - **Authentication:** login and registration are task pages, not marketing pages. Use a centered form surface, suppress the public footer, and keep the complete form visible on common mobile heights.
 - **Product details:** keep the short introduction, feature bullets, detailed description, and labelled specification rows in separate readable sections. Admin-created products use the same fields and layout as existing products; never paste table markup into a plain-text description. Omit empty sections instead of fabricating claims.
 - **Account:** use a persistent internal menu and one unframed content region. Orders, addresses, and installation are tasks, not promotional cards.
+
+### Nebo editorial treatment
+
+Use the Scroll Craft taste guidance by Nate Herk for composition and interaction states. The existing journey remains the brief: photographic arrival, orientation, reassurance, comparison, practitioner selection, and consultation. Let visitors compare programs through the duration, title, and copy at a glance. Reserve the larger visual change for the selected practitioner and their consultation link.
+
+Use cool paper, deep blue ink, and one blue action color across these surfaces. `brand.css` derives its blue roles from the configured primary palette where `color-mix()` is supported, with readable default values for other browsers. Hairlines and spacing group related content. Give program titles more scale than their duration and description, and remove decorative numbers and gradient panels. Maintain a visible offset focus outline on rail controls and form fields. Scroll and selection are enhancements of the existing native controls. Keep content legible without JavaScript and preserve the reduced-motion rules in `band.css`.
 - **Admin:** optimize for scanning and repeated action: compact sidebar, clear tables, consistent forms, explicit save state, and no marketing-style hero composition.
 - **Admin platform guidance:** describe the product-led public journey consistently. Historical service records may remain owner-accessible, but integration help must not advertise retired public booking, text sessions, or direct calls.
 - **Admin form sizing:** use zero-minimum grid tracks and shrinkable labels/controls. Long integration endpoints or credentials must stay within the field, never widen the page. Check 375px with populated fields without exposing their values in screenshots or reports.

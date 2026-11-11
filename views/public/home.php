@@ -81,7 +81,7 @@
         <div class="section-header">
             <h2 class="section-title">Why Choose Nebo Wellness?</h2>
         </div>
-        <div class="value-strip" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+        <div class="value-strip">
             <article class="value-card reveal">
                 <h3>Root-cause, personalized care</h3>
                 <p>Nebo considers digestion, hormones, metabolism, stress, history, and goals when shaping a personalised care plan.</p>
@@ -112,17 +112,16 @@
             </div>
         </div>
         <?php $programs = [
-            ['Gut Restoration Program','6–12 weeks','Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.','program-card--blue'],
-            ['Metabolic Reset','Personalised duration','A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.','program-card--sage'],
-            ['Fertility & Preconception Wellness','Personalised duration','Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.','program-card--rose'],
-            ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.','program-card--mist'],
-            ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.','program-card--violet'],
+            ['Gut Restoration Program','6–12 weeks','Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.'],
+            ['Metabolic Reset','Personalised duration','A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.'],
+            ['Fertility & Preconception Wellness','Personalised duration','Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.'],
+            ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.'],
+            ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.'],
         ]; ?>
         <?php $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle']; ?>
         <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
             <?php foreach ($programs as $index => $program): ?>
-            <article class="program-slide reveal <?= e($program[3]) ?>">
-                <div class="program-slide__visual" aria-hidden="true"><span><?= str_pad((string)($index + 1), 2, '0', STR_PAD_LEFT) ?></span></div>
+            <article class="program-slide reveal">
                 <div class="program-slide__body">
                     <span class="program-slide__meta"><?= e($program[1]) ?></span>
                     <h3><?= e($program[0]) ?></h3>
