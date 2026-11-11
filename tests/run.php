@@ -640,23 +640,87 @@ $tests['admin integrations explain api setup and support bot keys'] = function (
     }
 };
 
+$tests['Google OIDC validates the code exchange and identity claims'] = function (): void {
+    $client = new \App\Integrations\GoogleOAuth\GoogleOAuthClient('client-id', 'server-secret');
+    $uri = 'https://example.test/auth/google/callback';
+    parse_str((string)parse_url($client->authorizationUrl($uri, 'state', 'nonce'), PHP_URL_QUERY), $params);
+    assertSame($uri, $params['redirect_uri'], 'Authorization uses the canonical URI');
+    assertSame('nonce', $params['nonce'] ?? null, 'Authorization binds a nonce to the transaction');
+    assertSame('state', $params['state'], 'Authorization binds anti-forgery state');
+    assertTrue(!isset($params['access_type']), 'Sign-in should not request offline access');
+    $claims = ['iss'=>'https://accounts.google.com', 'aud'=>'client-id', 'exp'=>time()+300,
+        'nonce'=>'nonce', 'sub'=>'google-subject', 'email'=>'person@example.test', 'email_verified'=>true];
+    $exchange = static function (array $claims) use ($client, $uri): array {
+        $token = 'header.' . rtrim(strtr(base64_encode(json_encode($claims)), '+/', '-_'), '=') . '.signature';
+        return $client->exchange('provider-code', $uri, 'nonce', static function (string $endpoint, array $fields) use ($uri, $token): array {
+            assertSame('https://oauth2.googleapis.com/token', $endpoint, 'Code goes only to the Google token endpoint');
+            assertSame($uri, $fields['redirect_uri'], 'Exchange retains the exact authorization URI');
+            assertSame('provider-code', $fields['code'], 'Exchange uses the callback code');
+            return ['id_token'=>$token];
+        });
+    };
+    assertSame(['sub'=>'google-subject', 'email'=>'person@example.test'], $exchange($claims), 'Use the identity bound to this client and request');
+    foreach (['iss'=>'wrong', 'aud'=>'other-client', 'azp'=>'other-client', 'exp'=>time()-1, 'nonce'=>'wrong', 'sub'=>'', 'email'=>'invalid', 'email_verified'=>'false'] as $claim=>$value) {
+        try {
+            $exchange(array_replace($claims, [$claim=>$value]));
+        } catch (\UnexpectedValueException) {
+            continue;
+        }
+        assertTrue(false, 'Reject invalid Google claim: ' . $claim);
+    }
+};
+
+$tests['Google callback state is required, expires and can only be consumed once'] = function (): void {
+    $state = ['state'=>'valid', 'nonce'=>'nonce', 'redirect_uri'=>'https://example.test/auth/google/callback', 'issued_at'=>100];
+    $session = ['google_oauth'=>$state];
+    $class = \App\Services\GoogleCustomerAuthService::class;
+    assertSame(null, $class::consumeState($session, 'wrong', 101), 'A mismatched state cannot complete the callback');
+    assertSame(null, $class::consumeState($session, ['valid'], 101), 'Array state is malformed');
+    assertSame($state, $class::consumeState($session, 'valid', 101), 'Consume the original valid transaction');
+    assertSame(null, $class::consumeState($session, 'valid', 101), 'A callback cannot replay the consumed state');
+    $session = ['google_oauth'=>$state];
+    assertSame(null, $class::consumeState($session, 'valid', 701), 'An expired state cannot complete the callback');
+    assertSame([], $session, 'An expired matched transaction is cleared');
+};
+
+$tests['Google can sign in only a unique previously linked eligible customer'] = function (): void {
+    $class = \App\Services\GoogleCustomerAuthService::class;
+    $identity = ['sub'=>'google-subject', 'email'=>'person@example.test'];
+    $user = ['id'=>'saved-id', 'email'=>'person@example.test', 'name'=>'Saved name', 'role'=>'customer',
+        'google_subject'=>'google-subject', 'accepted_terms_at'=>'2026-01-01T00:00:00Z'];
+    assertSame(['sub'=>'saved-id', 'email'=>'person@example.test', 'name'=>'Saved name', 'role'=>'customer'],
+        $class::linkedSession($identity, [$user], ['owner@example.test']), 'Session uses the stored customer record');
+    foreach ([
+        [],
+        [array_replace($user, ['google_subject'=>'other'])],
+        [array_replace($user, ['google_subject'=>null, 'id'=>'google-subject'])],
+        [array_replace($user, ['role'=>'admin'])],
+        [array_replace($user, ['role'=>'consultant'])],
+        [array_replace($user, ['is_admin'=>true])],
+        [array_replace($user, ['must_change_password'=>true])],
+        [array_replace($user, ['accepted_terms_at'=>null])],
+        [array_replace($user, ['email'=>'former@example.test'])],
+        [$user, array_replace($user, ['id'=>'duplicate', 'google_subject'=>'other'])],
+        [$user, array_replace($user, ['id'=>'duplicate', 'email'=>'other@example.test'])],
+    ] as $users) {
+        assertSame(null, $class::linkedSession($identity, $users, ['owner@example.test']), 'Reject unsafe or missing account binding');
+    }
+    assertSame(null, $class::linkedSession($identity, [$user], ['owner@example.test', 'PERSON@example.test']), 'Owner credentials cannot be inherited through Google');
+};
+
 $tests['google oauth callback uses the configured app url'] = function (): void {
-    $auth = file_get_contents(app_path('app/Controllers/AuthController.php'));
-    assertTrue(str_contains($auth, "getenv('APP_URL')"), 'Google OAuth should use the configured canonical app URL');
-    assertTrue(!str_contains($auth, "\$_SERVER['HTTP_HOST']"), 'Google OAuth should not trust the incoming host for redirect URI');
-    assertTrue(str_contains($auth, 'https://www.nebowellness.com'), 'Google OAuth should default new Nebo deployments to the public canonical host');
-    assertTrue(str_contains($auth, "\$_SESSION['oauth_redirect_uri']"), 'Google OAuth should retain the URI used to start an in-flight sign-in');
-    assertTrue(str_contains($auth, "'redirect_uri'=>\$redirectUri"), 'Google OAuth token exchange should use the retained in-flight callback URI');
-    $previous = $_ENV['APP_URL'] ?? null;
-    $_ENV['APP_URL'] = 'https://nebowellness.com';
-    $method = new ReflectionMethod(\App\Controllers\AuthController::class, 'redirectUri');
-    $uri = $method->invoke(new \App\Controllers\AuthController());
-    if ($previous === null) unset($_ENV['APP_URL']); else $_ENV['APP_URL'] = $previous;
-    assertSame('https://nebowellness.com/auth/google/callback', $uri, 'OAuth must use the exact configured callback host');
-    $_ENV['APP_URL'] = 'https://www.nebowellness.com';
-    $uri = $method->invoke(new \App\Controllers\AuthController());
-    if ($previous === null) unset($_ENV['APP_URL']); else $_ENV['APP_URL'] = $previous;
-    assertSame('https://www.nebowellness.com/auth/google/callback', $uri, 'The recommended www APP_URL should produce the documented callback');
+    $previous = $_SERVER['APP_URL'] ?? null;
+    $previousHost = $_SERVER['HTTP_HOST'] ?? null;
+    $_SERVER['HTTP_HOST'] = 'untrusted.example.test';
+    try {
+        foreach (['https://nebowellness.com', 'https://www.nebowellness.com'] as $base) {
+            $_SERVER['APP_URL'] = $base . '/';
+            assertSame($base . '/auth/google/callback', \App\Services\GoogleCustomerAuthService::callbackUri(), 'OAuth uses the exact configured callback host');
+        }
+    } finally {
+        if ($previous === null) unset($_SERVER['APP_URL']); else $_SERVER['APP_URL'] = $previous;
+        if ($previousHost === null) unset($_SERVER['HTTP_HOST']); else $_SERVER['HTTP_HOST'] = $previousHost;
+    }
 };
 
 $tests['retired GitHub blog-cache command is not exposed'] = function (): void {

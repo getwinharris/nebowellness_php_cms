@@ -41,8 +41,8 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 279
-  relationships: 252
+  concepts: 280
+  relationships: 254
   by_type:
     blog: 5
     controller: 12
@@ -50,7 +50,7 @@ summary:
     image: 28
     route: 116
     schema: 23
-    service: 49
+    service: 50
     skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -1243,6 +1243,7 @@ concepts:
       - "SettingsService"
       - "PaymentService"
       - "SecretService"
+      - "GoogleCustomerAuthService"
       - "AuthService"
     view: "admin/integrations"
   - id: "route:get__admin_media"
@@ -1452,6 +1453,7 @@ concepts:
     controller: "AuthController@googleRedirect"
     services:
       - "SecretService"
+      - "GoogleCustomerAuthService"
     view: "public/login"
   - id: "route:get__auth_google_callback"
     type: "route"
@@ -1467,6 +1469,7 @@ concepts:
     services:
       - "SecretService"
       - "DatabaseService"
+      - "GoogleCustomerAuthService"
     view: "public/login"
   - id: "route:get__blog"
     type: "route"
@@ -3073,6 +3076,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:GoogleCustomerAuthService"
+    type: "service"
+    title: "GoogleCustomerAuthService"
+    description: "Service: GoogleCustomerAuthService"
+    resource: "app/Services/GoogleCustomerAuthService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:ImageOptimizerService"
     type: "service"
     title: "ImageOptimizerService"
@@ -3405,6 +3416,9 @@ relationships:
     to: "service:EnvService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:GoogleCustomerAuthService"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:MailQueueService"
     relation: "uses"
   - from: "controller:AdminController"
@@ -3460,6 +3474,9 @@ relationships:
     relation: "uses"
   - from: "controller:AuthController"
     to: "service:DatabaseService"
+    relation: "uses"
+  - from: "controller:AuthController"
+    to: "service:GoogleCustomerAuthService"
     relation: "uses"
   - from: "controller:AuthController"
     to: "service:PasswordResetService"

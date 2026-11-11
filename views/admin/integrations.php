@@ -50,7 +50,7 @@
 
         <h2 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-sm);">Google Login</h2>
         <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">
-            Optional customer login. Create an OAuth client in Google Cloud and add this callback URL: <code><?= e(((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'your-domain.com') . '/auth/google/callback') ?></code>.
+            Google sign-in is limited to previously linked customer accounts. Use this exact OAuth callback URL in Google Cloud: <code><?= e($googleCallbackUri) ?></code>.
             <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Credentials</a>
         </p>
         <div class="admin-form__row">

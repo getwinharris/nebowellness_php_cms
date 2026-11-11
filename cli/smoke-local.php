@@ -53,6 +53,7 @@ try {
         '/forgot-password' => 200,
         '/reset-password' => 200,
         '/auth/google' => 302,
+        '/auth/google/callback' => 302,
         '/logout' => 302,
         '/account/orders' => 302,
         '/account/bookings' => 302,
