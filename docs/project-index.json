@@ -6,7 +6,7 @@
         "routes": 116,
         "controllers": 12,
         "services": 49,
-        "views": 44,
+        "views": 45,
         "collections": 23
     },
     "routes": [
@@ -16,7 +16,10 @@
             "name": "home",
             "controller": "PublicController@home",
             "view": "public/home",
-            "services": []
+            "services": [
+                "CampaignPageService",
+                "ConsultantService"
+            ]
         },
         {
             "method": "GET",
@@ -1379,6 +1382,7 @@
         "admin/tax-report",
         "layouts/admin",
         "layouts/app",
+        "partials/therapy-products",
         "public/404",
         "public/about",
         "public/blog",

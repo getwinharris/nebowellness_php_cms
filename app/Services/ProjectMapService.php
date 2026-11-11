@@ -7,12 +7,12 @@ final class ProjectMapService {
 
     public const SHARED_CONTROLLERS = ['BaseController'];
     public const SHARED_SERVICES = ['SeoService', 'SmtpMailer', 'ImageOptimizerService', 'DocsMapService', 'RateLimiter', 'KnowledgeGraphService'];
-    public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'public/404', 'admin/environment'];
+    public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'partials/therapy-products', 'public/404', 'admin/environment'];
     public const KNOWN_UNWIRED_COLLECTIONS = ['wallet_transactions', 'media_files'];
 
     public static function registry(): array {
         $routes = [
-            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>[]],
+            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['CampaignPageService','ConsultantService']],
             ['method'=>'GET','path'=>'/about','name'=>'about','page'=>'public/about','controller'=>'PublicController@about','services'=>[]],
             ['method'=>'GET','path'=>'/sri-panchami-spiritual','name'=>'spiritual','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
             ['method'=>'GET','path'=>'/spiritual','name'=>'spiritual.short','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],

@@ -328,7 +328,7 @@ gtag('js', new Date());
         </a>
         <p class="nav-kicker">Explore Nebo</p>
         <a href="/#programs">Programs</a>
-        <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= str_starts_with($currentPath, '/campaign') ? ' aria-current="page"' : '' ?>>Campaigns</a><?php endif; ?>
+        <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Products</a><?php endif; ?>
         <?php if ($__modules['shop']): ?>
         <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
         <?php endif; ?>
@@ -451,7 +451,7 @@ if ($__flash):
                 <ul class="footer-links">
                     <?php if ($__modules['shop']): ?><li><a href="/shop">All Products</a></li><?php endif; ?>
                     <li><a href="/#programs">Programs</a></li>
-                    <?php if ($__modules['campaigns']): ?><li><a href="/campaigns">Campaigns</a></li><?php endif; ?>
+                    <?php if ($__modules['campaigns']): ?><li><a href="/campaigns">Products</a></li><?php endif; ?>
                     <li><a href="/about">About Nebo</a></li>
                     <?php if ($__modules['blog']): ?><li><a href="/blog">Blog</a></li><?php endif; ?>
                     <li><a href="/contact">Contact</a></li>
@@ -593,7 +593,7 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
     if(footer){
         footer.classList.add('editorial-stack-card','landing-footer-card');
         footer.setAttribute('data-stack-card','');
-        footer.style.setProperty('--stack-order','9');
+        footer.style.setProperty('--stack-order','10');
         stack.appendChild(footer);
     }
     var cards=Array.from(stack.querySelectorAll('[data-stack-card]'));

@@ -79,14 +79,29 @@ final class CampaignPageService {
     public function __construct(private DatabaseService $store = new DatabaseService()) {}
 
     public function published(): array {
-        $pages = array_values(array_filter(
-            $this->store->read('campaign_pages'),
+        $pages = $this->publicPages($this->store->read('campaign_pages'));
+        usort($pages, static fn(array $a, array $b): int => strcmp((string)$a['title'], (string)$b['title']));
+        return $pages;
+    }
+
+    public function newestPublished(): array {
+        // Use persisted creation order, including records created before this UI.
+        // Editing an older offering must not turn it into the newest one.
+        $rows = $this->store->query('SELECT id, _data FROM campaign_pages ORDER BY _created_at DESC, id ASC');
+        $pages = array_map(static function (array $row): array {
+            $data = json_decode((string)($row['_data'] ?? ''), true);
+            return is_array($data) ? array_replace($data, ['id' => $row['id']]) : [];
+        }, $rows);
+        return $this->publicPages($pages);
+    }
+
+    private function publicPages(array $pages): array {
+        return array_values(array_filter(
+            $pages,
             static fn(array $page): bool => ($page['status'] ?? 'draft') === 'published'
                 && trim((string)($page['slug'] ?? '')) !== ''
                 && trim((string)($page['title'] ?? '')) !== ''
         ));
-        usort($pages, static fn(array $a, array $b): int => strcmp((string)$a['title'], (string)$b['title']));
-        return $pages;
     }
 
     public function findPublished(string $slug): ?array {

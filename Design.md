@@ -191,7 +191,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
   link. Each arrow action advances exactly one card plus its grid gap; keyboard and touch scrolling remain
   available. When the rail enters view, its cards use one short staggered rise; only the current card receives a subtle lift. Nebo offers programs only: never introduce destinations, accommodation,
   room selection, stay length, or hotel booking concepts.
-- **Campaign pages:** owner-edited pages use a full-width image with a blue text scrim, short headline and enquiry action, followed by an open reading column and one quiet side card. The campaign index uses 16:9 image cards. Drafts never have a public route or sitemap entry.
+- **Therapy products:** published campaign pages are the public Products catalogue. The homepage gives the newest record a large image and session-request action, followed by two quieter older entries. The catalogue uses the same hierarchy for all published offerings. On phones the featured therapy comes first in a single column. Preserve existing campaign URLs. Drafts never have a public route or sitemap entry. A request does not confirm a session.
 - **Proof points:** Display measured outcomes only when Nebo can substantiate the numbers and define the measurement period and source. Otherwise use concrete service details without invented percentages.
 - **Team/Consultant rail:** portrait-first, equal-height cards with name, credentials,
   speciality, concise bio, and one consultation enquiry action. Until actual portraits
