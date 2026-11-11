@@ -310,8 +310,8 @@ copy stays in its final position. Reduced motion restores normal flow.
 
 Use these terms consistently in product copy, implementation notes, and code review:
 
-- **Arrival:** the unpinned hero at the start of the visit. It establishes the clinic
-  and its primary action, then scrolls away normally.
+- **Arrival:** the hero at the start of the visit. It establishes the clinic and
+  its primary action before the next chapter scrolls over it.
 - **Act:** one meaningful visitor state in the home sequence. Nebo uses opaque sticky
   sections in increasing stack order, each of which cleanly covers the preceding act.
 - **Copy-in:** a short upward entrance triggered once as a chapter enters view.
@@ -386,14 +386,12 @@ visual system.
 
 ### Home motion score
 
-- **Arrival:** the hero establishes Nebo and scrolls away in normal flow; no sticky
-  treatment delays the first action.
+- **Arrival:** the hero establishes Nebo with immediately available actions. The
+  next chapter covers it after a short stretch of native scrolling.
 - **Foundation:** the clinic story enters as the first opaque sticky act, using a
   small upward copy-in to settle the image and copy together.
-- **Focus:** the focus-area grid follows as a still, readable composition; card motion
-  is limited to the section entrance.
-- **Confidence:** the proof points arrive as one compact, centred composition so the
-  transition reads as clarity rather than a new interaction.
+- **Focus:** visible cards enter in reading order, then settle into a still grid.
+- **Confidence:** the proof cards enter individually within one centred composition.
 - **Programs:** the program rail keeps a fixed card geometry; each arrow advances one
   item, with no autoplay or size change.
 - **Team:** the selected portrait grows relative to named previews, then the biography
@@ -430,9 +428,11 @@ visual system.
 ## Sticky navigation and portrait alignment
 
 The white main navigation bar stays at the viewport top during scrolling. The
-hero remains in normal document flow and scrolls away. The header's measured height
-reserves space for anchor targets and short stacked sections; tall sections still
-scroll fully before sticking. The opaque header sits above stacked content.
+hero and subsequent sections stay in native document flow. At the end of each
+chapter, a short scroll distance lets the pinned content settle before the next
+surface covers it. This distance is smaller on phones and absent with reduced
+motion. The measured header reserves space for anchors, and tall sections scroll
+fully before sticking. The opaque header sits above stacked content.
 Team preview portraits align around the featured portrait's vertical center, with
 centered image crops and visible names. Details move below the portrait rail at
 tablet widths as well as mobile, so the preview names retain useful space.
