@@ -59,6 +59,26 @@ function assertMinCount(int $min, array $items, string $msg): void {
 $failures = [];
 $tests = [];
 
+$tests['admin unrelated question sends only bounded context to the model'] = function (): void {
+    foreach (['on', 'off'] as $mode) {
+        $capture = tempnam(sys_get_temp_dir(), 'nebo-prompt-');
+        $pipes = [];
+        $process = proc_open([PHP_BINARY, app_path('tests/fixtures/admin-agent-prompt.php'), $mode, $capture], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+        if (!is_resource($process)) throw new RuntimeException('Could not start admin prompt fixture');
+        $response = stream_get_contents($pipes[1]);
+        $errors = stream_get_contents($pipes[2]);
+        fclose($pipes[1]); fclose($pipes[2]);
+        $exitCode = proc_close($process);
+        $prompt = file_get_contents($capture);
+        unlink($capture);
+        assertSame(0, $exitCode, 'Admin prompt fixture must succeed: ' . $errors);
+        assertTrue(str_contains($response, 'answer') && str_contains($prompt, 'What can you help me with?'), 'Unrelated question must reach the model boundary');
+        assertTrue(!str_contains($prompt, 'private@example.test') && !str_contains($prompt, 'Private Person'), 'Model prompt must exclude customer identities');
+        if ($mode === 'off') assertTrue(str_contains($prompt, 'Ecommerce is disabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Disabled commerce must not enter the model prompt');
+        else assertTrue(str_contains($prompt, 'Fixture Product') && str_contains($prompt, 'Total orders: 1'), 'Enabled commerce retains bounded aggregates');
+    }
+};
+
 $tests['admin context contains aggregates without customer identities'] = function (): void {
     $users = [['email' => 'private@example.test', 'name' => 'Private Person']];
     $orders = [['customer_email' => 'private@example.test', 'status' => 'confirmed', 'total' => 100,
