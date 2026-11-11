@@ -2250,6 +2250,25 @@ $tests['admin agent suggestions follow the campaigns module'] = function (): voi
     assertTrue(substr_count($view, '$__campaignsEnabled') >= 3, 'The agent copy and suggestion both follow the campaigns module');
 };
 
+$tests['contact form carries the selected practitioner and preserves restored answers'] = function (): void {
+    $render = static function (array $values, string $consultant): string {
+        $formValues = $values;
+        $formErrors = [];
+        $subject = '';
+        $otpAvailable = false;
+        $success = false;
+        ob_start();
+        include app_path('views/public/contact.php');
+        return (string) ob_get_clean();
+    };
+    $page = $render([], 'Dr Example & Co');
+    assertTrue(str_contains($page, 'I would like to enquire about a consultation with Dr Example &amp; Co.'), 'The chosen practitioner is visible and HTML escaped');
+    assertTrue(str_contains($page, 'value="general" selected'), 'Practitioner enquiries have a selected subject');
+    $restored = $render(['message' => 'My retained message', 'subject' => 'gut'], 'Dr Example');
+    assertTrue(str_contains($restored, 'My retained message') && !str_contains($restored, 'consultation with Dr Example'), 'A restored message takes precedence');
+    assertTrue(str_contains($restored, 'value="gut" selected'), 'A restored subject takes precedence');
+};
+
 $tests['contact form retains answers and reports a failed email verification'] = function (): void {
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
     assertTrue(str_contains($controller, "\$_SESSION['contact_form'] = ["), 'A failed verification stores the submitted answers in the session');

@@ -382,6 +382,8 @@ final class PublicController extends BaseController {
         $this->seoKey = 'contact';
         $success = false;
         $subject = $_GET['subject'] ?? '';
+        $consultant = is_string($_GET['consultant'] ?? null) ? trim($_GET['consultant']) : '';
+        $consultant = mb_substr(preg_replace('/[\x00-\x1f\x7f]+/u', ' ', $consultant) ?? '', 0, 120);
         // A failed verification must not throw the visitor's answers away. The previous
         // POST stores them here; this request re-renders them against a fresh token.
         $formState = is_array($_SESSION['contact_form'] ?? null) ? $_SESSION['contact_form'] : [];
@@ -444,6 +446,7 @@ final class PublicController extends BaseController {
         $this->render('public/contact', [
             'success' => $success,
             'subject' => $subject,
+            'consultant' => $consultant,
             'formValues' => $formState['values'] ?? [],
             'formErrors' => $formState['errors'] ?? [],
             'otpAvailable' => (new \App\Services\EmailOtpService())->available(),

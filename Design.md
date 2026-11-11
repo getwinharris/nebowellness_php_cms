@@ -387,7 +387,9 @@ visual system.
 - **Programs:** the program rail keeps a fixed card geometry; each arrow advances one
   item, with no autoplay or size change.
 - **Team:** the selected portrait grows relative to named previews, then the biography
-  updates beside it as the consultation handoff.
+  updates beside it. This is the signature move: the practitioner's consultation link
+  opens an enquiry with their name in the editable message. The same link works in
+  each profile without JavaScript.
 - **Stories:** testimonials arrive as a calm evidence section with no simulated quote
   motion or counter.
 - **Resolve:** the consultation card and charcoal footer close the sequence as complete

@@ -8,6 +8,10 @@ $contactValues = is_array($formValues ?? null) ? $formValues : [];
 if (!array_key_exists('subject', $contactValues) && in_array($subject ?? '', ['gut', 'metabolic', 'fertility', 'lifestyle', 'general'], true)) {
     $contactValues['subject'] = $subject;
 }
+if (!array_key_exists('message', $contactValues) && ($consultant ?? '') !== '') {
+    $contactValues['message'] = 'I would like to enquire about a consultation with ' . $consultant . '.';
+    $contactValues['subject'] ??= 'general';
+}
 $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 ?>
 <section class="section nebo-contact-page">
