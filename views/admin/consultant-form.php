@@ -8,9 +8,9 @@
         <input type="hidden" name="id" id="resource-id">
         <input type="hidden" name="photo_url" id="field-photo_url">
         <textarea name="photo_urls" id="field-photo_urls" style="display:none"></textarea>
-        <div style="display:grid; grid-template-columns: 1fr 340px; gap: var(--space-xl); align-items:start;">
+        <div class="admin-form__with-media">
             <div style="display:grid; gap:var(--space-sm);">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);">
+                <div class="admin-form__row" style="gap:var(--space-sm);">
                     <label>Name
                         <input type="text" name="name" id="field-name" placeholder="Full name" required>
                     </label>
@@ -18,7 +18,7 @@
                         <input type="text" name="slug" id="field-slug" placeholder="consultant-slug">
                     </label>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);">
+                <div class="admin-form__row" style="gap:var(--space-sm);">
                     <label>Credentials
                         <input type="text" name="credentials" id="field-credentials" placeholder="e.g. BNYS, FFAC">
                     </label>
@@ -26,7 +26,7 @@
                         <input type="text" name="speciality" id="field-speciality" placeholder="e.g. Lifestyle physician">
                     </label>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:var(--space-sm);">
+                <div class="admin-form__row admin-form__row--three" style="gap:var(--space-sm);">
                     <label>Experience (years)
                         <input type="number" name="experience_years" id="field-experience_years" placeholder="0" step="any">
                     </label>
@@ -41,7 +41,7 @@
                         </select>
                     </label>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);">
+                <div class="admin-form__row" style="gap:var(--space-sm);">
                     <label>Languages
                         <input type="text" name="languages" id="field-languages" placeholder="English, Tamil">
                     </label>
@@ -68,7 +68,7 @@
                 <div>
                     <label style="display:block; margin-bottom:var(--space-xs); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Photo Gallery <span id="gallery-count" style="font-weight:400; color:var(--color-text-muted); text-transform:none;">(0)</span></label>
                     <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-xs); margin-bottom:var(--space-xs); min-height:80px;"></div>
-                    <div style="display:flex; gap:var(--space-xs);">
+                    <div class="admin-card__actions">
                         <button type="button" class="btn btn-sm btn-ghost" onclick="document.getElementById('gallery-file-input').click()" style="flex:1;">+ Add Photos</button>
                         <button type="button" class="btn btn-sm btn-ghost" id="open-media-library" style="flex:1;">From Library</button>
                     </div>
@@ -93,7 +93,7 @@
                 <?php endif; ?>
             </div>
         </div>
-        <div style="margin-top:var(--space-lg); display:flex; gap:var(--space-sm);">
+        <div class="admin-card__actions" style="margin-top:var(--space-lg); gap:var(--space-sm);">
             <button type="submit" class="btn btn-primary" id="save-btn">Save Consultant</button>
             <button type="reset" class="btn btn-ghost" onclick="resetForm()">Clear</button>
         </div>

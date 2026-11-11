@@ -7,16 +7,13 @@
     .pf-section{margin:var(--space-md) 0 0;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--color-text-muted);border-bottom:1px solid var(--color-border);padding-bottom:0.3rem}
     .pf-section:first-of-type{margin-top:0}
     .pf-hint{margin:0;font-size:0.75rem;color:var(--color-text-muted)}
-    .pf-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:var(--space-xl);align-items:start}
-    .pf-grid>div{min-width:0}
-    @media(max-width:900px){.pf-grid{grid-template-columns:minmax(0,1fr)}}
     </style>
     <form id="product-form" method="post" action="/admin/<?= e($collection) ?>/save" class="admin-form" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
         <input type="hidden" name="id" id="resource-id">
         <input type="hidden" name="image_url" id="field-image_url">
         <textarea name="image_urls" id="field-image_urls" style="display:none"></textarea>
-        <div class="pf-grid">
+        <div class="admin-form__with-media">
             <div style="display:grid; gap:var(--space-sm);">
                 <?php // Grouped into named sections. A flat column put the tax fields
                       // between stock and description, so there was nothing to scan for. ?>
@@ -44,7 +41,7 @@
                     </div>
                 </label>
                 <p class="pf-section">Pricing</p>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);">
+                <div class="admin-form__row" style="gap:var(--space-sm);">
                     <label>Price (₹)
                         <input type="number" name="price" id="field-price" placeholder="0" step="any">
                     </label>
@@ -54,7 +51,7 @@
                 </div>
                 <?php // An offer with no end kept discounting until somebody remembered
                       // to clear it. Leave both blank to run it until you stop it. ?>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);">
+                <div class="admin-form__row" style="gap:var(--space-sm);">
                     <label>Offer starts
                         <input type="date" name="offer_starts_at" id="field-offer_starts_at">
                     </label>
@@ -83,7 +80,7 @@
                     </select>
                 </label>
                 <p class="pf-section">Tax</p>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:var(--space-sm);">
+                <div class="admin-form__row" style="gap:var(--space-sm);">
                     <label>HSN Code
                         <input type="text" name="hsn_code" id="field-hsn_code" placeholder="e.g. 3307" maxlength="8">
                     </label>
@@ -121,7 +118,7 @@
                 <div>
                     <label style="display:block; margin-bottom:var(--space-xs); font-weight:600; font-size:0.85rem; text-transform:uppercase; letter-spacing:0.05em;">Gallery <span id="gallery-count" style="font-weight:400; color:var(--color-text-muted); text-transform:none;">(0)</span></label>
                     <div id="gallery-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-xs); margin-bottom:var(--space-xs); min-height:80px;"></div>
-                    <div style="display:flex; gap:var(--space-xs);">
+                    <div class="admin-card__actions">
                         <button type="button" class="btn btn-sm btn-ghost" onclick="document.getElementById('gallery-file-input').click()" style="flex:1;">+ Add Images</button>
                         <button type="button" class="btn btn-sm btn-ghost" id="open-media-library" style="flex:1;">From Library</button>
                     </div>
@@ -146,7 +143,7 @@
                 <?php endif; ?>
             </div>
         </div>
-        <div style="margin-top:var(--space-lg); display:flex; gap:var(--space-sm);">
+        <div class="admin-card__actions" style="margin-top:var(--space-lg); gap:var(--space-sm);">
             <button type="submit" class="btn btn-primary" id="save-btn">Save Product</button>
             <button type="reset" class="btn btn-ghost" onclick="resetForm()">Clear</button>
         </div>

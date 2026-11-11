@@ -2025,6 +2025,12 @@ tr:hover td { background: var(--color-bg-alt); }
 .admin-card__actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
 .admin-form { display: grid; min-width: 0; gap: var(--space-md); }
 .admin-form__row { display: grid; min-width: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-md); }
+.admin-form__row--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.admin-form__with-media { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--space-xl); align-items: start; }
+.admin-form__with-media > div { display: grid; grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 900px) {
+    .admin-form__with-media { grid-template-columns: minmax(0, 1fr); }
+}
 .admin-form > *, .admin-form__row > * { min-width: 0; overflow-wrap: anywhere; }
 .admin-form input, .admin-form select, .admin-form textarea { min-width: 0; max-width: 100%; }
 .admin-form label { display: flex; flex-direction: column; gap: var(--space-2xs); font-size: 0.8rem; font-weight: 600; color: var(--color-ink); text-transform: uppercase; letter-spacing: 0.05em; }
@@ -3852,6 +3858,7 @@ body.nav-open { overflow: hidden; }
 .blog-post__source a{font-weight:700}
 .admin-blog-editor{margin-bottom:var(--space-lg);padding:var(--space-lg);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white)}
 .admin-blog-editor__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-md);max-width:980px}
+.admin-blog-editor__grid>*{min-width:0;overflow-wrap:anywhere}
 .admin-blog-editor__wide{grid-column:1/-1}.admin-blog-editor small{display:block;margin-top:4px;color:var(--color-text-muted)}
 .mobile-cart-tray{display:none}.mobile-cart-tray[hidden]{display:none!important}@media(min-width:701px){.mobile-cart-tray{position:fixed;right:24px;bottom:88px;z-index:999;display:flex;align-items:center;gap:16px;min-height:48px;padding:10px 20px;border-radius:8px;background:var(--color-maroon);box-shadow:var(--shadow-lg);color:var(--color-white);font-size:.85rem;font-weight:600;transition:opacity .2s,transform .2s}.mobile-cart-tray>span:last-child{padding-left:12px;border-left:1px solid rgba(255,255,255,.28)}.support-fab{right:24px;bottom:24px}.support-panel{right:24px;bottom:88px}}.mobile-cart-tray:hover{opacity:.92}
 .support-action{display:inline-flex;margin:.35rem .2rem 0 0;padding:.45rem .7rem;border:1px solid var(--color-gold);border-radius:6px;background:var(--color-gold-light);color:var(--color-maroon);font-size:.78rem;font-weight:700}
@@ -3870,7 +3877,7 @@ body.nav-open { overflow: hidden; }
 .document-help-cta div{display:grid;gap:.2rem}.document-help-cta span{color:var(--color-text-muted)}
 .payment-status{display:grid;gap:.15rem;margin:0 0 var(--space-md);padding:var(--space-md);border:1px solid var(--color-outline-variant);border-radius:var(--radius-sm);font-size:.9rem}.payment-status span{color:var(--color-text-muted)}.payment-status--live{border-color:rgba(45,138,78,.35);background:rgba(45,138,78,.08)}.payment-status--unavailable{border-color:rgba(232,163,23,.45);background:rgba(232,163,23,.09)}
 @media(max-width:900px){.blog-editorial .blog-grid{grid-template-columns:1fr}.blog-card--featured{grid-column:auto}}
-@media(max-width:700px){.blog-editorial .blog-card,.blog-card--featured{grid-template-columns:1fr;min-height:0}.blog-card__media{aspect-ratio:16/9}.blog-post__header h1{font-size:2rem}.blog-post__featured{aspect-ratio:16/9}.blog-post__cta,.document-help-cta{align-items:stretch;flex-direction:column}.blog-post__cta .btn,.document-help-cta .btn{width:100%}.admin-blog-editor__grid{grid-template-columns:1fr}.blog-post__source{align-items:flex-start;flex-direction:column}.mobile-cart-tray{position:fixed;right:70px;bottom:78px;left:12px;z-index:999;display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:10px 16px;border-radius:8px;background:var(--color-maroon);box-shadow:var(--shadow-lg);color:var(--color-white);font-size:.88rem;font-weight:600}.mobile-cart-tray[hidden]{display:none}.mobile-cart-tray>span:last-child{padding-left:12px;border-left:1px solid rgba(255,255,255,.28)}}
+@media(max-width:700px){.blog-editorial .blog-card,.blog-card--featured{grid-template-columns:1fr;min-height:0}.blog-card__media{aspect-ratio:16/9}.blog-post__header h1{font-size:2rem}.blog-post__featured{aspect-ratio:16/9}.blog-post__cta,.document-help-cta{align-items:stretch;flex-direction:column}.blog-post__cta .btn,.document-help-cta .btn{width:100%}.admin-blog-editor__grid{grid-template-columns:minmax(0,1fr)}.blog-post__source{align-items:flex-start;flex-direction:column}.mobile-cart-tray{position:fixed;right:70px;bottom:78px;left:12px;z-index:999;display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:10px 16px;border-radius:8px;background:var(--color-maroon);box-shadow:var(--shadow-lg);color:var(--color-white);font-size:.88rem;font-weight:600}.mobile-cart-tray[hidden]{display:none}.mobile-cart-tray>span:last-child{padding-left:12px;border-left:1px solid rgba(255,255,255,.28)}}
 
 /* ── Floating support button + cart tray ──────────────────────────────────────
    The support button is a floating action button at every viewport. It used to be
