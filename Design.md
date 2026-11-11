@@ -300,8 +300,10 @@ enhancement, every profile renders with its own readable biography.
 Home sections use opaque sticky sections in increasing stacking order. A short
 section sticks at the viewport top while the next section naturally scrolls over it.
 A tall section scrolls to its bottom before sticking so all text and actions remain
-reachable on mobile. Content reveals use a viewport timeline where supported;
-unsupported browsers retain visible copy. Reduced motion restores normal flow.
+reachable on mobile. Each chapter plays one short entrance as it comes into view,
+then stays still at its sticky position. The heading and content arrive in order,
+with up to 120ms between groups. No input is intercepted. Without observer support,
+copy stays in its final position. Reduced motion restores normal flow.
 
 ### Home motion vocabulary
 
@@ -311,9 +313,8 @@ Use these terms consistently in product copy, implementation notes, and code rev
   and its primary action, then scrolls away normally.
 - **Act:** one meaningful visitor state in the home sequence. Nebo uses opaque sticky
   sections in increasing stack order, each of which cleanly covers the preceding act.
-- **Copy-in:** a short upward-translate entrance with a subtle opacity fade tied to the incoming layer's viewport
-  progress. Essential copy remains fully legible throughout and ends in a still
-  composition.
+- **Copy-in:** a short upward entrance triggered once as a chapter enters view.
+  Essential copy remains opaque and ends in a still composition.
 - **Content composition:** the complete group of heading, media, supporting copy, and
   action within an act. It is vertically centered below navigation when it fits, and
   grows naturally when the content is taller than the viewport.

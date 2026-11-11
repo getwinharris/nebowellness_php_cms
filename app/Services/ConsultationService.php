@@ -136,7 +136,7 @@ final class ConsultationService {
             'total_sessions'=>count($sessions), 'accepted_sessions'=>count($accepted), 'completed_sessions'=>count($completed),
             'message_count'=>count($messages), 'credits_spent'=>array_sum(array_map(fn($row)=>(int)($row['credits_spent'] ?? $row['spent_credits'] ?? 0), $sessions)),
             'average_duration_seconds'=>$durations ? (int)round(array_sum($durations)/count($durations)) : 0,
-            'average_response_seconds'=>$responseTimes ? (int)round(array_sum($responseTimes)/count($responseTimes)) : 0,
+            'average_response_seconds'=>$responseTimes ? (int)round(array_sum($responseTimes)/count($responseTimes)) : null,
         ];
     }
 

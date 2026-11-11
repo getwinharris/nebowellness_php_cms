@@ -9,6 +9,11 @@ category: docs
 
 ## Unreleased
 
+### Changed
+
+- Home chapters settle in short, staggered entrances while preserving native scrolling.
+- Admin consultation analytics compares historical session counts and completion shares.
+
 ### Documentation
 
 - Added targeted repository lookup examples and a release workflow.

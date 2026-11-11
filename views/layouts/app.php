@@ -608,6 +608,17 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
         cards.forEach(function(card){card.querySelectorAll('img').forEach(function(img){img.addEventListener('load',measureCards);});});
     }
     stack.classList.add('stack-ready');
+    if(supportsIntersectionObserver){
+        // Each chapter gets one entrance; its sticky surface remains in native flow.
+        var chapterObserver=new IntersectionObserver(function(entries){
+            entries.forEach(function(entry){
+                if(!entry.isIntersecting)return;
+                entry.target.classList.add('chapter-arrived');
+                chapterObserver.unobserve(entry.target);
+            });
+        },{rootMargin:'0px 0px -72px 0px'});
+        cards.forEach(function(card){chapterObserver.observe(card);});
+    }
 });
 var supportFab=document.querySelector('.support-fab'),supportPanel=document.getElementById('support-panel'),supportClose=document.querySelector('.support-panel__close'),supportForm=document.getElementById('support-form'),supportLog=document.getElementById('support-log');
 function supportEscape(value){return String(value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];});}
