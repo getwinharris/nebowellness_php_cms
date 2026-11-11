@@ -2,18 +2,18 @@
 <div class="admin-card">
     <div class="agent-head">
         <div>
-            <h2 class="agent-head__title">AI Agent</h2>
+            <h2 class="agent-head__title">AI Agent workspace</h2>
             <p class="agent-head__sub">
                 <?= !empty($shopEnabled)
                     ? 'Ask about users, orders, revenue, top customers or products, or paste content to draft a blog post.'
                     : ($__campaignsEnabled
-                        ? 'Ask about users, clinic activity, campaigns, support enquiries, or paste content to draft a blog post.'
+                        ? 'Review therapy requests, support enquiries, and clinic activity. Review drafts before saving changes.'
                         : 'Ask about users, clinic activity, support enquiries, or paste content to draft a blog post.') ?>
             </p>
         </div>
         <div class="agent-head__meta">
             <span class="agent-chip <?= !empty($modelConfig['configured']) ? 'agent-chip--ok' : 'agent-chip--warn' ?>">
-                <?= !empty($modelConfig['configured']) ? 'Connected' : 'No API key' ?>
+                <?= !empty($modelConfig['configured']) ? 'Model configured' : 'No API key' ?>
             </span>
             <span class="agent-chip agent-chip--muted"><?= e($modelConfig['model'] ?? 'gemma-4-31b-it') ?></span>
         </div>
@@ -27,6 +27,7 @@
     <?php endif; ?>
 </div>
 
+<div class="agent-workspace">
 <div class="admin-card agent-shell">
     <div id="agent-messages" class="agent-messages" role="log" aria-live="polite" aria-label="Conversation">
         <div class="agent-row agent-row--bot">
@@ -49,6 +50,7 @@
                 $__campaignsEnabled ? 'Summarise current campaigns' : null,
                 '/create-blog benefits of gut health',
             ])); ?>
+        <?php if ($__campaignsEnabled) array_unshift($__suggestions, 'Summarise therapy session requests in the last 30 days'); ?>
         <?php foreach ($__suggestions as $__s): ?>
             <button type="button" class="agent-suggestion" data-q="<?= e($__s) ?>"><?= e($__s) ?></button>
         <?php endforeach; ?>
@@ -84,10 +86,49 @@
         <input type="file" id="agent-upload-input" name="media_files[]" accept="image/*" multiple>
     </form>
 </div>
+<aside class="agent-workspace__rail" aria-label="Operations and agent activity">
+    <section class="admin-card agent-workspace__panel" aria-labelledby="agent-health-title">
+        <h3 id="agent-health-title">Agent activity</h3>
+        <p>Recorded runs in the last 24 hours</p>
+        <?php if (!is_array($agentMonitoring ?? null)): ?>
+            <p role="status">Activity is temporarily unavailable.</p>
+        <?php else: ?>
+            <?php foreach (['support' => 'Customer support', 'admin' => 'Owner agent'] as $surface => $label): $row = $agentMonitoring[$surface]; ?>
+                <div class="agent-workspace__metric">
+                    <h4><?= e($label) ?></h4>
+                    <dl>
+                        <div><dt>Runs</dt><dd><?= (int)$row['requests'] ?></dd></div>
+                        <div><dt>Errors</dt><dd><?= (int)$row['error'] ?></dd></div>
+                        <div><dt>Avg. time</dt><dd><?= $row['average_ms'] === null ? '—' : e(number_format($row['average_ms'] / 1000, 1) . ' s') ?></dd></div>
+                    </dl>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </section>
+    <nav class="admin-card agent-workspace__panel" aria-label="Operations links">
+        <h3>Open a workflow</h3>
+        <?php if ($__campaignsEnabled): ?><a href="/admin/campaigns">Manage therapy products <span aria-hidden="true">↗</span></a><?php endif; ?>
+        <a href="/admin/contact-submissions">Review session requests and contacts <span aria-hidden="true">↗</span></a>
+        <a href="/admin/support-tickets">Review support tickets <span aria-hidden="true">↗</span></a>
+    </nav>
+</aside>
+</div>
 
 <script id="agent-attachables" type="application/json"><?= json_encode($attachables ?? [], JSON_UNESCAPED_SLASHES) ?></script>
 
 <style>
+.agent-workspace { display:grid; grid-template-columns:minmax(0, 1fr) minmax(245px, .4fr); gap:var(--space-lg); align-items:start; }
+.agent-workspace__rail { display:grid; grid-template-columns:minmax(0,1fr); gap:var(--space-md); min-width:0; }
+.agent-workspace__panel { margin:0; min-width:0; }
+.agent-workspace__panel h3 { font-size:1rem; margin:0 0 8px; }
+.agent-workspace__panel p { margin:0 0 12px; color:var(--color-text-muted); font-size:.85rem; }
+.agent-workspace__panel > a { display:flex; justify-content:space-between; gap:8px; align-items:center; min-height:44px; border-block-start:1px solid var(--color-border); overflow-wrap:anywhere; }
+.agent-workspace__metric { border-block-start:1px solid var(--color-border); padding-block:12px; }
+.agent-workspace__metric h4 { font-size:.85rem; margin:0 0 8px; }
+.agent-workspace__metric dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:0; }
+.agent-workspace__metric dt { font-size:.72rem; color:var(--color-text-muted); }
+.agent-workspace__metric dd { margin:0; font-weight:650; font-variant-numeric:tabular-nums; }
+@media (max-width:1080px) { .agent-workspace { grid-template-columns:minmax(0,1fr); } }
 .agent-head { display:flex; justify-content:space-between; align-items:flex-start; gap:var(--space-md); flex-wrap:wrap; }
 .agent-head__title { font-size:1.05rem; margin:0 0 var(--space-2xs); }
 .agent-head__sub { margin:0; font-size:0.85rem; color:var(--color-text-muted); max-width:60ch; }

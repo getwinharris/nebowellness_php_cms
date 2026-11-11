@@ -569,6 +569,8 @@ flowchart LR
   controller_admincontroller -. renders .-> view_admin_integrations
   route_get_admin_agent --> controller_admincontroller
   controller_admincontroller --> service_secretservice
+  controller_admincontroller --> service_agentattachmentservice
+  controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_databaseservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_agent
@@ -845,6 +847,7 @@ flowchart LR
   service_agentcontextservice --> collection_appointments
   service_agentcontextservice --> collection_support_tickets
   service_agentcontextservice --> collection_settings
+  service_agenttoolregistry --> collection_contact_submissions
   service_agenttoolregistry --> collection_campaign_pages
   service_aimodelrouter --> collection_ai_model_state
   service_appointmentservice --> collection_appointments
