@@ -9,6 +9,9 @@ category: docs
 
 ## Unreleased
 
+- Added New chat and 24-hour error rate and p95 timing to the Enterprise Agent.
+- Added quick clinic guidance and a direct contact link to Nebo Support. The support page respects enabled site modules.
+
 ### Changed
 
 - Therapy campaigns appear under Products, with the newest published offering featured on the homepage.

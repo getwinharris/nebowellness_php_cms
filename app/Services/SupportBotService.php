@@ -2,6 +2,9 @@
 namespace App\Services;
 
 final class SupportBotService {
+    public const PROGRAMS_PROMPT = 'What wellness programs are available?';
+    public const CONSULTATION_PROMPT = 'How do I request a consultation?';
+
     public function __construct(
         private SecretService $secrets = new SecretService(),
         private DatabaseService $store = new DatabaseService(),
@@ -13,6 +16,15 @@ final class SupportBotService {
         $outcome = 'fallback';
         $message = trim($message);
         if ($message === '') throw new \InvalidArgumentException('Message is required.');
+        $starter = match ($message) {
+            self::PROGRAMS_PROMPT => 'Explore gut health, metabolic wellness, fertility and maternal support, and lifestyle programs at /#programs.',
+            self::CONSULTATION_PROMPT => 'Use /contact to request a consultation. The clinic team can discuss your goals and next steps. Sending an enquiry does not confirm a booking.',
+            default => null,
+        };
+        if ($starter !== null) {
+            (new AuditLogService($this->store))->agentRun('support', 'fallback', $startedAt);
+            return ['reply' => $starter, 'ticket_id' => null, 'memory' => 'browser_session', 'actions' => $this->extractActions($starter)];
+        }
         $context = $this->customerContext($user);
         // A guest reaches the model too. Assigning them a canned reply first meant the
         // AI never ran for the public widget, so every question returned the same menu.
@@ -36,15 +48,17 @@ final class SupportBotService {
         $reply ??= $this->fallbackReply($message, $context);
         $result = ['reply' => $reply, 'ticket_id' => null, 'memory' => 'browser_session'];
         $email = !empty($user['email']) ? (string)$user['email'] : '';
-        $escalated = $this->shouldEscalate($message, $reply, $user);
+        $escalated = $this->shouldEscalate($message, $user);
         if ($escalated && $email !== '') {
             try {
                 $ticket = (new SupportTicketService())->create($email, $message, 'escalated from support bot');
                 $result['ticket_id'] = $ticket['id'];
-                $result['reply'] .= ' I have created a support ticket to get a human to review your request.';
-            } catch (\Throwable) {}
+                $result['reply'] .= ' A support ticket was sent to the clinic team. Reference: ' . $ticket['id'] . '.';
+            } catch (\Throwable) {
+                $result['reply'] .= ' The support ticket could not be created. Please reach the clinic at /contact.';
+            }
         }
-        $actions = $this->extractActions($reply);
+        $actions = $this->extractActions($result['reply']);
         if ($actions !== []) $result['actions'] = $actions;
         (new AuditLogService($this->store))->agentRun('support', $outcome, $startedAt);
         return $result;
@@ -317,11 +331,10 @@ final class SupportBotService {
         );
     }
 
-    private function shouldEscalate(string $message, string $reply, ?array $user): bool {
+    private function shouldEscalate(string $message, ?array $user): bool {
         if (empty($user['email'])) return false;
         if (preg_match('/\b(human|agent|escalate|talk to (a|someone)|speak to|contact support)\b/i', $message)) return true;
         if (preg_match('/\b(complaint|refund|cancel|cancellation|return|wrong|broken|not working|issue|problem)\b/i', $message)) return true;
-        if (str_contains($reply, 'contact form')) return true;
         return false;
     }
 

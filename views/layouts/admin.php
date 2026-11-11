@@ -114,7 +114,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
             </button>
             <div class="admin-submenu" id="menu-settings">
                 <a href="/admin/integrations" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/integrations') === 0 ? 'active' : '') ?>">Integrations</a>
-                <a href="/admin/agent" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/agent') === 0 ? 'active' : '') ?>">AI Agent</a>
+                <a href="/admin/agent" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/agent') === 0 ? 'active' : '') ?>">Enterprise Agent</a>
                 <a href="/admin/settings" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/settings') === 0 ? 'active' : '') ?>">Site Settings</a>
             </div>
         </nav>

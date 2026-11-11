@@ -2,7 +2,7 @@
 <div class="admin-card">
     <div class="agent-head">
         <div>
-            <h2 class="agent-head__title">AI Agent workspace</h2>
+            <h2 class="agent-head__title">Enterprise Agent</h2>
             <p class="agent-head__sub">
                 <?= !empty($shopEnabled)
                     ? 'Ask about users, orders, revenue, top customers or products, or paste content to draft a blog post.'
@@ -29,6 +29,10 @@
 
 <div class="agent-workspace">
 <div class="admin-card agent-shell">
+    <div class="agent-conversation-tools">
+        <h3>Conversation</h3>
+        <button type="button" class="btn btn-outline btn-sm" id="agent-clear" hidden>New chat</button>
+    </div>
     <div id="agent-messages" class="agent-messages" role="log" aria-live="polite" aria-label="Conversation">
         <div class="agent-row agent-row--bot">
             <div class="agent-avatar agent-avatar--bot" aria-hidden="true">AI</div>
@@ -89,7 +93,7 @@
 <aside class="agent-workspace__rail" aria-label="Operations and agent activity">
     <section class="admin-card agent-workspace__panel" aria-labelledby="agent-health-title">
         <h3 id="agent-health-title">Agent activity</h3>
-        <p>Recorded runs in the last 24 hours</p>
+        <p>Last 24 hours. P95 is the time within which 95% of recorded runs finished.</p>
         <?php if (!is_array($agentMonitoring ?? null)): ?>
             <p role="status">Activity is temporarily unavailable.</p>
         <?php else: ?>
@@ -98,8 +102,8 @@
                     <h4><?= e($label) ?></h4>
                     <dl>
                         <div><dt>Runs</dt><dd><?= (int)$row['requests'] ?></dd></div>
-                        <div><dt>Errors</dt><dd><?= (int)$row['error'] ?></dd></div>
-                        <div><dt>Avg. time</dt><dd><?= $row['average_ms'] === null ? '—' : e(number_format($row['average_ms'] / 1000, 1) . ' s') ?></dd></div>
+                        <div><dt>Error rate</dt><dd><?= $row['error_percent'] === null ? '—' : e(number_format($row['error_percent'], 1) . '%') ?></dd></div>
+                        <div><dt>P95 time</dt><dd><?= $row['p95_ms'] === null ? '—' : e(number_format($row['p95_ms'] / 1000, 2) . ' s') ?></dd></div>
                     </dl>
                 </div>
             <?php endforeach; ?>
@@ -118,6 +122,8 @@
 
 <style>
 .agent-workspace { display:grid; grid-template-columns:minmax(0, 1fr) minmax(245px, .4fr); gap:var(--space-lg); align-items:start; }
+.agent-conversation-tools { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:var(--space-sm); margin-bottom:var(--space-sm); }
+.agent-conversation-tools h3 { margin:0; font-size:1rem; }
 .agent-workspace__rail { display:grid; grid-template-columns:minmax(0,1fr); gap:var(--space-md); min-width:0; }
 .agent-workspace__panel { margin:0; min-width:0; }
 .agent-workspace__panel h3 { font-size:1rem; margin:0 0 8px; }
@@ -208,6 +214,17 @@
     const messages = document.getElementById('agent-messages');
     const submit = document.getElementById('agent-submit');
     const suggestions = document.getElementById('agent-suggestions');
+    const clear = document.getElementById('agent-clear');
+    const welcome = messages.firstElementChild.cloneNode(true);
+    clear.hidden = false;
+    clear.addEventListener('click', function () {
+        if (submit.disabled) return;
+        messages.replaceChildren(welcome.cloneNode(true));
+        input.value = '';
+        autoGrow();
+        suggestions.style.display = '';
+        input.focus();
+    });
 
     function escapeHtml(s) {
         return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -391,7 +408,7 @@
 
         addRow('user', escapeHtml(msg).replace(/\n/g, '<br>'));
         input.value = ''; autoGrow();
-        input.disabled = true; submit.disabled = true;
+        input.disabled = true; submit.disabled = true; clear.disabled = true;
         suggestions.style.display = 'none';
 
         const thinking = addRow('bot', '');
@@ -435,7 +452,7 @@
             progress.finish(failed);
         }
 
-        input.disabled = false; submit.disabled = false;
+        input.disabled = false; submit.disabled = false; clear.disabled = false;
         input.focus();
         messages.scrollTop = messages.scrollHeight;
         return false;
