@@ -131,8 +131,8 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
     </aside>
     <main class="admin-main">
         <div class="admin-topbar">
-            <button class="btn btn-sm btn-ghost" id="sidebarToggle" style="display:none; margin-right:var(--space-sm);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <button type="button" class="btn btn-sm btn-ghost" id="sidebarToggle" aria-label="Admin navigation" aria-controls="admin-sidebar" aria-expanded="false" style="display:none; margin-right:var(--space-sm);">
+                <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
             <h1><?= e($pageTitle ?? 'Dashboard') ?></h1>
             <div class="admin-topbar__actions">
@@ -197,13 +197,29 @@ var installPrompt=null;window.addEventListener('beforeinstallprompt',function(e)
 function showToast(msg,type){type=type||'info';var c=document.getElementById('toast-container');if(!c){c=document.createElement('div');c.id='toast-container';document.body.appendChild(c);}var t=document.createElement('div');t.className='toast toast--'+type;var icons={success:'✓',error:'✕',warning:'⚠',info:'ℹ'};t.innerHTML='<span class="toast__icon">'+(icons[type]||'ℹ')+'</span><span class="toast__text">'+msg+'</span><button class="toast__close" aria-label="Dismiss">&times;</button>';t.querySelector('.toast__close').addEventListener('click',function(e){e.stopPropagation();dismiss(t);});t.addEventListener('click',function(){dismiss(t);});c.appendChild(t);var timer=setTimeout(function(){dismiss(t);},4000);function dismiss(el){if(el.classList.contains('toast--out'))return;el.classList.add('toast--out');clearTimeout(timer);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},250);}}
 const sidebar = document.getElementById('admin-sidebar');
 const toggle = document.getElementById('sidebarToggle');
-if (toggle) {
-    toggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+if (sidebar && toggle) {
+    const mobile = window.matchMedia('(max-width: 768px)');
+    const setSidebarOpen = (open) => {
+        sidebar.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+    };
+    toggle.addEventListener('click', () => {
+        const open = !sidebar.classList.contains('open');
+        setSidebarOpen(open);
+        if (open) sidebar.querySelector('nav a')?.focus();
+    });
     document.addEventListener('click', (e) => {
-        if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
-            sidebar.classList.remove('open');
+        if (mobile.matches && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
+            setSidebarOpen(false);
         }
     });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && mobile.matches && sidebar.classList.contains('open')) {
+            setSidebarOpen(false);
+            toggle.focus();
+        }
+    });
+    mobile.addEventListener('change', () => setSidebarOpen(false));
 }
 document.querySelectorAll('.admin-nav-toggle').forEach(function(btn){btn.addEventListener('click',function(){var target=document.getElementById(btn.dataset.target);if(!target)return;var expanded=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',String(!expanded));target.style.display=expanded?'none':'';});});
 document.querySelectorAll('.table-wrap').forEach(function(wrap){var table=wrap.querySelector('table');if(!table||table.querySelector('.admin-search-added'))return;var search=document.createElement('input');search.type='text';search.placeholder='Search\u2026';search.style.cssText='width:100%;max-width:320px;margin-bottom:var(--space-sm);padding:0.5rem 0.75rem;font-size:0.85rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-white);';wrap.parentNode.insertBefore(search,wrap);search.addEventListener('input',function(){var q=this.value.toLowerCase().trim();table.querySelectorAll('tbody tr').forEach(function(row){if(!q||row.textContent.toLowerCase().includes(q)){row.style.display=''}else{row.style.display='none'}});});table.classList.add('admin-search-added');});
