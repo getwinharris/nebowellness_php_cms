@@ -226,10 +226,12 @@
 
     suggestions.addEventListener('click', function (e) {
         const btn = e.target.closest('.agent-suggestion');
-        if (!btn) return;
-        input.value = btn.dataset.q;
-        autoGrow();
-        form.requestSubmit();
+        if (!btn || input.disabled) return;
+        if (input.value === '') {
+            input.value = btn.dataset.q;
+            autoGrow();
+        }
+        input.focus();
     });
 
     // ── Draft forms ────────────────────────────────────────────────────────
