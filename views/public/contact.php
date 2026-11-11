@@ -51,6 +51,7 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
                             <option value="gut" <?= ($contactValues['subject'] ?? '') === 'gut' ? 'selected' : '' ?>>Gut Health Program</option>
                             <option value="metabolic" <?= ($contactValues['subject'] ?? '') === 'metabolic' ? 'selected' : '' ?>>Metabolic Reset</option>
                             <option value="fertility" <?= ($contactValues['subject'] ?? '') === 'fertility' ? 'selected' : '' ?>>Fertility & Maternal Wellness</option>
+                            <option value="lifestyle" <?= ($contactValues['subject'] ?? '') === 'lifestyle' ? 'selected' : '' ?>>Lifestyle Transformation</option>
                             <option value="general" <?= ($contactValues['subject'] ?? '') === 'general' ? 'selected' : '' ?>>General Question</option>
                         </select>
                     </div>

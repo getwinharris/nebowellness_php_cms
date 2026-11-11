@@ -287,11 +287,11 @@ Arrows cycle one practitioner at a time; portrait buttons and left/right keys al
 select profiles. On mobile the detail column follows the portraits. Without script
 enhancement, every profile renders with its own readable biography.
 
-## Editorial section overlays
+## Editorial sticky stack
 
-Home sections use opaque full-viewport layers in increasing stacking order. A short
-section pins at the viewport top while the next layer naturally scrolls over it.
-A tall section scrolls to its bottom before pinning so all text and actions remain
+Home sections use opaque sticky sections in increasing stacking order. A short
+section sticks at the viewport top while the next section naturally scrolls over it.
+A tall section scrolls to its bottom before sticking so all text and actions remain
 reachable on mobile. Content reveals use a viewport timeline where supported;
 unsupported browsers retain visible copy. Reduced motion restores normal flow.
 
@@ -327,7 +327,7 @@ Use these terms consistently in product copy, implementation notes, and code rev
 - **Grammar:** the reusable composition rule for a page. Nebo home uses its own
   editorial sticky-stack grammar because the product requires persistent navigation.
 - **Device:** one restrained scroll mechanism, such as a copy-in, media crop, selection
-  rail, or layer overlay. A page uses only the devices needed by its story.
+  rail, or sticky stack. A page uses only the devices needed by its story.
 - **Signature move:** one Nebo-specific, purposeful interaction that connects a real
   user choice to the next step. It must be designed and tested before it is added.
 - **Fingerprint:** the combination of hierarchy, type, colour, motion, and interaction
@@ -336,9 +336,28 @@ Use these terms consistently in product copy, implementation notes, and code rev
   accessibility, and cross-device behaviour before a motion change is approved.
 
 The vocabulary is a Nebo-specific adaptation of the Scroll Craft method, not a copied
-vendor page or a requirement to use its engine. Keep the pinned white navigation as a
+vendor page or a requirement to use its engine. Keep the sticky white navigation as a
 product requirement. It is deliberately above the editorial layers and its measured
 height defines their safe top offset.
+
+### Home motion score
+
+- **Arrival:** the hero establishes Nebo and scrolls away in normal flow; no sticky
+  treatment delays the first action.
+- **Foundation:** the clinic story enters as the first opaque sticky section, using a
+  small upward copy-in to settle the image and copy together.
+- **Focus:** the focus-area grid follows as a still, readable composition; card motion
+  is limited to the section entrance.
+- **Confidence:** the proof points arrive as one compact, centred composition so the
+  transition reads as clarity rather than a new interaction.
+- **Programs:** the program rail keeps a fixed card geometry; each arrow advances one
+  item, with no autoplay or size change.
+- **Team:** the selected portrait grows relative to named previews, then the biography
+  updates beside it as the consultation handoff.
+- **Stories:** testimonials arrive as a calm evidence section with no simulated quote
+  motion or counter.
+- **Resolve:** the consultation card and charcoal footer close the sequence as complete
+  end states; the footer is the last sticky-stack section when enhancement is available.
 
 ### Home motion quality gate
 
@@ -352,19 +371,19 @@ height defines their safe top offset.
 - Keep every horizontal card's text in its own card with `min-width: 0`, wrapping and
   clipping of decorative art only. Copy, labels, controls, and touch targets must not
   be clipped.
-- Respect reduced motion by disabling the stack pinning and all entrance transforms.
+- Respect reduced motion by disabling the sticky stack and all entrance transforms.
   Keyboard, touch, arrows, and manual horizontal scrolling must continue to work.
-- Verify the whole sequence at desktop and 375px: header stays pinned, each incoming
+- Verify the whole sequence at desktop and 375px: header stays sticky, each incoming
   layer covers the prior layer, one arrow click changes one rail item, the featured
   portrait remains distinct, no text overflows, and the footer becomes the final layer.
 
 
-## Pinned navigation and portrait alignment
+## Sticky navigation and portrait alignment
 
 The white main navigation bar stays at the viewport top during scrolling. The
 hero remains in normal document flow and scrolls away. The header's measured height
 reserves space for anchor targets and short stacked sections; tall sections still
-scroll fully before pinning. The opaque header sits above content overlays.
+scroll fully before sticking. The opaque header sits above stacked content.
 Team preview portraits align around the featured portrait's vertical center, with
 centered image crops and visible names. Details move below the portrait rail at
 tablet widths as well as mobile, so the preview names retain useful space.
@@ -374,7 +393,7 @@ within the available viewport below navigation. Desktop program artwork, spacing
 and portraits scale with viewport height so copy and actions stay inside the card.
 Sections expand naturally for longer text and mobile; do not impose a fixed height
 or crop readable text to manufacture a fit. Section boundaries contain decorative
-motion, while horizontal carousels keep their own scrolling region.
+motion, while horizontal rails keep their own scrolling region.
 
 The final consultation card uses a generous editorial heading, one clear request
 button and three concise next-step explanations. The shared gray footer becomes
