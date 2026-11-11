@@ -1,0 +1,240 @@
+/* Nebo public art direction. Layout and interaction primitives live in band.css. */
+:root {
+    --brand-deep-blue: #243e69;
+    --brand-blue-paper: #e9eff7;
+    --brand-rule: #becbd8;
+    --brand-action: #31558e;
+    --brand-focus: #31558e;
+}
+
+@supports (color: color-mix(in srgb, white, black)) {
+    :root {
+        --brand-blue-paper: color-mix(in srgb, var(--color-primary) 9%, #fff);
+        --brand-rule: color-mix(in srgb, var(--color-primary) 25%, #e4e9ec);
+    }
+}
+
+[data-nebo-chapter="focus"] .section-header,
+[data-nebo-chapter="confidence"] .section-header {
+    margin-inline: 0;
+    text-align: start;
+}
+
+[data-nebo-chapter="focus"] .value-strip {
+    gap: 0 clamp(24px, 4vw, 64px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+[data-nebo-chapter="focus"] .value-card,
+[data-nebo-chapter="confidence"] .value-card {
+    background: transparent;
+    border: 0;
+    border-block-start: 1px solid var(--brand-rule);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 24px 0;
+    text-align: start;
+}
+
+[data-nebo-chapter="focus"] .value-card:hover,
+[data-nebo-chapter="confidence"] .value-card:hover {
+    box-shadow: none;
+}
+
+[data-nebo-chapter="focus"] .value-card {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 4px 14px;
+    align-content: start;
+    align-items: start;
+}
+
+[data-nebo-chapter="focus"] .value-card__icon {
+    grid-row: span 2;
+    width: 32px;
+    height: 32px;
+    margin: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--brand-action);
+}
+
+[data-nebo-chapter="focus"] .value-card:hover .value-card__icon {
+    background: transparent;
+    color: var(--brand-action);
+}
+
+[data-nebo-chapter="focus"] .value-card h3,
+[data-nebo-chapter="confidence"] .value-card h3 {
+    margin: 0 0 4px;
+    color: var(--brand-deep-blue);
+    text-wrap: balance;
+}
+
+[data-nebo-chapter="focus"] .value-card p,
+[data-nebo-chapter="confidence"] .value-card p {
+    max-width: 58ch;
+    text-wrap: pretty;
+}
+
+[data-nebo-chapter="confidence"] .value-strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+}
+
+[data-nebo-chapter="confidence"] .value-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.55fr);
+    gap: 16px 32px;
+}
+
+#program-rail .program-slide {
+    border: 0;
+    border-block-start: 2px solid var(--brand-deep-blue);
+    background: var(--brand-blue-paper);
+}
+
+@media (min-width: 1129px) {
+    #program-rail {
+        --program-gap: clamp(1rem, 2vw, 1.65rem);
+        gap: var(--program-gap);
+    }
+
+    #program-rail .program-slide {
+        flex-basis: calc((100% - 2 * var(--program-gap)) / 3);
+    }
+}
+
+#program-rail .program-slide__body {
+    min-height: 310px;
+    padding: 28px;
+    gap: 14px;
+}
+
+#program-rail .program-slide__meta {
+    color: var(--brand-deep-blue);
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: .06em;
+}
+
+#program-rail .program-slide h3 {
+    color: var(--brand-deep-blue);
+    font-size: 1.9rem;
+    font-weight: 550;
+    text-wrap: balance;
+}
+
+#program-rail .program-slide__link {
+    min-height: 44px;
+    align-items: center;
+    padding-block: 8px;
+    border-color: var(--brand-rule);
+    color: var(--brand-action);
+}
+
+#program-rail .program-slide__link:hover {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.home-rail-section .rail-controls { display: none; }
+.motion-ready .home-rail-section .rail-controls { display: flex; }
+
+.home-rail-section .rail-control {
+    border-radius: 8px;
+    background: var(--color-white);
+    border-color: var(--brand-rule);
+    color: var(--brand-action);
+}
+
+.home-rail-section .rail-control:hover:not(:disabled),
+.home-rail-section .rail-control:focus-visible {
+    background: var(--brand-action);
+    border-color: var(--brand-action);
+    color: #fff;
+}
+
+.nebo-contact-page .contact-intro { margin-block-end: clamp(32px, 5vw, 64px); }
+.nebo-contact-page .contact-intro .section-title { margin-block-end: 8px; }
+.nebo-contact-page .contact-intro .lede { max-width: 58ch; margin: 0; }
+
+.nebo-contact-page .contact-form-card {
+    border-color: var(--brand-rule);
+    border-block-start: 2px solid var(--brand-deep-blue);
+    border-radius: 0 0 8px 8px;
+    box-shadow: var(--shadow-sm);
+}
+
+.nebo-contact-page .contact-form-card__title {
+    margin: 0 0 8px;
+    font-family: var(--font-serif);
+    color: var(--brand-deep-blue);
+}
+
+.nebo-contact-page .contact-form-card__lede {
+    max-width: 58ch;
+    margin: 0 0 24px;
+    color: var(--color-text-muted);
+}
+
+.nebo-contact-page .contact-form :is(input:not([type="hidden"]), select, textarea) {
+    min-height: 48px;
+    border-radius: 8px;
+}
+
+.nebo-contact-page .contact-card {
+    min-height: 0;
+    border: 0;
+    border-block-start: 1px solid var(--brand-rule);
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+    padding-inline: 0;
+    text-align: start;
+    justify-items: start;
+    overflow: visible;
+}
+
+.nebo-contact-page .contact-card::after { content: none; }
+.nebo-contact-page .contact-card__icon {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--brand-action);
+}
+
+.home-rail-section :is(button, a):focus-visible,
+.nebo-contact-page :is(button, a, input, select, textarea):focus-visible {
+    outline: 2px solid var(--brand-focus);
+    outline-offset: 3px;
+}
+
+@media (max-width: 743px) {
+    .home-rail-heading {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 10px 12px;
+    }
+
+    .home-rail-heading > div:first-child { display: contents; }
+    .home-rail-heading .rail-controls { grid-area: 1 / 2; }
+    .home-rail-heading .lede { grid-column: 1 / -1; }
+
+    [data-nebo-chapter="focus"] .value-strip,
+    [data-nebo-chapter="confidence"] .value-card {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    [data-nebo-chapter="focus"] .value-card,
+    [data-nebo-chapter="confidence"] .value-card {
+        padding: 16px 0;
+    }
+
+    [data-nebo-chapter="confidence"] .value-card { gap: 4px; }
+    #program-rail .program-slide__body { min-height: 270px; padding: 18px; gap: 12px; }
+    #program-rail .program-slide h3 { font-size: 1.5rem; }
+}

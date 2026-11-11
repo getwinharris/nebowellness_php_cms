@@ -16,14 +16,14 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 ?>
 <section class="section nebo-contact-page">
     <div class="container container--narrow">
-        <div style="text-align:center; margin-bottom:var(--space-2xl);">
+        <div class="contact-intro">
             <span class="eyebrow serif-accent">Contact</span>
-            <h1 class="section-title" style="margin-bottom:var(--space-sm);">Nebo Lifestyle Clinic</h1>
-            <p class="lede" style="margin:0 auto;">Contact us for wellness consultations, program enquiries, or general support.</p>
+            <h1 class="section-title">Nebo Lifestyle Clinic</h1>
+            <p class="lede">Contact us for wellness consultations, program enquiries, or general support.</p>
         </div>
         <div class="contact-form-card reveal" id="contact-form">
-            <h2 style="font-family:var(--font-serif); text-align:center; margin:0 0 var(--space-sm);">Contact Us</h2>
-            <p style="text-align:center; color:var(--color-text-muted); margin:0 auto var(--space-lg); max-width:620px;">Use this form for consultation bookings, program enquiries, or general wellness questions.</p>
+            <h2 class="contact-form-card__title">Contact Us</h2>
+            <p class="contact-form-card__lede">Use this form for consultation bookings, program enquiries, or general wellness questions.</p>
             <?php if(!empty($success)): ?>
                 <script>document.addEventListener('DOMContentLoaded',function(){showToast('Thank you. Nebo Lifestyle Clinic will contact you soon.','success');});</script>
             <?php endif; ?>
