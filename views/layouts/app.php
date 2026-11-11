@@ -540,6 +540,13 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
     var rail=showcase.querySelector('.team-rail'),cards=Array.from(rail.children),detail=showcase.querySelector('.team-detail');
     var previous=document.querySelector('[data-rail-prev="team-rail"]'),next=document.querySelector('[data-rail-next="team-rail"]'),selected=0;
     if(!cards.length)return;
+    var previousScrollEnd=0;
+    function updateRailOnResize(){
+        var scrollEnd=rail.scrollWidth-rail.clientWidth;
+        // Follow the featured portrait only if the visitor was already at the rail's end.
+        if(Math.abs(rail.scrollLeft-previousScrollEnd)<=1) rail.scrollLeft=scrollEnd;
+        previousScrollEnd=scrollEnd;
+    }
     function select(index){
         selected=(index+cards.length)%cards.length;
         cards.forEach(function(card,i){
@@ -550,7 +557,8 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
             card.querySelector('button').tabIndex=active?0:-1;
         });
         detail.replaceChildren(cards[selected].querySelector('.team-slide__body').cloneNode(true));
-        rail.scrollLeft=rail.scrollWidth-rail.clientWidth;
+        previousScrollEnd=rail.scrollWidth-rail.clientWidth;
+        rail.scrollLeft=previousScrollEnd;
         if(previous)previous.disabled=cards.length<2;
         if(next)next.disabled=cards.length<2;
     }
@@ -560,6 +568,8 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
     rail.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
     showcase.classList.add('team-enhanced');
     select(0);
+    if('ResizeObserver' in window) new ResizeObserver(updateRailOnResize).observe(rail);
+    else window.addEventListener('resize',updateRailOnResize);
 });
 var pinnedHeader=document.querySelector('.site-header');
 if(pinnedHeader){
