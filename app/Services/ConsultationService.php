@@ -129,14 +129,18 @@ final class ConsultationService {
         $messages = $this->store->read('consultation_messages');
         $completed = array_filter($sessions, fn($row) => in_array(($row['status'] ?? ''), ['completed','session_ended'], true));
         $accepted = array_filter($sessions, fn($row) => in_array(($row['status'] ?? ''), ['accepted','active','completed','session_started','session_ended'], true));
-        $durations = array_map(fn($row) => (int)($row['duration_seconds'] ?? 0), $completed);
+        $durations = [];
+        foreach ($completed as $row) {
+            $duration = $row['duration_seconds'] ?? null;
+            if (is_numeric($duration) && $duration >= 0) $durations[] = (int) $duration;
+        }
         $responseTimes = [];
         foreach ($sessions as $row) if (!empty($row['created_at']) && !empty($row['accepted_at'])) $responseTimes[] = max(0, strtotime($row['accepted_at']) - strtotime($row['created_at']));
         return [
             'total_sessions'=>count($sessions), 'accepted_sessions'=>count($accepted), 'completed_sessions'=>count($completed),
             'message_count'=>count($messages), 'credits_spent'=>array_sum(array_map(fn($row)=>(int)($row['credits_spent'] ?? $row['spent_credits'] ?? 0), $sessions)),
-            'average_duration_seconds'=>$durations ? (int)round(array_sum($durations)/count($durations)) : 0,
-            'average_response_seconds'=>$responseTimes ? (int)round(array_sum($responseTimes)/count($responseTimes)) : 0,
+            'average_duration_seconds'=>$durations ? (int)round(array_sum($durations)/count($durations)) : null,
+            'average_response_seconds'=>$responseTimes ? (int)round(array_sum($responseTimes)/count($responseTimes)) : null,
         ];
     }
 

@@ -1,6 +1,49 @@
-<div class="admin-metrics-grid">
-<?php foreach(['total_sessions'=>'Total Sessions','accepted_sessions'=>'Accepted','completed_sessions'=>'Completed','message_count'=>'Messages','credits_spent'=>'Credits Spent','average_duration_seconds'=>'Avg. Duration (sec)','average_response_seconds'=>'Avg. Response (sec)'] as $key=>$label): ?>
-    <article class="admin-card"><span style="color:var(--color-text-muted);font-size:.75rem;text-transform:uppercase"><?= e($label) ?></span><strong style="display:block;font-family:var(--font-serif);font-size:2rem;color:var(--color-maroon);margin-top:var(--space-xs)"><?= e((string)($metrics[$key]??0)) ?></strong></article>
-<?php endforeach; ?>
+<?php
+$total = (int) ($metrics['total_sessions'] ?? 0);
+$statusRows = [
+    'Accepted or progressed' => (int) ($metrics['accepted_sessions'] ?? 0),
+    'Completed' => (int) ($metrics['completed_sessions'] ?? 0),
+];
+$detailRows = [
+    'Messages' => number_format((int) ($metrics['message_count'] ?? 0)),
+    'Credits spent' => number_format((int) ($metrics['credits_spent'] ?? 0)),
+    'Average completed session' => ($metrics['average_duration_seconds'] ?? null) !== null ? number_format((int) $metrics['average_duration_seconds']) . ' sec' : '—',
+    'Average response' => ($metrics['average_response_seconds'] ?? null) !== null ? number_format((int) $metrics['average_response_seconds']) . ' sec' : '—',
+];
+?>
+<div class="analytics-overview">
+    <section class="admin-card analytics-summary" aria-labelledby="analytics-title">
+        <div class="analytics-total">
+            <h2 id="analytics-title">Consultation history</h2>
+            <strong><?= e(number_format($total)) ?></strong>
+            <p>Retained sessions · all time</p>
+        </div>
+        <div>
+            <h2>Session status</h2>
+            <?php if ($total > 0): ?>
+            <p>Share of retained sessions. Completed sessions also count in the first row.</p>
+            <ul class="analytics-bars">
+                <?php foreach ($statusRows as $label => $count):
+                    $share = max(0, min(100, 100 * $count / $total));
+                ?>
+                <li>
+                    <div class="analytics-bar-label"><span><?= e($label) ?></span><strong><?= e(number_format($count)) ?> · <?= e(number_format($share, 1)) ?>%</strong></div>
+                    <span class="analytics-bar-track" aria-hidden="true"><span class="analytics-bar-fill" style="width:<?= e(number_format($share, 2, '.', '')) ?>%"></span></span>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+            <?php else: ?>
+            <p>No retained sessions to compare yet.</p>
+            <?php endif; ?>
+        </div>
+    </section>
+    <section class="admin-card" aria-labelledby="analytics-details-title">
+        <h2 id="analytics-details-title">Session activity and timing</h2>
+        <p>Historical appointment records only. Public consultation booking is retired.</p>
+        <dl class="analytics-details">
+            <?php foreach ($detailRows as $label => $value): ?>
+            <div><dt><?= e($label) ?></dt><dd><?= e($value) ?></dd></div>
+            <?php endforeach; ?>
+        </dl>
+    </section>
 </div>
-<div class="admin-card" style="margin-top:var(--space-lg)"><h2 style="font-size:1.05rem">Analytics Contract</h2><p style="color:var(--color-text-muted);margin-bottom:0">Metrics are derived from retained appointment records, timestamps, and status changes. Public consultation booking is retired; this view is for owner follow-up on historical records.</p></div>
