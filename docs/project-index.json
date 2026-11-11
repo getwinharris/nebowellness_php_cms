@@ -5,7 +5,7 @@
     "summary": {
         "routes": 116,
         "controllers": 12,
-        "services": 49,
+        "services": 50,
         "views": 45,
         "collections": 23
     },
@@ -507,6 +507,7 @@
                 "SettingsService",
                 "PaymentService",
                 "SecretService",
+                "GoogleCustomerAuthService",
                 "AuthService"
             ]
         },
@@ -792,7 +793,8 @@
             "controller": "AuthController@googleRedirect",
             "view": "public/login",
             "services": [
-                "SecretService"
+                "SecretService",
+                "GoogleCustomerAuthService"
             ]
         },
         {
@@ -803,7 +805,8 @@
             "view": "public/login",
             "services": [
                 "SecretService",
-                "DatabaseService"
+                "DatabaseService",
+                "GoogleCustomerAuthService"
             ]
         },
         {
@@ -1333,6 +1336,7 @@
         "DocsMapService",
         "EmailOtpService",
         "EnvService",
+        "GoogleCustomerAuthService",
         "ImageOptimizerService",
         "KnowledgeGraphService",
         "MailQueueService",

@@ -184,7 +184,7 @@ final class AdminController extends BaseController {
         $this->redirect('/admin/settings');
     }
     public function saveAdminCredentials(): void{(new EnvService())->saveAdminCredentials($_POST); (new AuditLogService())->record('save','admin-credentials','env'); $this->flash('Admin credentials saved.','success'); $this->redirect('/admin/settings');}
-    public function integrations(): void{$this->render('admin/integrations',['pageTitle' => 'Integrations', 'secrets'=>(new SecretService())->all()]);}
+    public function integrations(): void{$this->render('admin/integrations',['pageTitle' => 'Integrations', 'secrets'=>(new SecretService())->all(), 'googleCallbackUri'=>\App\Services\GoogleCustomerAuthService::callbackUri()]);}
     public function saveIntegrations(): void{(new SecretService())->save($_POST); (new AuditLogService())->record('save','integrations','secrets'); $this->flash('Integration settings saved.','success'); $this->redirect('/admin/integrations');}
     public function agent(): void{
         $secrets = new SecretService();

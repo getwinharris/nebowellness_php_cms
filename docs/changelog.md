@@ -16,6 +16,10 @@ category: docs
 - Admin consultation analytics compares historical session counts and completion shares.
 - Owner agent starters fill an empty composer for review and preserve unsent messages.
 
+### Security
+
+- Google sign-in validates the provider response and requires a previously linked customer account. Password registration remains available, and Admin Integrations shows the exact OAuth callback URL.
+
 ### Documentation
 
 - Added targeted repository lookup examples and a release workflow.
