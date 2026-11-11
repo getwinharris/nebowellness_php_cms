@@ -51,7 +51,7 @@ final class AuthController extends BaseController {
       $this->redirect('/login');
     }
     if ($user === null) {
-      $this->flash('Google sign-in is only available for eligible linked customer accounts. Please sign in with your password or create an account.', 'info');
+      $this->flash('Google sign-in is only available for eligible linked customer accounts. If you previously signed in with Google, use “Forgot your password?” to set a password. Otherwise, sign in with your password or create an account.', 'info');
       $this->redirect('/login');
     }
 
