@@ -59,6 +59,19 @@ function assertMinCount(int $min, array $items, string $msg): void {
 $failures = [];
 $tests = [];
 
+$tests['admin context contains aggregates without customer identities'] = function (): void {
+    $users = [['email' => 'private@example.test', 'name' => 'Private Person']];
+    $orders = [['customer_email' => 'private@example.test', 'status' => 'confirmed', 'total' => 100,
+        'items' => [['name' => 'Wellness product', 'qty' => 2, 'line_total' => 100]]]];
+    $summary = \App\Services\AgentContextService::adminSummary(true, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
+    assertTrue(!str_contains($summary, 'private@example.test') && !str_contains($summary, 'Private Person'), 'Customer identity must not enter the admin model context');
+    assertTrue(str_contains($summary, 'Wellness product: 2 sold') && str_contains($summary, 'Confirmed revenue: ₹100.00'), 'Useful sales aggregates should remain available');
+    $disabled = \App\Services\AgentContextService::adminSummary(false, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
+    assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product'), 'Disabled commerce must exclude sales details');
+    $controller = fileRead('app/Controllers/AdminController.php');
+    assertTrue(str_contains($controller, 'AgentContextService())->forAdmin('), 'Admin requests must use the bounded context service');
+};
+
 $tests['database service can connect to MySQL'] = function (): void {
     try {
         // Quick pre-check: verify the host is reachable before attempting PDO
