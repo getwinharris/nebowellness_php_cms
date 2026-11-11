@@ -2,6 +2,7 @@
 namespace App\Services;
 
 final class AuditLogService {
+    private const OUTCOMES = ['model', 'fallback', 'private_account', 'draft', 'manual', 'draft_unavailable', 'error'];
     public function __construct(private DatabaseService $store = new DatabaseService()) {}
 
     public function all(): array {
@@ -11,7 +12,7 @@ final class AuditLogService {
     /** Operational metadata only: never retain prompts, replies, identities or secrets. */
     public function agentRun(string $surface, string $outcome, float $startedAt, ?AgentRunTrace $trace = null): void {
         if (!in_array($surface, ['support', 'admin'], true)) return;
-        if (!in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'manual', 'draft_unavailable', 'error'], true)) return;
+        if (!in_array($outcome, self::OUTCOMES, true)) return;
         $this->record('run', 'agent', $surface, [
             'surface' => $surface,
             'outcome' => $outcome,
@@ -19,9 +20,9 @@ final class AuditLogService {
         ] + ($trace?->metadata() ?? []), ['email' => 'system', 'name' => 'Agent monitoring']);
     }
 
-    public static function agentSummary(array $events, ?int $now = null): array {
+    public static function agentSummary(array $events, ?int $now = null, ?int $cutoff = null): array {
         $now ??= time();
-        $cutoff = $now - 86400;
+        $cutoff ??= $now - 86400;
         $summary = [];
         $durations = ['support' => [], 'admin' => []];
         foreach (['support', 'admin'] as $surface) {
@@ -35,7 +36,7 @@ final class AuditLogService {
             $outcome = $meta['outcome'] ?? '';
             $created = (string)($event['created_at'] ?? '');
             $timestamp = strtotime($created);
-            if (!isset($summary[$surface]) || !in_array($outcome, ['model', 'fallback', 'private_account', 'draft', 'manual', 'draft_unavailable', 'error'], true) || $timestamp === false || $timestamp < $cutoff || $timestamp > $now) continue;
+            if (!isset($summary[$surface]) || !in_array($outcome, self::OUTCOMES, true) || $timestamp === false || $timestamp < $cutoff || $timestamp > $now) continue;
             $summary[$surface]['requests']++;
             $summary[$surface][$outcome]++;
             $duration = max(0, (int)($meta['duration_ms'] ?? 0));
@@ -51,6 +52,35 @@ final class AuditLogService {
             $row['p95_ms'] = $count ? $durations[$surface][(int)ceil(.95 * $count) - 1] : null;
         }
         return $summary;
+    }
+
+    public static function agentDashboard(array $events, int $days, ?int $now = null): array {
+        $now ??= time();
+        $days = $days === 30 ? 30 : 7;
+        $start = intdiv($now, 86400) * 86400 - ($days - 1) * 86400;
+        $daily = [];
+        for ($day = $start; $day <= $now; $day += 86400) {
+            $daily[gmdate('Y-m-d', $day)] = ['runs' => 0, 'errors' => 0];
+        }
+        $providers = ['support' => ['attempts' => 0, 'failures' => 0], 'admin' => ['attempts' => 0, 'failures' => 0]];
+        foreach ($events as $event) {
+            $meta = $event['meta'] ?? [];
+            $surface = $meta['surface'] ?? '';
+            $at = strtotime((string)($event['created_at'] ?? ''));
+            if (($event['event'] ?? '') !== 'agent.run' || !isset($providers[$surface])
+                || !in_array($meta['outcome'] ?? '', self::OUTCOMES, true)
+                || $at === false || $at < $start || $at > $now) continue;
+            $key = gmdate('Y-m-d', $at);
+            $daily[$key]['runs']++;
+            if ($meta['outcome'] === 'error') $daily[$key]['errors']++;
+            foreach (array_slice(is_array($meta['steps'] ?? null) ? $meta['steps'] : [], 0, 16) as $step) {
+                $outcome = $step['outcome'] ?? '';
+                if (($step['kind'] ?? '') !== 'provider' || !in_array($outcome, ['http_ok', 'http_error', 'transport_error'], true)) continue;
+                $providers[$surface]['attempts']++;
+                if ($outcome !== 'http_ok') $providers[$surface]['failures']++;
+            }
+        }
+        return ['surfaces' => self::agentSummary($events, $now, $start), 'daily' => $daily, 'providers' => $providers, 'as_of' => $now];
     }
 
     public function record(string $action, string $resource, string $resourceId = '', array $details = [], ?array $actor = null): array {

@@ -2200,6 +2200,31 @@ $tests['agent monitoring counts bounded outcomes without treating fallbacks as m
     assertSame(null, App\Services\AuditLogService::agentSummary([], $now)['admin']['average_ms'], 'No traffic is not zero-latency success');
 };
 
+$tests['dashboard separates failed attempts from failed runs and groups by UTC day'] = function (): void {
+    $now = strtotime('2026-11-11T12:00:00Z');
+    $event = static fn(string $at, string $outcome, array $steps = []) => [
+        'event' => 'agent.run', 'created_at' => $at,
+        'meta' => ['surface' => 'support', 'outcome' => $outcome, 'duration_ms' => 100, 'steps' => $steps],
+    ];
+    $events = [
+        $event('2026-11-11T01:00:00+02:00', 'fallback', [
+            ['kind' => 'provider', 'outcome' => 'transport_error'],
+            ['kind' => 'provider', 'outcome' => 'http_ok'],
+            ['kind' => 'tool', 'outcome' => 'error'],
+        ]),
+        $event('2026-11-11T11:00:00Z', 'error'),
+        $event('2026-11-11T13:00:00Z', 'error'),
+        $event('2026-11-04T23:59:59Z', 'model'),
+    ];
+    $week = App\Services\AuditLogService::agentDashboard($events, 7, $now);
+    assertSame(7, count($week['daily']), 'Include zero days in the period');
+    assertSame(['runs' => 1, 'errors' => 0], $week['daily']['2026-11-10'], 'Normalize recorded offsets to UTC');
+    assertSame(['runs' => 1, 'errors' => 1], $week['daily']['2026-11-11'], 'Exclude future events');
+    assertSame(['attempts' => 2, 'failures' => 1], $week['providers']['support'], 'Tool failures and recovered provider attempts are distinct');
+    assertSame(2, $week['surfaces']['support']['requests'], 'Cards and charts agree');
+    assertSame(3, App\Services\AuditLogService::agentDashboard($events, 30, $now)['surfaces']['support']['requests'], 'Longer range includes older runs');
+};
+
 $tests['cart summary recalculates quantities and mixed product tax rates'] = function (): void {
     $summary = App\Services\TaxService::cartSummary([
         ['line_total' => 105, 'qty' => 1, 'product' => ['gst_rate' => 5]],
