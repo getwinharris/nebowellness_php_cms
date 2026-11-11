@@ -43,10 +43,12 @@ final class AgentContextService {
             // because only a product count reached the model.
             $unitsBySlug = [];
             $revenueBySlug = [];
+            $productNames = [];
             foreach ($confirmedOrders as $o) {
                 foreach (($o['items'] ?? []) as $item) {
-                    $key = (string)($item['name'] ?? $item['slug'] ?? '');
+                    $key = (string)($item['slug'] ?? $item['name'] ?? '');
                     if ($key === '') continue;
+                    $productNames[$key] = mb_substr((string)($item['name'] ?? $key), 0, 120);
                     $qty = (int)($item['qty'] ?? 1);
                     $unitsBySlug[$key] = ($unitsBySlug[$key] ?? 0) + $qty;
                     $revenueBySlug[$key] = ($revenueBySlug[$key] ?? 0) + (float)($item['line_total'] ?? 0);
@@ -54,8 +56,8 @@ final class AgentContextService {
             }
             arsort($unitsBySlug);
             $topProductsStr = '';
-            foreach (array_slice($unitsBySlug, 0, 5, true) as $name => $units) {
-                $topProductsStr .= "\n  - {$name}: {$units} sold, ₹" . number_format($revenueBySlug[$name] ?? 0, 2);
+            foreach (array_slice($unitsBySlug, 0, 5, true) as $slug => $units) {
+                $topProductsStr .= "\n  - {$productNames[$slug]}: {$units} sold, ₹" . number_format($revenueBySlug[$slug] ?? 0, 2);
             }
             if ($topProductsStr === '') $topProductsStr = "\n  - no confirmed sales yet";
 

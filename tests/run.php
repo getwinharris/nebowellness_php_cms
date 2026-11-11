@@ -66,10 +66,16 @@ $tests['admin context contains aggregates without customer identities'] = functi
     $summary = \App\Services\AgentContextService::adminSummary(true, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
     assertTrue(!str_contains($summary, 'private@example.test') && !str_contains($summary, 'Private Person'), 'Customer identity must not enter the admin model context');
     assertTrue(str_contains($summary, 'Wellness product: 2 sold') && str_contains($summary, 'Confirmed revenue: ₹100.00'), 'Useful sales aggregates should remain available');
+    $renamed = [['status' => 'confirmed', 'items' => [['slug' => 'same', 'name' => 'Old', 'qty' => 1], ['slug' => 'same', 'name' => str_repeat('x', 200), 'qty' => 2]]]];
+    $bounded = \App\Services\AgentContextService::adminSummary(true, [], $renamed, [], 0, 0, 0);
+    assertTrue(str_contains($bounded, str_repeat('x', 120) . ': 3 sold') && !str_contains($bounded, str_repeat('x', 121)), 'Sales group by slug and product names remain bounded');
+    $method = new ReflectionMethod(\App\Services\AgentToolRegistry::class, 'summariseOrder');
+    $orderSummary = $method->invoke(new \App\Services\AgentToolRegistry(modules: ['shop' => true]), $orders[0]);
+    assertTrue(!array_key_exists('customer_email', $orderSummary), 'Order tool responses must omit customer email');
     $disabled = \App\Services\AgentContextService::adminSummary(false, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
-    assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product'), 'Disabled commerce must exclude sales details');
+    assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product') && !str_contains($disabled, 'Total orders:') && !str_contains($disabled, 'revenue:'), 'Disabled commerce must exclude sales details');
     $controller = fileRead('app/Controllers/AdminController.php');
-    assertTrue(str_contains($controller, 'AgentContextService())->forAdmin('), 'Admin requests must use the bounded context service');
+    assertTrue(str_contains($controller, '$context = (new \\App\\Services\\AgentContextService())->forAdmin(') && str_contains($controller, '$this->callAiApi($modelConfig, $message, $context)'), 'The admin request must pass the service summary to the model');
 };
 
 $tests['database service can connect to MySQL'] = function (): void {
