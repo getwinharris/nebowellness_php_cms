@@ -18,6 +18,7 @@
                 'password_changed_at' => ['type' => 'datetime'],
                 'password_hash' => ['type' => 'secret'],
                 'accepted_terms_at' => ['type' => 'datetime'],
+                'google_subject' => ['type' => 'string'],
             ],
         ],
         'addresses' => [

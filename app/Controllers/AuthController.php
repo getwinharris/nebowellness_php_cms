@@ -1,35 +1,70 @@
 <?php
 namespace App\Controllers;
-use App\Services\{EnvService,SecretService,DatabaseService,PasswordResetService,AddressService,MailQueueService,SettingsService};
+use App\Services\{EnvService,SecretService,DatabaseService,GoogleCustomerAuthService,PasswordResetService,AddressService,MailQueueService,SettingsService};
 use App\Integrations\GoogleOAuth\GoogleOAuthClient;
 final class AuthController extends BaseController {
   public function googleRedirect(): void {
-  $s=(new SecretService())->all(); if(empty($s['google_client_id'])||empty($s['google_client_secret'])){$this->flash('Google login is not configured yet.','warning');$this->redirect('/login');}
-  $state=bin2hex(random_bytes(16)); $_SESSION['oauth_state']=$state; $_SESSION['oauth_state_created_at']=time();
-  $redirectUri=$this->redirectUri(); $_SESSION['oauth_redirect_uri']=$redirectUri;
-  $url=(new GoogleOAuthClient($s['google_client_id'],$s['google_client_secret']))->authorizationUrl($redirectUri,$state); $this->redirect($url);
+    if (!empty($_SESSION['user'])) $this->redirect('/login');
+    $s = (new SecretService())->all();
+    if (empty($s['google_client_id']) || empty($s['google_client_secret'])) {
+      $this->flash('Google login is not configured yet.', 'warning');
+      $this->redirect('/login');
+    }
+    $transaction = [
+      'state'=>bin2hex(random_bytes(32)), 'nonce'=>bin2hex(random_bytes(32)),
+      'redirect_uri'=>GoogleCustomerAuthService::callbackUri(), 'issued_at'=>time(),
+    ];
+    $_SESSION['google_oauth'] = $transaction;
+    $client = new GoogleOAuthClient($s['google_client_id'], $s['google_client_secret']);
+    $this->redirect($client->authorizationUrl($transaction['redirect_uri'], $transaction['state'], $transaction['nonce']));
   }
+
   public function callback(): void {
-    if(($_GET['state']??'')!==($_SESSION['oauth_state']??'')){$this->flash('Invalid OAuth state. Please try again.','error');$this->redirect('/login');}
-    if(($_SESSION['oauth_state_created_at']??0)<time()-600){unset($_SESSION['oauth_state'],$_SESSION['oauth_state_created_at'],$_SESSION['oauth_redirect_uri']);$this->flash('OAuth state expired. Please try again.','error');$this->redirect('/login');}
-   $redirectUri=(string)($_SESSION['oauth_redirect_uri']??$this->redirectUri());
-   $s=(new SecretService())->all(); $token=$this->post('https://oauth2.googleapis.com/token',['code'=>$_GET['code']??'','client_id'=>$s['google_client_id'],'client_secret'=>$s['google_client_secret'],'redirect_uri'=>$redirectUri,'grant_type'=>'authorization_code']);
-   if(!empty($token['error'])||empty($token['access_token'])){$this->flash('Google login failed. Please try again.','error');$this->redirect('/login');}
-   $user=$this->get('https://openidconnect.googleapis.com/v1/userinfo',$token['access_token']);
-   if(empty($user)){$this->flash('Failed to fetch your profile from Google. Please try again.','error');$this->redirect('/login');}
-    $store=new DatabaseService(); $users=$store->read('users'); $role = 'customer'; $consultantSlug = ''; $mustChange = false; $existingId = '';
-    foreach ($users as $u) { if (($u['id'] ?? '') === ($user['sub'] ?? '') || (($u['email'] ?? '') !== '' && ($u['email'] ?? '') === ($user['email'] ?? ''))) { $role=$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'); $consultantSlug=$u['consultant_slug'] ?? ''; $mustChange=(bool)($u['must_change_password'] ?? false); if (($u['email'] ?? '') === ($user['email'] ?? '')) $existingId=$u['id']??''; break; } }
-    $userId = $existingId ?: ($user['sub'] ?? bin2hex(random_bytes(8)));
-    unset($_SESSION['oauth_state'],$_SESSION['oauth_state_created_at'],$_SESSION['oauth_redirect_uri']);
-    session_regenerate_id(true);
-    $_SESSION['user']=['sub'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','username'=>explode('@',$user['email'])[0],'picture'=>$user['picture']??'','role'=>$role,'consultant_slug'=>$consultantSlug];
-    try { $store->upsert('users',['id'=>$userId,'email'=>$user['email'],'name'=>$user['name']??'','picture'=>$user['picture']??'','role'=>$role]); } catch (\Throwable) {}
-    $this->flash('Signed in.','success');
-    session_write_close();
-   if ($role === 'admin') { $this->redirect('/admin'); return; }
-   if ($role === 'consultant') { $_SESSION = []; $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
-    $this->redirect(module_on('shop') ? '/account/dashboard' : '/');
+    header('Cache-Control: no-store');
+    header('Referrer-Policy: no-referrer');
+    $transaction = GoogleCustomerAuthService::consumeState($_SESSION, $_GET['state'] ?? null, time());
+    if (!empty($_SESSION['user'])) $this->redirect('/login');
+    if ($transaction === null) {
+      $this->flash('Google sign-in expired or was invalid. Please try again.', 'error');
+      $this->redirect('/login');
+    }
+    $code = $_GET['code'] ?? null;
+    if (isset($_GET['error']) || !is_string($code) || $code === '') {
+      $this->flash('Google sign-in was not completed. You can sign in with your password.', 'info');
+      $this->redirect('/login');
+    }
+    try {
+      $s = (new SecretService())->all();
+      if (empty($s['google_client_id']) || empty($s['google_client_secret'])) {
+        throw new \RuntimeException('Google sign-in is not configured.');
+      }
+      $client = new GoogleOAuthClient($s['google_client_id'], $s['google_client_secret']);
+      $identity = $client->exchange($code, $transaction['redirect_uri'], $transaction['nonce']);
+      $store = new DatabaseService();
+      // SettingsService falls back on read failure. A failed owner lookup must instead stop OAuth.
+      $ownerEmails = array_column($store->read('settings'), 'admin_email');
+      $ownerEmails[] = getenv('ADMIN_EMAIL') ?: '';
+      $user = GoogleCustomerAuthService::linkedSession($identity, $store->read('users'), $ownerEmails);
+      $target = module_on('shop') ? '/account/dashboard' : '/';
+    } catch (\Throwable) {
+      $this->flash('Google sign-in is temporarily unavailable. Please try again or use your password.', 'error');
+      $this->redirect('/login');
+    }
+    if ($user === null) {
+      $this->flash('Google sign-in is only available for eligible linked customer accounts. If you previously signed in with Google, use “Forgot your password?” to set a password. Otherwise, sign in with your password or create an account.', 'info');
+      $this->redirect('/login');
+    }
+
+    // A session is issued only after finding a durable, eligible Google binding.
+    if (!session_regenerate_id(true)) {
+      $this->flash('Could not start a sign-in session. Please try again.', 'error');
+      $this->redirect('/login');
+    }
+    $_SESSION['user'] = $user;
+    $this->flash('Signed in.', 'success');
+    $this->redirect($target);
   }
+
  public function logout(): void {
   $_SESSION = [];
   if (ini_get('session.use_cookies')) {
@@ -41,22 +76,10 @@ final class AuthController extends BaseController {
   $this->flash('You are signed out.','info');
   $this->redirect('/login');
  }
- private function redirectUri(): string {
-   $configured = trim((string)($_ENV['APP_URL'] ?? getenv('APP_URL') ?? ''));
-   $base = $configured !== '' ? $configured : 'https://www.nebowellness.com';
-   // Google compares the callback URI byte-for-byte. Use the deployed APP_URL as-is
-   // so the authorization request and token exchange always use the same host.
-   return rtrim($base, '/') . '/auth/google/callback';
- }
- private function post(string $url,array $data): array { $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_POST=>true,CURLOPT_POSTFIELDS=>http_build_query($data),CURLOPT_TIMEOUT=>10]); $body=curl_exec($ch); curl_close($ch); return json_decode($body,true)?:[]; }
- private function get(string $url,string $token): array { $ch=curl_init($url); curl_setopt_array($ch,[CURLOPT_RETURNTRANSFER=>true,CURLOPT_HTTPHEADER=>['Authorization: Bearer '.$token],CURLOPT_TIMEOUT=>10]); $body=curl_exec($ch); curl_close($ch); return json_decode($body,true)?:[]; }
   public function register(): void {
      if (!empty($_SESSION['user'])) $this->redirect((($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : (module_on('shop') ? '/account/dashboard' : '/'));
      $this->seoKey = 'register';
-     $secrets = (new \App\Services\SecretService())->all();
-     $this->render('public/register', [
-         'googleAuthEnabled' => !empty($secrets['google_client_id']) && !empty($secrets['google_client_secret']),
-     ]);
+     $this->render('public/register');
   }
   public function registerPost(): void {
     $this->validateCsrf();
