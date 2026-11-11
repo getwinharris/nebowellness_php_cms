@@ -15,18 +15,34 @@ $customFields = is_array($campaign['form_fields'] ?? null) ? $campaign['form_fie
 $copy = static fn(string $field, string $fallback): string => trim((string)($campaign[$field] ?? '')) ?: $fallback;
 ?>
 <article class="campaign-page">
-  <header class="campaign-hero campaign-motion">
-    <img class="campaign-hero__image" src="<?= e($campaign['image_url'] ?: '/assets/images/nebo-programs.png') ?>" alt="" loading="eager">
-    <div class="container campaign-hero__inner"><span class="eyebrow">Nebo campaign</span><h1><?= e($campaign['title']) ?></h1><p><?= e($campaign['summary'] ?? '') ?></p><a class="btn btn-primary" href="#campaign-enquiry"><?= e($copy('form_button', 'Enquire about this program')) ?></a></div>
+  <header class="campaign-hero">
+    <div class="campaign-hero__inner">
+      <a class="campaign-hero__back" href="/campaigns">← All programs</a>
+      <p class="eyebrow">Nebo Lifestyle Clinic · Therapy programs</p>
+      <h1><?= e($campaign['title']) ?></h1>
+      <p class="campaign-hero__summary"><?= e($campaign['summary'] ?? '') ?></p>
+      <div class="campaign-hero__actions">
+        <a class="btn btn-primary" href="#campaign-enquiry">Go to enquiry form</a>
+        <a class="campaign-text-link" href="#campaign-overview">About this program</a>
+      </div>
+    </div>
+    <img class="campaign-hero__image" src="<?= e(($campaign['image_url'] ?? '') ?: '/assets/images/nebo-programs.png') ?>" alt="" loading="eager" fetchpriority="high">
   </header>
-  <div class="container campaign-page__layout campaign-motion">
-    <div class="campaign-page__body"><?= (new \App\Services\MarkdownRenderer())->render((string)($campaign['body'] ?? '')) ?></div>
-    <aside class="campaign-page__aside"><span class="eyebrow">Your next step</span><h2>Discuss your goals with Nebo</h2><p>Our team can explain the program, who it may suit, and what to expect before you decide.</p><a class="btn btn-primary" href="<?= e($ctaUrl) ?>"><?= e($ctaLabel) ?></a></aside>
+  <div class="container campaign-page__layout" id="campaign-overview">
+    <div class="campaign-page__body"><span class="eyebrow">Program overview</span><?= (new \App\Services\MarkdownRenderer())->render((string)($campaign['body'] ?? '')) ?></div>
+    <aside class="campaign-page__aside" aria-labelledby="campaign-steps-title">
+      <h2 id="campaign-steps-title">What happens next</h2>
+      <ol class="campaign-steps">
+        <li><strong>Send your enquiry</strong><span>Share your contact details with the clinic.</span></li>
+        <li><strong>Talk with the team</strong><span>Ask about availability, fees and whether the program fits your needs.</span></li>
+      </ol>
+      <a class="campaign-text-link" href="<?= e($ctaUrl) ?>"><?= e($ctaLabel) ?> →</a>
+    </aside>
   </div>
-  <section class="campaign-enquiry campaign-motion" id="campaign-enquiry" aria-labelledby="campaign-form-title">
+  <section class="campaign-enquiry" id="campaign-enquiry" aria-labelledby="campaign-form-title">
     <div class="container campaign-enquiry__layout">
-      <div><span class="eyebrow">Your next step</span><h2 id="campaign-form-title"><?= e($copy('form_title', 'Begin your wellness journey')) ?></h2><p><?= e($copy('form_intro', 'Tell us how to reach you. Our team will explain the program and help you decide on your next step.')) ?></p></div>
-      <div>
+      <div class="campaign-enquiry__intro"><span class="eyebrow">Enquire with Nebo</span><h2 id="campaign-form-title"><?= e($copy('form_title', 'Enquire about this program')) ?></h2><p><?= e($copy('form_intro', 'Tell us how to reach you so we can discuss the program with you.')) ?></p><p class="campaign-enquiry__note">Submitting this form sends an enquiry. A session is arranged separately with the clinic.</p></div>
+      <div class="campaign-enquiry__card">
       <?php if (!empty($formState['success'])): ?>
         <p class="campaign-form-success" role="status"><?= e($copy('form_success', 'Thank you. Your enquiry has reached Nebo and our team will contact you soon.')) ?></p>
       <?php else: ?>
@@ -41,10 +57,10 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
           <?php if (($campaign['form_phone'] ?? '') !== 'hidden'): ?><div class="form-group"><label for="campaign-phone">Phone<?= ($campaign['form_phone'] ?? '') === 'required' ? '' : ' (optional)' ?></label><input id="campaign-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" value="<?= e($formValues['phone'] ?? '') ?>" <?= ($campaign['form_phone'] ?? '') === 'required' ? 'required' : '' ?>></div><?php endif; ?>
           <?php if (($campaign['form_message'] ?? '') !== 'hidden'): ?><div class="form-group"><label for="campaign-message">Message<?= ($campaign['form_message'] ?? '') === 'required' ? '' : ' (optional)' ?></label><textarea id="campaign-message" name="message" rows="4" maxlength="5000" <?= ($campaign['form_message'] ?? '') === 'required' ? 'required' : '' ?>><?= e($formValues['message'] ?? '') ?></textarea></div><?php endif; ?>
           <?php foreach ($customFields as $field): if (!is_array($field)) continue; $key=preg_replace('/[^a-z0-9_]/','',strtolower((string)($field['key']??''))); if ($key==='') continue; $type=(string)($field['type']??'text'); $label=(string)($field['label']??$key); ?>
-            <div class="form-group"><label for="campaign-custom-<?= e($key) ?>"><?= e($label) ?><?= empty($field['required']) ? ' (optional)' : '' ?></label>
+            <div class="form-group<?= $type === 'checkbox' ? ' campaign-field--checkbox' : '' ?>"><label for="campaign-custom-<?= e($key) ?>"><?= e($label) ?><?= empty($field['required']) ? ' (optional)' : '' ?></label>
             <?php $customValue=(string)($formValues['custom'][$key]??''); ?>
             <?php if ($type==='textarea'): ?><textarea id="campaign-custom-<?= e($key) ?>" name="custom[<?= e($key) ?>]" rows="4" maxlength="2000" <?= !empty($field['required'])?'required':'' ?>><?= e($customValue) ?></textarea>
-            <?php elseif ($type==='select'): ?><select id="campaign-custom-<?= e($key) ?>" name="custom[<?= e($key) ?>]" <?= !empty($field['required'])?'required':'' ?>><option value="">Select</option><?php foreach (($field['options']??[]) as $option): ?><option value="<?= e((string)$option) ?>" <?= $customValue===(string)$option?'selected':'' ?>><?= e((string)$option) ?></option><?php endforeach; ?></select>
+            <?php elseif ($type==='select'): ?><select id="campaign-custom-<?= e($key) ?>" name="custom[<?= e($key) ?>]" <?= !empty($field['required'])?'required':'' ?>><option value="">Choose an option</option><?php foreach (($field['options']??[]) as $option): ?><option value="<?= e((string)$option) ?>" <?= $customValue===(string)$option?'selected':'' ?>><?= e((string)$option) ?></option><?php endforeach; ?></select>
             <?php elseif ($type==='checkbox'): ?><input id="campaign-custom-<?= e($key) ?>" type="checkbox" name="custom[<?= e($key) ?>]" value="Yes" <?= $customValue==='Yes'?'checked':'' ?> <?= !empty($field['required'])?'required':'' ?>>
             <?php else: ?><input id="campaign-custom-<?= e($key) ?>" type="<?= in_array($type,['email','tel'],true)?e($type):'text' ?>" name="custom[<?= e($key) ?>]" maxlength="2000" value="<?= e($customValue) ?>" <?= !empty($field['required'])?'required':'' ?>><?php endif; ?></div>
           <?php endforeach; ?>
@@ -56,6 +72,5 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
       </div>
     </div>
   </section>
-  <div class="container campaign-page__back"><a href="/campaigns">← All campaigns</a></div>
 </article>
 <?php if (!empty($campaign['form_require_otp'])): ?><script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script><?php endif; ?>

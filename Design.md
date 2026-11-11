@@ -448,3 +448,11 @@ button and three concise next-step explanations. The shared gray footer becomes
 the last full-height layer of the homepage stack when enhanced, retaining a single
 footer instance and its navigation, social and legal links. Without JavaScript it
 remains the normal page footer. Footer copy stays white on charcoal.
+
+### Therapy campaign detail
+
+Lead with the program title and one clear form link in a split editorial hero.
+Keep program details and the clinic's next steps distinct, then show the enquiry
+in a light form card on a darker section. On mobile the title and action precede
+the image, and the form stacks in a single column. Keep enquiry wording explicit
+until a verified payment and session workflow is available.

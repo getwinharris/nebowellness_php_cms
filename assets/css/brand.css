@@ -238,3 +238,67 @@
     #program-rail .program-slide__body { min-height: 270px; padding: 18px; gap: 12px; }
     #program-rail .program-slide h3 { font-size: 1.5rem; }
 }
+
+/* Therapy campaign: editorial image, decision guide, enquiry. */
+.campaign-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, .94fr);
+  background: #eaf0eb;
+}
+.campaign-hero__inner {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 1.15rem;
+  padding: clamp(2rem, 5vw, 5rem);
+  padding-inline-start: max(clamp(2rem, 5vw, 5rem), calc((100vw - 1232px) / 2));
+}
+.campaign-hero__back, .campaign-text-link { font-weight: 600; color: #294842; text-underline-offset: .25em; }
+.campaign-hero .eyebrow { color: #35554a; margin: 0; }
+.campaign-hero h1, .campaign-enquiry h2 { margin: 0; font-weight: 400; letter-spacing: -.045em; }
+.campaign-hero h1 { max-width: 16ch; font-size: clamp(2.45rem, 4.7vw, 4.7rem); line-height: 1.04; color: #19332d; overflow-wrap: anywhere; }
+.campaign-hero__summary { max-width: 46ch; margin: 0; color: #36514a; line-height: 1.6; }
+.campaign-hero__image { width: 100%; height: 100%; min-height: 0; object-fit: cover; }
+.campaign-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.2rem; }
+.campaign-page__layout, .campaign-enquiry__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, .75fr);
+  gap: clamp(2rem, 6vw, 6rem);
+  align-items: start;
+}
+.campaign-page__layout { padding-block: clamp(2.5rem, 6vw, 6rem); }
+.campaign-page__body { max-width: 68ch; line-height: 1.75; overflow-wrap: anywhere; }
+.campaign-page__body h2 { margin: 1.4em 0 .45em; color: #294842; }
+.campaign-page__body .eyebrow + h2 { margin-top: .55em; }
+.campaign-page__aside { background: #edf3ef; border-top: 3px solid #5b8167; padding: clamp(1.2rem, 3vw, 2rem); }
+.campaign-page__aside h2 { margin: 0; font-size: 1.3rem; }
+.campaign-steps { display: grid; gap: .95rem; padding-inline-start: 1.4rem; margin-block: 1rem 1.4rem; }
+.campaign-steps li::marker { color: #365b47; font-weight: 700; }
+.campaign-steps li span { display: block; margin-block-start: .2rem; line-height: 1.5; }
+.campaign-page__layout, .campaign-enquiry { scroll-margin-top: 7.5rem; }
+.campaign-enquiry { background: #243e35; color: #fff; padding-block: clamp(2.5rem, 6vw, 5.5rem); }
+.campaign-enquiry__layout { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); }
+.campaign-enquiry__intro { display: grid; gap: 1rem; }
+.campaign-enquiry__intro .eyebrow, .campaign-enquiry__intro h2 { color: #fff; }
+.campaign-enquiry__intro h2 { font-size: clamp(2.2rem, 4vw, 3.7rem); line-height: 1.08; overflow-wrap: anywhere; }
+.campaign-enquiry__intro p { margin: 0; max-width: 45ch; color: #e6eee9; }
+.campaign-enquiry__note { border-inline-start: 2px solid #9ebaa4; padding-inline-start: 1rem; font-size: .92rem; }
+.campaign-enquiry__card { min-width: 0; background: #fff; color: var(--color-text, #222); border-radius: 12px; padding: clamp(1rem, 3.5vw, 2rem); }
+.campaign-enquiry__card :is(input:not([type="checkbox"]), select, textarea) { min-height: 48px; width: 100%; min-width: 0; }
+.campaign-enquiry__card .contact-form { gap: 1rem; }
+.campaign-enquiry__card .form-group label { overflow-wrap: anywhere; }
+.campaign-enquiry__card .campaign-field--checkbox { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: .7rem; }
+.campaign-enquiry__card .campaign-field--checkbox label { display: flex; align-items: center; min-height: 44px; }
+.campaign-enquiry__card input[type="checkbox"] { width: 1.25rem; height: 1.25rem; min-height: 0; flex: none; margin: 0; accent-color: #365b47; }
+.campaign-enquiry__privacy { font-size: .875rem; margin: 0; }
+.campaign-enquiry__privacy a { text-decoration: underline; text-underline-offset: .2em; }
+.campaign-form-errors, .campaign-form-success { border-inline-start: 3px solid #a23535; background: #fbefee; padding: 1rem; margin-bottom: 1rem; }
+.campaign-form-errors p + p { margin-top: .4rem; }
+.campaign-form-success { border-color: #4a7657; background: #eaf3eb; margin: 0; }
+@media (max-width: 743px) {
+  .campaign-hero, .campaign-page__layout, .campaign-enquiry__layout { grid-template-columns: minmax(0, 1fr); }
+  .campaign-hero__inner { padding: 1.5rem; gap: .9rem; }
+  .campaign-hero__image { height: clamp(10rem, 45vw, 18rem); }
+  .campaign-page__layout, .campaign-enquiry { scroll-margin-top: 5.5rem; }
+  .campaign-enquiry .btn[type="submit"] { width: 100%; white-space: normal; }
+}
