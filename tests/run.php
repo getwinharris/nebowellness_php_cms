@@ -59,19 +59,37 @@ function assertMinCount(int $min, array $items, string $msg): void {
 $failures = [];
 $tests = [];
 
+function runAdminAgentFixture(string $mode, string $message): array {
+    $capture = tempnam(sys_get_temp_dir(), 'nebo-prompt-');
+    $pipes = [];
+    $process = proc_open([PHP_BINARY, app_path('tests/fixtures/admin-agent-prompt.php'), $mode, $capture, $message], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (!is_resource($process)) throw new RuntimeException('Could not start admin prompt fixture');
+    $response = stream_get_contents($pipes[1]);
+    $errors = stream_get_contents($pipes[2]);
+    fclose($pipes[1]); fclose($pipes[2]);
+    $exitCode = proc_close($process);
+    $prompt = file_get_contents($capture);
+    unlink($capture);
+    assertSame(0, $exitCode, 'Admin prompt fixture must succeed: ' . $errors);
+    return [$response, $prompt];
+}
+
+$tests['admin agent product drafting follows the shop module'] = function (): void {
+    [$response, $prompt] = runAdminAgentFixture('off', '/add-product fixture product');
+    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+    assertTrue(str_contains($data['error'] ?? '', 'Ecommerce is disabled'), 'Disabled shop must reject the product draft command');
+    assertSame('', $prompt, 'Disabled shop must not send a product draft prompt to the model');
+    assertTrue(!isset($data['draft']), 'Disabled shop must not provide a product form');
+
+    [$response, $prompt] = runAdminAgentFixture('on', '/add-product fixture product');
+    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+    assertTrue(str_contains($prompt, 'fixture product'), 'Enabled shop allows product draft generation');
+    assertSame('/admin/products/save', $data['draft']['action'] ?? '', 'Product draft still requires the ordinary save form');
+};
+
 $tests['admin unrelated question sends only bounded context to the model'] = function (): void {
     foreach (['on', 'off'] as $mode) {
-        $capture = tempnam(sys_get_temp_dir(), 'nebo-prompt-');
-        $pipes = [];
-        $process = proc_open([PHP_BINARY, app_path('tests/fixtures/admin-agent-prompt.php'), $mode, $capture], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
-        if (!is_resource($process)) throw new RuntimeException('Could not start admin prompt fixture');
-        $response = stream_get_contents($pipes[1]);
-        $errors = stream_get_contents($pipes[2]);
-        fclose($pipes[1]); fclose($pipes[2]);
-        $exitCode = proc_close($process);
-        $prompt = file_get_contents($capture);
-        unlink($capture);
-        assertSame(0, $exitCode, 'Admin prompt fixture must succeed: ' . $errors);
+        [$response, $prompt] = runAdminAgentFixture($mode, 'What can you help me with?');
         assertTrue(str_contains($response, 'answer') && str_contains($prompt, 'What can you help me with?'), 'Unrelated question must reach the model boundary');
         assertTrue(!str_contains($prompt, 'private@example.test') && !str_contains($prompt, 'Private Person'), 'Model prompt must exclude customer identities');
         if ($mode === 'off') assertTrue(str_contains($prompt, 'Ecommerce is disabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Disabled commerce must not enter the model prompt');

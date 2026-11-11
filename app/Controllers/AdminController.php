@@ -217,7 +217,7 @@ final class AdminController extends BaseController {
             // through the same route the normal admin screens post to.
             $command = \App\Services\AgentDraftService::command($message);
             if ($command !== null) {
-                if ($command === 'product' && !module_on('shop')) {
+                if ($command === 'add-product' && !module_on('shop')) {
                     $this->jsonResponse(['error'=>'Ecommerce is disabled. Enable it in Site Settings before drafting a product.'],409);
                     return;
                 }

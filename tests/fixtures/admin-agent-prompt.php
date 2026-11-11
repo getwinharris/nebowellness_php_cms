@@ -15,6 +15,11 @@ namespace App\Services {
     }
     final class AiClient {
         public static function isError(string $answer): bool { return false; }
+        public function configured(): bool { return true; }
+        public function completeOrNull(string $prompt, int $maxTokens, float $temperature): ?string {
+            file_put_contents($GLOBALS['fixtureOutput'], $prompt);
+            return null;
+        }
         public function completeWithTools(string $prompt, AgentToolRegistry $tools): string {
             file_put_contents($GLOBALS['fixtureOutput'], $prompt);
             return 'The fixture has no further information.';
@@ -30,6 +35,6 @@ namespace {
     require __DIR__ . '/../../app/bootstrap.php';
     $_SESSION['user'] = ['role' => 'admin', 'email' => 'owner@example.test'];
     $_SESSION['csrf_token'] = 'fixture-token';
-    $_POST = ['_csrf' => 'fixture-token', 'message' => 'What can you help me with?'];
+    $_POST = ['_csrf' => 'fixture-token', 'message' => $argv[3] ?? 'What can you help me with?'];
     (new \App\Controllers\AdminController())->agentAsk();
 }
