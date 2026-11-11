@@ -4301,6 +4301,7 @@ body.nav-open { overflow: hidden; }
 }
 @media (prefers-reduced-motion: reduce) {
     .team-showcase .team-slide, .team-showcase .team-slide__media { transition: none; }
+    .team-enhanced .team-slide:not(.is-rail-current), .team-enhanced .team-slide.is-rail-current { transform: none; }
 }
 .team-showcase .team-rail { justify-content: flex-end; }
 .team-showcase:not(.team-enhanced) { display: block; }
@@ -4317,7 +4318,6 @@ body { overflow-x: clip; }
 @supports (animation-timeline: view()) {
     @media (prefers-reduced-motion: no-preference) {
         .editorial-stack-card:not(:first-child) > .container { animation: editorial-copy-in linear both; animation-timeline: view(); animation-range: entry 0% entry 48%; }
-        .editorial-stack-card[data-nebo-chapter] .section-header { animation: editorial-copy-in linear both; animation-timeline: view(); animation-range: entry 3% entry 40%; }
         .campaign-motion { animation: campaign-editorial-in linear both; animation-timeline: view(); animation-range: entry 0% entry 50%; }
     }
 }
