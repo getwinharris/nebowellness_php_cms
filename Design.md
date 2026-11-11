@@ -218,11 +218,6 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Product details:** keep the short introduction, feature bullets, detailed description, and labelled specification rows in separate readable sections. Admin-created products use the same fields and layout as existing products; never paste table markup into a plain-text description. Omit empty sections instead of fabricating claims.
 - **Account:** use a persistent internal menu and one unframed content region. Orders, addresses, and installation are tasks, not promotional cards.
 
-### Nebo editorial treatment
-
-Use the Scroll Craft taste guidance by Nate Herk for composition and interaction states. The existing journey remains the brief: photographic arrival, orientation, reassurance, comparison, practitioner selection, and consultation. Let visitors compare programs through the duration, title, and copy at a glance. Reserve the larger visual change for the selected practitioner and their consultation link.
-
-Use cool paper, deep blue ink, and one blue action color across these surfaces. `brand.css` derives its blue roles from the configured primary palette where `color-mix()` is supported, with readable default values for other browsers. Hairlines and spacing group related content. Give program titles more scale than their duration and description, and remove decorative numbers and gradient panels. Maintain a visible offset focus outline on rail controls and form fields. Scroll and selection are enhancements of the existing native controls. Keep content legible without JavaScript and preserve the reduced-motion rules in `band.css`.
 - **Admin:** optimize for scanning and repeated action: compact sidebar, clear tables, consistent forms, explicit save state, and no marketing-style hero composition.
 - **Admin platform guidance:** describe the product-led public journey consistently. Historical service records may remain owner-accessible, but integration help must not advertise retired public booking, text sessions, or direct calls.
 - **Admin form sizing:** use zero-minimum grid tracks and shrinkable labels/controls. Long integration endpoints or credentials must stay within the field, never widen the page. Check 375px with populated fields without exposing their values in screenshots or reports.
@@ -247,6 +242,12 @@ Use cool paper, deep blue ink, and one blue action color across these surfaces. 
   layout dimensions, loop ambient movement, or hide content when script execution
   fails.
 - **Documents and guides:** Markdown-backed pages use the same warm canvas and a constrained reading column. The page header is centered and quiet; the content surface is white with a single soft border, 14px-20px radius, and `shadow-sm`. Use blue `h2` headings, muted body text at 1.6-1.7 line-height, generous section spacing, and green only for eyebrows, links, and small metadata. Documentation indexes use a two-column desktop grid and one-column mobile layout with clear titles, summaries, and a visible `Read guide` action. Do not render legal or customer documentation as long unstructured text or nested cards.
+
+### Nebo editorial treatment
+
+Use the Scroll Craft taste guidance by Nate Herk for composition and interaction states. The existing journey remains the brief: photographic arrival, orientation, reassurance, comparison, practitioner selection, and consultation. Let visitors compare programs through the duration, title, and copy at a glance. Reserve the larger visual change for the selected practitioner and their consultation link.
+
+Use cool paper, deep blue ink, and one blue action color across these surfaces. `brand.css` derives paper and rules from the configured primary palette where `color-mix()` is supported. Ink, action, and focus colors use fixed contrast-safe blues. Hairlines and spacing group related content. Give program titles more scale than their duration and description, and remove decorative numbers and gradient panels. Maintain a visible offset focus outline on rail controls and form fields. Without JavaScript, show native scroll and consultation links without enhanced arrow controls. Preserve the reduced-motion rules in `band.css`.
 
 ## Do's and Don'ts
 

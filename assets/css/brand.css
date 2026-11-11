@@ -9,10 +9,8 @@
 
 @supports (color: color-mix(in srgb, white, black)) {
     :root {
-        --brand-deep-blue: color-mix(in srgb, var(--color-primary) 47%, #13243d);
         --brand-blue-paper: color-mix(in srgb, var(--color-primary) 9%, #fff);
         --brand-rule: color-mix(in srgb, var(--color-primary) 25%, #e4e9ec);
-        --brand-action: color-mix(in srgb, var(--color-primary) 62%, #142643);
     }
 }
 
@@ -136,6 +134,14 @@
     color: var(--brand-action);
 }
 
+#program-rail .program-slide__link:hover {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+
+.home-rail-section .rail-controls { display: none; }
+.motion-ready .home-rail-section .rail-controls { display: flex; }
+
 .home-rail-section .rail-control {
     border-radius: 8px;
     background: var(--color-white);
@@ -188,6 +194,7 @@
     padding-inline: 0;
     text-align: start;
     justify-items: start;
+    overflow: visible;
 }
 
 .nebo-contact-page .contact-card::after { content: none; }

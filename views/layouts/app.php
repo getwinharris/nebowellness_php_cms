@@ -511,24 +511,33 @@ document.querySelectorAll('[data-editorial-rail]').forEach(function(rail){
     var previous=document.querySelector('[data-rail-prev="'+id+'"]'), next=document.querySelector('[data-rail-next="'+id+'"]');
     var activeIndex=0, arrowMotion=false, settleTimer;
     function maxScroll(){return Math.max(0,rail.scrollWidth-rail.clientWidth);}
-    function cardPosition(index){return cards[index].offsetLeft-rail.offsetLeft;}
+    function scrollStops(){
+        var max=maxScroll(), start=cards.length?cards[0].offsetLeft:0, stops=[];
+        cards.forEach(function(card,index){
+            var left=Math.min(card.offsetLeft-start,max), last=stops[stops.length-1];
+            if(!last||left-last.left>1)stops.push({index:index,left:left});
+        });
+        return stops;
+    }
     function currentIndex(){
-        if(rail.scrollLeft>=maxScroll()-1)return cards.length-1;
         var closest=0, distance=Infinity;
-        cards.forEach(function(card,index){var delta=Math.abs(cardPosition(index)-rail.scrollLeft);if(delta<distance){distance=delta;closest=index;}});
+        scrollStops().forEach(function(stop){var delta=Math.abs(stop.left-rail.scrollLeft);if(delta<distance){distance=delta;closest=stop.index;}});
         return closest;
     }
     function updateControls(index){
+        var stops=scrollStops(), last=stops[stops.length-1];
         activeIndex=index===undefined?currentIndex():index;
         cards.forEach(function(card,cardIndex){card.classList.toggle('is-rail-current',cardIndex===activeIndex);});
         if(previous) previous.disabled=activeIndex===0;
-        if(next) next.disabled=activeIndex===cards.length-1;
+        if(next) next.disabled=!last||activeIndex===last.index;
     }
     function move(direction){
-        var target=Math.max(0,Math.min(cards.length-1,activeIndex+direction));
-        if(target===activeIndex)return;
-        arrowMotion=true;window.clearTimeout(settleTimer);updateControls(target);
-        rail.scrollTo({left:Math.min(cardPosition(target),maxScroll()),behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+        var stops=scrollStops(), position=stops.findIndex(function(stop){return stop.index===activeIndex;});
+        if(position<0)position=stops.findIndex(function(stop){return stop.index===currentIndex();});
+        var target=stops[position+direction];
+        if(!target)return;
+        arrowMotion=true;window.clearTimeout(settleTimer);updateControls(target.index);
+        rail.scrollTo({left:target.left,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
         settleTimer=window.setTimeout(function(){arrowMotion=false;updateControls();},650);
     }
     if(previous) previous.addEventListener('click',function(){move(-1);});
