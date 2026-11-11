@@ -36,17 +36,17 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 288
+  concepts: 277
   relationships: 249
   by_type:
     blog: 5
     controller: 12
-    doc: 45
+    doc: 35
     image: 28
     route: 116
     schema: 23
     service: 49
-    skill: 10
+    skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
     type: "blog"
@@ -493,76 +493,6 @@ concepts:
       - "page"
     filename: "shop.md"
     header_image: ""
-  - id: "doc:skill-reference:scroll-craft:approved-collection"
-    type: "doc"
-    title: "approved-collection"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/approved-collection.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:assets"
-    type: "doc"
-    title: "assets"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/assets.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:devices"
-    type: "doc"
-    title: "devices"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/devices.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:feel"
-    type: "doc"
-    title: "feel"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/feel.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:hero-depth"
-    type: "doc"
-    title: "hero-depth"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/hero-depth.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:taste"
-    type: "doc"
-    title: "taste"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/taste.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:uniqueness"
-    type: "doc"
-    title: "uniqueness"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/uniqueness.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:verify"
-    type: "doc"
-    title: "verify"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/verify.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:worldflight"
-    type: "doc"
-    title: "worldflight"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/worldflight.md"
-    tags:
-      - "reference"
-  - id: "doc:skill-reference:scroll-craft:worlds"
-    type: "doc"
-    title: "worlds"
-    description: ""
-    resource: ".claude/skills/scroll-craft/references/worlds.md"
-    tags:
-      - "reference"
   - id: "doc:support-agent-comparison"
     type: "doc"
     title: "Support agent comparison and model routing"
@@ -3370,13 +3300,6 @@ concepts:
     title: "schema"
     description: "Use when changing MySQL database collections, fields, admin forms, media fields, or agent context payloads."
     resource: ".claude/skills/schema/SKILL.md"
-    tags:
-      - "skill"
-  - id: "skill:scroll-craft"
-    type: "skill"
-    title: "scroll-craft"
-    description: ">"
-    resource: ".claude/skills/scroll-craft/SKILL.md"
     tags:
       - "skill"
 relationships:

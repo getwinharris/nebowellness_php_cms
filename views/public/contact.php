@@ -5,6 +5,13 @@ $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null
 // Values retained by a failed email-verification POST, so the visitor never has to
 // retype the form. The controller clears the session entry after this render.
 $contactValues = is_array($formValues ?? null) ? $formValues : [];
+if (!array_key_exists('subject', $contactValues) && in_array($subject ?? '', ['gut', 'metabolic', 'fertility', 'lifestyle', 'general'], true)) {
+    $contactValues['subject'] = $subject;
+}
+if (!array_key_exists('message', $contactValues) && ($consultant ?? '') !== '') {
+    $contactValues['message'] = 'I would like to enquire about a consultation with ' . $consultant . '.';
+    $contactValues['subject'] ??= 'general';
+}
 $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 ?>
 <section class="section nebo-contact-page">
@@ -131,36 +138,5 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
     "description": "Contact Nebo Lifestyle Clinic for wellness consultations, naturopathy services, and integrative health programs.",
     "url": "https://nebowellness.com/contact"
 }
-</script>
-<script>
-/* Page-local enhancement: carry the home page's chosen focus into this form.
-   The query parameter wins; the session copy keeps a return visit aligned.
-   Nothing the visitor already typed or chose is overwritten. */
-(function () {
-    var focus = '';
-    try {
-        var params = new URLSearchParams(window.location.search);
-        focus = params.get('focus') || '';
-        if (!focus) focus = window.sessionStorage.getItem('nebo.focus') || '';
-    } catch (error) {
-        focus = '';
-    }
-    var openings = {
-        gut: 'I would like to understand gut health support first.',
-        metabolic: 'I would like to understand metabolic health support first.',
-        lifestyle: 'I would like to understand lifestyle transformation support first.',
-        fertility: 'I would like to understand fertility and maternal wellness support first.'
-    };
-    if (!Object.prototype.hasOwnProperty.call(openings, focus)) return;
-    var subject = document.getElementById('contact-subject');
-    var message = document.getElementById('contact-message');
-    if (subject && subject.value === '') subject.value = focus;
-    if (message && message.value.trim() === '') message.value = openings[focus];
-    try {
-        window.sessionStorage.setItem('nebo.focus', focus);
-    } catch (error) {
-        /* Storage can be blocked; the prefill above still happened. */
-    }
-})();
 </script>
 <?php if (!empty($otpAvailable)): ?><script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script><?php endif; ?>
