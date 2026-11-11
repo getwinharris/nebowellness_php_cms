@@ -9,12 +9,11 @@
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
         <input type="hidden" name="id" id="resource-id">
         <?php if ($collection === 'campaign_pages'): ?><input type="hidden" name="revision" id="resource-revision"><?php endif; ?>
-        <div class="admin-form__row" style="grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));">
-            <?php foreach($fields as $field): ?>
+        <div class="admin-form__row" style="grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr));">
+            <?php foreach($fields as $field): if ($collection === 'campaign_pages' && $field === 'form_fields') continue; ?>
                 <label><?= e(ucwords(str_replace('_',' ',$field))) ?>
-                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description','form_intro','form_success','form_fields'], true)): ?>
+                    <?php if(in_array($field, ['description','image_urls','summary','body','seo_description','form_intro','form_success'], true)): ?>
                         <textarea name="<?= e($field) ?>" id="field-<?= e($field) ?>" rows="<?= $field === 'body' ? 10 : 3 ?>"></textarea>
-                        <?php if ($field === 'form_fields'): ?><small>JSON list, for example: [{"key":"preferred_time","label":"Preferred time","type":"select","required":true,"options":["Morning","Evening"]}]</small><?php endif; ?>
                     <?php elseif(in_array($field, ['form_phone','form_message'], true)): ?>
                         <select name="<?= e($field) ?>" id="field-<?= e($field) ?>">
                             <option value="optional">Optional</option><option value="required">Required</option><option value="hidden">Hidden</option>
@@ -63,6 +62,8 @@
                 </label>
             <?php endforeach; ?>
         </div>
+        <?php if ($collection === 'campaign_pages'): ?><div id="campaign-save-error" class="campaign-editor-error" role="alert" tabindex="-1" hidden></div><?php endif; ?>
+        <?php if ($collection === 'campaign_pages') require __DIR__ . '/_campaign-fields.php'; ?>
         <?php if(in_array($collection, ['products','campaign_pages','consultants'], true)): ?>
             <div class="admin-upload-panel">
                 <label>Upload Media Files
@@ -95,7 +96,7 @@
             <?php endif; ?>
         <?php endif; ?>
         <div style="margin-top:var(--space-md); display:flex; gap:var(--space-sm);">
-            <button type="submit" class="btn btn-primary" id="save-btn">Save <?= e(singular_label($title)) ?></button>
+            <button type="submit" class="btn btn-primary" id="save-btn" <?= $collection === 'campaign_pages' ? 'disabled' : '' ?>>Save <?= e(singular_label($title)) ?></button>
             <button type="reset" class="btn btn-ghost" onclick="document.getElementById('resource-id').value=''; document.getElementById('save-btn').textContent='Save <?= e(singular_label($title)) ?>';">Clear</button>
         </div>
     </form>
@@ -178,10 +179,11 @@ document.querySelectorAll('.edit-item').forEach(button => {
                 if (el.type === 'checkbox') {
                     el.checked = !!item['<?= e($field) ?>'];
                 } else {
-                    el.value = Array.isArray(item['<?= e($field) ?>']) ? (<?= json_encode($field === 'form_fields') ?> ? JSON.stringify(item['<?= e($field) ?>'], null, 2) : item['<?= e($field) ?>'].join("\n")) : (item['<?= e($field) ?>'] ?? '');
+                    el.value = Array.isArray(item['<?= e($field) ?>']) ? item['<?= e($field) ?>'].join("\n") : (item['<?= e($field) ?>'] ?? '');
                 }
             }
         <?php endforeach; ?>
+        <?php if ($collection === 'campaign_pages'): ?>campaignFields.load(item.form_fields);<?php endif; ?>
         renderProductImages(item.image_urls || item.image_url || []);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });

@@ -6,7 +6,7 @@
         "routes": 116,
         "controllers": 12,
         "services": 49,
-        "views": 43,
+        "views": 44,
         "collections": 23
     },
     "routes": [
@@ -303,6 +303,7 @@
             "view": "admin/resource",
             "services": [
                 "ResourceService",
+                "CampaignPageService",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -1360,6 +1361,7 @@
         "account/invoice",
         "account/order",
         "account/orders",
+        "admin/_campaign-fields",
         "admin/agent",
         "admin/appearance",
         "admin/blog",

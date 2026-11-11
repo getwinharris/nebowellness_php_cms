@@ -244,7 +244,8 @@ document.querySelectorAll('.table-wrap').forEach(function(wrap){var table=wrap.q
 // are created. Disable on first submit and say what is happening.
 (function () {
     document.querySelectorAll('form.admin-form[method="post"]').forEach(function (form) {
-        form.addEventListener('submit', function () {
+        form.addEventListener('submit', function (event) {
+            if (event.defaultPrevented) return;
             var btn = form.querySelector('button[type="submit"], button:not([type])');
             if (!btn || btn.dataset.saving === '1') return;
             btn.dataset.saving = '1';
