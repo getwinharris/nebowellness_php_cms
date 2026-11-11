@@ -23,6 +23,7 @@ namespace App\Services {
         }
         public function completeWithTools(string $prompt, AgentToolRegistry $tools): string {
             file_put_contents($GLOBALS['fixtureOutput'], $prompt);
+            if (str_contains($prompt, 'fixture empty response')) return '';
             return 'The fixture has no further information.';
         }
     }

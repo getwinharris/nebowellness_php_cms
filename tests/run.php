@@ -97,6 +97,13 @@ $tests['admin unrelated question sends only bounded context to the model'] = fun
     }
 };
 
+$tests['admin empty model output returns an error rather than a completed turn'] = function (): void {
+    [$response, $prompt] = runAdminAgentFixture('off', 'fixture empty response');
+    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
+    assertTrue(str_contains($prompt, 'fixture empty response'), 'The provider fixture must be reached');
+    assertTrue(isset($data['error']) && !isset($data['answer']), 'An empty provider response must produce a retryable error');
+};
+
 $tests['admin context contains aggregates without customer identities'] = function (): void {
     $users = [['email' => 'private@example.test', 'name' => 'Private Person']];
     $orders = [['customer_email' => 'private@example.test', 'status' => 'confirmed', 'total' => 100,

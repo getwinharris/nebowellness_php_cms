@@ -307,7 +307,7 @@ final class AdminController extends BaseController {
         $cleaner = new \App\Services\AiReplyCleaner();
         $clean = $cleaner->clean($text, '');
         if ($clean === '' || $cleaner->looksInternal($clean)) {
-            return 'I could not produce a clear answer to that. Try asking it a different way.';
+            return '';
         }
         return $clean;
     }
