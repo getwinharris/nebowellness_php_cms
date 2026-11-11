@@ -303,8 +303,9 @@ Use these terms consistently in product copy, implementation notes, and code rev
   and its primary action, then scrolls away normally.
 - **Editorial layer:** one opaque home section in the sticky sequence. Layers have an
   increasing stack order and cover the preceding layer cleanly.
-- **Copy-in:** a short opacity-and-upward-translate entrance tied to the incoming
-  layer's viewport progress. It ends in a still, fully legible composition.
+- **Copy-in:** a short upward-translate entrance tied to the incoming layer's viewport
+  progress. Essential copy remains fully legible throughout and ends in a still
+  composition.
 - **Content composition:** the complete group of heading, media, supporting copy, and
   action within a layer. It is vertically centered below navigation when it fits, and
   grows naturally when the content is taller than the viewport.

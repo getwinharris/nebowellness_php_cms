@@ -4321,7 +4321,7 @@ body { overflow-x: clip; }
         .campaign-motion { animation: campaign-editorial-in linear both; animation-timeline: view(); animation-range: entry 0% entry 50%; }
     }
 }
-@keyframes editorial-copy-in { from { opacity: .08; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
+@keyframes editorial-copy-in { from { opacity: 1; translate: 0 24px; } to { opacity: 1; translate: 0 0; } }
 @keyframes campaign-editorial-in { from { opacity: .18; translate: 0 32px; } to { opacity: 1; translate: 0 0; } }
 @media (prefers-reduced-motion: reduce) {
     .stack-ready > .editorial-stack-card:not(.home-hero) { position: relative; top: auto; }
