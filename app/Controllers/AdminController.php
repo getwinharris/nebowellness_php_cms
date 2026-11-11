@@ -17,8 +17,9 @@ final class AdminController extends BaseController {
         // an owner responsibility. Keep them visible from the admin dashboard rather
         // than making their recovery depend on a public-site module flag.
         $appointments = (new ResourceService('appointments'))->all();
+        $dashboardDays = ($_GET['days'] ?? null) === '30' ? 30 : 7;
         $agentMonitoring = null;
-        try { $agentMonitoring = AuditLogService::agentSummary((new AuditLogService())->all()); }
+        try { $agentMonitoring = AuditLogService::agentDashboard((new AuditLogService())->all(), $dashboardDays); }
         catch (\Throwable) { /* Monitoring must not prevent dashboard access. */ }
         usort($appointments, static fn(array $a, array $b): int => strcmp(
             (string)($b['created_at'] ?? $b['preferred_date'] ?? ''),
@@ -31,6 +32,7 @@ final class AdminController extends BaseController {
             'bookingCount' => count($appointments),
             'appointments' => array_slice($appointments, 0, 5),
             'agentMonitoring' => $agentMonitoring,
+            'dashboardDays' => $dashboardDays,
             'shopEnabled' => $shopEnabled,
             'campaignsEnabled' => module_on('campaigns'),
         ]);

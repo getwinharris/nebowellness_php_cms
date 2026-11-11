@@ -9,6 +9,8 @@ category: docs
 
 ## Unreleased
 
+- Added 7- and 30-day dashboard views with daily agent charts, provider attempt counts, and shortcuts to clinic enquiries and trace details.
+
 - Added New chat and 24-hour error rate and p95 timing to the Enterprise Agent.
 - Added quick clinic guidance and a direct contact link to Nebo Support. The support page respects enabled site modules.
 
