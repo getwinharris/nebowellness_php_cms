@@ -33,6 +33,31 @@
 
     stack.classList.add('stack-ready');
     measureLayout();
+
+    // Enhanced spacing changes fragment offsets after the browser's first layout.
+    const initialHash = location.hash;
+    const initialTarget = document.getElementById(initialHash.slice(1));
+    const navigation = performance.getEntriesByType('navigation')[0];
+    if (initialTarget?.classList.contains('editorial-anchor') && navigation?.type === 'navigate') {
+        const input = new AbortController();
+        for (const name of ['pointerdown', 'keydown', 'wheel']) {
+            window.addEventListener(name, () => input.abort(), { once: true, signal: input.signal });
+        }
+
+        function alignFragment() {
+            requestAnimationFrame(() => {
+                if (input.signal.aborted || location.hash !== initialHash) return;
+                const top = initialTarget.getBoundingClientRect().top + window.scrollY - header.offsetHeight;
+                window.scrollTo({ top, behavior: 'instant' });
+            });
+        }
+
+        alignFragment();
+        if (document.readyState !== 'complete') {
+            window.addEventListener('load', alignFragment, { once: true, signal: input.signal });
+        }
+    }
+
     if ('ResizeObserver' in window) {
         const resize = new ResizeObserver(entries => {
             for (const entry of entries) {

@@ -216,6 +216,7 @@ echo $critical;
 </style>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
 <script src="/assets/navigation-drawer.js?v=<?= filemtime(__DIR__ . '/../../assets/navigation-drawer.js') ?>" defer></script>
+<script src="/assets/editorial-rails.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-rails.js') ?>" defer></script>
 <script src="/assets/editorial-stack.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-stack.js') ?>" defer></script>
 <script src="/assets/therapy-media.js?v=<?= filemtime(__DIR__ . '/../../assets/therapy-media.js') ?>" defer></script>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
@@ -314,7 +315,7 @@ gtag('js', new Date());
         </summary>
         <nav id="primary-nav" aria-label="Main navigation">
             <a href="/#programs" data-programs-nav>Programs</a>
-            <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Products</a><?php endif; ?>
+            <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Services</a><?php endif; ?>
             <?php if ($__modules['shop']): ?>
             <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
             <?php endif; ?>
@@ -393,40 +394,49 @@ if ($__flash):
         <strong id="support-title">Nebo Support</strong>
         <button type="button" class="support-panel__close" aria-label="Close support">×</button>
     </div>
-    <div class="support-panel__body" id="support-log" aria-live="polite">
-        <p>Ask about Nebo programs or how to reach the clinic. Please leave medical details out of chat.</p>
+    <div class="support-panel__body" id="support-log" role="log" aria-label="Conversation" tabindex="0">
+        <p class="support-panel__intro">Ask about programs, consultations, or clinic contact details. Please leave medical details out of chat.</p>
     </div>
     <form class="support-panel__form" id="support-form">
         <input type="hidden" name="_csrf" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
-        <div class="support-starters" aria-label="Suggested questions">
+        <div class="support-starters" role="group" aria-label="Suggested questions">
             <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::PROGRAMS_PROMPT) ?>">Explore programs</button>
             <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::CONSULTATION_PROMPT) ?>">Request a consultation</button>
             <?php if (!empty($_SESSION['user']['email'])): ?>
                 <button type="button" class="btn btn-outline btn-sm" data-support-prompt="My support tickets">My tickets</button>
             <?php endif; ?>
         </div>
-        <textarea name="message" rows="2" maxlength="2000" required aria-label="Support message" placeholder="Try “Open programs” or ask about Nebo"></textarea>
-        <div class="support-starters">
-            <button class="btn btn-primary btn-sm">Send</button>
+        <label for="support-message">Your message</label>
+        <textarea id="support-message" name="message" rows="2" maxlength="2000" required></textarea>
+        <div class="support-panel__actions">
+            <button class="btn btn-primary btn-sm" type="submit">Send</button>
             <?php if (!empty($_SESSION['user']['email'])): ?>
                 <button class="btn btn-outline btn-sm" type="submit" value="ticket" title="Share this message with clinic staff">Send to clinic</button>
-            <?php else: ?>
+            <?php endif; ?>
+        </div>
+        <div class="support-panel__links">
+            <a href="/contact#contact-form">Contact the clinic team</a>
+            <?php if (empty($_SESSION['user']['email'])): ?>
                 <a href="/login">Sign in to track tickets</a>
             <?php endif; ?>
-            <a href="/contact#contact-form">Contact the clinic team</a>
         </div>
     </form>
 </section>
 <?php endif; ?>
 
 <?php if (!in_array($currentPath, ['/login', '/register'])): ?>
-<footer class="site-footer" role="contentinfo" aria-label="Nebo clinic information">
+<footer class="site-footer site-footer--contact" role="contentinfo" aria-label="Nebo clinic information">
     <div class="container">
-        <?php if ($currentPath === '/'): ?><div class="footer-editorial-heading"><span class="eyebrow">Nebo Lifestyle Clinic</span><h2>Stay connected.<br>Live well, every day.</h2></div><?php endif; ?>
+        <div class="footer-contact">
+            <div>
+                <h2>Nebo Lifestyle Clinic</h2>
+                <p class="footer-desc">Personalised naturopathy, functional medicine, and lifestyle care in Kanyakumari.</p>
+            </div>
+            <a class="footer-contact__action" href="/contact#contact-form">Contact the clinic <span aria-hidden="true">↗</span></a>
+        </div>
         <div class="footer-grid">
             <div>
-                <span class="footer-brand">Nebo Lifestyle Clinic</span>
-                <p class="footer-desc">Personalised naturopathy, functional medicine, and lifestyle care in Kanyakumari.</p>
+                <h3 class="footer-heading">Follow Nebo</h3>
                 <div class="footer-social" aria-label="Nebo social channels">
                     <a href="https://www.instagram.com/nebolifestyleclinic/" target="_blank" rel="noopener noreferrer">Instagram <span aria-hidden="true">↗</span></a>
                     <a href="https://www.facebook.com/nebolifestyleclinic" target="_blank" rel="noopener noreferrer">Facebook <span aria-hidden="true">↗</span></a>
@@ -434,28 +444,27 @@ if ($__flash):
                 </div>
             </div>
             <div>
-                <h4 class="footer-heading">Clinic</h4>
+                <h3 class="footer-heading">Clinic</h3>
                 <ul class="footer-links">
-                    <?php if ($__modules['shop']): ?><li><a href="/shop">All Products</a></li><?php endif; ?>
+                    <?php if ($__modules['shop']): ?><li><a href="/shop">Shop</a></li><?php endif; ?>
                     <li><a href="/#programs">Programs</a></li>
-                    <?php if ($__modules['campaigns']): ?><li><a href="/campaigns">Products</a></li><?php endif; ?>
+                    <?php if ($__modules['campaigns']): ?><li><a href="/campaigns">Services</a></li><?php endif; ?>
                     <li><a href="/about">About Nebo</a></li>
                     <?php if ($__modules['blog']): ?><li><a href="/blog">Blog</a></li><?php endif; ?>
-                    <li><a href="/contact">Contact</a></li>
                 </ul>
             </div>
-            <div>
-                <h4 class="footer-heading">Explore</h4>
-            <ul class="footer-links">
-                <?php if ($__modules['blog']): ?>
-                <?php foreach ($__blogCats as $__cat): ?>
-                <li><a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a></li>
-                <?php endforeach; ?>
-                <?php endif; ?>
-            </ul>
+            <?php if ($__modules['blog'] && !empty($__blogCats)): ?>
+            <div class="footer-topics">
+                <h3 class="footer-heading">Blog topics</h3>
+                <ul class="footer-links">
+                    <?php foreach ($__blogCats as $__cat): ?>
+                    <li><a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a></li>
+                    <?php endforeach; ?>
+                </ul>
             </div>
-            <div>
-                <h4 class="footer-heading">Customer Support</h4>
+            <?php endif; ?>
+            <div class="footer-details">
+                <h3 class="footer-heading">Visit or call</h3>
                 <ul class="footer-links">
                     <li><a href="tel:+917200182025">+91 72001 82025</a></li>
                     <li><a href="tel:+919585182025">+91 95851 82025</a></li>
@@ -464,7 +473,14 @@ if ($__flash):
                 </ul>
             </div>
         </div>
-        <div class="footer-bottom">&copy; <?= date('Y') ?> Nebo Lifestyle Clinic &middot; <a href="/terms">Terms</a> &middot; <a href="/privacy">Privacy</a> &middot; developed with &#10084;&#65039; by <a href="https://mediahub.bapx.in/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></div>
+        <div class="footer-bottom">
+            <span>&copy; <?= date('Y') ?> Nebo Lifestyle Clinic</span>
+            <div class="footer-legal">
+                <a href="/terms">Terms</a>
+                <a href="/privacy">Privacy</a>
+            </div>
+            <span>Developed by <a href="https://mediahub.bapx.in/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></span>
+        </div>
     </div>
 </footer>
 <?php endif; ?>
@@ -482,47 +498,6 @@ if(supportsIntersectionObserver)new IntersectionObserver(function(e){h.classList
 document.documentElement.classList.add('motion-ready');
 var io=supportsIntersectionObserver?new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('revealed');io.unobserve(e.target);}});},{threshold:0.1,rootMargin:'0px 0px -50px 0px'}):null;
 document.querySelectorAll('.reveal,.panel,.product-card,.consultant-card').forEach(function(el){if(io)io.observe(el);else el.classList.add('revealed');});
-var railReveal=supportsIntersectionObserver?new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){entry.target.classList.add('rail-entered');railReveal.unobserve(entry.target);}});},{threshold:.16,rootMargin:'0px 0px -40px 0px'}):null;
-document.querySelectorAll('[data-editorial-rail]').forEach(function(rail){
-    var cards=Array.prototype.slice.call(rail.children), id=rail.id;
-    var previous=document.querySelector('[data-rail-prev="'+id+'"]'), next=document.querySelector('[data-rail-next="'+id+'"]');
-    var activeIndex=0, arrowMotion=false, settleTimer;
-    function maxScroll(){return Math.max(0,rail.scrollWidth-rail.clientWidth);}
-    function scrollStops(){
-        var max=maxScroll(), start=cards.length?cards[0].offsetLeft:0, stops=[];
-        cards.forEach(function(card,index){
-            var left=Math.min(card.offsetLeft-start,max), last=stops[stops.length-1];
-            if(!last||left-last.left>1)stops.push({index:index,left:left});
-        });
-        return stops;
-    }
-    function currentIndex(){
-        var closest=0, distance=Infinity;
-        scrollStops().forEach(function(stop){var delta=Math.abs(stop.left-rail.scrollLeft);if(delta<distance){distance=delta;closest=stop.index;}});
-        return closest;
-    }
-    function updateControls(index){
-        var stops=scrollStops(), last=stops[stops.length-1];
-        activeIndex=index===undefined?currentIndex():index;
-        cards.forEach(function(card,cardIndex){card.classList.toggle('is-rail-current',cardIndex===activeIndex);});
-        if(previous) previous.disabled=activeIndex===0;
-        if(next) next.disabled=!last||activeIndex===last.index;
-    }
-    function move(direction){
-        var stops=scrollStops(), position=stops.findIndex(function(stop){return stop.index===activeIndex;});
-        if(position<0)position=stops.findIndex(function(stop){return stop.index===currentIndex();});
-        var target=stops[position+direction];
-        if(!target)return;
-        arrowMotion=true;window.clearTimeout(settleTimer);updateControls(target.index);
-        rail.scrollTo({left:target.left,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
-        settleTimer=window.setTimeout(function(){arrowMotion=false;updateControls();},650);
-    }
-    if(previous) previous.addEventListener('click',function(){move(-1);});
-    if(next) next.addEventListener('click',function(){move(1);});
-    var scrollTimer;rail.addEventListener('scroll',function(){if(arrowMotion)return;window.clearTimeout(scrollTimer);scrollTimer=window.setTimeout(updateControls,80);},{passive:true});
-    window.addEventListener('resize',function(){window.clearTimeout(scrollTimer);scrollTimer=window.setTimeout(updateControls,80);});
-    updateControls();if(railReveal)railReveal.observe(rail);else rail.classList.add('rail-entered');
-});
 document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
     var rail=showcase.querySelector('.team-rail'),cards=Array.from(rail.children),detail=showcase.querySelector('.team-detail');
     var previous=document.querySelector('[data-rail-prev="team-rail"]'),next=document.querySelector('[data-rail-next="team-rail"]'),selected=0;

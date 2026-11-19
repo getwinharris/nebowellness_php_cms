@@ -1,0 +1,91 @@
+(() => {
+    const rails = document.querySelectorAll('[data-editorial-rail]');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const reveal = 'IntersectionObserver' in window
+        ? new IntersectionObserver(entries => {
+            for (const entry of entries) {
+                if (!entry.isIntersecting) continue;
+                entry.target.classList.add('rail-entered');
+                reveal.unobserve(entry.target);
+            }
+        }, { threshold: .16, rootMargin: '0px 0px -40px 0px' })
+        : null;
+
+    for (const rail of rails) {
+        const cards = Array.from(rail.children);
+        if (!cards.length) continue;
+        const controls = Array.from(document.querySelectorAll('[data-rail-prev], [data-rail-next]'));
+        const previous = controls.find(button => button.dataset.railPrev === rail.id);
+        const next = controls.find(button => button.dataset.railNext === rail.id);
+        let selected = 0;
+        let settling;
+        let moving = false;
+
+        function stops() {
+            const max = Math.max(0, rail.scrollWidth - rail.clientWidth);
+            const start = cards[0].offsetLeft;
+            const positions = [];
+            for (const [index, card] of cards.entries()) {
+                const left = Math.min(card.offsetLeft - start, max);
+                if (!positions.length || left - positions.at(-1).left > 1) positions.push({ index, left });
+            }
+            return positions;
+        }
+
+        function select(positions, position) {
+            selected = position;
+            cards.forEach((card, index) => card.classList.toggle('is-rail-current', index === positions[position].index));
+            if (previous) previous.disabled = position === 0;
+            if (next) next.disabled = position === positions.length - 1;
+            if (rail.hasAttribute('data-overflow-controls')) {
+                const overflow = positions.length > 1;
+                if (!overflow && [previous, next, rail].includes(document.activeElement)) {
+                    cards[0].querySelector('a[href]')?.focus();
+                }
+                if (previous) previous.hidden = !overflow;
+                if (next) next.hidden = !overflow;
+                if (overflow) rail.tabIndex = 0;
+                else rail.removeAttribute('tabindex');
+            }
+        }
+
+        function sync() {
+            const positions = stops();
+            const closest = positions.reduce((best, current, index) =>
+                Math.abs(current.left - rail.scrollLeft) < Math.abs(positions[best].left - rail.scrollLeft) ? index : best, 0);
+            select(positions, closest);
+        }
+
+        function move(direction) {
+            const positions = stops();
+            const position = Math.min(selected, positions.length - 1) + direction;
+            if (!positions[position]) return;
+            moving = true;
+            clearTimeout(settling);
+            select(positions, position);
+            rail.scrollTo({ left: positions[position].left, behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+            settling = setTimeout(() => {
+                moving = false;
+                sync();
+            }, 500);
+        }
+
+        previous?.addEventListener('click', () => move(-1));
+        next?.addEventListener('click', () => move(1));
+        rail.addEventListener('scroll', () => {
+            if (moving) return;
+            clearTimeout(settling);
+            settling = setTimeout(sync, 60);
+        }, { passive: true });
+        rail.addEventListener('scrollend', () => {
+            if (moving) return;
+            clearTimeout(settling);
+            sync();
+        });
+        if ('ResizeObserver' in window) new ResizeObserver(sync).observe(rail);
+        else window.addEventListener('resize', sync);
+        sync();
+        if (reveal) reveal.observe(rail);
+        else rail.classList.add('rail-entered');
+    }
+})();

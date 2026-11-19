@@ -4763,3 +4763,415 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     .site-footer .footer-links { overflow-wrap: anywhere; }
     .site-footer .footer-bottom { margin-block-start: 16px; }
 }
+
+/* Homepage arrival and services */
+.nebo-home-hero {
+    display: block;
+    width: 100%;
+    min-height: calc(var(--stack-viewport, 100svh) - var(--site-header-height, 82px));
+    margin: 0;
+    padding: 0;
+    background: #10263d;
+}
+.nebo-home-hero::before { content: none; }
+.nebo-hero-media {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+.nebo-hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 68% center; }
+.nebo-hero-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, #10263d 0%, rgb(16 38 61 / 95%) 29%, rgb(16 38 61 / 56%) 53%, rgb(16 38 61 / 4%) 80%);
+}
+.nebo-home-hero .home-hero-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: calc(var(--stack-viewport, 100svh) - var(--site-header-height, 82px));
+    padding-block: clamp(36px, 8svh, 96px);
+}
+.nebo-home-hero .hero-copy { max-width: min(42rem, 59%); margin: 0; text-align: start; }
+.nebo-home-hero .eyebrow { color: #e1edda; margin-block-end: 14px; letter-spacing: .12em; }
+.nebo-home-hero h1 { max-width: 16ch; font-size: clamp(2.65rem, 5vw, 4.6rem); line-height: 1.04; letter-spacing: -.045em; margin-block-end: 18px; }
+.nebo-home-hero .lede { max-width: 44ch; font-size: clamp(1rem, 1.4vw, 1.15rem); line-height: 1.55; margin-block-end: 24px; }
+.nebo-home-hero .hero-actions { gap: 10px; align-items: stretch; justify-content: flex-start; }
+.nebo-home-hero .hero-actions .btn { min-height: 48px; height: auto; max-width: 100%; white-space: normal; text-align: center; }
+.nebo-home-hero .hero-actions .btn-secondary { border: 1px solid rgb(255 255 255 / .64); background: #10263d; color: #fff; }
+.nebo-home-hero .hero-actions .btn-secondary:hover { background: #263e56; }
+.nebo-home-hero .hero-actions .btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+.editorial-stack-card.therapy-products .therapy-products__heading { margin-block-end: clamp(16px, 3vw, 30px); }
+.editorial-stack-card.therapy-products .therapy-grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(16px, 3vw, 36px); align-items: start; }
+.editorial-stack-card.therapy-products .therapy-grid--single { grid-template-columns: minmax(0, 780px); }
+.editorial-stack-card.therapy-products .therapy-feature { border: 1px solid var(--brand-rule); border-radius: var(--radius-md); overflow: hidden; }
+.editorial-stack-card.therapy-products .therapy-feature > img { aspect-ratio: 2.35 / 1; }
+.therapy-services { min-width: 0; }
+.therapy-services__heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block-end: 10px;
+}
+.therapy-services__heading > p { color: var(--brand-deep-blue); font-weight: 650; }
+.therapy-services__controls { display: flex; gap: 6px; }
+.therapy-services__controls .rail-control[hidden] { display: none; }
+.editorial-stack-card.therapy-products .therapy-grid__older { gap: 12px; }
+.editorial-stack-card.therapy-products .therapy-product {
+    padding: 14px 16px;
+    border: 1px solid var(--brand-rule);
+    border-radius: var(--radius-md);
+    background: var(--color-white);
+}
+.editorial-stack-card.therapy-products .therapy-product h3 { font-size: clamp(1.05rem, 1.55vw, 1.33rem); line-height: 1.28; }
+.editorial-stack-card.therapy-products .therapy-product p { line-height: 1.48; }
+
+@media (max-width: 743px) {
+    .nebo-hero-media { height: clamp(190px, 40svh, 380px); }
+    .nebo-hero-media img { object-position: 88% 52%; }
+    .nebo-hero-media::after { background: linear-gradient(180deg, transparent 40%, #10263d 100%); }
+    .nebo-home-hero .home-hero-inner { align-items: flex-end; padding: clamp(156px, 29svh, 292px) 20px 28px; }
+    .nebo-home-hero .hero-copy { max-width: 100%; }
+    .nebo-home-hero h1 { font-size: clamp(2rem, 7.2vw, 2.8rem); line-height: 1.07; margin-block-end: 12px; }
+    .nebo-home-hero .lede { margin-block-end: 16px; }
+    .nebo-home-hero .eyebrow { font-size: .74rem; }
+    .nebo-home-hero .hero-actions { display: grid; grid-template-columns: 1fr; }
+
+    .editorial-stack-card.therapy-products .therapy-grid { grid-template-columns: minmax(0, 1fr); }
+    .editorial-stack-card.therapy-products .therapy-feature > img { aspect-ratio: 2.5 / 1; }
+    .editorial-stack-card.therapy-products .therapy-grid__older {
+        position: relative;
+        grid-auto-flow: column;
+        grid-auto-columns: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        padding-block: 2px 6px;
+    }
+    .editorial-stack-card.therapy-products .therapy-product { scroll-snap-align: start; align-self: start; }
+}
+
+/* Public footer contact and navigation */
+.site-footer--contact {
+    padding-block-start: clamp(24px, 4vw, 48px);
+}
+.site-footer--contact .footer-contact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    padding-block-end: clamp(18px, 3vw, 32px);
+    border-block-end: 1px solid rgba(255, 255, 255, .22);
+}
+.site-footer--contact .footer-contact h2 {
+    color: #fff;
+    font-size: clamp(1.55rem, 3vw, 2.4rem);
+    line-height: 1.15;
+    margin: 0 0 6px;
+}
+.site-footer--contact .footer-contact .footer-desc {
+    max-width: 52ch;
+    margin: 0;
+    font-size: .92rem;
+    line-height: 1.5;
+}
+.site-footer--contact .footer-contact__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    gap: 20px;
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, .58);
+    border-radius: 8px;
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 650;
+}
+.site-footer--contact .footer-contact__action:hover {
+    background: #fff;
+    color: #2f3437;
+}
+.site-footer--contact .footer-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: clamp(16px, 3vw, 32px);
+    margin-block: clamp(18px, 3vw, 32px);
+}
+.site-footer--contact .footer-grid > div {
+    min-width: 0;
+}
+.site-footer--contact .footer-heading {
+    margin: 0 0 8px;
+    font-size: .82rem;
+    font-weight: 650;
+    letter-spacing: .07em;
+}
+.site-footer--contact .footer-social {
+    margin: 0;
+}
+.site-footer--contact .footer-links {
+    gap: 0;
+    overflow-wrap: anywhere;
+}
+.site-footer--contact .footer-links li {
+    margin: 0;
+    line-height: 1.5;
+}
+.site-footer--contact .footer-links a,
+.site-footer--contact .footer-legal a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    font-size: .9rem;
+}
+.site-footer--contact .footer-links a:hover,
+.site-footer--contact .footer-legal a {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+}
+.site-footer--contact .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 20px;
+    margin: 0;
+    padding-block-start: 12px;
+    font-size: .86rem;
+    text-align: start;
+}
+.site-footer--contact .footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+}
+.site-footer--contact a:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+@media (max-width: 743px) {
+    .site-footer--contact .footer-contact__action { width: 100%; }
+    .site-footer--contact .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .site-footer--contact .footer-grid:not(:has(.footer-topics)) { grid-template-columns: minmax(0, 1fr); }
+    .site-footer--contact .footer-grid > :first-child,
+    .site-footer--contact .footer-grid > :last-child { grid-column: auto; }
+    .site-footer--contact .footer-grid > :is(:first-child, .footer-details) { grid-column: 1 / -1; }
+}
+
+/* Customer support conversation and composer */
+.support-panel__head {
+    min-height: 56px;
+    padding: 6px 12px 6px 16px;
+    gap: 8px;
+}
+.support-panel__close {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    color: var(--color-ink);
+}
+.support-panel__close:hover { background: var(--color-bg-alt); }
+.support-panel__body {
+    display: block;
+    line-height: 1.5;
+    padding: 12px 16px;
+}
+.support-panel__body:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: -3px;
+}
+.support-panel__body .support-panel__intro {
+    padding: 0;
+    background: transparent;
+    color: var(--color-text-muted);
+}
+.support-turn {
+    display: grid;
+    gap: 6px;
+    margin-block-start: 12px;
+}
+.support-message { white-space: pre-wrap; }
+.support-message > strong {
+    display: block;
+    font-size: .8rem;
+    margin-block-end: 2px;
+}
+.support-panel__body .support-message--customer {
+    justify-self: end;
+    max-width: 90%;
+    background: var(--brand-blue-paper, var(--color-bg-alt));
+}
+.support-panel__form {
+    gap: 6px;
+    padding: 10px 16px 12px;
+}
+.support-panel__form label { font-weight: 600; }
+.support-panel__form textarea {
+    min-height: 56px;
+    padding: 8px 10px;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+.support-panel__actions,
+.support-panel__links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+}
+.support-panel__actions > button { flex: 1 1 auto; }
+.support-panel__links { gap: 0 12px; }
+.support-panel__links > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: .875rem;
+    text-decoration: underline;
+    text-underline-offset: .15em;
+}
+.support-panel :is(.support-starters > button, .support-panel__actions > button, .support-action-btn) {
+    min-height: 44px;
+}
+.support-panel .support-starters { gap: 4px 6px; }
+.support-panel .support-starters > button {
+    min-width: 0;
+    padding: 4px 8px;
+    white-space: normal;
+}
+.support-panel .ai-request-status summary { flex-wrap: wrap; }
+.support-panel :is(button, a):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+@media (max-width: 743px) {
+    .support-panel {
+        --support-panel-bottom: max(calc(var(--mobile-controls-bottom) + 68px), calc(var(--support-keyboard-inset, 0px) + 12px));
+        bottom: var(--support-panel-bottom);
+    }
+    .support-panel:not([hidden]) {
+        max-height: calc(100dvh - var(--support-panel-bottom) - 12px);
+    }
+    .support-panel__body { min-height: 80px; }
+}
+/* Enterprise Agent composer and task starters */
+.agent-suggestion-group[hidden],
+.agent-composer-wrap[hidden],
+.agent-mentions[hidden] {
+    display: none;
+}
+.agent-suggestion-group h4 {
+    margin: 0 0 var(--space-xs);
+    font-size: .85rem;
+}
+.agent-suggestions {
+    padding-inline: 0;
+}
+.agent-suggestion,
+.agent-conversation-tools .btn,
+.agent-retry {
+    min-height: 44px;
+}
+.agent-composer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-xs);
+    padding: var(--space-sm);
+}
+.agent-composer > label {
+    font-size: .85rem;
+    font-weight: 650;
+}
+.agent-composer textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 48px;
+    padding: var(--space-xs) var(--space-sm);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 1rem;
+}
+.agent-composer__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-xs);
+}
+.agent-composer__actions button {
+    width: auto;
+    min-width: 44px;
+    padding-inline: var(--space-sm);
+    font: inherit;
+    font-size: .88rem;
+    font-weight: 650;
+}
+.agent-attach:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+}
+.agent-composer textarea:focus-visible,
+.agent-shell button:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+.agent-mentions:not([hidden]) {
+    display: block;
+    position: static;
+    max-height: min(240px, 32vh);
+    box-shadow: none;
+}
+.agent-mention {
+    min-height: 44px;
+    align-items: center;
+    overflow-wrap: anywhere;
+}
+.agent-mention__name {
+    min-width: 0;
+}
+.agent-mention__kind {
+    flex-shrink: 0;
+}
+.agent-hint,
+.agent-composer__status {
+    display: block;
+    margin: var(--space-xs) 0 0;
+    color: var(--color-text-muted);
+    font-size: .8rem;
+    text-align: start;
+}
+.agent-composer__status:empty {
+    margin: 0;
+}
+.agent-trace-reference {
+    display: block;
+    margin-block: var(--space-xs);
+}
+.agent-shell .agent-draft__row :is(input, textarea) {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 44px;
+}
+.agent-draft__actions .btn {
+    min-height: 44px;
+}
+.agent-bubble pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.agent-workspace .agent-shell { margin-top: 0; }
+.agent-suggestion-group { margin-top: var(--space-md); }
+.agent-composer__actions .agent-send { color: var(--color-white); }
+@media (max-width: 743px) {
+    .agent-shell .agent-messages { min-height: 132px; max-height: 42vh; }
+    #service-rail:focus-visible { outline: 2px solid var(--brand-focus); outline-offset: 2px; }
+}
