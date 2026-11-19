@@ -71,7 +71,7 @@ final class KnowledgeGraphService {
                 ['question' => 'What is the live product, category, consultant, campaign or admin-editable value?', 'use' => $appUrl . '/remotedb'],
                 ['question' => 'Where is a blog article and what frontmatter does it declare?', 'use' => 'concepts filtered by type=blog, then read its resource'],
                 ['question' => 'Where is an image and which source files reference it?', 'use' => 'concepts filtered by type=image; query by filename or resource'],
-                ['question' => 'What repository instructions or skill apply?', 'use' => 'AGENTS.md, CLAUDE.md, then .claude/skills'],
+                ['question' => 'What repository instructions or skill apply?', 'use' => 'AGENTS.md, then .agents/skills'],
                 ['question' => 'Where do I start debugging a feature or release?', 'use' => 'docs/README.md'],
                 ['question' => 'What changed in a release or is awaiting release?', 'use' => 'docs/changelog.md; verify the Git tag and production deployment separately'],
             ],
@@ -267,7 +267,7 @@ final class KnowledgeGraphService {
     }
 
     private function indexSkillFiles(): void {
-        $skillsDir = $this->root . '/.claude/skills';
+        $skillsDir = $this->root . '/.agents/skills';
         if (!is_dir($skillsDir)) return;
         foreach (glob($skillsDir . '/*/SKILL.md') ?: [] as $file) {
             $name = basename(dirname($file));

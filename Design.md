@@ -103,7 +103,7 @@ components:
 
 ## Overview
 
-Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for the customer-facing templates. `assets/css/band.css` owns shared layout and interaction primitives. `assets/css/brand.css` adds public art direction after the configured palette.
+Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for public and admin UI. `assets/css/band.css` is the stylesheet for shared tokens, layout, component states, and public art direction. Migrate existing rules from `assets/css/brand.css` and template styles as part of the affected UI work.
 
 Design inspiration from SHA Wellness (shawellness.com) informs the use of:
 - Clean, spacious card layouts with clear separation
@@ -201,9 +201,9 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Testimonial Cards:** Use the client-approved testimonial copy from the project source document. Present it as a quiet two-column quote grid with the supplied attribution; do not invent outcome claims or missing attribution details.
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
 - **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
-- **Navigation:** the linked brand mark and name are the sole home control. Do not repeat a separate Home item in desktop or mobile navigation.
+- **Navigation:** the linked brand mark and name are the home control. Divide mobile navigation evenly among the links that actually render. Use JavaScript for fragment-based active state and synchronize it on initial load, hash changes, and browser history navigation.
 - **Mobile commerce tray:** after the cart becomes non-empty, show one fixed blue tray above the bottom navigation with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
-- **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep the cart tray above the bottom navigation and keep support clear of both controls.
+- **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep support and the cart tray above the bottom navigation, accounting for the device safe area. Reserve enough space to reach the final page action and keep the open support panel clear of the navigation.
 - **Editorial media:** every blog post uses one intentional 16:9 image for both its listing thumbnail and article hero. UI guides use a legible screenshot of the exact page, cropped around the relevant interface rather than a decorative stock image, and link the represented page below the article.
 - **Buttons (`button-primary` / `button-secondary`):** `48px` minimum height, `8px` radius, no uppercase, no letter-spacing. Primary is solid blue with a darker-blue hover; hover moves from `shadow-md` to `shadow-lg` and lifts 2px, no more. Secondary is solid green with white text. Hover states never shift layout.
 - **Forms:** white fields (`on-primary`), `8px` radius, `48px` height, clear labels, a single-value focus ring (`--shadow-focus`) -- no glow.
@@ -248,7 +248,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 Use the Scroll Craft taste guidance by Nate Herk for composition and interaction states. The existing journey remains the brief: photographic arrival, orientation, reassurance, comparison, practitioner selection, and consultation. Let visitors compare programs through the duration, title, and copy at a glance. Reserve the larger visual change for the selected practitioner and their consultation link.
 
-Use cool paper, deep blue ink, and one blue action color across these surfaces. `brand.css` derives paper and rules from the configured primary palette where `color-mix()` is supported. Ink, action, and focus colors use fixed contrast-safe blues. Hairlines and spacing group related content. Give program titles more scale than their duration and description, and remove decorative numbers and gradient panels. Maintain a visible offset focus outline on rail controls and form fields. Without JavaScript, show native scroll and consultation links without enhanced arrow controls. Preserve the reduced-motion rules in `band.css`.
+Use cool paper, deep blue ink, and one blue action color across these surfaces. The public art-direction rules derive paper and rules from the configured primary palette where `color-mix()` is supported. Ink, action, and focus colors use fixed contrast-safe blues. Hairlines and spacing group related content. Give program titles more scale than their duration and description, and remove decorative numbers and gradient panels. Maintain a visible offset focus outline on rail controls and form fields. Without JavaScript, show native scroll and consultation links without enhanced arrow controls. Preserve the reduced-motion rules in `band.css`.
 
 ## Do's and Don'ts
 
@@ -267,14 +267,15 @@ Use cool paper, deep blue ink, and one blue action color across these surfaces. 
 
 ## Verification
 
-- Check `/`, `/shop`, one product, `/login`, and authenticated account pages at 1440x1000 and 390x844 in a real browser.
+- Check the affected flow in the built-in Browser before and after editing. Use 1440×1000, 375px wide, and both sides of any affected breakpoint. Check public pages at 390×844 as well. Include `/`, `/shop`, a product, `/cart`, `/login`, and authenticated account pages when changes touch the shared public layout.
 - Confirm image crops, active navigation, focus states, card alignment, no hidden reveal content, no horizontal overflow, and that the next section is hinted in the first mobile viewport.
 - Use the fixed development customer created by `bapXphp dev:user`; its password must come from `BAPX_TEST_USER_PASSWORD` and must never be committed.
-- Run the repo's PHP tests, project-map validation, and local smoke test before commit or push.
+- Include applicable empty, populated, disabled-module, and error states. Check keyboard focus, touch targets, safe-area spacing, reduced motion, and core content and form fallbacks with JavaScript disabled. Use synthetic data. Redact credentials and personal data from evidence before attaching it to the issue. Identify any unrun checks. Run `./bapXphp ci` before review.
 
 ## Implementation Notes
 
-- Tokens above are expressed as CSS custom properties in `assets/css/band.css` (`:root`) and critical CSS in `views/layouts/app.php`. Prefer the semantic `--color-primary`, `--color-secondary`, and surface tokens in new code; legacy hue names in older components currently resolve to Nebo colors during migration.
+- Define static tokens, responsive rules, and visual states in `assets/css/band.css`. Migrate existing rules from `brand.css` and inline styles in cascade order, remove superseded rules, and verify computed styles in public and admin layouts. Keep server-configured palette values as validated CSS custom-property values.
+- PHP supplies semantic markup, initial state, and native links and forms. JavaScript handles fragment state, cart updates, dialogs, and motion where browser behavior requires it. Reuse existing JavaScript assets or add a focused deferred script under `assets/`. Use CSS for breakpoint behavior and preserve the native path when enhancement is unavailable.
 - Elevation tokens: `--shadow-sm/md/lg/xl` plus `--shadow-focus` for the single focus-ring definition.
 - Motion: `--transition-spring` (a restrained expressive-motion curve, `cubic-bezier(0.34, 1.4, 0.64, 1)`) is used for hover lifts on buttons and cards; `--transition-base` still governs color/shadow fades.
 - This file can be linted against the open spec with `npx @google/design.md lint Design.md` if you want machine validation of token references and section order.

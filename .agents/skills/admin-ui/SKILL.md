@@ -4,9 +4,10 @@ description: Use when editing owner/admin pages, CRUD forms, media library, envi
 ---
 # Admin UI
 
-- Follow the root `AGENTS.md` repository contract and its app/view/storage area rules.
-- Keep owner/admin UI PHP-template based.
-- Admin mutations should route through controllers/services and remain auditable.
+- Follow the UI workflow in `AGENTS.md` and the responsive contract in `Design.md`. Record the issue, baseline, and acceptance checks before editing.
+- Render records, initial form values, and native submissions in PHP templates. Use JavaScript for interactive controls, media selection, previews, and asynchronous feedback through existing routes. Load browser behavior from focused deferred scripts under `assets/`.
+- Keep mutations, authorization, CSRF, validation, and audit logging in controllers and services. Local interaction state stays in the browser and persisted state comes from the server response.
+- Put new and migrated styles in `assets/css/band.css`. Preserve the cascade when migrating existing template CSS and remove the corresponding duplicate rules.
 - Use schema-driven resource fields and the media library for product, campaign, and consultant media.
 - Keep the sidebar grouped as Clinic, Content, Enquiries, Commerce, Appearance, and Settings. `SettingsService::modules()` hides complete feature groups and related settings without hiding Enquiries.
 - Campaign landing forms are schema-driven: restrict custom definitions to the supported field allowlist, validate select values against configured options, retain safe values after errors, and keep existing campaigns compatible when no custom fields are defined.
@@ -48,7 +49,14 @@ Configured in Admin → Integrations with these fields stored in MySQL `secrets`
 
 ## Testing
 
-Log into `/admin` and click through the page you changed, including its form submit and delete paths. Admin forms post several independent forms to one action, so confirm a partial submit does not blank the fields belonging to the other forms. Then `./bapXphp test`.
+Use authorized admin credentials for a development environment to log into `/admin`.
+`bapXphp dev:user` creates a customer account. Record the blocked checks if no
+development admin account is available. Exercise the affected flow in
+the built-in Browser at desktop and 375px. Check applicable breakpoint edges, sidebar
+and dialogs, computed overflow with long field values, keyboard focus, permission
+errors, and save or delete feedback. Confirm that submitting one form preserves
+values in the other forms. Record any unrun browser checks and run `./bapXphp ci`
+before review.
 
 ## Keeping this skill current
 

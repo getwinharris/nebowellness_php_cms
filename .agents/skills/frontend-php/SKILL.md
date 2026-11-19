@@ -2,16 +2,16 @@
 name: frontend-php
 description: Use when editing public, account, shop, consultant, temple, cart, checkout, contact, support, or other customer-facing PHP templates.
 ---
-# PHP Frontend
+# PHP Templates, JavaScript, and CSS
 
-- Follow the root `AGENTS.md` repository contract and its view/asset area rules.
+- Follow the UI workflow in `AGENTS.md`. Capture the issue, owning files, baseline, and acceptance checks before editing.
 - Read and follow root `Design.md` before changing any customer-facing UI. Treat it as the canonical token, typography, component, and responsive contract.
 - Capture the current desktop and mobile page before editing. Validate the complete customer path from first viewport through primary action and authenticated result, not only isolated markup.
 - Before using a browser capture as blog/help media, wait until every represented image reports `complete` with a non-zero `naturalWidth`, reveal content is visible, and no loading skeleton or empty data state remains. Inspect the saved bitmap before attaching it with `bapXphp blog:image`.
 - Use `bapXphp dev:user` for repeatable authenticated browser checks. Keep `BAPX_TEST_USER_PASSWORD` only in ignored operator configuration.
-- Keep UI as PHP-rendered templates plus existing CSS; do not add React, CDN React, SPA shells, or a second frontend.
+- Render landmarks, links, initial values, and native forms in PHP. Use JavaScript for fragment navigation, client-side filtering, asynchronous cart updates, and interactive controls when they need browser state. Reuse existing scripts or add a focused deferred script under `assets/`. Keep essential content and ordinary navigation and form submissions usable without enhancement.
 - Templates consume controller-provided data and existing services; they never read databases, local YAML catalogues, or generated indexes directly.
-- Reuse shared tokens and classes in `assets/css/band.css`; keep its tokens synchronized with the critical CSS in `views/layouts/app.php`.
+- Use `assets/css/band.css` for shared and component styles. When moving affected rules from `brand.css` or inline CSS, preserve the intended cascade and remove the superseded declarations. Use semantic classes and data attributes as JavaScript hooks.
 - Preserve the product's real routes and content. Apply the design system surgically instead of copying reference-product labels or scaffolding parallel components.
 - Essential content must be legible before JavaScript enhancement. Never make reveal-animation opacity a loading dependency.
 - Audit card families together. Product, consultant, account, authentication, and admin cards have different jobs but share the geometry and focus rules in `Design.md`.
@@ -22,7 +22,12 @@ description: Use when editing public, account, shop, consultant, temple, cart, c
 
 ## Testing
 
-Verify in a browser at desktop **and** 375px mobile — `Design.md` is canonical for responsive behaviour. Check computed styles, not just the screenshot: an author rule such as `display:flex` silently overrides `[hidden]`, which breaks JS filters without any visible error. Then `./bapXphp test`.
+Verify in the built-in Browser at desktop, 375px, 390×844, and both sides of each affected
+breakpoint. For shared navigation, test empty and populated carts, enabled and disabled
+module combinations, support open and closed, direct fragment links, and Back/Forward.
+Check computed visibility and geometry, keyboard focus, touch targets, and native
+fallbacks. If browser controls or data are unavailable, record the missing checks.
+Run `./bapXphp ci` before review.
 
 ## Keeping this skill current
 
