@@ -16,6 +16,8 @@ category: docs
 
 ### Changed
 
+- Refined the homepage hero, Services layout, and footer. Support and Enterprise Agent now have clearer composer controls and feedback.
+
 - Restored layered homepage chapter transitions on phones. Tall chapters scroll fully before settling, and the footer finishes in normal flow.
 
 - Removed the fixed mobile page links and compacted the Foundation, featured therapy, testimonials, and footer. Missing therapy images now use a local fallback.

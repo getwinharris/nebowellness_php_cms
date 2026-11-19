@@ -703,18 +703,19 @@ concepts:
   - id: "image:assets/images/nebo-clinic-hero.webp"
     type: "image"
     title: "nebo-clinic-hero.webp"
-    description: "Image referenced by 3 project resource(s)."
+    description: "Image referenced by 4 project resource(s)."
     resource: "assets/images/nebo-clinic-hero.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-clinic-hero.webp"
     mime: "image/webp"
-    usage_count: 3
+    usage_count: 4
     used_in:
       - "app/Services/SeoService.php"
       - "assets/css/band.css"
       - "views/layouts/app.php"
+      - "views/public/home.php"
   - id: "image:assets/images/nebo-favicon.png"
     type: "image"
     title: "nebo-favicon.png"

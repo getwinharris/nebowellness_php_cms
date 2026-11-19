@@ -8,6 +8,7 @@
     const close = panel.querySelector('.support-panel__close');
     const message = form.elements.message;
     const controls = form.querySelectorAll('textarea, button');
+    const viewport = window.visualViewport;
     const transcriptKey = panel.dataset.supportKey + ':turns-v2';
     const ticketKey = panel.dataset.supportKey + ':pending-ticket';
     let pendingTicket = readStorage(ticketKey);
@@ -48,6 +49,7 @@
 
     function appendMessage(turn, speaker, value) {
         const line = document.createElement('p');
+        line.className = speaker === 'You' ? 'support-message support-message--customer' : 'support-message';
         const label = document.createElement('strong');
         label.textContent = speaker + ':';
         line.append(label, ' ' + value);
@@ -67,10 +69,20 @@
         if (links.childElementCount) turn.append(links);
     }
 
+    function fitViewport() {
+        if (!viewport || panel.hidden) return;
+        const inset = document.documentElement.clientHeight - viewport.height - viewport.offsetTop;
+        panel.style.setProperty('--support-keyboard-inset', Math.max(0, inset) + 'px');
+    }
+
     function toggle(open) {
         panel.hidden = !open;
         launcher.setAttribute('aria-expanded', String(open));
         (open ? close : launcher).focus();
+        if (open) {
+            fitViewport();
+            log.scrollTop = log.scrollHeight;
+        }
     }
 
     function validActions(actions) {
@@ -87,6 +99,7 @@
             if (typeof entry?.question !== 'string' || typeof entry.reply !== 'string') continue;
             const actions = validActions(entry.actions);
             const turn = document.createElement('div');
+            turn.className = 'support-turn';
             appendMessage(turn, 'You', entry.question);
             appendMessage(turn, 'Support', entry.reply);
             appendActions(turn, actions);
@@ -97,6 +110,8 @@
 
     launcher.addEventListener('click', () => toggle(panel.hidden));
     close.addEventListener('click', () => toggle(false));
+    viewport?.addEventListener('resize', fitViewport);
+    viewport?.addEventListener('scroll', fitViewport);
     panel.addEventListener('keydown', event => {
         if (event.key === 'Escape') toggle(false);
     });
@@ -120,8 +135,10 @@
         if (!question) return;
         const isTicket = event.submitter?.value === 'ticket';
         form.dataset.busy = 'true';
+        if (form.contains(document.activeElement)) log.focus({ preventScroll: true });
         for (const control of controls) control.disabled = true;
         const turn = document.createElement('div');
+        turn.className = 'support-turn';
         const privateTurn = isTicket || /\btickets?\b/i.test(question);
         log.append(turn);
         appendMessage(turn, 'You', question);

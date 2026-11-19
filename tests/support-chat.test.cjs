@@ -27,6 +27,7 @@ function boot({ storage = new Map(), fetch } = {}) {
     panel.querySelector = () => close;
     starter.dataset.supportPrompt = 'Where is the clinic?';
     form.elements = { message };
+    form.contains = node => node === message || node === starter;
     form.querySelectorAll = selector => selector === '[data-support-prompt]' ? [starter] : [message, starter];
     form.reset = () => { message.value = ''; };
     let submissions = 0;

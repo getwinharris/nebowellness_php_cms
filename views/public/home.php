@@ -1,10 +1,13 @@
 <div class="editorial-stack" data-editorial-stack>
 <section class="editorial-stack-card home-hero nebo-home-hero" style="--stack-order:1" data-stack-card data-nebo-chapter="arrival">
+    <div class="nebo-hero-media" aria-hidden="true">
+        <img src="/assets/images/nebo-clinic-hero.webp" alt="" width="1774" height="887" fetchpriority="high">
+    </div>
     <div class="container home-hero-inner">
         <div class="hero-copy">
-            <span class="eyebrow">Integrative Health · Natural Healing · Lifestyle Medicine</span>
+            <span class="eyebrow">Integrative care in Kanyakumari</span>
             <h1>Where Science Meets Nature for Lifelong Wellness</h1>
-            <p class="lede">At Nebo Lifestyle Clinic, we specialise in naturopathy, functional medicine, and maternal & fertility wellness, offering personalised care for gut health, metabolic diseases, and sustainable lifestyle transformation.</p>
+            <p class="lede">Personalised naturopathy, functional medicine, and lifestyle care. Find support for gut health, metabolic health, and maternal wellness.</p>
             <div class="hero-actions">
                 <a href="/contact" class="btn btn-primary">Book Your Consultation</a>
                 <a href="#programs" class="btn btn-secondary">Explore Our Programs</a>
@@ -99,11 +102,12 @@
 </section>
 
 <?php if (!empty($therapyProducts)): ?>
-<section class="editorial-stack-card section therapy-products" id="therapy-products" style="--stack-order:5" data-stack-card data-nebo-chapter="products" aria-labelledby="therapy-products-title">
+<span class="editorial-anchor" id="therapy-products" aria-hidden="true"></span>
+<section class="editorial-stack-card section therapy-products" style="--stack-order:5" data-stack-card data-nebo-chapter="products" aria-labelledby="therapy-products-title">
     <div class="container">
         <header class="therapy-products__heading">
-            <div><h2 class="section-title" id="therapy-products-title">Therapy Products</h2><p class="lede">Explore clinic-led therapies and request a session with the Nebo team.</p></div>
-            <a class="therapy-product__link" href="/campaigns">All products <span aria-hidden="true">↗</span></a>
+            <div><h2 class="section-title" id="therapy-products-title">Services</h2><p class="lede">Explore clinic-led therapies and request a session with the Nebo team.</p></div>
+            <a class="therapy-product__link" href="/campaigns">View all services <span aria-hidden="true">↗</span></a>
         </header>
         <?php require __DIR__ . '/../partials/therapy-products.php'; ?>
     </div>

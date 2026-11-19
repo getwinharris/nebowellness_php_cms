@@ -459,3 +459,7 @@ until a verified payment and session workflow is available.
 ### Mobile homepage reading order
 
 At widths below 744px, enhanced homepage chapters settle under the header and the next chapter scrolls over them. Short chapters fill the available stage. Tall chapters grow with their content and settle only after their lower edge comes into view. Without JavaScript or with reduced motion, chapters scroll in normal flow. Keyboard focus temporarily restores normal flow so earlier links remain visible. Programs uses a stationary anchor so the menu can jump there from below the chapter. Use a shallow Foundation image, compact therapy and testimonial cards, and a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.
+
+### Homepage hero, services and footer
+
+Use the consultation photo as a wide backdrop on desktop and preserve both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The Services chapter places the featured card on the left and additional cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.

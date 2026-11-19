@@ -1587,7 +1587,7 @@ $tests['both chat surfaces share accessible bounded request status'] = function 
     assertTrue(str_contains($status, "createElement('details')") && str_contains($status, "createElement('summary')"), 'Status toggle must use keyboard-accessible native disclosure');
     assertTrue(str_contains($status, 'performance.now()') && str_contains($status, 'clearInterval(timer)'), 'Elapsed timer must stop on completion');
     assertTrue(str_contains($status, 'not internal model reasoning') && str_contains($status, 'Request failed'), 'Status must not expose thoughts or imply success on error');
-    foreach (['assets/support-chat.js', 'views/admin/agent.php'] as $path) {
+    foreach (['assets/support-chat.js', 'assets/admin-agent.js'] as $path) {
         $source = file_get_contents(app_path($path));
         assertTrue(str_contains($source, 'window.AgentRequestStatus.start('), "{$path} must use shared request status");
         assertTrue(str_contains($source, 'progress.finish(failed') && str_contains($source, '35000'), "{$path} must settle status and bound waiting");
