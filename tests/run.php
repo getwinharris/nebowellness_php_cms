@@ -594,6 +594,7 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     $css = file_get_contents(app_path('assets/css/band.css'));
     if ($css === false) throw new RuntimeException('Unable to read the landing-page stylesheet.');
     $layout = file_get_contents(app_path('views/layouts/app.php'));
+    $stack = file_get_contents(app_path('assets/editorial-stack.js'));
     $contact = file_get_contents(app_path('views/public/contact.php'));
     foreach ([
         '.stack-ready > .editorial-stack-card { position: sticky;',
@@ -605,8 +606,14 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     ] as $needle) {
         assertTrue(str_contains($css, $needle), "Editorial stack CSS should include {$needle}");
     }
-    assertTrue(str_contains($layout, "if('ResizeObserver' in window){") && str_contains($layout, 'window.addEventListener(\'resize\',measureCards)'), 'Stack cards should be measured with a ResizeObserver fallback');
-    assertTrue(str_contains($layout, "footer.classList.add('editorial-stack-card','landing-footer-card')"), 'The footer should become the final landing-page stack card');
+    assertTrue(str_contains($layout, '/assets/editorial-stack.js'), 'Home enhancement should load from the shared layout');
+    assertTrue(str_contains($stack, 'new ResizeObserver') && str_contains($stack, "window.addEventListener('resize', measureLayout)"), 'Stack cards should be measured with a ResizeObserver fallback');
+    assertTrue(str_contains($stack, "footer.classList.add('editorial-stack-card', 'landing-footer-card')"), 'The footer should become the final landing-page stack card');
+    assertTrue(str_contains($css, '.stack-ready > [data-nebo-chapter] { min-height: calc(var(--stack-viewport) - var(--site-header-height, 82px)); }'), 'Enhanced mobile chapters should fill the stage when their copy is short');
+    assertTrue(str_contains($css, '--stack-viewport: 100dvh'), 'Mobile pinning should follow the available viewport as browser controls retract');
+    assertTrue(str_contains($stack, "target.matches(':focus-visible')") && str_contains($css, '.stack-ready.stack-keyboard-flow > .editorial-stack-card'),
+        'Keyboard focus should uncover links behind pinned chapters');
+    assertTrue(substr_count($css, '.stack-ready > .editorial-stack-card { position: relative; top: auto; }') === 1, 'Mobile styles must not disable pinning for pointer and touch scrolling');
     assertTrue(!str_contains($contact, 'scroll-margin-top:110px'), 'Contact anchor should rely on the shared header scroll padding only');
     foreach (['.consultation-invitation h2 { font-size: 4rem;', '.consultation-invitation h2 { font-size: 3rem;', '.consultation-invitation h2 { font-size: 2rem;'] as $needle) {
         assertTrue(str_contains($css, $needle), "Consultation heading should use an explicit breakpoint size: {$needle}");

@@ -216,6 +216,7 @@ echo $critical;
 </style>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
 <script src="/assets/navigation-drawer.js?v=<?= filemtime(__DIR__ . '/../../assets/navigation-drawer.js') ?>" defer></script>
+<script src="/assets/editorial-stack.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-stack.js') ?>" defer></script>
 <script src="/assets/therapy-media.js?v=<?= filemtime(__DIR__ . '/../../assets/therapy-media.js') ?>" defer></script>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
@@ -556,60 +557,6 @@ document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
     select(0);
     if('ResizeObserver' in window) new ResizeObserver(updateRailOnResize).observe(rail);
     else window.addEventListener('resize',updateRailOnResize);
-});
-var pinnedHeader=document.querySelector('.site-header');
-if(pinnedHeader){
-    function measureHeader(){document.documentElement.style.setProperty('--site-header-height',pinnedHeader.offsetHeight+'px');}
-    measureHeader();
-    if('ResizeObserver' in window)new ResizeObserver(measureHeader).observe(pinnedHeader);
-    else window.addEventListener('resize',measureHeader);
-}
-document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
-    var footer=document.querySelector('.site-footer');
-    if(footer){
-        footer.classList.add('editorial-stack-card','landing-footer-card');
-        footer.setAttribute('data-stack-card','');
-        footer.style.setProperty('--stack-order','10');
-        stack.appendChild(footer);
-    }
-    var cards=Array.from(stack.querySelectorAll('[data-stack-card]'));
-    function measureCards(){cards.forEach(function(card){card.style.setProperty('--stack-height',card.offsetHeight+'px');});}
-    measureCards();
-    if('ResizeObserver' in window){
-        var observer=new ResizeObserver(measureCards);
-        cards.forEach(function(card){observer.observe(card);});
-    }else{
-        window.addEventListener('resize',measureCards);
-        window.addEventListener('load',measureCards);
-        cards.forEach(function(card){card.querySelectorAll('img').forEach(function(img){img.addEventListener('load',measureCards);});});
-    }
-    stack.classList.add('stack-ready');
-    if(supportsIntersectionObserver){
-        var chapterObserver=new IntersectionObserver(function(entries){
-            entries.forEach(function(entry){
-                if(!entry.isIntersecting)return;
-                var chapter=entry.target.closest('[data-stack-card]');
-                if(entry.target.matches('[data-stack-card], h1, h2')){
-                    chapter.classList.add('chapter-arrived');
-                }else{
-                    entry.target.classList.add('chapter-item-arrived');
-                }
-                chapterObserver.unobserve(entry.target);
-            });
-        },{threshold:0.15,rootMargin:'0px 0px -48px 0px'});
-        var itemSelector=[
-            '.value-strip > .value-card', '.therapy-feature', '.therapy-product',
-            '.editorial-rail > .program-slide', '.team-rail .team-slide', '.team-detail',
-            '.nebo-testimonials > figure', '.consultation-invitation__steps > li', '.footer-grid > div'
-        ].join(',');
-        cards.forEach(function(card){
-            chapterObserver.observe(card.querySelector('h1, h2') || card);
-            card.querySelectorAll(itemSelector).forEach(function(item,index){
-                item.style.setProperty('--chapter-delay',(60 + Math.min(index,3)*75)+'ms');
-                chapterObserver.observe(item);
-            });
-        });
-    }
 });
 document.addEventListener('submit',async function(event){
     var form=event.target.closest('[data-cart-add],[data-cart-change]');if(!form||!window.fetch)return;

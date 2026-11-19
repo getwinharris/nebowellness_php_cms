@@ -402,7 +402,7 @@ visual system.
 - **Stories:** testimonials arrive as a calm evidence section with no simulated quote
   motion or counter.
 - **Resolve:** the consultation card and charcoal footer close the sequence as complete
-  end states; the footer is the last sticky-stack section when enhancement is available.
+  end states; the footer is the final surface. On phones it stays in normal flow so the contact and legal links are fully visible.
 
 ### Home motion quality gate
 
@@ -446,10 +446,7 @@ or crop readable text to manufacture a fit. Section boundaries contain decorativ
 motion, while horizontal rails keep their own scrolling region.
 
 The final consultation card uses a generous editorial heading, one clear request
-button and three concise next-step explanations. The shared gray footer becomes
-the last full-height layer of the homepage stack when enhanced, retaining a single
-footer instance and its navigation, social and legal links. Without JavaScript it
-remains the normal page footer. Footer copy stays white on charcoal.
+button and three concise next-step explanations. The shared charcoal footer closes the desktop stack. On phones and without JavaScript, it stays in normal flow. The footer retains its navigation, social, contact, and legal links.
 
 ### Therapy campaign detail
 
@@ -461,4 +458,4 @@ until a verified payment and session workflow is available.
 
 ### Mobile homepage reading order
 
-At widths below 744px, homepage chapters scroll in document order and grow with their content. Use a shallow Foundation image, compact therapy and testimonial cards, and a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.
+At widths below 744px, enhanced homepage chapters settle under the header and the next chapter scrolls over them. Short chapters fill the available stage. Tall chapters grow with their content and settle only after their lower edge comes into view. Without JavaScript or with reduced motion, chapters scroll in normal flow. Keyboard focus temporarily restores normal flow so earlier links remain visible. Programs uses a stationary anchor so the menu can jump there from below the chapter. Use a shallow Foundation image, compact therapy and testimonial cards, and a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.

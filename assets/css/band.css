@@ -4321,11 +4321,16 @@ body.navigation-drawer-open :is(.mobile-cart-tray, .support-fab, .support-panel)
 
 /* Native editorial overlays. Tall cards reveal their full content before pinning. */
 body { overflow-x: clip; }
-.editorial-stack { position: relative; isolation: isolate; }
+.editorial-stack { position: relative; isolation: isolate; --stack-viewport: 100svh; }
+.editorial-anchor { display: block; scroll-margin-top: -16px; }
 .editorial-stack-card { min-height: calc(100svh - var(--site-header-height, 114px)); position: relative; z-index: var(--stack-order, 1); }
 .editorial-stack-card:not(.home-hero) { background: var(--color-bg, #f7f9fa); }
 .editorial-stack-card.section--alt, .editorial-stack-card.section--warm { background: var(--color-bg-alt, #edf3f6); }
-.stack-ready > .editorial-stack-card { position: sticky; top: min(var(--site-header-height, 114px), calc(100svh - var(--stack-height, 100svh))); }
+.stack-ready > .editorial-stack-card { position: sticky; top: min(var(--site-header-height, 114px), calc(var(--stack-viewport) - var(--stack-height, var(--stack-viewport)))); }
+.stack-ready.stack-keyboard-flow > .editorial-stack-card { position: relative; top: auto; }
+.stack-keyboard-flow .chapter-arrived *,
+.stack-keyboard-flow .chapter-item-arrived { animation: none !important; }
+
 @media (prefers-reduced-motion: no-preference) {
     /* The pinned surface covers this distance while the next chapter approaches. */
     .stack-ready > [data-nebo-chapter]:not(:last-child) {
@@ -4351,7 +4356,7 @@ body { overflow-x: clip; }
 }
 @media (max-width: 743px) and (prefers-reduced-motion: no-preference) {
     .stack-ready > [data-nebo-chapter]:not(:last-child) {
-        margin-block-end: clamp(48px, 9svh, 80px);
+        margin-block-end: clamp(40px, 7svh, 64px);
     }
 }
 @keyframes nebo-chapter-arrival { from { translate: 0 16px; } to { translate: 0 0; } }
@@ -4714,8 +4719,15 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 
 @media (max-width: 743px) {
     .editorial-stack-card:not(.home-hero) { min-height: 0; }
-    .stack-ready > .editorial-stack-card { position: relative; top: auto; }
-    .stack-ready > [data-nebo-chapter]:not(:last-child) { margin-block-end: 0; }
+    @supports (height: 100dvh) {
+        .editorial-stack { --stack-viewport: 100dvh; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+        .stack-ready > [data-nebo-chapter] { min-height: calc(var(--stack-viewport) - var(--site-header-height, 82px)); }
+        body:has(.mobile-cart-tray:not([hidden])) .stack-ready > [data-nebo-chapter]:has(a[href]) {
+            padding-block-end: calc(var(--mobile-controls-bottom) + 68px);
+        }
+    }
     .editorial-stack-card:is(.nebo-intro-section, .therapy-products, [data-nebo-chapter="stories"]) .section-title { font-size: 1.65rem; line-height: 1.16; }
     .editorial-stack-card[data-nebo-chapter="stories"] .section-header { margin-block-end: 16px; }
 
