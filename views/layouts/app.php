@@ -56,11 +56,8 @@ $critical = '
 body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--color-bg);color:var(--color-ink);line-height:1.55;overflow-x:hidden}
 a{color:var(--color-maroon);text-decoration:none}
 img{max-width:100%;height:auto;display:block}
-.site-header{position:sticky;top:0;z-index:1000;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:var(--space-lg);min-height:80px;padding:12px 24px;background:#ffffff;border-bottom:1px solid var(--color-border-light);transition:box-shadow 0.25s ease}
-.site-header.scrolled{box-shadow:var(--shadow-md)}
 .brand{display:flex;align-items:center;gap:var(--space-xs);color:var(--color-ink);font-weight:700;font-size:1rem;text-decoration:none}
  .brand img{width:40px;height:40px;border-radius:50%;border:2px solid var(--color-gold);object-fit:cover;box-shadow:0 0 0 1px rgba(255,255,255,0.9) inset}
-nav{display:flex;gap:var(--space-lg);font-size:0;justify-content:center}
 nav a{position:relative;font-weight:500;color:var(--color-ink);padding:var(--space-xs) 0;font-size:0.9rem;text-decoration:none}
 nav a:hover,nav a[aria-current="page"]{color:var(--color-ink)}
 nav a[aria-current="page"]::after{position:absolute;right:0;bottom:-7px;left:0;height:2px;border-radius:999px;background:var(--color-gold);content:""}
@@ -78,7 +75,6 @@ nav a[aria-current="page"]::after{position:absolute;right:0;bottom:-7px;left:0;h
 .header-actions{display:flex;align-items:center;gap:var(--space-md)}
 .cart-btn{background:transparent;border:0;font-size:1.3rem;cursor:pointer;position:relative;color:var(--color-ink);padding:var(--space-xs);border-radius:var(--radius-md)}
  .cart-count{position:absolute;top:-6px;right:-8px;background:var(--color-maroon);color:var(--color-white);font-size:0.6rem;width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold}
-.menu-toggle{display:none;border:1px solid var(--color-border);background:var(--color-white);padding:var(--space-xs) var(--space-sm);border-radius:var(--radius-md);cursor:pointer;font-size:1.2rem}
 main{padding-bottom:0}
 .container{max-width:1300px;margin:0 auto;padding:0 var(--space-xl)}
 .section{padding:64px 0}
@@ -178,10 +174,7 @@ main{padding-bottom:0}
 .reveal{opacity:1;transform:none}
 .reveal.revealed{opacity:1;transform:translateY(0)}
 @media(max-width:860px){
-nav{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(255,255,255,0.98);flex-direction:column;padding:var(--space-lg);border-bottom:1px solid var(--color-border);box-shadow:var(--shadow-lg)}
 nav a{font-size:0.95rem;padding:var(--space-sm) var(--space-md);border-radius:var(--radius-md)}
-nav.open{display:flex}
-.menu-toggle{display:block}
 .home-hero{grid-template-columns:1fr;text-align:center;width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding:var(--space-2xl) var(--space-md) var(--space-lg)}
 .hero-actions{justify-content:center}
 .category-grid{grid-template-columns:repeat(2,minmax(0,128px));justify-content:center;gap:var(--space-md)}
@@ -190,11 +183,6 @@ nav.open{display:flex}
 .temple-slide__media,.temple-slide__media img{min-height:190px}
 .temple-slide__copy{text-align:center}
 .footer-grid{grid-template-columns:1fr 1fr}
-/* Mobile header order: brand left, then cart, then the menu button hard right. */
-.site-header{display:flex;align-items:center;gap:4px}
-.site-header .brand{order:1;margin-right:auto}
-.site-header .header-actions{order:2}
-.site-header .menu-toggle{order:3;width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center}
 .cart-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center}
 .brand span{display:none}
 .consultants-page{padding-top:var(--space-md)!important}
@@ -221,12 +209,13 @@ nav.open{display:flex}
 .footer-grid{grid-template-columns:1fr}
 .hero-actions{flex-direction:column;align-items:center}
 }
-@media(max-width:743px){.site-header{min-height:64px;padding:8px 12px}.section{padding:48px 0}.home-hero{min-height:auto;padding:48px 16px}.astro-search,.astro-filter{min-height:56px}.consultation-pricing-card{grid-template-columns:1fr;gap:var(--space-md);padding:var(--space-md)}.consultation-pricing-card__rates{gap:var(--space-sm)}.consultation-pricing-card__rates div{min-width:0;flex:1;padding-left:var(--space-sm)}}
+@media(max-width:743px){.section{padding:48px 0}.home-hero{min-height:auto;padding:48px 16px}.astro-search,.astro-filter{min-height:56px}.consultation-pricing-card{grid-template-columns:1fr;gap:var(--space-md);padding:var(--space-md)}.consultation-pricing-card__rates{gap:var(--space-sm)}.consultation-pricing-card__rates div{min-width:0;flex:1;padding-left:var(--space-sm)}}
 ';
 echo $critical;
 ?>
 </style>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
+<script src="/assets/navigation-drawer.js?v=<?= filemtime(__DIR__ . '/../../assets/navigation-drawer.js') ?>" defer></script>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
 <script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
@@ -312,48 +301,51 @@ gtag('js', new Date());
 <?php $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'; ?>
 <?php $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
 <header class="site-header" id="site-header">
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Menu" aria-controls="primary-nav">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <span>Menu</span>
-    </button>
     <a href="/" class="brand" aria-label="Nebo Lifestyle Clinic home">
         <img src="<?= e($__logo) ?>" width="160" height="88" alt="Nebo Lifestyle Clinic">
     </a>
 <?php try { $__blogCats = (new \App\Services\BlogService())->categories(); } catch (\Throwable $e) { $__blogCats = []; } ?>
-    <nav id="primary-nav" aria-label="Main navigation">
-        <button class="nav-close" type="button" aria-label="Close menu">×</button>
-        <a href="/" class="nav-home-brand" aria-label="Nebo Lifestyle Clinic home">
-            <img src="<?= e($__logo) ?>" width="180" height="100" alt="Nebo Lifestyle Clinic">
-        </a>
-        <p class="nav-kicker">Explore Nebo</p>
-        <a href="/#programs">Programs</a>
-        <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Products</a><?php endif; ?>
-        <?php if ($__modules['shop']): ?>
-        <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
-        <?php endif; ?>
-        <?php if ($__modules['blog']): ?>
-        <div class="nav-dropdown">
-            <a href="/blog" class="nav-dropdown__trigger"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog <span class="nav-dropdown__arrow">▾</span></a>
-            <div class="nav-dropdown__menu">
-                <a href="/blog">All Posts</a>
-                <?php foreach ($__blogCats as $__cat): ?>
-                <a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a>
-                <?php endforeach; ?>
+    <details class="navigation-fallback" id="navigation-fallback">
+        <summary class="menu-toggle" aria-label="Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <span>Menu</span>
+        </summary>
+        <nav id="primary-nav" aria-label="Main navigation">
+            <a href="/#programs">Programs</a>
+            <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Products</a><?php endif; ?>
+            <?php if ($__modules['shop']): ?>
+            <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
+            <?php endif; ?>
+            <?php if ($__modules['blog']): ?>
+            <div class="nav-dropdown">
+                <a href="/blog" class="nav-dropdown__trigger"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog <span class="nav-dropdown__arrow">▾</span></a>
+                <div class="nav-dropdown__menu">
+                    <?php foreach ($__blogCats as $__cat): ?>
+                    <a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a>
+                    <?php endforeach; ?>
+                </div>
             </div>
+            <?php endif; ?>
+            <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
+            <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
+            <?php if(!empty($_SESSION['user']) && $__modules['shop']): ?>
+                <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
+                <a href="/logout">Logout</a>
+            <?php elseif(!empty($_SESSION['user'])): ?>
+                <a href="/logout">Logout</a>
+            <?php else: ?>
+                <a href="/login">Login</a>
+            <?php endif; ?>
+        </nav>
+    </details>
+    <dialog class="navigation-drawer" id="navigation-drawer" aria-label="Site menu">
+        <div class="navigation-drawer__header">
+            <a href="/" class="navigation-drawer__brand" aria-label="Nebo Lifestyle Clinic home">
+                <img src="<?= e($__logo) ?>" width="108" height="60" alt="">
+            </a>
+            <button class="nav-close" type="button" aria-label="Close menu" autofocus>×</button>
         </div>
-        <?php endif; ?>
-        <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
-        <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
-        <?php if(!empty($_SESSION['user']) && $__modules['shop']): ?>
-            <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
-            <a href="/logout">Logout</a>
-        <?php elseif(!empty($_SESSION['user'])): ?>
-            <a href="/logout">Logout</a>
-        <?php else: ?>
-            <a href="/login">Login</a>
-        <?php endif; ?>
-    </nav>
-    <div class="nav-scrim" data-nav-close hidden></div>
+    </dialog>
     <div class="header-actions">
         <button class="page-finder-trigger" type="button" data-page-finder="primary-nav" aria-haspopup="dialog" aria-label="Find a page" hidden>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
@@ -505,16 +497,6 @@ if ('serviceWorker' in navigator) {
     var swScope = '/';
     navigator.serviceWorker.register(swPath, { scope: swScope }).catch(function(){});
 }
-document.getElementById('site-header').querySelector('.menu-toggle').addEventListener('click',function(){
-    var n=document.getElementById('primary-nav'),open=!n.classList.contains('open');n.classList.toggle('open',open);
-    document.querySelector('.nav-scrim').hidden=!open;document.body.classList.toggle('nav-open',open);
-    this.setAttribute('aria-expanded',open?'true':'false');if(open){document.querySelector('.nav-close').focus();}
-});
-function closePrimaryNav(){var n=document.getElementById('primary-nav'),t=document.querySelector('.menu-toggle');n.classList.remove('open');document.querySelector('.nav-scrim').hidden=true;document.body.classList.remove('nav-open');t.setAttribute('aria-expanded','false');}
-document.querySelector('.nav-close').addEventListener('click',closePrimaryNav);
-document.querySelector('.nav-scrim').addEventListener('click',closePrimaryNav);
-document.querySelectorAll('#primary-nav a').forEach(function(link){link.addEventListener('click',closePrimaryNav);});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closePrimaryNav();}});
 var h=document.getElementById('site-header');
 var s=document.createElement('div');s.style.cssText='height:1px;position:absolute;top:0';
 document.body.prepend(s);
