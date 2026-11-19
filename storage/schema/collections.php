@@ -424,6 +424,7 @@
                 'fee_description' => ['type' => 'string'],
                 'payment_status' => ['type' => 'enum', 'values' => ['none','offered','ordering','pending','paid']],
                 'payment_mode' => ['type' => 'string'],
+                'checkout_start' => ['type' => 'integer'],
                 'order_id' => ['type' => 'string'],
                 'payment_id' => ['type' => 'string'],
                 'revision' => ['type' => 'integer'],

@@ -1,6 +1,6 @@
 <?php
 namespace App\Controllers;
-use App\Services\{EnvService,SecretService,DatabaseService,GoogleCustomerAuthService,PasswordResetService,MailQueueService};
+use App\Services\{AuthService,EnvService,SecretService,DatabaseService,GoogleCustomerAuthService,PasswordResetService,MailQueueService};
 use App\Integrations\GoogleOAuth\GoogleOAuthClient;
 final class AuthController extends BaseController {
   public function googleRedirect(): void {
@@ -46,7 +46,6 @@ final class AuthController extends BaseController {
       $ownerEmails = $this->ownerEmails($store);
       $users = $store->read('users');
       $user = GoogleCustomerAuthService::linkedSession($identity, $users, $ownerEmails);
-      $target = module_on('shop') ? '/account/dashboard' : '/';
     } catch (\Throwable) {
       $this->flash('Google sign-in is temporarily unavailable. Please try again or use your password.', 'error');
       $this->redirect('/login');
@@ -64,7 +63,7 @@ final class AuthController extends BaseController {
     // A session is issued only after finding a durable, eligible Google binding.
     $this->startSession($user);
     $this->flash('Signed in.', 'success');
-    $this->redirect($target);
+    $this->redirect(AuthService::landingPage($user));
   }
 
  public function logout(): void {
@@ -79,7 +78,7 @@ final class AuthController extends BaseController {
   $this->redirect('/login');
  }
   public function register(): void {
-     if (!empty($_SESSION['user'])) $this->redirect((($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : (module_on('shop') ? '/account/dashboard' : '/'));
+     if (!empty($_SESSION['user'])) $this->redirect(AuthService::landingPage($_SESSION['user']));
      $this->seoKey = 'register';
      $secrets = (new SecretService())->all();
      $this->render('public/register', [
@@ -191,7 +190,7 @@ final class AuthController extends BaseController {
             $this->startSession(['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'consultant_slug'=>$u['consultant_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)]);
             $this->flash('Signed in.','success');
             session_write_close();
-            $this->redirect(($u['role'] ?? '') === 'customer' && module_on('shop') ? '/account/dashboard' : '/');
+            $this->redirect(AuthService::landingPage($_SESSION['user']));
         }
     }
     $this->flash('Invalid credentials.','error');

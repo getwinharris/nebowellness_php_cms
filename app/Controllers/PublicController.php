@@ -498,8 +498,7 @@ final class PublicController extends BaseController {
         // their dashboard instead of offering a second login. /account/dashboard is a
         // 404 while the shop module is off, so those customers go home instead.
         if (!empty($_SESSION['user'])) {
-            $target = (($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : (module_on('shop') ? '/account/dashboard' : '/');
-            $this->redirect($target);
+            $this->redirect(AuthService::landingPage($_SESSION['user']));
         }
         $this->seoKey = 'login';
         $secrets = (new \App\Services\SecretService())->all();

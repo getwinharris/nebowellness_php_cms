@@ -20,6 +20,9 @@
             <input type="hidden" name="revision" value="<?= (int)$r['revision'] ?>">
             <p>Payment · <?= e($paid && $status === 'approved' ? 'Received, choose an available time to confirm' : ucfirst($r['payment_status'])) ?>
                 <?php if (empty($r['user_id'])): ?> · Guest enquiry. Contact this customer directly.<?php endif; ?></p>
+            <?php if ($status === 'approved' && in_array($r['payment_status'], ['ordering','pending'], true) && $r['starts_at'] <= time()): ?>
+                <p>The proposed start has passed. Agree a new time with the customer and update this request. The same fee and payment order apply.</p>
+            <?php endif; ?>
             <div class="admin-form__row">
                 <label>Status<select name="status"><?php foreach (TherapySessionService::TRANSITIONS[$status] as $option): ?>
                     <option value="<?= e($option) ?>" <?= $option === $status ? 'selected' : '' ?>><?= e(ucfirst(str_replace('_',' ', $option))) ?></option>

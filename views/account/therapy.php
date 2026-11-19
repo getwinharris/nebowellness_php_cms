@@ -17,11 +17,16 @@
             <?php if (!empty($r['fee_paise'])): ?>
                 <p><?= e($r['fee_description']) ?> · INR <?= e(number_format($r['fee_paise']/100, 2)) ?> · <?= e($r['payment_status'] === 'paid' ? 'Paid' : 'Unpaid') ?></p>
                 <?php if ($r['status'] === 'approved' && $r['payment_status'] !== 'paid'): ?>
+                <?php if ($r['starts_at'] <= time()): ?>
+                <p>The proposed start has passed. <a href="/contact">Contact the clinic</a> to arrange a new time for this request.</p>
+                <?php else: ?>
                 <p>After payment, your session is confirmed if the proposed time is still available. Otherwise the clinic will arrange a new time with you.</p>
                 <form method="post" action="/account/therapy/<?= e(rawurlencode($r['id'])) ?>/pay">
                     <input type="hidden" name="_csrf" value="<?= e($_SESSION['csrf_token']) ?>">
+                    <input type="hidden" name="shown_start" value="<?= (int)$r['starts_at'] ?>">
                     <button type="submit" class="btn btn-primary">Continue to payment</button>
                 </form>
+                <?php endif; ?>
                 <?php endif; ?>
             <?php endif; ?>
         </article>

@@ -123,7 +123,7 @@ final class SupportBotService {
         foreach ($context['site']['pages'] ?? [] as $name => $path) {
             $pages[$name] ??= ['path' => $path, 'label' => ucfirst($name)];
         }
-        $aliases = ['campaigns' => ['therapy products', 'campaign pages'], 'blog' => ['journal'], 'orders' => ['my orders']];
+        $aliases = ['campaigns' => ['therapy products', 'campaign pages'], 'blog' => ['journal'], 'orders' => ['my orders'], 'therapy requests' => ['my therapy requests', 'therapy status']];
         foreach ($aliases as $key => $names) {
             if (isset($pages[$key])) foreach ($names as $name) $pages[$name] = $pages[$key];
         }
@@ -150,6 +150,7 @@ final class SupportBotService {
         $base = empty($user['email'])
             ? $this->agentContext->forUserEmail('')
             : $this->agentContext->forUserEmail((string)$user['email']);
+        if (($user['role'] ?? '') === 'customer') $base['site']['pages']['therapy requests'] = '/account/therapy';
         // Articles let the agent answer "what is this app?" from real content instead of
         // falling back to a navigation list. BlogService::all() already withholds
         // unpublished posts and posts whose module is off.
@@ -410,7 +411,7 @@ final class SupportBotService {
     }
 
     private function extractActions(string $reply): array {
-        preg_match_all('/\/(?:#programs|shop|cart|checkout|contact|login|about|support|campaigns(?:\/[a-z0-9-]+)?|blog(?:\/category\/[a-z0-9-]+|\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
+        preg_match_all('/\/(?:#programs|shop|cart|checkout|contact|login|about|support|campaigns(?:\/[a-z0-9-]+)?|blog(?:\/category\/[a-z0-9-]+|\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/therapy|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
         $seen = [];
         $actions = [];
         foreach ($matches[0] as $path) {
@@ -421,6 +422,7 @@ final class SupportBotService {
             if (in_array($path, $seen, true)) continue;
             $seen[] = $path;
             $label = match (true) {
+                $path === '/account/therapy' => 'My therapy requests',
                 $path === '/shop' => 'View Shop',
                 $path === '/cart' => 'View Cart',
                 $path === '/checkout' => 'Go to Checkout',

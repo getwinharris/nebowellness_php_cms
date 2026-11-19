@@ -152,10 +152,17 @@ final class MediaService {
         $items = array_values(array_filter($this->all(includeArchived: true), static fn(array $item): bool =>
             $archived === !empty($item['archived_at'])));
         $references = [];
-        if (!$archived && array_filter($items, self::isManagedUpload(...))) $references = $this->references();
+        if (array_filter($items, self::isManagedUpload(...))) $references = $this->references();
         foreach ($items as &$item) {
-            $item['in_use'] = !empty($item['used_in']) || isset($references[$item['url'] ?? '']);
-            $item['selectable'] = self::isManagedUpload($item) && ($archived || !$item['in_use']);
+            $managed = self::isManagedUpload($item);
+            $current = $references[$item['url'] ?? ''] ?? [];
+            if ($managed) {
+                // Upload-time labels are historical. Show them only while the same entity still uses the URL.
+                $item['used_in'] = array_values(array_filter($item['used_in'] ?? [], static fn(array $usage): bool =>
+                    isset($current[$usage['type'] ?? ''][$usage['id'] ?? ''])));
+            }
+            $item['in_use'] = $managed ? $current !== [] : !empty($item['used_in']);
+            $item['selectable'] = $managed && ($archived || !$item['in_use']);
         }
         return $items;
     }
@@ -166,14 +173,14 @@ final class MediaService {
         foreach ($schema['collections'] as $collection => $definition) {
             if (empty($definition['media_fields']) && !in_array($collection, ['settings', 'orders'], true)) continue;
             foreach ($this->store->read($collection) as $record) {
-                $this->collectReferences($references, $record);
+                $this->collectReferences($references, $record, $collection, (string)($record['id'] ?? ''));
             }
         }
         foreach (new \DirectoryIterator(app_path('content/blog/posts')) as $file) {
             if (!$file->isFile() || $file->getExtension() !== 'md') continue;
             $text = file_get_contents($file->getPathname());
             if ($text === false) throw new \RuntimeException('Unable to check blog image usage.');
-            $this->collectReferences($references, $text);
+            $this->collectReferences($references, $text, 'blog', $file->getBasename('.md'));
         }
 
         return $references;
@@ -190,7 +197,7 @@ final class MediaService {
             try {
                 $record = $this->store->find('media_files', $id);
                 if (!$record || !self::isManagedUpload($record) || $archive === !empty($record['archived_at'])
-                    || ($archive && (!empty($record['used_in']) || isset($references[$record['url']])))) {
+                    || ($archive && isset($references[$record['url']]))) {
                     ++$blocked;
                     continue;
                 }
@@ -205,12 +212,12 @@ final class MediaService {
         return ['changed'=>$changed, 'blocked'=>$blocked, 'failed'=>$failed];
     }
 
-    private function collectReferences(array &$references, mixed $value): void {
+    private function collectReferences(array &$references, mixed $value, string $collection, string $id): void {
         if (is_array($value)) {
-            foreach ($value as $child) $this->collectReferences($references, $child);
+            foreach ($value as $child) $this->collectReferences($references, $child, $collection, $id);
         } elseif (is_string($value)) {
             preg_match_all('~(?:^|/|\b)(assets/images/media/uploads/[0-9]{4}/[0-9]{2}/[a-z0-9-]+\.(?:png|webp|jpe?g|gif))~i', rawurldecode($value), $matches);
-            foreach ($matches[1] as $path) $references['/' . $path] = true;
+            foreach ($matches[1] as $path) $references['/' . $path][$collection][$id] = true;
         }
     }
 

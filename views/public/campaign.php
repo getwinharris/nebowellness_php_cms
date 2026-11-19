@@ -44,9 +44,10 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
     <div class="container campaign-enquiry__layout">
       <div class="campaign-enquiry__intro"><span class="eyebrow">Enquire with Nebo</span><h2 id="campaign-form-title"><?= e($copy('form_title', CampaignPageService::FORM_DEFAULTS['form_title'])) ?></h2><p><?= e($copy('form_intro', CampaignPageService::FORM_DEFAULTS['form_intro'])) ?></p><p class="campaign-enquiry__note"><?= e(CampaignPageService::FORM_NOTE) ?></p></div>
       <div class="campaign-enquiry__card">
-        <?php if (empty($_SESSION['user'])): ?><p>For account updates and online payment on approved requests, <a href="/login">sign in</a> before submitting. You can also enquire as a guest.</p><?php endif; ?>
+        <?php if (empty($formState['success']) && empty($_SESSION['user'])): ?><p>For account updates and online payment on approved requests, <a href="/login">sign in</a> before submitting. You can also enquire as a guest.</p><?php endif; ?>
       <?php if (!empty($formState['success'])): ?>
         <p class="campaign-form-success" role="status"><?= e($copy('form_success', 'Thank you. Your enquiry has reached Nebo and our team will contact you soon.')) ?></p>
+        <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?><a class="campaign-text-link" href="/account/therapy">View my therapy requests</a><?php endif; ?>
       <?php else: ?>
         <?php if (!empty($formState['errors'])): ?><div role="alert" class="campaign-form-errors"><?php foreach ($formState['errors'] as $error): ?><p><?= e($error) ?></p><?php endforeach; ?></div><?php endif; ?>
         <form method="post" action="/campaigns/<?= e(rawurlencode($campaign['slug'])) ?>/enquire" class="contact-form">

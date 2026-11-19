@@ -49,16 +49,28 @@ try {
     // Simulate a stale open editor publishing immediately after archive.
     $db->upsert('categories', ['id'=>$prefix, 'image_url'=>$url]);
     verifyIdentityMedia(is_file($file) && !in_array($url, array_column($media->all('shared'), 'url'), true), 'Published link survives while archived upload stays out of the picker.');
+    $media->recordUsage([['id'=>$prefix]], 'categories', $prefix, 'Original category');
     verifyIdentityMedia($media->setArchived([$prefix], false)['changed'] === [$prefix], 'Owner can restore an archived upload.');
     verifyIdentityMedia($media->setArchived([$prefix], true)['blocked'] === 1, 'An already published reference blocks another archive.');
     $entry = array_values(array_filter($media->library(false), fn($item) => ($item['id'] ?? '') === $prefix))[0];
     verifyIdentityMedia($entry['in_use'] && !$entry['selectable'], 'Referenced image is protected in the library.');
+    verifyIdentityMedia(count($entry['used_in']) === 1, 'Current recorded attachment is visible.');
+    $db->upsert('categories', ['id'=>$prefix . '-other', 'image_url'=>$url]);
+    $db->upsert('categories', ['id'=>$prefix, 'image_url'=>'/assets/images/replacement.webp']);
+    $entry = array_values(array_filter($media->library(false), fn($item) => ($item['id'] ?? '') === $prefix))[0];
+    verifyIdentityMedia($entry['in_use'] && !$entry['selectable'] && $entry['used_in'] === [], 'A second entity still protects the file without a stale original label.');
+    verifyIdentityMedia($media->setArchived([$prefix], true)['blocked'] === 1, 'The unlabelled second reference protects the file at submission.');
+    $db->delete('categories', $prefix . '-other');
+    $entry = array_values(array_filter($media->library(false), fn($item) => ($item['id'] ?? '') === $prefix))[0];
+    verifyIdentityMedia(!$entry['in_use'] && $entry['selectable'] && $entry['used_in'] === [], 'Replacing the last reference releases the former upload.');
+    verifyIdentityMedia($media->setArchived([$prefix], true)['changed'] === [$prefix], 'Historical attachment alone cannot block archive.');
     echo "PASS customer registration transaction, returning Google identity, duplicate prevention and recoverable media archive.\n";
 } finally {
     foreach ((new AddressService($db))->forCustomer($email) as $saved) $db->delete('addresses', $saved['id']);
     $db->delete('users', $prefix);
     $db->delete('users', $prefix . '-copy');
     $db->delete('categories', $prefix);
+    $db->delete('categories', $prefix . '-other');
     $db->delete('media_files', $prefix);
     if (is_file($file)) unlink($file);
 }

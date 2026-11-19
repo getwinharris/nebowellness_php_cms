@@ -24,7 +24,7 @@ if (($argv[1] ?? '') === '--confirm-fixture') {
     }
 }
 $prefix = 't' . bin2hex(random_bytes(8));
-$ids = [$prefix.'a', $prefix.'b', $prefix.'c', $prefix.'d', $prefix.'e'];
+$ids = [$prefix.'a', $prefix.'b', $prefix.'c', $prefix.'d', $prefix.'e', $prefix.'f', $prefix.'g'];
 $customer = 'customer-'.$prefix;
 $base = new DateTimeImmutable('+3 years', new DateTimeZone('Asia/Kolkata'));
 $slot = $base->setTime(9, 30)->format('Y-m-d\TH:i');
@@ -95,6 +95,45 @@ try {
     $different['revision'] = '2';
     $different['start'] = $race['start'];
     rejectedTherapy(fn()=>$service->change($ids[4],'triage',$different));
+    foreach (array_slice($ids,5) as $index => $id) {
+        $offer = array_replace($triage, ['start'=>$base->setTime(16 + $index,0)->format('Y-m-d\TH:i')]);
+        $service->change($id, 'triage', $offer);
+        $checkout = ['user_id'=>$customer.'other','mode'=>'test'];
+        $active = $service->change($id, 'start_order', $checkout);
+        $providerOrder = ['order'=>array_replace($order, ['id'=>'order_'.$id,'receipt'=>$id])];
+        if ($index === 1) $active = $service->change($id,'attach_order',$providerOrder);
+        $replacement = array_replace($offer,['revision'=>(string)$active['revision'],'start'=>$base->setTime(18 + $index,0)->format('Y-m-d\TH:i')]);
+        rejectedTherapy(fn()=>$service->change($id,'triage',$replacement));
+
+        // Move the isolated fixture clock past the proposed time while retaining a real
+        // durable order. The missing checkout_start represents records created before this fix.
+        $past = intdiv(time(), 60) * 60 - 3600;
+        $stored = array_replace($active, ['starts_at'=>$past,'ends_at'=>$past+3000]);
+        unset($stored['checkout_start']);
+        $database->delete('therapy_sessions',$id);
+        $database->upsert('therapy_sessions',$stored);
+        rejectedTherapy(fn()=>$service->change($id,'start_order',$checkout));
+        rejectedTherapy(fn()=>$service->change($id,'triage',array_replace($replacement,['fee'=>'300'])));
+        $moved = $service->change($id,'triage',$replacement);
+        verifyTherapy($moved['fee_paise'] === $active['fee_paise'] && $moved['payment_mode'] === $active['payment_mode']
+            && ($moved['order_id'] ?? '') === ($active['order_id'] ?? '') && $moved['payment_status'] === $active['payment_status'],
+            'An expired checkout must retain the existing order, price, mode and payment state.');
+        rejectedTherapy(fn()=>$service->change($id,'start_order',$checkout));
+        rejectedTherapy(fn()=>$service->change($id,'start_order',$checkout + ['shown_start'=>(string)$past]));
+        if ($index === 0) {
+            // Simulate the old checkout finishing after the clinic's edit.
+            $service->change($id,'attach_order',$providerOrder);
+        } else {
+            $resumed = $service->change($id,'start_order',$checkout + ['shown_start'=>(string)$moved['starts_at']]);
+            verifyTherapy($resumed['order_id'] === $active['order_id'], 'Resuming must reuse the original order.');
+        }
+        $capture = ['payment'=>array_replace($payment,['id'=>'pay_'.$id,'order_id'=>'order_'.$id])];
+        $paid = $service->change($id,'capture',$capture);
+        verifyTherapy($paid['payment_status'] === 'paid' && $paid['status'] === ($index === 0 ? 'approved' : 'confirmed'),
+            'Auto-confirmation requires checkout acceptance of the replacement time.');
+        verifyTherapy($service->change($id,'capture',$capture)['revision'] === $paid['revision'], 'Duplicate late capture changed the request.');
+    }
+    echo "PASS abandoned ordering/pending checkout recovery, protected original fee/mode/order, stale acceptance and replayed late captures.\n";
     echo "PASS independent clinicians and customer overlap protection.\n";
     echo "PASS concurrent clinic slot reservation.\n";
     echo "PASS therapy persistence, customer isolation, stale edits, approval, capture validation, duplicate delivery, overlap and rescheduling.\n";

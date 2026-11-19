@@ -79,7 +79,18 @@ final class TherapySessionService {
                     || !in_array($session['payment_status'], ['offered','ordering','pending'], true)) {
                     throw new \DomainException('This request is not available for payment.');
                 }
-                if ($session['payment_status'] !== 'offered') return $session;
+                $shownStart = (string)($input['shown_start'] ?? '');
+                $acceptedStart = $session['checkout_start'] ?? $session['starts_at'];
+                if (($shownStart !== '' && $shownStart !== (string)$session['starts_at'])
+                    || ($shownStart === '' && $acceptedStart !== $session['starts_at'])) {
+                    throw new \DomainException('The clinic has updated your proposed time. Review it before continuing.');
+                }
+                if ($session['payment_status'] !== 'offered') {
+                    if ($acceptedStart === $session['starts_at']) return $session;
+                    $session['checkout_start'] = $session['starts_at'];
+                    break;
+                }
+                $session['checkout_start'] = $session['starts_at'];
                 if (!in_array($input['mode'] ?? '', ['test','live'], true)) throw new \DomainException('Payment mode unavailable.');
                 $session['payment_status'] = 'ordering';
                 $session['payment_mode'] = $input['mode'];
@@ -103,7 +114,9 @@ final class TherapySessionService {
                 if ($session['payment_status'] !== 'pending') throw new \DomainException('Payment is not pending.');
                 $session['payment_status'] = 'paid';
                 $session['payment_id'] = $payment['id'];
-                if ($session['status'] === 'approved' && $session['starts_at'] > $now && $available($session)) {
+                $acceptedStart = $session['checkout_start'] ?? $session['starts_at'];
+                if ($session['status'] === 'approved' && $acceptedStart === $session['starts_at']
+                    && $session['starts_at'] > $now && $available($session)) {
                     $session['status'] = 'confirmed';
                 }
                 break;
@@ -140,7 +153,12 @@ final class TherapySessionService {
             if ($start->getTimestamp() <= $now && ($s['starts_at'] ?? 0) !== $start->getTimestamp()) throw new \DomainException('Choose a future session time.');
             if (in_array($s['payment_status'], ['ordering','pending'], true)
                 && ($previousAssignee !== $s['assignee_id'] || $start->getTimestamp() !== $s['starts_at'] || $duration * 60 !== $s['ends_at'] - $s['starts_at'])) {
-                throw new \DomainException('The proposed time and team member are locked while checkout is open.');
+                if ($s['starts_at'] > $now || $start->getTimestamp() <= $now) {
+                    throw new \DomainException('Checkout is open. You can propose a new future time after the original start passes.');
+                }
+                // A capture from an abandoned checkout pays the fee, but only a customer who
+                // has seen the replacement time can confirm it automatically. Covers older rows too.
+                $s['checkout_start'] ??= $s['starts_at'];
             }
             if ($status === 'confirmed' && $s['status'] !== 'confirmed' && $start->getTimestamp() <= $now) {
                 throw new \DomainException('Choose a future time for confirmation.');

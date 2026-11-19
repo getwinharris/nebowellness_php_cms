@@ -2552,7 +2552,7 @@ $tests['module gating keeps payment settlement reachable and account history ope
     }
 
     $auth = file_get_contents(app_path('app/Controllers/AuthController.php'));
-    assertTrue(substr_count($auth, "module_on('shop') ? '/account/dashboard' : '/'") >= 3, 'Login, OAuth and register redirects pick an enabled destination when ecommerce is off');
+    assertTrue(substr_count($auth, 'AuthService::landingPage(') >= 3, 'Password, Google and signed-in registration use the account landing page independently of Ecommerce');
 };
 
 $tests['custom campaign answers reach the owner through the admin contact surface'] = function (): void {
@@ -2666,9 +2666,14 @@ $tests['rate limiter construction is covered by the storage failure handler'] = 
     assertTrue($try !== false && $construct !== false && $construct > $try, 'RateLimiter is constructed inside the storage-failure handler');
 };
 
-$tests['signed-in login redirect only uses the account dashboard while ecommerce is enabled'] = function (): void {
+$tests['signed-in customers can reach therapy status independently of commerce'] = function (): void {
+    assertSame('/account/dashboard', App\Services\AuthService::landingPage(['role'=>'customer']), 'Customer sign-in has a stable destination');
+    assertSame('/admin', App\Services\AuthService::landingPage(['role'=>'admin']), 'Owner sign-in lands in the admin workspace');
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
-    assertTrue(str_contains($controller, "module_on('shop') ? '/account/dashboard' : '/'"), 'A signed-in customer without the shop module is sent home instead of a 404 dashboard');
+    assertTrue(str_contains($controller, 'AuthService::landingPage('), 'An already signed-in visitor uses the same landing path');
+    foreach (['views/public/campaign.php', 'views/layouts/app.php', 'views/account/_nav.php'] as $template) {
+        assertTrue(str_contains(file_get_contents(app_path($template)), 'href="/account/therapy"'), 'Customer navigation and receipt must expose therapy requests');
+    }
 };
 require __DIR__ . '/google-reports.php';
 $tests['therapy capture confirms only a verified available future session'] = function (): void {

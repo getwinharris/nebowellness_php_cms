@@ -130,10 +130,11 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
             <?php endif; ?>
             <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
             <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
-            <?php if(!empty($_SESSION['user']) && $__modules['shop']): ?>
+            <?php if(!empty($_SESSION['user'])): ?>
                 <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
-                <a href="/logout">Logout</a>
-            <?php elseif(!empty($_SESSION['user'])): ?>
+                <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
+                    <a href="/account/therapy"<?= $currentPath === '/account/therapy' ? ' aria-current="page"' : '' ?>>Therapy requests</a>
+                <?php endif; ?>
                 <a href="/logout">Logout</a>
             <?php else: ?>
                 <a href="/login">Login</a>

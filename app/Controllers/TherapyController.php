@@ -70,7 +70,10 @@ final class TherapyController extends BaseController {
             }
             [$key, $secret] = $this->credentials($secrets, $mode);
             if (empty($secrets['therapy_webhook_' . $mode])) throw new \DomainException('The clinic is still setting up session payments.');
-            $request = $this->sessions->change($id, 'start_order', ['user_id'=>$userId, 'mode'=>$mode]);
+            $request = $this->sessions->change($id, 'start_order', [
+                'user_id'=>$userId, 'mode'=>$mode,
+                'shown_start'=>is_string($_POST['shown_start'] ?? null) ? $_POST['shown_start'] : '',
+            ]);
             if ($request['payment_mode'] !== $mode) throw new \DomainException('The payment mode changed. Reopen checkout from this request.');
             if (empty($request['order_id'])) {
                 $client = new RazorpayClient($key, $secret);
