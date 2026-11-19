@@ -46,7 +46,7 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet"></noscript>
 <style>
 <?php
-// Inline critical CSS for instant first paint — header, nav, hero, product cards, mobile nav
+// Inline critical CSS for instant first paint — header, nav, hero, product cards
 $critical = '
 :root{--color-ink:#222222;--color-ink-light:#3f3f3f;--color-gold:#70AD47;--color-gold-light:#e7f2df;--color-gold-dark:#55853a;--color-maroon:#4472C4;--color-maroon-deep:#2f5aa8;--color-accent:#70AD47;--color-accent-light:#8cc069;--color-bg:#f7f9fa;--color-bg-alt:#eef2f4;--color-bg-warm:#edf3f6;--color-border:#d7e1e6;--color-border-light:#e6ecef;--color-text-muted:#5b6872;--color-white:#ffffff;--color-success:#2d8a4e;--color-error:#d64045;--color-rating:#d68641;--font-display:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-serif:Georgia,"Times New Roman",serif;--font-accent:"Playfair Display",Georgia,serif;--shadow-sm:0 1px 2px rgba(0,0,0,0.08);--shadow-md:0 2px 8px rgba(0,0,0,0.12);--shadow-lg:0 2px 8px rgba(0,0,0,0.12);--radius-md:8px;--radius-lg:8px;--radius-xl:8px;--radius-pill:999px;--space-xs:0.5rem;--space-sm:0.75rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem}
 *,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
@@ -216,6 +216,7 @@ echo $critical;
 </style>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
 <script src="/assets/navigation-drawer.js?v=<?= filemtime(__DIR__ . '/../../assets/navigation-drawer.js') ?>" defer></script>
+<script src="/assets/therapy-media.js?v=<?= filemtime(__DIR__ . '/../../assets/therapy-media.js') ?>" defer></script>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
 <script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
@@ -311,7 +312,7 @@ gtag('js', new Date());
             <span>Menu</span>
         </summary>
         <nav id="primary-nav" aria-label="Main navigation">
-            <a href="/#programs">Programs</a>
+            <a href="/#programs" data-programs-nav>Programs</a>
             <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Products</a><?php endif; ?>
             <?php if ($__modules['shop']): ?>
             <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
@@ -372,32 +373,7 @@ if ($__flash):
 <?php require $viewFile; ?>
 </main>
 
-<?php if (!in_array($currentPath, ['/login', '/register'])): ?>
-<nav class="bottom-nav" id="bottom-nav" aria-label="Mobile navigation">
-    <div class="nav-grid">
-        <?php if ($__modules['shop']): ?>
-        <a href="/shop" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/shop') === 0 ? 'active' : '') ?>">
-            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-            <span>Shop</span>
-        </a>
-        <?php endif; ?>
-        <a href="/#programs" class="nav-item" data-programs-nav>
-            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Programs</span>
-        </a>
-        <?php if ($__modules['blog']): ?>
-        <a href="/blog" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/blog') === 0 ? 'active' : '') ?>">
-            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-            <span>Blog</span>
-        </a>
-        <?php endif; ?>
-        <?php if ($__modules['shop']): ?><a href="/cart" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/cart') === 0 ? 'active' : '') ?>">
-            <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
-            <span>Cart</span>
-        </a><?php endif; ?>
-    </div>
-</nav>
-<?php endif; ?>
+
 
 <?php if ($__modules['shop'] && !in_array($currentPath, ['/cart', '/login', '/register'], true)): ?>
 <a href="/cart" class="mobile-cart-tray" id="mobile-cart-tray" <?= $cartCount > 0 ? '' : 'hidden' ?>>

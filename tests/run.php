@@ -2114,12 +2114,11 @@ $tests['public navigation uses brand home link and mobile cart tray'] = function
     assertTrue(!str_contains($layout, '>Home</a>') && !str_contains($layout, '<span>Home</span>'), 'Public navigation should not duplicate Home');
     assertTrue(str_contains($layout, 'href="/blog/category/<?= e($__cat[\'slug\']'), 'Website help should be reachable through the generated journal categories');
     foreach (['mobile-cart-tray', 'mobile-cart-count', 'mobile-cart-label'] as $needle) assertTrue(str_contains($layout, $needle), "Cart tray should include {$needle}");
-    assertTrue(preg_match('/--mobile-nav-height:[^;]+env\(safe-area-inset-bottom\)/', $css) === 1, 'Mobile navigation must reserve the safe area');
-    assertTrue(preg_match('/--mobile-controls-bottom:[^;]+var\(--mobile-nav-height\)/', $css) === 1, 'Floating controls must clear mobile navigation');
+    assertTrue(!str_contains($layout, 'id="bottom-nav"'), 'Public pages must not render a fixed navigation dock');
+    assertTrue(preg_match('/--mobile-controls-bottom:[^;]+env\(safe-area-inset-bottom/', $css) === 1, 'Mobile controls must clear the safe area');
     assertTrue(preg_match('/\.mobile-cart-tray\s*\{[^}]*bottom: var\(--mobile-controls-bottom\)/', $css) === 1, 'Mobile cart tray must use the shared offset');
     assertTrue(preg_match('/\.support-fab\s*\{[^}]*bottom: var\(--mobile-controls-bottom\)/', $css) === 1, 'Mobile support must use the shared offset');
-    assertTrue(preg_match('/\.nav-grid\s*\{[^}]*grid-auto-columns: minmax\(0, 1fr\)/', $css) === 1, 'Navigation must distribute the rendered links');
-    assertTrue(str_contains($layout, 'href="/#programs" class="nav-item" data-programs-nav'), 'Programs must have a native fragment link and a browser state hook');
+    assertTrue(str_contains($layout, 'href="/#programs" data-programs-nav'), 'Programs must stay accessible in the native menu');
     assertTrue(preg_match('/<details[^>]+id="navigation-fallback"[^>]*>.*?<summary[^>]*>.*?<nav id="primary-nav".*?<\/nav>\s*<\/details>/s', $layout) === 1,
         'Primary links must be reachable through the native disclosure before enhancement');
     assertTrue(preg_match('/@media \(max-width: 743px\)\s*\{\s*\.site-footer,\s*\.stack-ready > \.landing-footer-card\s*\{\s*padding-bottom: calc\(var\(--mobile-controls-bottom\)/', $css) === 1,

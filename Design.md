@@ -141,7 +141,7 @@ Keep the existing PHP templates, routes, forms, and hosted MySQL-backed behavior
 - Spacing scale: `2, 4, 8, 16, 24, 32, 48, 64px`.
 - Container: centered, max `1300px` (`1440px` for wide layouts).
 - `.section`: `64px` vertical padding by default. `.section--alt` uses `surface-container`; `.section--warm` uses the warmer `#edf3f6` for value sections.
-- Responsive breakpoints: mobile below `744px` (one column, compact header, bottom nav), tablet `744-1128px` (reduced grid columns, same card geometry), desktop above `1128px` (centered container, `64px` section spacing).
+- Responsive breakpoints: mobile below `744px` (one column, compact header, navigation in Menu), tablet `744-1128px` (reduced grid columns, same card geometry), desktop above `1128px` (centered container, `64px` section spacing).
 - Text, buttons, images, and fixed controls must not overlap or reflow awkwardly as content length changes.
 - Do not scale typography with viewport width. Use explicit breakpoint sizes so headings remain predictable and do not dominate short mobile screens.
 - The first viewport must show the clinic's primary consultation action and a hint of the next section. Shop pages lead to products when enabled; account pages lead to the user's current task.
@@ -201,9 +201,9 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Testimonial Cards:** Use the client-approved testimonial copy from the project source document. Present it as a quiet two-column quote grid with the supplied attribution; do not invent outcome claims or missing attribution details.
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
 - **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
-- **Navigation:** the linked brand mark and name are the home control. Divide mobile navigation evenly among the links that actually render. Use JavaScript for fragment-based active state and synchronize it on initial load, hash changes, and browser history navigation.
-- **Mobile commerce tray:** after the cart becomes non-empty, show one fixed blue tray above the bottom navigation with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
-- **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep support and the cart tray above the bottom navigation, accounting for the device safe area. Reserve enough space to reach the final page action and keep the open support panel clear of the navigation.
+- **Navigation:** the linked brand mark and name are the home control. Keep mobile page links in Menu and Search. Use JavaScript for fragment-based active state and synchronize it on initial load, hash changes, and browser history navigation.
+- **Mobile commerce tray:** after the cart becomes non-empty, show one fixed blue tray above the device safe area with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
+- **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep Support and the cart tray side by side above the device safe area. Reserve enough space to reach the final page action and keep the open support panel clear of the navigation.
 - **Editorial media:** every blog post uses one intentional 16:9 image for both its listing thumbnail and article hero. UI guides use a legible screenshot of the exact page, cropped around the relevant interface rather than a decorative stock image, and link the represented page below the article.
 - **Buttons (`button-primary` / `button-secondary`):** `48px` minimum height, `8px` radius, no uppercase, no letter-spacing. Primary is solid blue with a darker-blue hover; hover moves from `shadow-md` to `shadow-lg` and lifts 2px, no more. Secondary is solid green with white text. Hover states never shift layout.
 - **Forms:** white fields (`on-primary`), `8px` radius, `48px` height, clear labels, a single-value focus ring (`--shadow-focus`) -- no glow.
@@ -458,3 +458,7 @@ Keep program details and the clinic's next steps distinct, then show the enquiry
 in a light form card on a darker section. On mobile the title and action precede
 the image, and the form stacks in a single column. Keep enquiry wording explicit
 until a verified payment and session workflow is available.
+
+### Mobile homepage reading order
+
+At widths below 744px, homepage chapters scroll in document order and grow with their content. Use a shallow Foundation image, compact therapy and testimonial cards, and a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.
