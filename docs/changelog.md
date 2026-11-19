@@ -16,6 +16,8 @@ category: docs
 
 ### Changed
 
+- Restored layered homepage chapter transitions on phones. Tall chapters scroll fully before settling, and the footer finishes in normal flow.
+
 - Removed the fixed mobile page links and compacted the Foundation, featured therapy, testimonials, and footer. Missing therapy images now use a local fallback.
 
 - Made the mobile menu compact and keyboard-accessible, kept floating controls behind it, centered the header logo, and moved bottom clearance into the footer.

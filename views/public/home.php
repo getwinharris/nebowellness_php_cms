@@ -111,7 +111,8 @@
 <?php endif; ?>
 
 <!-- Programs -->
-<section class="editorial-stack-card section" id="programs" style="--stack-order:6" data-stack-card data-nebo-chapter="programs">
+<span class="editorial-anchor" id="programs" aria-hidden="true"></span>
+<section class="editorial-stack-card section" style="--stack-order:6" data-stack-card data-nebo-chapter="programs">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
