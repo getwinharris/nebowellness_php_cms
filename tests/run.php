@@ -846,10 +846,14 @@ $tests['wallet and recharge routes are not customer facing'] = function (): void
 
 $tests['support assistant widget uses browser session memory and google model setting'] = function (): void {
     $layout = file_get_contents(app_path('views/layouts/app.php'));
+    $script = file_get_contents(app_path('assets/support-chat.js'));
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
     routeExists('/support/ask', 'Support ask route should be registered');
-    foreach (['support-fab', 'support-panel', '/support/ask', 'data-support-prompt', 'sessionStorage', 'data-support-key'] as $needle) {
+    foreach (['support-fab', 'support-panel', 'data-support-prompt', 'data-support-key', '/assets/support-chat.js'] as $needle) {
         assertTrue(str_contains($layout, $needle), "Support widget should include {$needle}");
+    }
+    foreach (['/support/ask', 'sessionStorage', 'message.value.trim()', 'request_id'] as $needle) {
+        assertTrue(str_contains($script, $needle), "Support browser behavior should include {$needle}");
     }
     foreach (['Customer context JSON', 'browser_session'] as $needle) {
         assertTrue(str_contains($service, $needle), "Support bot service should include {$needle}");
@@ -1576,7 +1580,7 @@ $tests['both chat surfaces share accessible bounded request status'] = function 
     assertTrue(str_contains($status, "createElement('details')") && str_contains($status, "createElement('summary')"), 'Status toggle must use keyboard-accessible native disclosure');
     assertTrue(str_contains($status, 'performance.now()') && str_contains($status, 'clearInterval(timer)'), 'Elapsed timer must stop on completion');
     assertTrue(str_contains($status, 'not internal model reasoning') && str_contains($status, 'Request failed'), 'Status must not expose thoughts or imply success on error');
-    foreach (['views/layouts/app.php', 'views/admin/agent.php'] as $path) {
+    foreach (['assets/support-chat.js', 'views/admin/agent.php'] as $path) {
         $source = file_get_contents(app_path($path));
         assertTrue(str_contains($source, 'window.AgentRequestStatus.start('), "{$path} must use shared request status");
         assertTrue(str_contains($source, 'progress.finish(failed') && str_contains($source, '35000'), "{$path} must settle status and bound waiting");
@@ -2117,10 +2121,10 @@ $tests['public navigation uses brand home link and mobile cart tray'] = function
 
 $tests['support assistant exposes only allowlisted internal navigation actions'] = function (): void {
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
-    $layout = file_get_contents(app_path('views/layouts/app.php'));
+    $script = file_get_contents(app_path('assets/support-chat.js'));
     assertTrue(str_contains($service, 'exact internal path') && str_contains($service, 'Never invent admin paths'), 'Support prompt should ground navigation');
-    assertTrue(str_contains($layout, 'function supportActionsHtml') && str_contains($layout, 'supportEscape(action.path)') && str_contains($layout, 'supportEscape(j.reply'), 'Support UI should render server-approved actions separately from escaped reply text');
-    assertTrue(!str_contains($layout, 'innerHTML=j.reply'), 'Support reply must not inject model HTML');
+    assertTrue(str_contains($script, 'isActionPath(action.path)') && str_contains($script, 'link.textContent = action.label') && str_contains($script, "appendMessage(turn, 'Support', result.reply"), 'Support UI should render server-approved actions separately from escaped reply text');
+    assertTrue(!str_contains($script, 'innerHTML = result.reply'), 'Support reply must not inject model HTML');
 };
 
 $tests['support assistant answers signed-out visitors instead of printing a menu'] = function (): void {
