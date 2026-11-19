@@ -2120,6 +2120,11 @@ $tests['public navigation uses brand home link and mobile cart tray'] = function
     assertTrue(preg_match('/\.support-fab\s*\{[^}]*bottom: var\(--mobile-controls-bottom\)/', $css) === 1, 'Mobile support must use the shared offset');
     assertTrue(preg_match('/\.nav-grid\s*\{[^}]*grid-auto-columns: minmax\(0, 1fr\)/', $css) === 1, 'Navigation must distribute the rendered links');
     assertTrue(str_contains($layout, 'href="/#programs" class="nav-item" data-programs-nav'), 'Programs must have a native fragment link and a browser state hook');
+    assertTrue(preg_match('/<details[^>]+id="navigation-fallback"[^>]*>.*?<summary[^>]*>.*?<nav id="primary-nav".*?<\/nav>\s*<\/details>/s', $layout) === 1,
+        'Primary links must be reachable through the native disclosure before enhancement');
+    assertTrue(preg_match('/@media \(max-width: 743px\)\s*\{\s*\.site-footer,\s*\.stack-ready > \.landing-footer-card\s*\{\s*padding-bottom: calc\(var\(--mobile-controls-bottom\)/', $css) === 1,
+        'Mobile footer clearance must work without range queries or :has()');
+
     $navScript = file_get_contents(app_path('assets/mobile-nav.js'));
     foreach (['location.hash', 'hashchange', 'popstate', 'aria-current'] as $needle) {
         assertTrue(str_contains($navScript, $needle), "Programs state must handle {$needle}");

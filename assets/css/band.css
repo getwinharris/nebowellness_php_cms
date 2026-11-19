@@ -3559,18 +3559,35 @@ body { background: var(--color-bg); }
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     min-height: 82px;
+    transition: box-shadow .25s ease;
     padding: 12px clamp(18px, 4vw, 72px);
     /* An opaque surface keeps the sticky stack from showing through navigation. */
     background: #fff;
     border-bottom: 1px solid #e6e8e9;
 }
-.site-header .brand { grid-column: 2; justify-self: center; display: inline-flex; align-items: center; gap: 10px; color: #263036; font-size: .94rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
+.site-header.scrolled { box-shadow: var(--shadow-md); }
+.site-header .brand { grid-column: 2; grid-row: 1; justify-self: center; display: inline-flex; align-items: center; gap: 10px; color: #263036; font-size: .94rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; }
 .site-header .brand img { width: 46px; height: 46px; border: 0; border-radius: 50%; object-fit: contain; }
 .site-header .menu-toggle { grid-column: 1; grid-row: 1; justify-self: start; display: inline-flex; align-items: center; gap: 10px; min-width: 92px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; color: #263036; font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; }
 .site-header .header-actions { grid-column: 3; grid-row: 1; justify-self: end; gap: 12px; }
 .header-contact,.header-book { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border: 1px solid #384147; color: #263036; font-size: .74rem; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; }
 .header-book { background: #303638; color: #fff; }
 .site-header .cart-btn { min-width: 44px; min-height: 44px; border: 1px solid #d9dddf; border-radius: 0; }
+.navigation-fallback { grid-column: 1; grid-row: 1; justify-self: start; }
+.navigation-fallback summary { list-style: none; }
+.navigation-fallback summary::-webkit-details-marker { display: none; }
+.navigation-fallback:not([open]) #primary-nav,
+.navigation-drawer:not([open]) { display: none; }
+.navigation-fallback #primary-nav {
+    position: absolute;
+    inset: 100% auto auto 0;
+    box-sizing: border-box;
+    width: min(28rem, 92vw);
+    max-height: 65vh;
+    max-height: 65dvh;
+    background: var(--color-white);
+    box-shadow: var(--shadow-lg);
+}
 .navigation-drawer {
     position: fixed;
     box-sizing: border-box;
@@ -3665,8 +3682,8 @@ body { background: var(--color-bg); }
     color: var(--color-text-muted);
     font-size: .9rem;
 }
-body:has(.navigation-drawer[open]) { overflow: hidden; }
-body:has(.navigation-drawer[open]) :is(.bottom-nav, .mobile-cart-tray, .support-fab, .support-panel) {
+body.navigation-drawer-open { overflow: hidden; }
+body.navigation-drawer-open :is(.bottom-nav, .mobile-cart-tray, .support-fab, .support-panel) {
     visibility: hidden;
 }
 
@@ -3991,7 +4008,7 @@ body:has(.navigation-drawer[open]) :is(.bottom-nav, .mobile-cart-tray, .support-
 @media(max-width:700px){.blog-editorial .blog-card,.blog-card--featured{grid-template-columns:1fr;min-height:0}.blog-card__media{aspect-ratio:16/9}.blog-post__header h1{font-size:2rem}.blog-post__featured{aspect-ratio:16/9}.blog-post__cta,.document-help-cta{align-items:stretch;flex-direction:column}.blog-post__cta .btn,.document-help-cta .btn{width:100%}.admin-blog-editor__grid{grid-template-columns:minmax(0,1fr)}.blog-post__source{align-items:flex-start;flex-direction:column}}
 
 /* Keep the floating controls clear of the fixed navigation and the device safe area. */
-@media (width < 744px) {
+@media (max-width: 743px) {
     body {
         --mobile-nav-height: calc(49px + 2 * var(--space-xs) + env(safe-area-inset-bottom));
         --mobile-controls-bottom: calc(var(--mobile-nav-height) + 12px);
@@ -4025,7 +4042,7 @@ body:has(.navigation-drawer[open]) :is(.bottom-nav, .mobile-cart-tray, .support-
     }
 }
 
-@media (width >= 744px) {
+@media (min-width: 744px) {
     .support-fab { right: 24px; bottom: 24px; width: 56px; height: 56px; }
     .mobile-cart-tray {
         right: 24px;
@@ -4419,7 +4436,7 @@ body { overflow-x: clip; }
 }
 /* Client-supplied complete logo artwork, including its authentic wordmark. */
 .site-header .brand img { width: 160px; height: 88px; object-fit: contain; }
-@media (max-width: 743px) { .site-header .brand img { width: min(120px, 34vw); height: 66px; } }
+@media (max-width: 743px) { .site-header .brand img { width: clamp(0px, calc(100vw - 232px), 120px); height: 66px; } }
 
 /* Pinned navigation reserves its measured height for anchors and card overlays. */
 :root { --site-header-height: 114px; }
@@ -4705,8 +4722,10 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     .toast { animation: none; }
 }
 
-@media (width < 744px) {
-    body:has(#bottom-nav) .site-footer {
+@media (max-width: 743px) {
+    .site-footer,
+    .stack-ready > .landing-footer-card {
         padding-bottom: calc(var(--mobile-controls-bottom) + 68px);
     }
+    .stack-ready > .landing-footer-card { position: relative; top: auto; }
 }
