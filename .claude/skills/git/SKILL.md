@@ -13,8 +13,11 @@ GitHub CLI (`gh`) on the hosted server.
 - Use plain `git` for status, diff, branches, commits, fetch, pull, and push.
 - Use `bapXphp` only for project-owned operations such as tests, maps, indexes,
   schema, database access, hooks, and AI configuration.
-- GitHub issues, PR creation, review, and merge coordination belong to GitHub Actions
-  or the GitHub API/web interface.
+- In Codex, use the connected GitHub plugin to manage issues and PRs, verify
+  checks, and merge. If the plugin is unavailable, record the blocked GitHub
+  operations and continue local Git work.
+- Other agents running on a local machine use GitHub CLI (`gh`) for issues, PRs,
+  checks, and merges.
 - Never wrap ordinary Git commands in `bapXphp`.
 - Never force-push or discard unrelated or divergent work.
 

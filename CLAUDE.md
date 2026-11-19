@@ -43,17 +43,48 @@ absence as a finding.
    Use root `index.yaml` to query original project concepts and relationships,
    including blogs, images and hosted `/remotedb` collections. Read its `discovery`
    section first and query narrowly; never load the entire generated file into context.
-4. Search existing GitHub issues, then open an evidence-backed one (reproduction,
-   affected paths, pinpointed cause, acceptance checks). Skip this for read-only
-   diagnosis or when the user declines tracking.
+4. Search GitHub for an issue with the same scope. Update a match or open an
+   evidence-backed issue with reproduction steps, affected paths, suspected cause,
+   and acceptance checks. Skip issue changes for read-only diagnosis or when the
+   user declines tracking.
+   In Codex, use the connected GitHub plugin for issues, PRs, checks, and merges.
+   Other agents running locally use `gh` for those operations. Use plain Git for
+   branch, commit, and push operations.
 5. Read the matching `.claude/skills/<name>/SKILL.md`.
 6. Read `storage/schema/collections.php` for schema and `Design.md` for UI.
 7. Inspect existing implementations before creating any file, route, service, view,
    collection or navigation item.
 
+### UI workflow
+
+1. Before editing UI, read [Design.md](Design.md) and the matching public or admin
+   UI skill. Identify the route, template, stylesheet selectors, and JavaScript
+   that own the behavior. Follow the controller and service when the flow reads
+   or writes server state.
+2. Record the issue, baseline behavior, and acceptance checks before the first UI
+   edit. Use the built-in Browser at desktop and 375px. For responsive changes,
+   include both sides of the affected breakpoints. Record unavailable browser
+   access or data and label source findings as unverified in the browser. If
+   GitHub writes are unavailable, keep the issue draft and record the blocker.
+3. Assign responsibilities before implementation. PHP renders semantic HTML and
+   owns authorization, CSRF, validation, and persisted state. JavaScript owns
+   browser state and interactions such as URL fragments, reactive controls,
+   and asynchronous updates through existing routes. CSS owns responsive
+   layout, tokens, and visual states.
+4. Put new and migrated app styles in `assets/css/band.css`. Move affected
+   legacy rules into that file, remove their duplicates in the same change, and
+   verify the resulting cascade. Use existing JavaScript assets or a focused,
+   deferred script under `assets/` for browser behavior. Move affected inline
+   behavior into that asset when editing it.
+5. Repeat the baseline scenarios in the Browser, including relevant keyboard,
+   touch, module, and fallback states. Record the results and run `./bapXphp ci`
+   before review. Mark unrun checks explicitly.
+
 ## Architecture
 
-- **Frontend:** PHP templates in `views/`, following `Design.md`. No SPA, no build step.
+- **Frontend:** PHP templates in `views/`, browser JavaScript in `assets/`, and
+  `assets/css/band.css` as the canonical stylesheet, following `Design.md`. No SPA
+  or build step.
 - **Backend:** controllers and services in `app/`. Route → controller → service →
   MySQL via `DatabaseService`.
 - **Schema:** `storage/schema/collections.php` is canonical. Update it before changing
@@ -63,9 +94,9 @@ absence as a finding.
   Blog posts are Markdown with YAML frontmatter in `content/blog/posts/`; image
   binaries remain files. `MediaService` still has a local YAML catalogue: this is a
   known migration gap, not an approved second runtime store.
-- **Agents:** exactly two pure-PHP application surfaces — customer support and
-  owner/admin chat. Admin agent context must
-  go through `AgentContextService`; never expose all users' data.
+- **Agents:** customer support and owner/admin chat are the two agent surfaces.
+  PHP handles server requests and JavaScript handles browser interaction. Admin
+  agent context goes through `AgentContextService` and stays aggregate and scoped.
 
 ## Environment
 
