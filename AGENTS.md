@@ -93,8 +93,8 @@ absence as a finding.
 - **Runtime store:** hosted MySQL only for admin-editable records. Do not create local
   product, category, consultant, order, user, setting, media-metadata or secret copies.
   Blog posts are Markdown with YAML frontmatter in `content/blog/posts/`; image
-  binaries remain files. `MediaService` still has a local YAML catalogue: this is a
-  known migration gap, not an approved second runtime store.
+  binaries remain files. Media uploads and usage are stored in MySQL `media_files`.
+  The media library also reads legacy YAML and bundled artwork as protected assets.
 - **Agents:** customer support and owner/admin chat are the two agent surfaces.
   PHP handles server requests and JavaScript handles browser interaction. Admin
   agent context goes through `AgentContextService` and stays aggregate and scoped.
@@ -125,10 +125,10 @@ that is not there.
   as parts flagged `"thought": true` or as prose before the answer. Read the answer with
   `AiClient::answerFromParts()`; never take `parts[0]`, which is usually the reasoning.
   Reference: <https://github.com/google-gemini/cookbook/issues/1198>.
-- `thinkingConfig.includeThoughts: false` is silently ignored by this model family, and
-  `thinkingLevel` is rejected outright by this endpoint (HTTP 400, `Unknown name
-  "thinkingLevel"`). Filter the reasoning out of the response instead of trying to
-  switch it off.
+- Google documents `minimal` and `high` thinking levels for hosted Gemma 4. The
+  REST payload sets `generationConfig.thinkingConfig.thinkingLevel`. Keep the
+  response-part filter in both agent paths and treat a thought-only completion
+  as unusable. See <https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api>.
 
 The general rule: when a fact about an external service decides what you change, verify
 it against that service's own documentation and record the URL beside the code.

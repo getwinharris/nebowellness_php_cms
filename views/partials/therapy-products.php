@@ -6,7 +6,7 @@ $otherServices = array_slice($therapyProducts, 1);
 ?>
 <div class="therapy-grid<?= count($therapyProducts) === 1 ? ' therapy-grid--single' : '' ?>">
     <article class="therapy-feature">
-        <img src="<?= e(trim((string)($featuredProduct['image_url'] ?? '')) ?: '/assets/images/nebo-programs.png') ?>" alt="" loading="lazy" data-therapy-image width="1024" height="640">
+        <img src="<?= e(trim((string)($featuredProduct['image_url'] ?? '')) ?: '/assets/images/nebo-programs.webp') ?>" alt="" loading="lazy" data-therapy-image width="1024" height="640">
         <div class="therapy-feature__body">
             <span class="therapy-feature__label"><?= $isCatalog ? 'Featured therapy' : 'Featured service' ?></span>
             <<?= $productHeading ?>><a href="/campaigns/<?= e(rawurlencode($featuredProduct['slug'])) ?>"><?= e($featuredProduct['title']) ?></a></<?= $productHeading ?>>

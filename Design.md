@@ -103,7 +103,7 @@ components:
 
 ## Overview
 
-Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for public and admin UI. `assets/css/band.css` is the stylesheet for shared tokens, layout, component states, and public art direction. Migrate existing rules from `assets/css/brand.css` and template styles as part of the affected UI work.
+Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for public and admin UI. `assets/css/band.css` is the stylesheet for shared tokens, layout, component states, and public art direction. Public and admin layouts share this file and serve their Inter and Playfair Display fonts locally.
 
 Design inspiration from SHA Wellness (shawellness.com) informs the use of:
 - Clean, spacious card layouts with clear separation
@@ -274,7 +274,7 @@ Use cool paper, deep blue ink, and one blue action color across these surfaces. 
 
 ## Implementation Notes
 
-- Define static tokens, responsive rules, and visual states in `assets/css/band.css`. Migrate existing rules from `brand.css` and inline styles in cascade order, remove superseded rules, and verify computed styles in public and admin layouts. Keep server-configured palette values as validated CSS custom-property values.
+- Define static tokens, responsive rules, and visual states in `assets/css/band.css`. Migrate existing rules from inline styles in cascade order, remove superseded rules, and verify computed styles in public and admin layouts. Keep server-configured palette values as validated CSS custom-property values.
 - PHP supplies semantic markup, initial state, and native links and forms. JavaScript handles fragment state, cart updates, dialogs, and motion where browser behavior requires it. Reuse existing JavaScript assets or add a focused deferred script under `assets/`. Use CSS for breakpoint behavior and preserve the native path when enhancement is unavailable.
 - Elevation tokens: `--shadow-sm/md/lg/xl` plus `--shadow-focus` for the single focus-ring definition.
 - Motion: `--transition-spring` (a restrained expressive-motion curve, `cubic-bezier(0.34, 1.4, 0.64, 1)`) is used for hover lifts on buttons and cards; `--transition-base` still governs color/shadow fades.

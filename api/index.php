@@ -27,29 +27,25 @@ try {
 $routes = require __DIR__ . '/../app/routes.php';
 $method = $_SERVER['REQUEST_METHOD'];
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$paths = [rtrim((string)$uri, '/') ?: '/'];
+$path = rtrim((string)$uri, '/') ?: '/';
 
 $matched = false;
 foreach ($routes as $route) {
     if ($route['method'] !== $method) continue;
-    $pattern = preg_replace('#\{[^/]+\}#', '([^/]+)', $route['path']);
-    $matches = [];
-    foreach ($paths as $path) if (preg_match('#^' . $pattern . '$#', $path, $candidate)) { $matches = $candidate; break; }
-    if ($matches) {
-        array_shift($matches);
-        [$class, $action] = explode('@', $route['controller']);
-        $fqcn = 'App\\Controllers\\' . $class;
-        try {
-            $controller = new $fqcn();
-            $controller->{$action}(...$matches);
-        } catch (\Throwable $e) {
-            error_log('[api-request-failed] ' . $e->getMessage());
-            http_response_code(503);
-            echo json_encode(['error' => 'Service temporarily unavailable']);
-        }
-        $matched = true;
-        break;
+    $matches = \App\Router::matchPath($route['path'], $path);
+    if ($matches === null) continue;
+    [$class, $action] = explode('@', $route['controller']);
+    $fqcn = 'App\\Controllers\\' . $class;
+    try {
+        $controller = new $fqcn();
+        $controller->{$action}(...$matches);
+    } catch (\Throwable $e) {
+        error_log('[api-request-failed] ' . $e->getMessage());
+        http_response_code(503);
+        echo json_encode(['error' => 'Service temporarily unavailable']);
     }
+    $matched = true;
+    break;
 }
 
 if (!$matched) {

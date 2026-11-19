@@ -1,3 +1,10 @@
+<?php
+$credentialFields = \App\Services\SecretService::FORM_CREDENTIALS;
+$configuredCredentials = array_filter($credentialFields, static fn(string $key): bool =>
+    !empty($secrets[$key]) || ($key === 'ai_api_key' && (!empty($secrets['agent_api_key']) || !empty($secrets['support_bot_google_api_key']))),
+    ARRAY_FILTER_USE_KEY
+);
+?>
 <div class="admin-card" style="border-left:4px solid var(--color-gold); margin-bottom:var(--space-lg);">
     <h2 style="font-size:1rem; margin:0 0 var(--space-sm);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> API Setup</h2>
     <p style="margin:0; color:var(--color-text-muted); font-size:0.9rem;">These settings are for the website owner only. Visitors use program, campaign, journal, product, account, and enquiry pages. All site secrets for payments, email, analytics, and AI are stored encrypted in the project secret store and managed here &mdash; they are never kept in <code>.env</code>.</p>
@@ -30,32 +37,40 @@
         </div>
         <div class="admin-form__row">
             <label>Test Key ID<input name="razorpay_test_key_id" value="<?= e($secrets['razorpay_test_key_id']??'') ?>" placeholder="rzp_test_xxxx"></label>
-            <label>Test Key Secret<input name="razorpay_test_key_secret" value="<?= e($secrets['razorpay_test_key_secret']??'') ?>" placeholder="Paste test key secret"></label>
+            <label>Test Key Secret<input type="password" name="razorpay_test_key_secret" placeholder="<?= isset($configuredCredentials['razorpay_test_key_secret']) ? 'Saved · leave blank to keep' : 'Paste test key secret' ?>" autocomplete="new-password"></label>
         </div>
         <div class="admin-form__row">
             <label>Live Key ID<input name="razorpay_live_key_id" value="<?= e($secrets['razorpay_live_key_id']??'') ?>" placeholder="rzp_live_xxxx"></label>
-            <label>Live Key Secret<input name="razorpay_live_key_secret" value="<?= e($secrets['razorpay_live_key_secret']??'') ?>" placeholder="Paste live key secret"></label>
+            <label>Live Key Secret<input type="password" name="razorpay_live_key_secret" placeholder="<?= isset($configuredCredentials['razorpay_live_key_secret']) ? 'Saved · leave blank to keep' : 'Paste live key secret' ?>" autocomplete="new-password"></label>
         </div>
         <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">Test mode uses test keys for trial payments. Switch to live mode only when production keys are saved and real customer payments are ready.</p>
 
+        <details class="therapy-request"><summary>Therapy payment notifications</summary>
+            <p>In the Razorpay Dashboard, subscribe to <code>payment.captured</code>. Use the matching endpoint and webhook signing secret for each mode. Leave the secret blank to keep the saved value.</p>
+            <?php foreach (['test','live'] as $mode): ?>
+                <label><?= e(ucfirst($mode)) ?> webhook · <code>/payment/therapy/webhook/<?= e($mode) ?></code>
+                    <input type="password" name="therapy_webhook_<?= e($mode) ?>" autocomplete="new-password" placeholder="<?= empty($secrets['therapy_webhook_' . $mode]) ? 'Enter signing secret' : 'Configured' ?>">
+                </label>
+            <?php endforeach; ?>
+        </details>
         <h2 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-sm);">Stripe Payments</h2>
         <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">
             Optional Stripe payment gateway. Enter your Stripe secret key to enable Stripe as an alternative payment method.
             <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener">Stripe Dashboard</a>
         </p>
         <div class="admin-form__row">
-            <label>Stripe Secret Key<input type="password" name="stripe_secret_key" value="<?= e($secrets['stripe_secret_key']??'') ?>" placeholder="sk_live_xxxx or sk_test_xxxx" autocomplete="new-password"></label>
+            <label>Stripe Secret Key<input type="password" name="stripe_secret_key" placeholder="<?= isset($configuredCredentials['stripe_secret_key']) ? 'Saved · leave blank to keep' : 'sk_live_xxxx or sk_test_xxxx' ?>" autocomplete="new-password"></label>
         </div>
         <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">Stripe is available as an alternative to Razorpay. The secret key is stored encrypted and never kept in <code>.env</code>.</p>
 
         <h2 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-sm);">Google Login</h2>
         <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">
-            Google sign-in is limited to previously linked customer accounts. Use this exact OAuth callback URL in Google Cloud: <code><?= e($googleCallbackUri) ?></code>.
+            Customers can sign in or link a verified Google identity during registration or password confirmation. Use this exact OAuth callback URL in Google Cloud: <code><?= e($googleCallbackUri) ?></code>.
             <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Credentials</a>
         </p>
         <div class="admin-form__row">
             <label>Google Client ID<input name="google_client_id" value="<?= e($secrets['google_client_id']??'') ?>" placeholder="xxxx.apps.googleusercontent.com"></label>
-            <label>Google Client Secret<input name="google_client_secret" value="<?= e($secrets['google_client_secret']??'') ?>" placeholder="GOCSPX-xxxx"></label>
+            <label>Google Client Secret<input type="password" name="google_client_secret" placeholder="<?= isset($configuredCredentials['google_client_secret']) ? 'Saved · leave blank to keep' : 'GOCSPX-xxxx' ?>" autocomplete="new-password"></label>
         </div>
         <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">Only sign-in permissions are used. Calendar and Google Meet are not used for this platform.</p>
 
@@ -67,7 +82,7 @@
         <div class="admin-form__row">
             <label>Agent Name<input name="agent_name" value="<?= e($secrets['agent_name']??'Agent') ?>" placeholder="Agent"></label>
             <label>API Endpoint (base URL)<input name="api_endpoint" value="<?= e($secrets['api_endpoint']??'') ?>" placeholder="https://api.openai.com/v1"></label>
-            <label>API Key<input type="password" name="ai_api_key" value="<?= e($secrets['ai_api_key']??$secrets['agent_api_key']??$secrets['support_bot_google_api_key']??'') ?>" placeholder="sk-... or AIza..." autocomplete="new-password"></label>
+            <label>API Key<input type="password" name="ai_api_key" placeholder="<?= isset($configuredCredentials['ai_api_key']) ? 'Saved · leave blank to keep' : 'sk-... or AIza...' ?>" autocomplete="new-password"></label>
         </div>
         <div class="admin-form__row">
             <label>Model<input name="agent_model" value="<?= e($secrets['agent_model']??$secrets['support_bot_model']??'gemma-4-31b-it') ?>" placeholder="gemma-4-31b-it"></label>
@@ -88,34 +103,38 @@
             <label>TURN Username<input name="turn_username" value="<?= e($secrets['turn_username']??'') ?>" placeholder="turnuser"></label>
         </div>
         <div class="admin-form__row">
-            <label>TURN Credential<input type="password" name="turn_credential" value="<?= e($secrets['turn_credential']??'') ?>" placeholder="TURN shared secret" autocomplete="new-password"></label>
+            <label>TURN Credential<input type="password" name="turn_credential" placeholder="<?= isset($configuredCredentials['turn_credential']) ? 'Saved · leave blank to keep' : 'TURN shared secret' ?>" autocomplete="new-password"></label>
         </div>
         <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">When configured, the TURN server is added to ICE servers for all WebRTC calls. Leave blank to use STUN only.</p>
 
-        <h2 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-sm);">Meta Pixel (Facebook Ads)</h2>
-        <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">
-            Optional Facebook/Meta Ads conversion tracking and retargeting. Enter your Pixel ID to enable Meta tracking across all pages.
-            <a href="https://www.facebook.com/events_manager/pixel/" target="_blank" rel="noopener">Meta Events Manager</a>
-        </p>
+        <h2 id="google-reporting">Google reporting</h2>
+        <p>Share the selected GA4 property with a dedicated service account as a Viewer. Add the same account as a restricted user of the Search Console property. Enable both reporting APIs in its Google Cloud project. <a href="/admin/search-performance">View reports</a></p>
         <div class="admin-form__row">
-            <label>Meta Pixel ID<input name="meta_pixel_id" value="<?= e($secrets['meta_pixel_id']??'') ?>" placeholder="1234567890"></label>
+            <label>GA4 reporting property ID<input name="google_reporting_property" inputmode="numeric" pattern="[0-9]+" value="<?= e($secrets['google_reporting_property'] ?? '') ?>" placeholder="123456789"></label>
+            <label>Search Console property<input name="google_search_property" value="<?= e($secrets['google_search_property'] ?? '') ?>" placeholder="sc-domain:example.com"></label>
         </div>
-        <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">The pixel base code and PageView event will be injected into the site head automatically.</p>
+        <label>Service account JSON key <span><?= empty($secrets['google_reporting_key']) ? 'No key saved' : 'Key saved. Leave blank to keep it.' ?></span>
+            <textarea name="google_reporting_key" rows="3" autocomplete="off" spellcheck="false" placeholder="Paste a new service account JSON key"></textarea>
+        </label>
+        <?php if (!empty($secrets['google_reporting_key'])): ?>
+            <label><input type="checkbox" name="disconnect_google_reports" value="1"> Disconnect reports and remove the stored key</label>
+        <?php endif; ?>
+        <p>Use the exact property shown in Search Console. Domain properties use DNS verification. URL-prefix properties can use the HTML verification token on the homepage. Submit <a href="/sitemap.xml">the XML sitemap</a> in Search Console.</p>
+        <label>HTML verification token<input name="google_site_verification" value="<?= e($secrets['google_site_verification'] ?? '') ?>" placeholder="Token from the verification meta tag"></label>
 
-        <h2 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-sm);">Google Site Kit (Analytics, Ads & Search Console)</h2>
-        <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">
-            Enable Google Analytics 4 for SEO insights, Google Ads for conversion tracking, and Search Console verification. Uses a single gtag.js snippet.
-            <a href="https://analytics.google.com/" target="_blank" rel="noopener">Google Analytics</a> &middot;
-            <a href="https://search.google.com/search-console" target="_blank" rel="noopener">Google Search Console</a>
-        </p>
+        <h2>Optional audience measurement</h2>
+        <p>Visitors can opt into measurement of signed-out homepage and About page visits in Privacy. For general campaign links, Analytics accepts a single <code>utm_source</code> of google, facebook, or instagram. Accounts, therapy details, support conversations and forms are excluded. Enable an advertising destination only after checking the clinic’s eligibility with its provider.</p>
         <div class="admin-form__row">
-            <label>GA4 Measurement ID<input name="google_analytics_id" value="<?= e($secrets['google_analytics_id']??'') ?>" placeholder="G-XXXXXXXXXX"></label>
-            <label>Google Ads ID<input name="google_ads_id" value="<?= e($secrets['google_ads_id']??'') ?>" placeholder="AW-XXXXXXXXX"></label>
+            <label>GA4 measurement ID<input name="google_analytics_id" value="<?= e($secrets['google_analytics_id'] ?? '') ?>" placeholder="G-XXXXXXXXXX"></label>
+            <label>Google Ads ID<input name="google_ads_id" value="<?= e($secrets['google_ads_id'] ?? '') ?>" placeholder="AW-XXXXXXXXX"></label>
+            <label>Meta Pixel ID<input name="meta_pixel_id" value="<?= e($secrets['meta_pixel_id'] ?? '') ?>" placeholder="1234567890"></label>
         </div>
-        <div class="admin-form__row">
-            <label>Search Console Verification<input name="google_site_verification" value="<?= e($secrets['google_site_verification']??'') ?>" placeholder="google-site-verification=xxxxxxxxxx"></label>
-        </div>
-        <p style="margin:var(--space-xs) 0 0; color:var(--color-text-muted); font-size:0.8rem;">Google Analytics, Ads conversion, and Search Console meta tags are injected into the site head only when configured.</p>
+        <label>Advertising destinations
+            <select name="clinic_ads_enabled">
+                <option value="0">Off</option>
+                <option value="1" <?= ($secrets['clinic_ads_enabled'] ?? '') === '1' ? 'selected' : '' ?>>Available after visitor consent</option>
+            </select>
+        </label>
 
         <h2 style="font-size:1rem; margin:var(--space-xl) 0 var(--space-sm);">SEO Defaults</h2>
         <p style="margin:0 0 var(--space-md); color:var(--color-text-muted); font-size:0.85rem;">
@@ -148,7 +167,7 @@
             <label>SMTP Username<input name="smtp_username" value="<?= e($secrets['smtp_username']??'') ?>" placeholder="support@nebowellness.com"></label>
         </div>
         <div class="admin-form__row">
-            <label>SMTP Password<input type="password" name="smtp_password" value="<?= e($secrets['smtp_password']??'') ?>" placeholder="SMTP password" autocomplete="new-password"></label>
+            <label>SMTP Password<input type="password" name="smtp_password" placeholder="<?= isset($configuredCredentials['smtp_password']) ? 'Saved · leave blank to keep' : 'SMTP password' ?>" autocomplete="new-password"></label>
             <label>From Email<input name="mail_from_email" value="<?= e($secrets['mail_from_email']??'') ?>" placeholder="support@nebowellness.com"></label>
         </div>
         <div class="admin-form__row">
@@ -171,6 +190,15 @@
             <h3 style="font-size:0.9rem; margin:0 0 var(--space-sm);">Platform Scope</h3>
             <p style="margin:0; color:var(--color-text-muted); font-size:0.85rem;">This site presents Nebo Lifestyle Clinic programs, campaigns, practitioners, wellness guidance, products, and enquiry support. Historical service records remain owner-only in the admin panel.</p>
         </div>
+        <?php if ($configuredCredentials): ?>
+        <details class="credential-removal">
+            <summary>Remove saved credentials</summary>
+            <p>Select individual credentials and save to disconnect them. Revoke the original keys at the provider when rotating credentials.</p>
+            <?php foreach ($configuredCredentials as $field=>$label): ?>
+                <label><input type="checkbox" name="remove_credentials[]" value="<?= e($field) ?>"> <?= e($label) ?></label>
+            <?php endforeach; ?>
+        </details>
+        <?php endif; ?>
         <button class="btn btn-primary" style="margin-top:var(--space-lg);">Save Integrations</button>
     </form>
 

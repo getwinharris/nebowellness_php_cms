@@ -13,16 +13,30 @@ final class AgentRunTrace
         $this->id = bin2hex(random_bytes(8));
     }
 
-    public function provider(string $provider, string $model, int $status, int $transportError, float $started): void
+    public function provider(string $provider, string $model, int $status, int $transportError, float $started, bool $withTools = false): void
     {
         $this->lastProviderStep = count($this->steps) < 16 ? count($this->steps) : null;
         $this->add([
             'kind' => 'provider',
             'name' => in_array($provider, ['google', 'openai', 'anthropic'], true) ? $provider : 'compatible',
-            'model' => preg_match('#^[a-zA-Z0-9._:/-]{1,100}$#D', $model) ? $model : 'custom',
+            'model' => self::modelLabel($model),
+            'mode' => $withTools ? 'tools' : 'plain',
             'status' => $status,
-            'outcome' => $transportError ? 'transport_error' : ($status === 200 ? 'http_ok' : 'http_error'),
+            'outcome' => match (true) {
+                $transportError === 28 => 'timeout',
+                $transportError !== 0 => 'transport_error',
+                $status === 200 => 'http_ok',
+                default => 'http_error',
+            },
         ], $started);
+    }
+
+    /** Keep configured model IDs usable for grouping, including organisation/model IDs. */
+    public static function modelLabel(mixed $model): string
+    {
+        return is_string($model) && strlen($model) <= 100 &&
+            preg_match('#^[a-zA-Z0-9][a-zA-Z0-9._-]*(?:/[a-zA-Z0-9][a-zA-Z0-9._-]*)?(?::[a-zA-Z0-9._-]+)?$#D', $model)
+            ? $model : 'custom';
     }
 
     public function markProviderResponseUnusable(): void
@@ -35,7 +49,7 @@ final class AgentRunTrace
 
     public static function providerFailed(string $outcome): bool
     {
-        return in_array($outcome, ['http_error', 'transport_error', 'unusable_response'], true);
+        return in_array($outcome, ['http_error', 'transport_error', 'timeout', 'unusable_response'], true);
     }
 
     public function tool(string $name, string $outcome, float $started): void

@@ -1,6 +1,6 @@
 <?php
 namespace App\Controllers;
-use App\Services\{SeoService,SecretService};
+use App\Services\{AgentConversation,SeoService,SecretService};
 abstract class BaseController {
     protected string $layout = 'app';
     protected bool $isApiRequest = false;
@@ -29,7 +29,7 @@ abstract class BaseController {
     protected function validateCsrf(): void {
         $token = $_POST['_csrf'] ?? '';
         $expected = $_SESSION['csrf_token'] ?? '';
-        if ($token === '' || !hash_equals($expected, $token)) {
+        if (!is_string($token) || $token === '' || !hash_equals($expected, $token)) {
             if ($this->isApiRequest || strpos($_SERVER['REQUEST_URI'] ?? '', '/api/') === 0 || ($_SERVER['CONTENT_TYPE'] ?? '') === 'application/json') {
                 $this->jsonResponse(['error' => 'Security token invalid.'], 419);
             }
@@ -65,6 +65,36 @@ abstract class BaseController {
         return true;
     }
 
+    protected function handleConversation(AgentConversation $chat, string $message, bool $allowReplay = true): ?string
+    {
+        header('Cache-Control: private, no-store');
+        // Older clients can still ask a single question without opting into session memory.
+        if (!isset($_POST['conversation']) && !isset($_POST['conversation_action']) && !isset($_POST['turn_id'])) return null;
+
+        if (($_POST['conversation'] ?? null) !== $chat->id()) {
+            $this->jsonResponse(['error' => 'This conversation changed or expired. Reload the page to continue.'], 409);
+        }
+        $action = $_POST['conversation_action'] ?? 'ask';
+        if ($action === 'clear') $chat->clear();
+        if ($action === 'history' || $action === 'clear') $this->jsonResponse($chat->snapshot());
+        $turnId = $_POST['turn_id'] ?? null;
+        if ($action !== 'ask' || !is_string($turnId) || !preg_match('/^[a-f0-9]{32}$/D', $turnId)) {
+            $this->jsonResponse(['error' => 'Invalid chat request. Refresh the page and try again.'], 422);
+        }
+        // Ticket submissions use the ticket service’s durable request identifier.
+        if (!$allowReplay) return $turnId;
+        try {
+            $turn = $chat->replay($turnId, $message);
+        } catch (\DomainException $error) {
+            $this->jsonResponse(['error' => $error->getMessage()], 409);
+        }
+        if ($turn !== null) {
+            if (isset($turn['trace_id'])) header('X-Agent-Trace: ' . $turn['trace_id']);
+            $this->jsonResponse($turn['response']);
+        }
+        return $turnId;
+    }
+
     protected function detectApiRequest(): void {
         $this->isApiRequest = strpos($_SERVER['REQUEST_URI'], '/api/') === 0;
     }
@@ -84,7 +114,7 @@ abstract class BaseController {
         $secrets = (new SecretService())->all();
         $seo = (new SeoService($secrets))->page($this->seoKey, $this->seoOverrides);
         $data['seo'] = $seo;
-        $data['pageTitle'] = $seo['title'];
+        $data['pageTitle'] = $this->layout === 'admin' ? ($data['pageTitle'] ?? $seo['title']) : $seo['title'];
         $data['metaDescription'] = $seo['description'];
         $data['metaRobots'] = $seo['robots'];
         extract($data);
@@ -109,6 +139,13 @@ abstract class BaseController {
         if ($this->isApiRequest || str_starts_with((string)($_SERVER['REQUEST_URI'] ?? ''), '/api/')) {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode(['error' => 'Not found']);
+            exit;
+        }
+        header('Vary: Accept', false);
+        if (\App\Services\PublicDiscoveryService::prefersMarkdown($_SERVER['HTTP_ACCEPT'] ?? '')) {
+            header('Content-Type: text/markdown; charset=utf-8');
+            header('X-Robots-Tag: noindex, follow');
+            echo "# Page not found\n\n[Return to Nebo Lifestyle Clinic](" . SeoService::publicUrl('/') . ")\n";
             exit;
         }
         $secrets = (new \App\Services\SecretService())->all();

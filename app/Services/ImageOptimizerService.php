@@ -10,7 +10,7 @@ final class ImageOptimizerService {
     private const JPEG_QUALITY = 85;
 
     public function optimize(string $sourcePath, ?string $destDir = null, array $opts = []): ?string {
-        if (!is_file($sourcePath)) return null;
+        if (!is_file($sourcePath) || !function_exists('imagewebp')) return null;
         $maxW = $opts['max_width'] ?? self::MAX_WIDTH;
         $maxH = $opts['max_height'] ?? self::MAX_HEIGHT;
         $quality = $opts['quality'] ?? self::WEBP_QUALITY;

@@ -79,6 +79,12 @@ final class EnvService {
         ];
     }
 
+    public static function matchesAdminPassword(string $candidate, string $stored): bool {
+        if ($stored === '' || $candidate === '') return false;
+        // PHP password hashes use modular crypt notation. Unknown algorithms fail closed too.
+        return str_starts_with($stored, '$') ? password_verify($candidate, $stored) : hash_equals($stored, $candidate);
+    }
+
     public function saveAdminCredentials(array $data): void {
         $settings = (new SettingsService())->public();
         foreach (['admin_username', 'admin_email'] as $key) {

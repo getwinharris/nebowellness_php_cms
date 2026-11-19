@@ -7,12 +7,12 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 116 routes, 12 controllers, 51 services, 45 views, 0 data files, 19 tools"]
-    arch_routes["> Routes: 116 (Public + Auth + Payment + Admin + Support)"]:::arch
-    arch_ctrl["> Controllers: 12"]:::arch
-    arch_svc["> Services: 51"]:::arch
-    arch_views["> Views: 45"]:::arch
-    arch_data["> Collections: 23 schema | 0 files"]:::arch
+  subgraph ARCH["Architecture Overview — 125 routes, 13 controllers, 54 services, 50 views, 0 data files, 19 tools"]
+    arch_routes["> Routes: 125 (Public + Auth + Payment + Admin + Support)"]:::arch
+    arch_ctrl["> Controllers: 13"]:::arch
+    arch_svc["> Services: 54"]:::arch
+    arch_views["> Views: 50"]:::arch
+    arch_data["> Collections: 24 schema | 0 files"]:::arch
     arch_tools["> Tools: 19"]:::arch
     arch_gaps["> Gaps: 5"]:::arch
     arch_routes -.-> arch_ctrl -.-> arch_svc -.-> arch_data
@@ -41,6 +41,7 @@ flowchart LR
     route_get_api_categories["GET /api/categories"]:::route
     route_get_api_product_slug["GET /api/product/{slug}"]:::route
     route_get_api_temples["GET /api/temples"]:::route
+    route_get_openapi_json["GET /openapi.json"]:::route
     route_get_sitemap_xml["GET /sitemap.xml"]:::route
     route_get_contact["GET /contact — Contact form GET"]:::route
     route_post_contact["POST /contact — Contact form POST submission"]:::route
@@ -49,6 +50,9 @@ flowchart LR
     route_get_account_dashboard_orders["GET /account/dashboard/orders — My Orders — product reviews"]:::route
     route_get_account_dashboard_sessions["GET /account/dashboard/sessions — Retired session URL — redirects to orders"]:::route
     route_get_account_dashboard_install["GET /account/dashboard/install — Install App — customer installation guidance"]:::route
+    route_get_account_therapy["GET /account/therapy"]:::route
+    route_post_account_therapy_id_pay["POST /account/therapy/{id}/pay"]:::route
+    route_post_account_therapy_id_verify["POST /account/therapy/{id}/verify"]:::route
     route_get_account_orders["GET /account/orders — Legacy account orders redirect"]:::route
     route_get_account_orders_orderid_invoice["GET /account/orders/{orderId}/invoice"]:::route
     route_get_account_orders_orderid["GET /account/orders/{orderId}"]:::route
@@ -81,6 +85,7 @@ flowchart LR
   subgraph ROUTES_PAYMENT["PAYMENT Routes"]
     route_get_cart["GET /cart — Cart page — items, qty, totals"]:::route
     route_get_checkout["GET /checkout — Checkout page — address, Razorpay payment"]:::route
+    route_post_payment_therapy_webhook_mode["POST /payment/therapy/webhook/{mode}"]:::route
     route_post_cart_add["POST /cart/add — Cart — add item"]:::route
     route_post_cart_remove["POST /cart/remove — Cart — remove item"]:::route
     route_post_cart_update["POST /cart/update — Cart — update quantity"]:::route
@@ -97,6 +102,8 @@ flowchart LR
   end
 
   subgraph ROUTES_ADMIN["ADMIN Routes"]
+    route_get_admin_therapy["GET /admin/therapy"]:::route
+    route_post_admin_therapy_id["POST /admin/therapy/{id}"]:::route
     route_get_admin["GET /admin — Admin dashboard — counts overview"]:::route
     route_get_admin_products["GET /admin/products — Admin — manage products"]:::route
     route_get_admin_categories["GET /admin/categories — Admin — manage categories"]:::route
@@ -113,6 +120,7 @@ flowchart LR
     route_get_admin_settings["GET /admin/settings — Admin — site settings"]:::route
     route_post_admin_settings_save["POST /admin/settings/save — Admin — save settings"]:::route
     route_post_admin_settings_admin_credentials["POST /admin/settings/admin-credentials — Admin — save admin login"]:::route
+    route_get_admin_search_performance["GET /admin/search-performance"]:::route
     route_get_admin_integrations["GET /admin/integrations — Admin — API keys, integrations"]:::route
     route_get_admin_agent["GET /admin/agent"]:::route
     route_post_admin_agent_ask["POST /admin/agent/ask"]:::route
@@ -126,6 +134,7 @@ flowchart LR
     route_get_admin_appearance["GET /admin/appearance — Admin — logo & favicon"]:::route
     route_post_admin_appearance_save["POST /admin/appearance/save — Admin — save logo/favicon"]:::route
     route_get_admin_media["GET /admin/media — Admin — media library"]:::route
+    route_post_admin_media_archive["POST /admin/media/archive"]:::route
     route_post_admin_media_upload["POST /admin/media/upload — Admin — upload media"]:::route
     route_post_admin_products_save["POST /admin/products/save — Admin — create/update product"]:::route
     route_post_admin_products_delete["POST /admin/products/delete — Admin — delete product"]:::route
@@ -171,12 +180,14 @@ flowchart LR
     controller_remotedbcontroller["RemoteDbController"]:::code
     controller_reviewcontroller["ReviewController"]:::code
     controller_supportcontroller["SupportController"]:::code
+    controller_therapycontroller["TherapyController"]:::code
   end
 
   subgraph SERVICES["Services"]
     service_addressservice["AddressService"]:::code
     service_agentattachmentservice["AgentAttachmentService"]:::code
     service_agentcontextservice["AgentContextService"]:::code
+    service_agentconversation["AgentConversation"]:::code
     service_agentdraftservice["AgentDraftService"]:::code
     service_agentruntrace["AgentRunTrace"]:::code
     service_agenttoolregistry["AgentToolRegistry"]:::code
@@ -212,6 +223,7 @@ flowchart LR
     service_paymentservice["PaymentService"]:::code
     service_productservice["ProductService"]:::code
     service_projectmapservice["ProjectMapService"]:::code
+    service_publicdiscoveryservice["PublicDiscoveryService"]:::code
     service_ratelimiter["RateLimiter"]:::code
     service_resourceservice["ResourceService"]:::code
     service_reviewservice["ReviewService"]:::code
@@ -225,6 +237,7 @@ flowchart LR
     service_supportbotservice["SupportBotService"]:::code
     service_supportticketservice["SupportTicketService"]:::code
     service_taxservice["TaxService"]:::code
+    service_therapysessionservice["TherapySessionService"]:::code
   end
 
   subgraph VIEWS["Views"]
@@ -233,6 +246,8 @@ flowchart LR
     view_account_invoice["account/invoice"]:::code
     view_account_order["account/order"]:::code
     view_account_orders["account/orders"]:::code
+    view_account_therapy["account/therapy"]:::code
+    view_account_therapy_checkout["account/therapy-checkout"]:::code
     view_admin_campaign_fields["admin/_campaign-fields"]:::code
     view_admin_agent["admin/agent"]:::code
     view_admin_appearance["admin/appearance"]:::code
@@ -247,8 +262,10 @@ flowchart LR
     view_admin_media["admin/media"]:::code
     view_admin_product_form["admin/product-form"]:::code
     view_admin_resource["admin/resource"]:::code
+    view_admin_search_performance["admin/search-performance"]:::code
     view_admin_settings["admin/settings"]:::code
     view_admin_tax_report["admin/tax-report"]:::code
+    view_admin_therapy["admin/therapy"]:::code
     view_layouts_admin["layouts/admin"]:::code
     view_layouts_app["layouts/app"]:::code
     view_partials_therapy_products["partials/therapy-products"]:::code
@@ -265,6 +282,7 @@ flowchart LR
     view_public_forgot_password["public/forgot-password"]:::code
     view_public_home["public/home"]:::code
     view_public_login["public/login"]:::code
+    view_public_openapi["public/openapi"]:::code
     view_public_privacy["public/privacy"]:::code
     view_public_product["public/product"]:::code
     view_public_register["public/register"]:::code
@@ -305,6 +323,7 @@ flowchart LR
     collection_reviews["reviews"]:::data
     collection_settings["settings"]:::data
     collection_contact_submissions["contact_submissions"]:::data
+    collection_therapy_sessions["therapy_sessions"]:::data
     collection_media_files["media_files"]:::data
     collection_secrets["secrets"]:::data
   end
@@ -342,6 +361,8 @@ flowchart LR
   route_get --> controller_publiccontroller
   controller_publiccontroller --> service_campaignpageservice
   controller_publiccontroller --> service_consultantservice
+  controller_publiccontroller --> service_publicdiscoveryservice
+  controller_publiccontroller --> service_settingsservice
   controller_publiccontroller -. renders .-> view_public_home
   route_get_about --> controller_publiccontroller
   controller_publiccontroller -. renders .-> view_public_about
@@ -409,10 +430,15 @@ flowchart LR
   controller_publiccontroller --> service_addressservice
   controller_publiccontroller --> service_settingsservice
   controller_publiccontroller -. renders .-> view_public_checkout
+  route_get_openapi_json --> controller_publiccontroller
+  controller_publiccontroller --> service_seoservice
+  controller_publiccontroller -. renders .-> view_public_openapi
   route_get_sitemap_xml --> controller_publiccontroller
   controller_publiccontroller --> service_blogservice
   controller_publiccontroller --> service_productservice
   controller_publiccontroller --> service_campaignpageservice
+  controller_publiccontroller --> service_settingsservice
+  controller_publiccontroller --> service_seoservice
   controller_publiccontroller -. renders .-> view_public_sitemap
   route_get_contact --> controller_publiccontroller
   controller_publiccontroller -. renders .-> view_public_contact
@@ -473,6 +499,35 @@ flowchart LR
   route_get_account_dashboard_install --> controller_accountcontroller
   controller_accountcontroller --> service_authservice
   controller_accountcontroller -. renders .-> view_account_install
+  route_get_account_therapy --> controller_therapycontroller
+  controller_therapycontroller --> service_therapysessionservice
+  controller_therapycontroller --> service_authservice
+  controller_therapycontroller -. renders .-> view_account_therapy
+  route_post_account_therapy_id_pay --> controller_therapycontroller
+  controller_therapycontroller --> service_therapysessionservice
+  controller_therapycontroller --> service_secretservice
+  controller_therapycontroller --> service_authservice
+  controller_therapycontroller -. renders .-> view_account_therapy_checkout
+  route_post_account_therapy_id_verify --> controller_therapycontroller
+  controller_therapycontroller --> service_therapysessionservice
+  controller_therapycontroller --> service_paymentservice
+  controller_therapycontroller --> service_authservice
+  controller_therapycontroller -. renders .-> view_account_therapy
+  route_post_payment_therapy_webhook_mode --> controller_therapycontroller
+  controller_therapycontroller --> service_therapysessionservice
+  controller_therapycontroller --> service_secretservice
+  controller_therapycontroller -. renders .-> view_account_therapy
+  route_get_admin_therapy --> controller_therapycontroller
+  controller_therapycontroller --> service_therapysessionservice
+  controller_therapycontroller --> service_consultantservice
+  controller_therapycontroller --> service_authservice
+  controller_therapycontroller -. renders .-> view_admin_therapy
+  route_post_admin_therapy_id --> controller_therapycontroller
+  controller_therapycontroller --> service_therapysessionservice
+  controller_therapycontroller --> service_consultantservice
+  controller_therapycontroller --> service_auditlogservice
+  controller_therapycontroller --> service_authservice
+  controller_therapycontroller -. renders .-> view_admin_therapy
   route_get_account_orders --> controller_accountcontroller
   controller_accountcontroller --> service_authservice
   controller_accountcontroller -. renders .-> view_account_orders
@@ -569,6 +624,10 @@ flowchart LR
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_settings
+  route_get_admin_search_performance --> controller_admincontroller
+  controller_admincontroller --> service_secretservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_search_performance
   route_get_admin_integrations --> controller_admincontroller
   controller_admincontroller --> service_settingsservice
   controller_admincontroller --> service_paymentservice
@@ -577,6 +636,7 @@ flowchart LR
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_integrations
   route_get_admin_agent --> controller_admincontroller
+  controller_admincontroller --> service_agentconversation
   controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_agentattachmentservice
   controller_admincontroller --> service_auditlogservice
@@ -584,6 +644,7 @@ flowchart LR
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_agent
   route_post_admin_agent_ask --> controller_admincontroller
+  controller_admincontroller --> service_agentconversation
   controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_agentcontextservice
   controller_admincontroller --> service_auditlogservice
@@ -639,6 +700,11 @@ flowchart LR
   controller_admincontroller -. renders .-> view_admin_appearance
   route_get_admin_media --> controller_admincontroller
   controller_admincontroller --> service_mediaservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_media
+  route_post_admin_media_archive --> controller_admincontroller
+  controller_admincontroller --> service_mediaservice
+  controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_media
   route_post_admin_media_upload --> controller_admincontroller
@@ -765,6 +831,7 @@ flowchart LR
   controller_supportcontroller --> service_seoservice
   controller_supportcontroller -. renders .-> view_public_support
   route_post_support_ask --> controller_supportcontroller
+  controller_supportcontroller --> service_agentconversation
   controller_supportcontroller --> service_supportbotservice
   controller_supportcontroller --> service_agentcontextservice
   controller_supportcontroller --> service_supportticketservice
@@ -848,6 +915,7 @@ flowchart LR
   controller_remotedbcontroller --> controller_basecontroller
   controller_reviewcontroller --> controller_basecontroller
   controller_supportcontroller --> controller_basecontroller
+  controller_therapycontroller --> controller_basecontroller
   controller_basecontroller --> service_seoservice
   tool_import_product_images --> service_imageoptimizerservice
   tool_import_product_images --> service_databaseservice
@@ -879,6 +947,7 @@ flowchart LR
   service_mailqueueservice --> collection_mail_queue
   service_mailstorageservice --> collection_mail_inbox
   service_mailstorageservice --> collection_mail_outbox
+  service_mediaservice --> collection_media_files
   service_orderservice --> collection_orders
   service_passwordresetservice --> collection_users
   service_productservice --> collection_products
@@ -887,6 +956,7 @@ flowchart LR
   service_reviewservice --> collection_orders
   service_settingsservice --> collection_settings
   service_supportticketservice --> collection_support_tickets
+  service_therapysessionservice --> collection_therapy_sessions
   service_resourceservice --> collection_products
   service_resourceservice --> collection_orders
   service_resourceservice --> collection_appointments
@@ -916,7 +986,9 @@ flowchart LR
   service_paymentservice --> integration_stripeclient
   service_paymentservice --> integration_razorpayclient
   service_paymentservice --> integration_stripeclient
-  service_supportbotservice --> integration_googlesitekitclient
+  service_paymentservice --> integration_razorpayclient
+  service_paymentservice --> integration_stripeclient
+  controller_admincontroller --> integration_googlesitekitclient
   tool_generate_project_map --> systematic_map["docs/systematic-map.mmd"]:::data
   tool_validate_project_map --> systematic_map
   tool_smoke_local --> ROUTES_PUBLIC

@@ -12,11 +12,25 @@
     const clear = document.getElementById('agent-clear');
     const welcome = messages.firstElementChild.cloneNode(true);
     const csrfToken = form.elements.namedItem('_csrf').value;
+    const chat = new window.AgentConversation(form, form.action, csrfToken);
     composer.hidden = false;
     suggestionGroup.hidden = false;
     clear.hidden = false;
-    clear.addEventListener('click', function () {
+    clear.addEventListener('click', async function () {
         if (submit.disabled) return;
+        submit.disabled = true;
+        clear.disabled = true;
+        input.disabled = true;
+        try {
+            await chat.request('clear');
+        } catch {
+            status.textContent = 'Could not start a new chat. Reload this page to reconnect.';
+            return;
+        } finally {
+            submit.disabled = false;
+            clear.disabled = false;
+            input.disabled = false;
+        }
         messages.replaceChildren(welcome.cloneNode(true));
         input.value = '';
         autoGrow();
@@ -69,6 +83,14 @@
         messages.insertBefore(row, before);
         messages.scrollTop = messages.scrollHeight;
         return bubble;
+    }
+
+    function appendTrace(target, traceId) {
+        if (!/^[a-f0-9]{16}$/.test(traceId || '')) return;
+        const reference = document.createElement('small');
+        reference.textContent = 'Trace ' + traceId;
+        reference.className = 'agent-trace-reference';
+        target.append(reference);
     }
 
     function autoGrow() {
@@ -224,7 +246,7 @@
         });
     }
 
-    async function askAgent(e, retryMessage = null, retryRow = null) {
+    async function askAgent(e, retryMessage = null, retryRow = null, id = chat.turnId()) {
         e.preventDefault();
         const msg = retryMessage ?? input.value.trim();
         if (!msg || submit.disabled) return false;
@@ -251,10 +273,10 @@
         const timeout = setTimeout(() => abort.abort(), 35000);
 
         try {
-            const body = new URLSearchParams({ message: msg, _csrf: csrfToken });
+            const body = new URLSearchParams({ message: msg, _csrf: csrfToken, conversation: chat.id, turn_id: id });
             const resp = await fetch(form.action, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
                 body: body,
                 credentials: 'same-origin',
                 signal: abort.signal
@@ -287,18 +309,13 @@
             clearTimeout(timeout);
             progress.finish(failed, mode);
         }
-        if (/^[a-f0-9]{16}$/.test(traceId || '')) {
-            const reference = document.createElement('small');
-            reference.textContent = 'Trace ' + traceId;
-            reference.className = 'agent-trace-reference';
-            response.append(reference);
-        }
+        appendTrace(response, traceId);
         if (retry) {
             const button = document.createElement('button');
             button.type = 'button';
             button.className = 'btn btn-outline btn-sm agent-retry';
             button.textContent = 'Retry request';
-            button.addEventListener('click', event => askAgent(event, msg, thinking.parentElement));
+            button.addEventListener('click', event => askAgent(event, msg, thinking.parentElement, id));
             response.append(button);
         }
 
@@ -312,4 +329,23 @@
         return false;
     }
     form.addEventListener('submit', askAgent);
+    if (chat.hasTurns) {
+        submit.disabled = true;
+        clear.disabled = true;
+        status.textContent = 'Loading your conversation…';
+        chat.request('history').then(turns => {
+            for (const entry of turns) {
+                addRow('user', escapeHtml(entry.question).replace(/\n/g, '<br>'));
+                const answer = addRow('bot', renderMarkdown(entry.response.answer));
+                appendTrace(answer, entry.trace_id);
+            }
+            suggestionGroup.hidden = turns.length > 0;
+            status.textContent = '';
+        }).catch(() => {
+            status.textContent = 'Could not load your conversation. Reload this page to reconnect.';
+        }).finally(() => {
+            submit.disabled = false;
+            clear.disabled = false;
+        });
+    }
 })();

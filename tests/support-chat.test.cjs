@@ -4,6 +4,7 @@ const test = require('node:test');
 const vm = require('node:vm');
 const { webcrypto } = require('node:crypto');
 
+const conversationScript = fs.readFileSync(require.resolve('../assets/agent-conversation.js'), 'utf8');
 const script = fs.readFileSync(require.resolve('../assets/support-chat.js'), 'utf8');
 
 function element(tag) {
@@ -18,15 +19,19 @@ function element(tag) {
     };
 }
 
-function boot({ storage = new Map(), fetch } = {}) {
+function boot({ storage = new Map(), fetch, hasTurns = false } = {}) {
     const launcher = element('button'), panel = element('section'), log = element('div');
-    const close = element('button'), form = element('form'), starter = element('button');
+    const clear = element('button'), close = element('button'), form = element('form'), starter = element('button');
     const message = element('textarea');
     message.value = '';
+    panel.dataset.hasTurns = hasTurns ? '1' : '0';
+    panel.dataset.conversation = '1'.repeat(32);
+    panel.hidden = true;
+    log.firstElementChild = element('p');
     panel.dataset.supportKey = 'support-test';
     panel.querySelector = () => close;
     starter.dataset.supportPrompt = 'Where is the clinic?';
-    form.elements = { message };
+    form.elements = { message, _csrf: { value: 'fixture-token' } };
     form.contains = node => node === message || node === starter;
     form.querySelectorAll = selector => selector === '[data-support-prompt]' ? [starter] : [message, starter];
     form.reset = () => { message.value = ''; };
@@ -34,14 +39,14 @@ function boot({ storage = new Map(), fetch } = {}) {
     form.requestSubmit = () => { submissions++; };
     const document = {
         querySelector: () => launcher,
-        getElementById: id => ({ 'support-panel': panel, 'support-form': form, 'support-log': log })[id],
+        getElementById: id => ({ 'support-panel': panel, 'support-form': form, 'support-log': log, 'support-clear': clear, 'support-prompts': element('details') })[id],
         createElement: element,
     };
     class FormData extends Map {
         constructor() { super([['message', message.value]]); }
     }
-    vm.runInNewContext(script, {
-        document, FormData, AbortController, TextEncoder, setTimeout, clearTimeout, fetch,
+    vm.runInNewContext(conversationScript + '\n' + script, {
+        document, FormData, URLSearchParams, AbortController, TextEncoder, setTimeout, clearTimeout, fetch,
         window: { AgentRequestStatus: { start: () => ({ finish() {} }) } },
         sessionStorage: {
             getItem: key => storage.get(key) ?? null,
@@ -52,6 +57,7 @@ function boot({ storage = new Map(), fetch } = {}) {
     });
     return {
         message, log, starter, storage,
+        open: async () => { launcher.events.click(); await new Promise(resolve => setImmediate(resolve)); },
         submissions: () => submissions,
         submit: value => form.events.submit({ preventDefault() {}, submitter: { value } }),
     };
@@ -78,7 +84,22 @@ test('live and restored reply markup remains text and only allowed links render'
     ]) });
     chat.message.value = 'Clinic hours?';
     await chat.submit();
-    for (const current of [chat, boot({ storage: chat.storage })]) {
+    assert.doesNotMatch(JSON.stringify([...chat.storage]), /Clinic hours/);
+    const restored = boot({ hasTurns: true, fetch: async (url, { body }) => {
+        assert.equal(url, '/support/ask');
+        assert.equal(body.get('conversation_action'), 'history');
+        assert.equal(body.get('_csrf'), 'fixture-token');
+        return { ok: true, json: async () => ({
+            conversation: '1'.repeat(32), turns: [{ question: 'Clinic hours?', response: {
+                reply, actions: [
+                    { type: 'navigate', path: '/contact', label: 'Contact' },
+                    { type: 'navigate', path: '//example.invalid', label: 'External' }
+                ]
+            } }]
+        }) };
+    }});
+    await restored.open();
+    for (const current of [chat, restored]) {
         const turn = current.log.children[0];
         assert.equal(turn.children[1].children[1], ' ' + reply);
         assert.deepEqual(turn.children[1].children.map(node => node.tag).filter(Boolean), ['strong']);

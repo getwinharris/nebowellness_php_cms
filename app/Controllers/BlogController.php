@@ -8,6 +8,7 @@ final class BlogController extends BaseController
 {
     public function index(): void
     {
+        $this->requireModule('blog');
         $this->detectApiRequest();
         $this->seoKey = 'blog';
 
@@ -24,6 +25,7 @@ final class BlogController extends BaseController
 
     public function show(string $slug): void
     {
+        $this->requireModule('blog');
         $this->detectApiRequest();
         $blogService = new BlogService();
         $post = $blogService->find($slug);
@@ -31,7 +33,7 @@ final class BlogController extends BaseController
         // `find()` also serves the editor, so an unpublished post must be rejected
         // here as well as omitted from the index. Otherwise a retired article stays
         // publicly available to anyone with its old URL.
-        if ($post === null || empty($post['published'])) {
+        if ($post === null || empty($post['published']) || $blogService->categoryIsDisabled((string)($post['category'] ?? ''))) {
             $this->renderNotFound();
             return;
         }
@@ -44,7 +46,7 @@ final class BlogController extends BaseController
         $this->seoOverrides = [
             'title' => $title,
             'description' => $post['seo_description'] ?? $post['excerpt'] ?? 'Read ' . $title,
-            'og_image' => $post['og_image'] ?? null,
+            'og_image' => $post['og_image'] ?? $post['image'] ?? null,
             'keywords' => $keywords,
         ];
 
@@ -57,6 +59,7 @@ final class BlogController extends BaseController
 
     public function category(string $slug): void
     {
+        $this->requireModule('blog');
         $this->detectApiRequest();
         $this->seoKey = 'blog.category';
 
@@ -66,13 +69,15 @@ final class BlogController extends BaseController
 
         $filtered = array_values(array_filter($posts, fn($p) => ($p['category'] ?? '') === $slug));
 
-        $categoryName = $slug;
+        $categoryName = null;
         foreach ($categories as $cat) {
             if (($cat['slug'] ?? '') === $slug) {
                 $categoryName = $cat['name'] ?? $slug;
                 break;
             }
         }
+
+        if ($categoryName === null || $blogService->categoryIsDisabled($slug)) $this->renderNotFound();
 
         $this->seoOverrides = [
             'title' => $categoryName . ' — Blog',

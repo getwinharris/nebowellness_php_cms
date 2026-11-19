@@ -1,29 +1,3 @@
-<style>
-.dashboard-overview { display:grid; gap:var(--space-lg); margin-bottom:var(--space-lg); }
-.dashboard-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:var(--space-md); }
-.dashboard-heading h2,.dashboard-chart h3 { margin:0; }
-.dashboard-heading p,.dashboard-chart p,.dashboard-telemetry-note { margin:.35rem 0 0; color:var(--color-text-muted); }
-.dashboard-overview .dashboard-actions,.dashboard-overview .dashboard-period { display:flex; flex-wrap:wrap; gap:.5rem; }
-.dashboard-period a[aria-current] { border-color:currentColor; font-weight:700; }
-.dashboard-insights { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-sm); margin-block:var(--space-md); }
-.dashboard-insight { padding:var(--space-md); border:1px solid var(--color-border); border-radius:var(--radius-md); }
-.dashboard-insight h3 { margin:0; font-size:1rem; }
-.dashboard-insight dl { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; margin:.75rem 0; }
-.dashboard-insight dt { font-size:.78rem; color:var(--color-text-muted); }
-.dashboard-insight dd { font-size:clamp(1rem,2.1vw,1.5rem); font-weight:700; margin:0; font-variant-numeric:tabular-nums; }
-.dashboard-insight p { margin:0; font-size:.84rem; color:var(--color-text-muted); }
-.dashboard-chart { padding:var(--space-md); border:1px solid var(--color-border); border-radius:var(--radius-md); }
-.dashboard-plot { display:grid; grid-auto-flow:column; grid-auto-columns:minmax(0,1fr); align-items:end; gap:clamp(2px, .6vw, 10px); height:100px; border-bottom:1px solid var(--color-border); margin-top:1rem; }
-.dashboard-bar { background:var(--color-primary, #2d579c); display:flex; flex-direction:column; justify-content:end; border-radius:2px 2px 0 0; }
-.dashboard-bar span { background:#a53335; }
-.dashboard-axis { display:flex; justify-content:space-between; gap:.5rem; font-size:.76rem; color:var(--color-text-muted); }
-.dashboard-key { display:flex; flex-wrap:wrap; gap:.4rem 1rem; font-size:.8rem; margin-top:.6rem; }
-.dashboard-key span::before { content:''; display:inline-block; width:.65em; height:.65em; margin-right:.35em; background:var(--color-primary, #2d579c); }
-.dashboard-key span:last-child::before { background:#a53335; }
-.dashboard-chart details { margin-top:.75rem; }
-.dashboard-chart summary { cursor:pointer; width:fit-content; }
-@media(max-width:740px) { .dashboard-insights { grid-template-columns:minmax(0,1fr); } }
-</style>
 <div class="dashboard-overview">
 <div class="dashboard-heading">
     <div><h2>Clinic overview</h2><p>Review enquiries and check how both agents are responding.</p></div>
@@ -56,7 +30,7 @@
                 </dl>
                 <p><?= $provider['attempts'] === 0 ? 'No provider attempts traced.' : (int)$provider['failures'] . ' of ' . (int)$provider['attempts'] . ' traced provider attempts failed.' ?></p>
                 <?php if ($metrics['requests'] > 0): ?>
-                    <details style="margin-top:.5rem"><summary>Run outcomes</summary>
+                    <details><summary>Run outcomes</summary>
                         <ul>
                             <?php foreach (['model' => 'Model answers', 'fallback' => 'Local responses or fallbacks', 'private_account' => 'Sign-in guidance', 'draft' => 'Generated drafts', 'manual' => 'Manual forms', 'draft_unavailable' => 'Drafts unavailable', 'error' => 'Run errors'] as $key => $label): ?>
                                 <?php if ($metrics[$key] > 0): ?><li><?= e($label) ?>: <?= (int)$metrics[$key] ?></li><?php endif; ?>
@@ -67,6 +41,32 @@
             </article>
         <?php endforeach; ?>
         </div>
+        <?php if (!empty($agentMonitoring['provider_details'])): ?>
+            <details class="dashboard-providers" id="provider-performance">
+                <summary>Provider performance by model</summary>
+                <p>Attempts include retries. P95 measures a single provider call.</p>
+                <ul class="dashboard-provider-list">
+                    <?php foreach ($agentMonitoring['provider_details'] as $model): ?>
+                        <li>
+                            <strong><?= e($model['model']) ?></strong>
+                            <span><?= $model['surface'] === 'support' ? 'Customer support' : 'Enterprise Agent' ?>
+                                · <?= e(ucfirst($model['provider'])) ?>
+                                · <?= e(['tools' => 'With tools', 'plain' => 'Plain request', 'unknown' => 'Request type unrecorded'][$model['mode']]) ?></span>
+                            <dl>
+                                <div><dt>Attempts</dt><dd><?= (int)$model['attempts'] ?></dd></div>
+                                <div><dt>Failed</dt><dd><?= (int)$model['failures'] ?></dd></div>
+                                <div><dt>P95 time</dt><dd><?= $model['p95_ms'] === null ? '—' : e(number_format($model['p95_ms'] / 1000, 2) . ' s') ?></dd></div>
+                            </dl>
+                            <?php if ($model['failure_types']): ?>
+                                <ul aria-label="Failure causes">
+                                    <?php foreach ($model['failure_types'] as $reason => $count): ?><li><?= e($reason) ?> (<?= (int)$count ?>)</li><?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </details>
+        <?php endif; ?>
         <?php $daily = $agentMonitoring['daily']; $peak = max(array_column($daily, 'runs')); ?>
         <div class="dashboard-chart">
             <h3>Daily agent runs</h3>
@@ -123,57 +123,14 @@
     </div>
 </div>
 
-<?php
-$__secretsGa = (new \App\Services\SecretService())->all();
-$__gaConfigured = !empty($__secretsGa['google_analytics_id']);
-$__adsConfigured = !empty($__secretsGa['google_ads_id']);
-$__gsvConfigured = !empty($__secretsGa['google_site_verification']);
-$__googleSiteKitEnabled = $__gaConfigured || $__adsConfigured || $__gsvConfigured;
-?>
-
-<?php if ($__googleSiteKitEnabled): ?>
-<div class="admin-card" style="margin-bottom:var(--space-lg); border-left:3px solid var(--color-gold);">
-    <h2 style="display:flex; align-items:center; gap:var(--space-sm); font-size:1rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/><path d="M2 12h20"/></svg>
-        Google integrations
-    </h2>
-    <div style="display:flex; flex-wrap:wrap; gap:var(--space-md); font-size:0.85rem;">
-        <?php if ($__gaConfigured): ?>
-        <span style="display:flex; align-items:center; gap:var(--space-xs);">
-            <span style="color:var(--color-success);">●</span> Analytics
-            <a href="https://analytics.google.com/analytics/web/" target="_blank" rel="noopener" style="font-size:0.75rem;">Open GA4 →</a>
-        </span>
-        <?php endif; ?>
-        <?php if ($__adsConfigured): ?>
-        <span style="display:flex; align-items:center; gap:var(--space-xs);">
-            <span style="color:var(--color-success);">●</span> Ads
-            <a href="https://ads.google.com/" target="_blank" rel="noopener" style="font-size:0.75rem;">Open Ads →</a>
-        </span>
-        <?php endif; ?>
-        <?php if ($__gsvConfigured): ?>
-        <span style="display:flex; align-items:center; gap:var(--space-xs);">
-            <span style="color:var(--color-success);">●</span> Search Console
-            <a href="https://search.google.com/search-console" target="_blank" rel="noopener" style="font-size:0.75rem;">Open Console →</a>
-        </span>
-        <?php endif; ?>
+<section class="admin-card search-performance-prompt">
+    <h2>Search performance</h2>
+    <p>Review search visibility, traffic, and the pages visitors land on.</p>
+    <div class="admin-card__actions">
+        <a href="/admin/search-performance" class="btn btn-sm btn-primary">View reports</a>
+        <a href="/admin/integrations#google-reporting" class="btn btn-sm btn-ghost">Google settings</a>
     </div>
-    <p style="margin:var(--space-sm) 0 0; font-size:0.78rem; color:var(--color-text-muted);">
-        Links are shown for configured integrations. Reports open in the respective Google service.
-        <a href="/admin/integrations" style="font-weight:500;">Configure in Integrations</a>
-    </p>
-</div>
-<?php else: ?>
-<div class="admin-card" style="margin-bottom:var(--space-lg); border-left:3px solid var(--color-border);">
-    <h2 style="display:flex; align-items:center; gap:var(--space-sm); font-size:1rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/><path d="M2 12h20"/></svg>
-        Google Analytics
-    </h2>
-    <p style="margin:0; font-size:0.85rem; color:var(--color-text-muted);">
-        Google Analytics is not configured. 
-        <a href="/admin/integrations">Set up GA4, Ads, and Search Console in Integrations →</a>
-    </p>
-</div>
-<?php endif; ?>
+</section>
 
 <div class="admin-quick-grid">
     <?php if (!empty($shopEnabled)): ?>

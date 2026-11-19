@@ -26,7 +26,7 @@ final class MailStorageService {
             if (!is_scalar($answerValue)) continue;
             $answerValue = trim((string)$answerValue);
             if ($answerValue === '') continue;
-            $answerLines[] = ucwords(str_replace('_', ' ', (string)$answerKey)) . ': ' . $answerValue;
+            $answerLines[] = CampaignPageService::answerLabel($contact, (string)$answerKey) . ': ' . $answerValue;
         }
         if ($answerLines !== []) {
             $body = trim($body . "\n\nCampaign answers:\n" . implode("\n", $answerLines));

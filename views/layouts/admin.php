@@ -7,9 +7,6 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= e($pageTitle ?? 'Admin') ?> — Nebo Wellness</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="/admin/manifest.json">
 <meta name="theme-color" content="#4472C4">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -21,43 +18,8 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
 <script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__.'/../../assets/agent-status.js') ?>" defer></script>
-<style>
-.admin-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
-.admin-sidebar { background: var(--color-ink); color: rgba(255,255,255,0.6); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
-.admin-sidebar__brand { padding: var(--space-lg); border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: var(--space-2xs); }
-.admin-sidebar__brand span { font-family: var(--font-serif); font-size: 1.05rem; color: var(--color-gold); font-weight: 600; }
-.admin-sidebar__brand small { font-size: 0.7rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.1em; }
-.admin-sidebar .admin-sidebar__nav { display: flex; flex: 1; flex-direction: column; position: static; inset: auto; background: transparent; box-shadow: none; border: 0; padding: var(--space-xs) 0; }
-.admin-nav-top, .admin-nav-toggle { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-lg); color: rgba(255,255,255,0.55); font-size: 0.85rem; transition: all var(--transition-base); border-left: 3px solid transparent; cursor: pointer; background: none; border-right: 0; border-top: 0; border-bottom: 0; width: 100%; text-align: left; font-family: inherit; }
-.admin-nav-top:hover, .admin-nav-toggle:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
-.admin-nav-top.active { background: rgba(212,175,55,0.08); color: var(--color-gold); border-left-color: var(--color-gold); }
-.admin-nav-top svg, .admin-nav-toggle svg { flex-shrink: 0; opacity: 0.7; }
-.admin-nav-top.active svg { opacity: 1; }
-.admin-nav-chevron { margin-left: auto; transition: transform var(--transition-base); }
-.admin-nav-toggle[aria-expanded="false"] .admin-nav-chevron { transform: rotate(-90deg); }
-.admin-submenu { display: flex; flex-direction: column; }
-.admin-submenu a { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-xs) var(--space-lg) var(--space-xs) calc(var(--space-lg) + 24px); color: rgba(255,255,255,0.4); font-size: 0.82rem; transition: all var(--transition-base); border-left: 3px solid transparent; }
-.admin-submenu a:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.75); }
-.admin-submenu a.active { background: rgba(212,175,55,0.06); color: var(--color-gold); border-left-color: var(--color-gold); }
-.admin-sidebar__footer { padding: var(--space-md) var(--space-lg); border-top: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; gap: var(--space-xs); }
-.admin-sidebar__footer a { display: flex; align-items: center; gap: var(--space-sm); font-size: 0.8rem; color: rgba(255,255,255,0.4); transition: color var(--transition-base); }
-.admin-sidebar__footer a:hover { color: var(--color-error); }
-.admin-main { background: var(--color-bg-alt); min-height: 100vh; min-width: 0; }
-.admin-topbar { background: var(--color-white); border-bottom: 1px solid var(--color-border); padding: var(--space-md) var(--space-xl); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-.admin-topbar h1 { font-family: var(--font-serif); font-size: 1.25rem; margin: 0; color: var(--color-ink); }
-.admin-topbar__actions { display: flex; align-items: center; gap: var(--space-sm); }
-.admin-body { padding: var(--space-xl); }
-@media (max-width: 768px) {
-    .admin-shell { grid-template-columns: 1fr; }
-    .admin-sidebar { display: none; position: fixed; top: 0; left: 0; bottom: 0; width: 260px; z-index: 1000; }
-    .admin-sidebar.open { display: flex; }
-    #sidebarToggle { display: inline-flex !important; }
-    .admin-topbar { padding: var(--space-sm) var(--space-md); flex-wrap: wrap; gap: var(--space-sm); }
-    .admin-topbar h1 { flex: 1; min-width: 0; font-size: 1rem; overflow-wrap: anywhere; }
-    .admin-topbar__actions { width: 100%; justify-content: flex-end; }
-    .admin-body { padding: var(--space-md); }
-}
-</style>
+<script src="/assets/admin-navigation.js?v=<?= filemtime(app_path('assets/admin-navigation.js')) ?>" defer></script>
+
 </head>
 <body>
 <a class="skip-content" href="#main-content">Skip to content</a>
@@ -67,12 +29,13 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
             <span>Nebo Wellness</span>
             <small>Admin Panel</small>
         </div>
-        <nav class="admin-sidebar__nav" id="admin-nav">
+        <a class="admin-nav-close" href="#main-content" data-admin-menu-close>Close navigation</a>
+        <nav aria-label="Clinic administration" class="admin-sidebar__nav" id="admin-nav">
             <a href="/admin" class="admin-nav-top <?= ($_SERVER['REQUEST_URI'] === '/admin' ? 'active' : '') ?>">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
                 Dashboard
             </a>
-            <button type="button" class="admin-nav-toggle" data-target="menu-clinic" aria-expanded="true">
+            <button type="button" class="admin-nav-toggle" aria-controls="menu-clinic" aria-expanded="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/><path d="M2 12h20"/></svg>
                 Clinic
                 <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -83,10 +46,10 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 <a href="/admin/consultation-analytics" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/consultation-analytics') === 0 ? 'active' : '') ?>">Analytics</a>
             </div>
             <?php if ($__modules['blog'] || $__modules['campaigns']): ?>
-            <button type="button" class="admin-nav-toggle" data-target="menu-content" aria-expanded="true">Content <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button type="button" class="admin-nav-toggle" aria-controls="menu-content" aria-expanded="true">Content <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
             <div class="admin-submenu" id="menu-content"><?php if ($__modules['blog']): ?><a href="/admin/blog" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/blog') === 0 ? 'active' : '') ?>">Blog</a><?php endif; ?><?php if ($__modules['campaigns']): ?><a href="/admin/campaigns" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/campaigns') === 0 ? 'active' : '') ?>">Campaign Pages</a><?php endif; ?></div>
             <?php endif; ?>
-            <?php if ($__modules['shop']): ?><button type="button" class="admin-nav-toggle" data-target="menu-commerce" aria-expanded="true">
+            <?php if ($__modules['shop']): ?><button type="button" class="admin-nav-toggle" aria-controls="menu-commerce" aria-expanded="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
                 Commerce
                 <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -100,9 +63,9 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 <a href="/admin/tax-report" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/tax-report') === 0 ? 'active' : '') ?>">Tax Report</a>
             </div>
             <?php endif; ?>
-            <button type="button" class="admin-nav-toggle" data-target="menu-enquiries" aria-expanded="true">Enquiries <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
-            <div class="admin-submenu" id="menu-enquiries"><a href="/admin/contact-submissions" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/contact-submissions') === 0 ? 'active' : '') ?>">Contacts</a><a href="/admin/support-tickets" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/support-tickets') === 0 ? 'active' : '') ?>">Support</a><a href="/admin/email-inbox" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/email-inbox') === 0 ? 'active' : '') ?>">Email Inbox</a><a href="/admin/email-outbox" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/email-outbox') === 0 ? 'active' : '') ?>">Email Outbox</a></div>
-            <button type="button" class="admin-nav-toggle" data-target="menu-appearance" aria-expanded="true">
+            <button type="button" class="admin-nav-toggle" aria-controls="menu-enquiries" aria-expanded="true">Enquiries <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <div class="admin-submenu" id="menu-enquiries"><a href="/admin/contact-submissions" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/contact-submissions') === 0 ? 'active' : '') ?>">Contacts</a><a href="/admin/therapy" class="<?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/therapy') ? 'active' : '' ?>">Therapy requests</a><a href="/admin/support-tickets" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/support-tickets') === 0 ? 'active' : '') ?>">Support</a><a href="/admin/email-inbox" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/email-inbox') === 0 ? 'active' : '') ?>">Email Inbox</a><a href="/admin/email-outbox" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/email-outbox') === 0 ? 'active' : '') ?>">Email Outbox</a></div>
+            <button type="button" class="admin-nav-toggle" aria-controls="menu-appearance" aria-expanded="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                 Appearance
                 <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -111,7 +74,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 <a href="/admin/media" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/media') === 0 ? 'active' : '') ?>">Media Library</a>
                 <a href="/admin/appearance" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/appearance') === 0 ? 'active' : '') ?>">Logo & Favicon</a>
             </div>
-            <button type="button" class="admin-nav-toggle" data-target="menu-settings" aria-expanded="true">
+            <button type="button" class="admin-nav-toggle" aria-controls="menu-settings" aria-expanded="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
                 Settings
                 <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
@@ -135,9 +98,10 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
     </aside>
     <main id="main-content" tabindex="-1" class="admin-main">
         <div class="admin-topbar">
-            <button type="button" class="btn btn-sm btn-ghost" id="sidebarToggle" aria-label="Admin navigation" aria-controls="admin-sidebar" aria-expanded="false" style="display:none; margin-right:var(--space-sm);">
+            <button type="button" class="btn btn-sm btn-ghost" id="sidebarToggle" hidden aria-label="Admin navigation" aria-controls="admin-sidebar" aria-expanded="false">
                 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
+            <noscript><a class="admin-nav-fallback" href="#admin-sidebar">Menu</a></noscript>
             <h1><?= e($pageTitle ?? 'Dashboard') ?></h1>
             <div class="admin-topbar__actions">
         <button class="page-finder-trigger" type="button" data-page-finder="admin-nav" aria-haspopup="dialog" aria-label="Find a module" hidden>
@@ -154,16 +118,16 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 </a>
             </div>
         </div>
-        <div class="admin-breadcrumb" style="padding:var(--space-xs) var(--space-xl); font-size:0.78rem; color:var(--color-text-muted); background:var(--color-white); border-bottom:1px solid var(--color-border); display:flex; gap:var(--space-xs); align-items:center;">
-            <a href="/admin" style="color:var(--color-text-muted);">Dashboard</a>
+        <nav aria-label="Breadcrumb" class="admin-breadcrumb">
+            <a href="/admin">Dashboard</a>
             <?php
             $__path = parse_url($_SERVER['REQUEST_URI'] ?? '/admin', PHP_URL_PATH);
             $__segments = array_values(array_filter(explode('/', $__path)));
-            $__crumb = '';
+            $__crumb = '/admin';
             $__labelMap = [
                 'products'=>'Products','categories'=>'Categories','coupons'=>'Coupons',
                 'orders'=>'Orders','shipping'=>'Shipping','tax-report'=>'Tax Report','consultants'=>'Consultants',
-                'appointments'=>'Sessions',
+                'appointments'=>'Sessions','therapy'=>'Therapy requests','agent'=>'Enterprise Agent','search-performance'=>'Search performance',
                 'consultation-analytics'=>'Analytics','campaigns'=>'Campaign Pages',
                 'settings'=>'Site Settings','integrations'=>'Integrations',
                 'backups'=>'Backups','audit-log'=>'Audit Log',
@@ -177,14 +141,14 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 if ($__seg === 'admin' && $__i === 0) continue;
                 $__crumb .= '/' . $__seg;
                 $__label = $__labelMap[$__seg] ?? ucwords(str_replace(['-','_'], ' ', $__seg));
-                if ($__i === count($__segments) - 1):
             ?>
-                <span style="color:var(--color-ink); font-weight:500;"><?= e($__label) ?></span>
-            <?php else: ?>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-                <a href="<?= e($__crumb) ?>" style="color:var(--color-text-muted);"><?= e($__label) ?></a>
+                <span aria-hidden="true">/</span>
+                <?php if ($__i === count($__segments) - 1): ?>
+                    <span aria-current="page"><?= e($__label) ?></span>
+                <?php else: ?>
+                    <a href="<?= e($__crumb) ?>"><?= e($__label) ?></a>
             <?php endif; endforeach; ?>
-        </div>
+        </nav>
         <div class="admin-body">
         <?php
         $__flash = $_SESSION['flash'] ?? null;
@@ -202,42 +166,6 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <script>
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' }).catch(function(){}); }
 var installPrompt=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();installPrompt=e;document.getElementById('pwa-install-btn').style.display='flex';});window.addEventListener('appinstalled',function(){installPrompt=null;document.getElementById('pwa-install-btn').style.display='none';});document.addEventListener('click',function(e){if(e.target.closest('#pwa-install-btn')){if(!installPrompt)return;installPrompt.prompt();installPrompt.userChoice.then(function(){installPrompt=null;document.getElementById('pwa-install-btn').style.display='none';});}});
-const sidebar = document.getElementById('admin-sidebar');
-const toggle = document.getElementById('sidebarToggle');
-if (sidebar && toggle) {
-    const mobile = window.matchMedia('(max-width: 768px)');
-    let sidebarHadFocus = sidebar.contains(document.activeElement);
-    document.addEventListener('focusin', (e) => {
-        sidebarHadFocus = sidebar.contains(e.target);
-    });
-    const setSidebarOpen = (open) => {
-        const active = document.activeElement;
-        // A click on plain content or a viewport change may already have blurred the link.
-        const restoreFocus = !open && mobile.matches &&
-            (sidebar.contains(active) || (active === document.body && sidebarHadFocus));
-        sidebar.classList.toggle('open', open);
-        toggle.setAttribute('aria-expanded', String(open));
-        if (restoreFocus) toggle.focus();
-    };
-    toggle.addEventListener('click', () => {
-        const open = !sidebar.classList.contains('open');
-        setSidebarOpen(open);
-        if (open) sidebar.querySelector('nav a')?.focus();
-    });
-    document.addEventListener('click', (e) => {
-        if (mobile.matches && sidebar.classList.contains('open') && !sidebar.contains(e.target) && !toggle.contains(e.target)) {
-            setSidebarOpen(false);
-        }
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && mobile.matches && sidebar.classList.contains('open')) {
-            setSidebarOpen(false);
-            toggle.focus();
-        }
-    });
-    mobile.addEventListener('change', () => setSidebarOpen(false));
-}
-document.querySelectorAll('.admin-nav-toggle').forEach(function(btn){btn.addEventListener('click',function(){var target=document.getElementById(btn.dataset.target);if(!target)return;var expanded=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',String(!expanded));target.style.display=expanded?'none':'';});});
 </script>
 <div id="toast-container"></div>
 <button id="pwa-install-btn" class="pwa-install-btn">

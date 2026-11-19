@@ -6,6 +6,7 @@ sections:
       - /contact: Request a Consultation
   - section: Account & Orders
     links:
+      - /account/therapy: My Therapy Requests
       - /account/dashboard/orders: My Orders
       - /account/dashboard/install: Install App
   - section: Shop & Products

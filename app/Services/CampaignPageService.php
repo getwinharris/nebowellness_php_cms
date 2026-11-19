@@ -76,6 +76,12 @@ final class CampaignPageService {
         return [$normalized, $errors];
     }
 
+    /** Preserve the visitor's question wording even if the campaign is edited later. */
+    public static function answerLabel(array $submission, string $key): string {
+        $label = $submission['form_labels'][$key] ?? null;
+        return is_string($label) && trim($label) !== '' ? $label : ucwords(str_replace('_', ' ', $key));
+    }
+
     public function __construct(private DatabaseService $store = new DatabaseService()) {}
 
     public function published(): array {

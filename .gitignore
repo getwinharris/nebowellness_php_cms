@@ -16,6 +16,7 @@ tmp/
 output/playwright/
 /server.log
 /content/blog/cache/
+/assets/images/media/uploads/
 null
 homepage.yml
 

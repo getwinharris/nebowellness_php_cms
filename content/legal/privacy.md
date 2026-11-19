@@ -27,7 +27,7 @@ We use information to create and secure accounts, fulfil orders, process payment
 
 ## 4. Cookies and Similar Technologies
 
-Essential cookies support authentication, security, cart state, preferences, and session continuity. Optional analytics or advertising cookies are controlled by the available consent and browser settings.
+Essential cookies support authentication, security, cart state, preferences, and session continuity. Optional audience measurement is off by default. When the clinic enables it, signed-out visitors can choose Analytics and advertising separately under audience measurement preferences on this page. Choices last up to six months in the current browser and can be changed here. Measurement is limited to the homepage and About page. For links labeled Google, Facebook, or Instagram, Analytics can count the referring platform. The site does not send enquiry forms, support messages, account details, therapy pages, search terms, or query strings to measurement providers.
 
 ## 5. Sharing and Service Providers
 
@@ -36,6 +36,8 @@ We share the minimum information required with hosting, database, email, analyti
 ## 6. Retention and Security
 
 Runtime account, order, and audit data is stored in the platform's secured remote database. We apply access controls, record-scoped queries, encryption in transit, audit logging, and operational safeguards. No online service can guarantee absolute security.
+
+Chat keeps up to 12 completed exchanges per assistant in your current site session. When you ask a follow-up, the assistant can use excerpts from the four most recent exchanges. New chat clears that assistant’s history. History becomes unavailable after one hour without a saved exchange or when your sign-in session changes. Tickets sent to the clinic are handled as separate support records.
 
 ## 7. Your Choices and Rights
 

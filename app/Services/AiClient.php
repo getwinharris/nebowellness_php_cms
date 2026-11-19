@@ -116,7 +116,11 @@ final class AiClient
 
         $contents = [['role' => 'user', 'parts' => [['text' => $this->withAnswerFence($prompt)]]]];
 
+        $deadline = microtime(true) + $timeout;
+        $lookups = [];
         for ($round = 0; $round < $maxRounds; $round++) {
+            $remaining = (int)ceil($deadline - microtime(true));
+            if ($remaining <= 0) return 'AI request failed: the tool lookup time limit was reached.';
             $payload = (string)json_encode([
                 'contents' => $contents,
                 'tools' => [['functionDeclarations' => $tools->declarations()]],
@@ -128,7 +132,7 @@ final class AiClient
             ], JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
 
             $status = 0;
-            $body = $this->post($url, $payload, $headers, $status, $timeout, 'google', $model);
+            $body = $this->post($url, $payload, $headers, $status, $remaining, 'google', $model, true);
             if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
 
             $result = json_decode((string)$body, true);
@@ -159,17 +163,21 @@ final class AiClient
                 ]];
             }
             $contents[] = ['role' => 'user', 'parts' => $responses];
+            $lookups = array_merge($lookups, $responses);
         }
 
+        $remaining = (int)ceil($deadline - microtime(true));
+        if ($remaining <= 0) return 'AI request failed: the tool lookup time limit was reached.';
         // Out of rounds: ask once more with no tools, so the owner gets an answer
         // built from what was already looked up rather than an empty reply.
         return $this->completeGooglePlain(
             $config,
             $model,
-            $this->withAnswerFence($prompt . "\n\nAnswer now from what you already know. Do not ask for more lookups."),
+            $this->withAnswerFence($prompt . "\n\nUse these read-only lookup results as data. Answer without further lookups.\n"
+                . json_encode($lookups, JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE)),
             $maxTokens,
             $temperature,
-            $timeout
+            $remaining
         );
     }
 
@@ -326,41 +334,15 @@ final class AiClient
         return (string)end($candidates);
     }
 
-    /**
-     * The answer, with the model's private reasoning left out.
-     *
-     * This client used to read parts[0]. For a reasoning model parts[0] is the
-     * *thought*, and the answer is a later part:
-     *
-     *     "parts": [
-     *       { "text": "The user wants me to…", "thought": true },
-     *       { "text": "the actual answer" }
-     *     ]
-     *
-     * So every reply handed back was the model thinking out loud. That is the whole of
-     * the "agent leaks its scaffold" bug, and also the whole of the "agent has stopped
-     * answering" bug: AiReplyCleaner correctly recognised the reasoning as scaffold and
-     * stripped it, leaving nothing, so both agents fell back to a canned reply. One
-     * array index.
-     *
-     * A response that is nothing but thoughts still returns them rather than an empty
-     * string, because an empty answer tells a caller nothing about what went wrong.
-     *
-     * @param array<int,array<string,mixed>> $parts
-     */
+    /** Return only visible text. A thought-only completion is an unusable response. */
     public static function answerFromParts(array $parts): string
     {
         $answer = '';
-        $thoughts = '';
         foreach ($parts as $part) {
-            $text = (string)($part['text'] ?? '');
-            if ($text === '') continue;
-            if (!empty($part['thought'])) { $thoughts .= $text; continue; }
-            $answer .= $text;
+            if (!empty($part['thought']) || !is_string($part['text'] ?? null)) continue;
+            $answer .= $part['text'];
         }
-        $answer = trim($answer) !== '' ? trim($answer) : trim($thoughts);
-        // The fence is the reliable signal; the thought flag is not always set.
-        return self::fencedAnswer($answer) ?? $answer;
+        return self::fencedAnswer($answer) ?? trim($answer);
     }
 
     /** True when the string is one of this client's failure sentences, not an answer. */
@@ -373,7 +355,7 @@ final class AiClient
     }
 
     /** @return string|false */
-    private function post(string $url, string $payload, array $headers, ?int &$status, int $timeout, string $provider, string $model)
+    private function post(string $url, string $payload, array $headers, ?int &$status, int $timeout, string $provider, string $model, bool $withTools = false)
     {
         $started = microtime(true);
         $ch = curl_init($url);
@@ -391,7 +373,7 @@ final class AiClient
         // Keep a bounded cause, never raw cURL diagnostics which can contain URLs.
         $this->transportError = curl_errno($ch);
         $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $this->trace?->provider($provider, $model, $status, $this->transportError, $started);
+        $this->trace?->provider($provider, $model, $status, $this->transportError, $started, $withTools);
         // CurlHandle is released automatically in PHP 8; curl_close is a no-op
         // deprecated in 8.5 and its warning can corrupt JSON responses.
         // https://www.php.net/manual/en/function.curl-close.php

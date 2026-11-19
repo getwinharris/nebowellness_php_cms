@@ -18,7 +18,7 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
 <article class="campaign-page">
   <header class="campaign-hero">
     <div class="campaign-hero__inner">
-      <a class="campaign-hero__back" href="/campaigns">← All products</a>
+      <a class="campaign-hero__back" href="/campaigns">← All services</a>
       <p class="eyebrow">Nebo Lifestyle Clinic · Therapy programs</p>
       <h1><?= e($campaign['title']) ?></h1>
       <p class="campaign-hero__summary"><?= e($campaign['summary'] ?? '') ?></p>
@@ -27,7 +27,7 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
         <a class="campaign-text-link" href="#campaign-overview">About this program</a>
       </div>
     </div>
-    <img class="campaign-hero__image" src="<?= e(($campaign['image_url'] ?? '') ?: '/assets/images/nebo-programs.png') ?>" alt="" loading="eager" fetchpriority="high">
+    <img class="campaign-hero__image" src="<?= e(($campaign['image_url'] ?? '') ?: '/assets/images/nebo-programs.webp') ?>" alt="" loading="eager" fetchpriority="high">
   </header>
   <div class="container campaign-page__layout" id="campaign-overview">
     <div class="campaign-page__body"><span class="eyebrow">Program overview</span><?= (new \App\Services\MarkdownRenderer())->render((string)($campaign['body'] ?? '')) ?></div>
@@ -44,8 +44,10 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
     <div class="container campaign-enquiry__layout">
       <div class="campaign-enquiry__intro"><span class="eyebrow">Enquire with Nebo</span><h2 id="campaign-form-title"><?= e($copy('form_title', CampaignPageService::FORM_DEFAULTS['form_title'])) ?></h2><p><?= e($copy('form_intro', CampaignPageService::FORM_DEFAULTS['form_intro'])) ?></p><p class="campaign-enquiry__note"><?= e(CampaignPageService::FORM_NOTE) ?></p></div>
       <div class="campaign-enquiry__card">
+        <?php if (empty($formState['success']) && empty($_SESSION['user'])): ?><p>For account updates and online payment on approved requests, <a href="/login">sign in</a> before submitting. You can also enquire as a guest.</p><?php endif; ?>
       <?php if (!empty($formState['success'])): ?>
         <p class="campaign-form-success" role="status"><?= e($copy('form_success', 'Thank you. Your enquiry has reached Nebo and our team will contact you soon.')) ?></p>
+        <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?><a class="campaign-text-link" href="/account/therapy">View my therapy requests</a><?php endif; ?>
       <?php else: ?>
         <?php if (!empty($formState['errors'])): ?><div role="alert" class="campaign-form-errors"><?php foreach ($formState['errors'] as $error): ?><p><?= e($error) ?></p><?php endforeach; ?></div><?php endif; ?>
         <form method="post" action="/campaigns/<?= e(rawurlencode($campaign['slug'])) ?>/enquire" class="contact-form">

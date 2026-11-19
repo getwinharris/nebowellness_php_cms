@@ -8,11 +8,11 @@ final class ProjectMapService {
     public const SHARED_CONTROLLERS = ['BaseController'];
     public const SHARED_SERVICES = ['SeoService', 'SmtpMailer', 'ImageOptimizerService', 'DocsMapService', 'RateLimiter', 'KnowledgeGraphService'];
     public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'partials/therapy-products', 'public/404', 'admin/environment'];
-    public const KNOWN_UNWIRED_COLLECTIONS = ['wallet_transactions', 'media_files'];
+    public const KNOWN_UNWIRED_COLLECTIONS = ['wallet_transactions'];
 
     public static function registry(): array {
         $routes = [
-            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['CampaignPageService','ConsultantService']],
+            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['CampaignPageService','ConsultantService','PublicDiscoveryService','SettingsService']],
             ['method'=>'GET','path'=>'/about','name'=>'about','page'=>'public/about','controller'=>'PublicController@about','services'=>[]],
             ['method'=>'GET','path'=>'/sri-panchami-spiritual','name'=>'spiritual','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
             ['method'=>'GET','path'=>'/spiritual','name'=>'spiritual.short','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
@@ -36,7 +36,8 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/api/temples','name'=>'api.temples','page'=>'public/404','controller'=>'ApiController@temples','services'=>[]],
             ['method'=>'GET','path'=>'/cart','name'=>'cart','page'=>'public/cart','controller'=>'PublicController@cart','services'=>['CartService','ProductService']],
             ['method'=>'GET','path'=>'/checkout','name'=>'checkout','page'=>'public/checkout','controller'=>'PublicController@checkout','services'=>['CartService','ProductService','SecretService','AddressService','SettingsService']],
-            ['method'=>'GET','path'=>'/sitemap.xml','name'=>'sitemap','page'=>'public/sitemap','controller'=>'PublicController@sitemap','services'=>['BlogService','ProductService','CampaignPageService']],
+            ['method'=>'GET','path'=>'/openapi.json','name'=>'discovery.openapi','page'=>'public/openapi','controller'=>'PublicController@discoveryContract','services'=>['SeoService']],
+            ['method'=>'GET','path'=>'/sitemap.xml','name'=>'sitemap','page'=>'public/sitemap','controller'=>'PublicController@sitemap','services'=>['BlogService','ProductService','CampaignPageService','SettingsService','SeoService']],
             ['method'=>'GET','path'=>'/contact','name'=>'contact','page'=>'public/contact','controller'=>'PublicController@contact','services'=>[]],
             ['method'=>'POST','path'=>'/contact','name'=>'contact.post','page'=>'public/contact','controller'=>'PublicController@contact','services'=>['ContactService']],
             ['method'=>'POST','path'=>'/forms/email-otp','name'=>'forms.email-otp','page'=>'public/contact','controller'=>'PublicController@sendEmailOtp','services'=>['EmailOtpService','SmtpMailer','SecretService']],
@@ -55,6 +56,12 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/account/dashboard/orders','name'=>'account.dashboard.orders','page'=>'account/orders','controller'=>'AccountController@orders','services'=>['AuthService','OrderService','ReviewService']],
             ['method'=>'GET','path'=>'/account/dashboard/sessions','name'=>'account.dashboard.sessions','page'=>'account/orders','controller'=>'AccountController@bookings','services'=>['AuthService']],
             ['method'=>'GET','path'=>'/account/dashboard/install','name'=>'account.dashboard.install','page'=>'account/install','controller'=>'AccountController@install','services'=>['AuthService']],
+            ['method'=>'GET','path'=>'/account/therapy','name'=>'account.therapy','page'=>'account/therapy','controller'=>'TherapyController@account','services'=>['TherapySessionService','AuthService']],
+            ['method'=>'POST','path'=>'/account/therapy/{id}/pay','name'=>'account.therapy.pay','page'=>'account/therapy-checkout','controller'=>'TherapyController@checkout','services'=>['TherapySessionService','SecretService','AuthService']],
+            ['method'=>'POST','path'=>'/account/therapy/{id}/verify','name'=>'account.therapy.verify','page'=>'account/therapy','controller'=>'TherapyController@verify','services'=>['TherapySessionService','PaymentService','AuthService']],
+            ['method'=>'POST','path'=>'/payment/therapy/webhook/{mode}','name'=>'therapy.webhook','page'=>'account/therapy','controller'=>'TherapyController@webhook','services'=>['TherapySessionService','SecretService']],
+            ['method'=>'GET','path'=>'/admin/therapy','name'=>'admin.therapy','page'=>'admin/therapy','controller'=>'TherapyController@inbox','services'=>['TherapySessionService','ConsultantService','AuthService']],
+            ['method'=>'POST','path'=>'/admin/therapy/{id}','name'=>'admin.therapy.triage','page'=>'admin/therapy','controller'=>'TherapyController@triage','services'=>['TherapySessionService','ConsultantService','AuditLogService','AuthService']],
             ['method'=>'GET','path'=>'/account/orders','name'=>'account.orders.legacy','page'=>'account/orders','controller'=>'AccountController@legacyOrders','services'=>['AuthService']],
             ['method'=>'GET','path'=>'/account/orders/{orderId}/invoice','name'=>'account.invoice','page'=>'account/invoice','controller'=>'AccountController@invoice','services'=>['AuthService','OrderService','SettingsService','TaxService']],
             ['method'=>'GET','path'=>'/account/orders/{orderId}','name'=>'account.order','page'=>'account/order','controller'=>'AccountController@order','services'=>['AuthService','OrderService','SettingsService']],
@@ -76,9 +83,10 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/admin/settings','name'=>'admin.settings','page'=>'admin/settings','controller'=>'AdminController@settings','services'=>['SettingsService']],
             ['method'=>'POST','path'=>'/admin/settings/save','name'=>'admin.settings.save','page'=>'admin/settings','controller'=>'AdminController@saveSettings','services'=>['SettingsService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/settings/admin-credentials','name'=>'admin.settings.admin-credentials','page'=>'admin/settings','controller'=>'AdminController@saveAdminCredentials','services'=>['EnvService','AuditLogService']],
+            ['method'=>'GET','path'=>'/admin/search-performance','name'=>'admin.search-performance','page'=>'admin/search-performance','controller'=>'AdminController@searchPerformance','services'=>['SecretService']],
             ['method'=>'GET','path'=>'/admin/integrations','name'=>'admin.integrations','page'=>'admin/integrations','controller'=>'AdminController@integrations','services'=>['SettingsService','PaymentService','SecretService','GoogleCustomerAuthService']],
-            ['method'=>'GET','path'=>'/admin/agent','name'=>'admin.agent','page'=>'admin/agent','controller'=>'AdminController@agent','services'=>['SecretService','AgentAttachmentService','AuditLogService','DatabaseService']],
-            ['method'=>'POST','path'=>'/admin/agent/ask','name'=>'admin.agent.ask','page'=>'admin/agent','controller'=>'AdminController@agentAsk','services'=>['SecretService','AgentContextService','AuditLogService','AgentAttachmentService','AgentDraftService','AgentToolRegistry','AgentRunTrace','AiReplyCleaner','AiClient','AiModelRouter']],
+            ['method'=>'GET','path'=>'/admin/agent','name'=>'admin.agent','page'=>'admin/agent','controller'=>'AdminController@agent','services'=>['AgentConversation','SecretService','AgentAttachmentService','AuditLogService','DatabaseService']],
+            ['method'=>'POST','path'=>'/admin/agent/ask','name'=>'admin.agent.ask','page'=>'admin/agent','controller'=>'AdminController@agentAsk','services'=>['AgentConversation','SecretService','AgentContextService','AuditLogService','AgentAttachmentService','AgentDraftService','AgentToolRegistry','AgentRunTrace','AiReplyCleaner','AiClient','AiModelRouter']],
             ['method'=>'GET','path'=>'/admin/contact-submissions','name'=>'admin.contact-submissions','page'=>'admin/resource','controller'=>'AdminController@contactSubmissions','services'=>['ContactService']],
             ['method'=>'POST','path'=>'/admin/contact_submissions/save','name'=>'admin.contact-submissions.save','page'=>'admin/resource','controller'=>'AdminController@saveContactSubmission','services'=>['ResourceService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/contact_submissions/delete','name'=>'admin.contact-submissions.delete','page'=>'admin/resource','controller'=>'AdminController@deleteContactSubmission','services'=>['ResourceService','AuditLogService']],
@@ -89,6 +97,7 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/admin/appearance','name'=>'admin.appearance','page'=>'admin/appearance','controller'=>'AdminController@appearance','services'=>['SettingsService']],
             ['method'=>'POST','path'=>'/admin/appearance/save','name'=>'admin.appearance.save','page'=>'admin/appearance','controller'=>'AdminController@saveAppearance','services'=>['SettingsService','AuditLogService']],
             ['method'=>'GET','path'=>'/admin/media','name'=>'admin.media','page'=>'admin/media','controller'=>'AdminController@media','services'=>['MediaService']],
+            ['method'=>'POST','path'=>'/admin/media/archive','name'=>'admin.media.archive','page'=>'admin/media','controller'=>'AdminController@archiveMedia','services'=>['MediaService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/media/upload','name'=>'admin.media.upload','page'=>'admin/media','controller'=>'AdminController@uploadMedia','services'=>['MediaService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/products/save','name'=>'admin.products.save','page'=>'admin/product-form','controller'=>'AdminController@saveProduct','services'=>['ResourceService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/products/delete','name'=>'admin.products.delete','page'=>'admin/product-form','controller'=>'AdminController@deleteProduct','services'=>['ResourceService','AuditLogService']],
@@ -114,7 +123,7 @@ final class ProjectMapService {
             ['method'=>'POST','path'=>'/consultation/initiate','name'=>'consultation.initiate','page'=>'public/contact','controller'=>'ConsultationController@initiate','services'=>['AuthService']],
             ['method'=>'POST','path'=>'/reviews/product','name'=>'reviews.product','page'=>'account/orders','controller'=>'ReviewController@saveProduct','services'=>['ReviewService']],
             ['method'=>'GET','path'=>'/support','name'=>'support.page','page'=>'public/support','controller'=>'SupportController@page','services'=>['SeoService']],
-            ['method'=>'POST','path'=>'/support/ask','name'=>'support.ask','page'=>'public/support','controller'=>'SupportController@ask','services'=>['SupportBotService','AgentContextService','SupportTicketService','AuditLogService','AgentRunTrace','AiClient','AiModelRouter','AiReplyCleaner']],
+            ['method'=>'POST','path'=>'/support/ask','name'=>'support.ask','page'=>'public/support','controller'=>'SupportController@ask','services'=>['AgentConversation','SupportBotService','AgentContextService','SupportTicketService','AuditLogService','AgentRunTrace','AiClient','AiModelRouter','AiReplyCleaner']],
 
             ['method'=>'GET','path'=>'/docs','name'=>'docs.index','page'=>'public/blog','controller'=>'PublicController@docs','services'=>[]],
             ['method'=>'GET','path'=>'/help/{slug}','name'=>'help.show','page'=>'public/blog-post','controller'=>'PublicController@doc','services'=>[]],
@@ -475,7 +484,7 @@ final class ProjectMapService {
                 $lines[] = '  ' . self::serviceId('PaymentService') . ' --> ' . self::integrationId('StripeClient');
             }
         }
-        $lines[] = '  ' . self::serviceId('SupportBotService') . ' --> ' . self::integrationId('GoogleSiteKitClient');
+        $lines[] = '  ' . self::controllerId('AdminController') . ' --> ' . self::integrationId('GoogleSiteKitClient');
         if (in_array('generate-project-map', $scan['tools'], true)) {
             $lines[] = '  ' . self::toolId('generate-project-map') . ' --> systematic_map["docs/systematic-map.mmd"]:::data';
         }

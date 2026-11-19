@@ -1,6 +1,36 @@
 <?php
 namespace App\Services;
 final class SecretService {
+    public const FORM_CREDENTIALS = [
+        'razorpay_test_key_secret'=>'Razorpay test key secret', 'razorpay_live_key_secret'=>'Razorpay live key secret',
+        'therapy_webhook_test'=>'Razorpay test webhook', 'therapy_webhook_live'=>'Razorpay live webhook',
+        'stripe_secret_key'=>'Stripe secret key', 'google_client_secret'=>'Google sign-in secret',
+        'ai_api_key'=>'Agent provider key', 'turn_credential'=>'TURN credential', 'smtp_password'=>'SMTP password',
+    ];
+
+    /** A blank write-only field leaves its saved value in place. Only named fields may be cleared. */
+    public static function integrationChanges(array $values): array {
+        $removals = $values['remove_credentials'] ?? [];
+        if (!is_array($removals)) throw new \InvalidArgumentException('Select the saved credentials to remove.');
+        unset($values['remove_credentials'], $values['agent_api_key'], $values['support_bot_google_api_key'], $values['razorpay_key_secret']);
+        foreach (self::FORM_CREDENTIALS as $key=>$label) {
+            if (in_array($key, $removals, true)) {
+                if (($values[$key] ?? '') !== '') throw new \InvalidArgumentException("Choose either replace or remove for $label.");
+                $values[$key] = '';
+            } elseif (($values[$key] ?? '') === '') {
+                unset($values[$key]);
+                continue;
+            } elseif (!is_string($values[$key])) {
+                throw new \InvalidArgumentException("Enter a valid $label.");
+            }
+            if ($key === 'ai_api_key') {
+                $values['agent_api_key'] = '';
+                $values['support_bot_google_api_key'] = '';
+            }
+        }
+        return $values;
+    }
+
     public function __construct(private ?DatabaseService $store = null) {}
     public function razorpayReadyForCurrentHost(array $secrets): bool {
         return !empty($secrets['razorpay_key_id']) && !empty($secrets['razorpay_key_secret']);
@@ -17,17 +47,14 @@ final class SecretService {
             }
             return $this->normalize(array_replace(array_filter($env, fn($value) => $value !== ''), $stored));
         } catch (\Throwable) {
-            return $this->normalize($env);
+            return $this->normalize(array_filter($env, fn($value) => $value !== ''));
         }
     }
     /**
      * Merges into the stored secrets rather than replacing them.
      *
-     * The Integrations form does not contain every secret — razorpay_key_id,
-     * razorpay_key_secret, ai_api_key, and the model settings are
-     * all absent from it. Replacing the whole blob with the posted fields silently
-     * destroyed those, so saving SMTP settings wiped the live payment keys and the AI
-     * key. Only keys actually present in the submission are changed.
+     * Saving one form must preserve other credentials, including older records that
+     * still use payment-key aliases. A failed read cannot become a partial overwrite.
      */
     public function save(array $values): void {
         $db = $this->store ?? new DatabaseService();
@@ -47,9 +74,17 @@ final class SecretService {
             // merge is impossible, so refuse rather than overwrite with a subset.
             throw new \RuntimeException('Could not read existing settings, so nothing was saved. Try again.');
         }
+        // Materialize an older stored key pair into its own mode before merging submitted
+        // IDs or missing password fields. Derive the active aliases on reads.
+        if (!empty($existing['razorpay_key_secret'])) {
+            $existing = $this->normalize($existing);
+            // Shadow legacy rows too: each effective secret now lives only in its mode.
+            $existing['razorpay_key_id'] = '';
+            $existing['razorpay_key_secret'] = '';
+        }
         $merged = array_replace($existing, $values);
         $iv = random_bytes(16);
-        $plain = json_encode($this->normalize($merged), JSON_THROW_ON_ERROR);
+        $plain = json_encode($merged, JSON_THROW_ON_ERROR);
         $cipher = openssl_encrypt($plain, 'aes-256-cbc', $this->key(), OPENSSL_RAW_DATA, $iv);
         if ($cipher === false) throw new \RuntimeException('Unable to encrypt integration settings.');
         $record = [
@@ -60,14 +95,12 @@ final class SecretService {
         $db->upsert('secrets', $record, 'id');
     }
     public function saveSecret(string $key, string $value): void {
-        $all = $this->all();
-        $all[$key] = $value;
-        $this->save($all);
+        $this->save([$key => $value]);
     }
     public function getModelConfig(): array {
         $secrets = $this->all();
         $endpoint = $this->firstValue($secrets, ['api_endpoint'], ['BAPX_AI_ENDPOINT']);
-        $apiKey = $this->firstValue($secrets, ['ai_api_key', 'agent_api_key', 'support_bot_google_api_key'], ['AI_API_KEY', 'AGENT_API_KEY', 'BAPX_AI_API_KEY']);
+        $apiKey = $this->firstValue($secrets, ['ai_api_key', 'agent_api_key', 'support_bot_google_api_key'], []);
         $model = $this->firstValue($secrets, ['agent_model', 'support_bot_model'], ['AGENT_MODEL', 'BAPX_AI_MODEL']);
         if ($model === '') $model = 'gemma-4-31b-it';
         if ($endpoint === '') {
@@ -155,7 +188,7 @@ final class SecretService {
             'mail_from_email' => (string)(getenv('MAIL_FROM_EMAIL') ?: ''),
             'mail_from_name' => (string)(getenv('MAIL_FROM_NAME') ?: ''),
             'admin_notification_email' => (string)(getenv('ADMIN_NOTIFICATION_EMAIL') ?: ''),
-            'ai_api_key' => (string)(getenv('AI_API_KEY') ?: getenv('AGENT_API_KEY') ?: getenv('SUPPORT_BOT_GOOGLE_API_KEY') ?: ''),
+            'ai_api_key' => (string)(getenv('AI_API_KEY') ?: getenv('AGENT_API_KEY') ?: getenv('BAPX_AI_API_KEY') ?: getenv('SUPPORT_BOT_GOOGLE_API_KEY') ?: ''),
             'agent_model' => (string)(getenv('AGENT_MODEL') ?: getenv('SUPPORT_BOT_MODEL') ?: ''),
             'api_endpoint' => (string)(getenv('BAPX_AI_ENDPOINT') ?: ''),
             'support_bot_purge_policy' => (string)(getenv('SUPPORT_BOT_PURGE_POLICY') ?: ''),
@@ -175,17 +208,24 @@ final class SecretService {
         if (!in_array($mode, ['test', 'live'], true)) {
             $mode = str_starts_with($legacyId, 'rzp_live_') || ($liveId !== '' && $testId === '') ? 'live' : 'test';
         }
-        if ($legacyId !== '' || $legacySecret !== '') {
-            if ($mode === 'live' && $liveId === '' && $liveSecret === '') { $liveId = $legacyId; $liveSecret = $legacySecret; }
-            elseif ($mode === 'test' && $testId === '' && $testSecret === '') { $testId = $legacyId; $testSecret = $legacySecret; }
+        // The selected mode can change while the legacy alias still holds the previous key.
+        if ($legacySecret !== '' && str_starts_with($legacyId, 'rzp_live_') && !array_key_exists('razorpay_live_key_secret', $values) && ($liveId === '' || $liveId === $legacyId)) {
+            $liveId = $legacyId;
+            $liveSecret = $legacySecret;
+        }
+        if ($legacySecret !== '' && str_starts_with($legacyId, 'rzp_test_') && !array_key_exists('razorpay_test_key_secret', $values) && ($testId === '' || $testId === $legacyId)) {
+            $testId = $legacyId;
+            $testSecret = $legacySecret;
         }
         $values['razorpay_mode'] = $mode;
         $values['razorpay_test_key_id'] = $testId;
         $values['razorpay_test_key_secret'] = $testSecret;
         $values['razorpay_live_key_id'] = $liveId;
         $values['razorpay_live_key_secret'] = $liveSecret;
-        $values['razorpay_key_id'] = $mode === 'live' ? $liveId : $testId;
-        $values['razorpay_key_secret'] = $mode === 'live' ? $liveSecret : $testSecret;
+        $activeId = $mode === 'live' ? $liveId : $testId;
+        $matchesMode = str_starts_with($activeId, 'rzp_' . $mode . '_');
+        $values['razorpay_key_id'] = $matchesMode ? $activeId : '';
+        $values['razorpay_key_secret'] = $matchesMode ? ($mode === 'live' ? $liveSecret : $testSecret) : '';
         return $values;
     }
 }

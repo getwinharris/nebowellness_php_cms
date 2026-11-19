@@ -9,10 +9,16 @@
     const message = form.elements.message;
     const controls = form.querySelectorAll('textarea, button');
     const viewport = window.visualViewport;
-    const transcriptKey = panel.dataset.supportKey + ':turns-v2';
+    const chat = new window.AgentConversation(panel, '/support/ask', form.elements._csrf.value);
+    const clear = document.getElementById('support-clear');
+    const intro = log.firstElementChild;
+    const introduction = intro.textContent;
+    const prompts = document.getElementById('support-prompts');
+    let loading = null;
+    let retry = null;
     const ticketKey = panel.dataset.supportKey + ':pending-ticket';
     let pendingTicket = readStorage(ticketKey);
-    const transcript = [];
+
 
     function readStorage(key) {
         try {
@@ -80,6 +86,7 @@
         launcher.setAttribute('aria-expanded', String(open));
         (open ? close : launcher).focus();
         if (open) {
+            restore().catch(historyError);
             fitViewport();
             log.scrollTop = log.scrollHeight;
         }
@@ -92,21 +99,61 @@
             : [];
     }
 
-    writeStorage(panel.dataset.supportKey, null);
-    const saved = readStorage(transcriptKey);
-    if (Array.isArray(saved)) {
-        for (const entry of saved.slice(-20)) {
-            if (typeof entry?.question !== 'string' || typeof entry.reply !== 'string') continue;
-            const actions = validActions(entry.actions);
-            const turn = document.createElement('div');
-            turn.className = 'support-turn';
-            appendMessage(turn, 'You', entry.question);
-            appendMessage(turn, 'Support', entry.reply);
-            appendActions(turn, actions);
-            log.append(turn);
-            transcript.push({ question: entry.question, reply: entry.reply, actions });
+    // Clear earlier browser transcripts, including those left behind by a signed-out account.
+    try {
+        for (let i = sessionStorage.length - 1; i >= 0; i--) {
+            const key = sessionStorage.key(i);
+            if (/^nebo-support-chat-(?:guest|[a-f0-9]{64})(?::turns-v2)?$/.test(key)) sessionStorage.removeItem(key);
         }
+    } catch {
+        // The current conversation lives in the PHP session when local storage is blocked.
     }
+
+    async function restore() {
+        if (!chat.hasTurns) return;
+        if (loading) return loading;
+        loading = chat.request('history').then(turns => {
+            intro.textContent = introduction;
+            for (const entry of turns) {
+                const turn = document.createElement('div');
+                turn.className = 'support-turn';
+                appendMessage(turn, 'You', entry.question);
+                appendMessage(turn, 'Support', entry.response.reply);
+                appendActions(turn, validActions(entry.response.actions));
+                log.append(turn);
+            }
+            log.scrollTop = log.scrollHeight;
+            chat.hasTurns = false;
+            clear.hidden = turns.length === 0;
+            prompts.open = turns.length === 0;
+        }).finally(() => { loading = null; });
+        return loading;
+    }
+
+    function historyError() {
+        intro.textContent = 'Could not load your conversation. Reload this page to reconnect.';
+    }
+
+    clear.addEventListener('click', async () => {
+        if (form.dataset.busy === 'true' || loading) return;
+        form.dataset.busy = 'true';
+        clear.disabled = true;
+        try {
+            await chat.request('clear');
+            intro.textContent = introduction;
+            log.replaceChildren(intro);
+            clear.hidden = true;
+            prompts.open = true;
+            retry = null;
+            message.value = '';
+            message.focus();
+        } catch {
+            historyError();
+        } finally {
+            clear.disabled = false;
+            form.dataset.busy = 'false';
+        }
+    });
 
     launcher.addEventListener('click', () => toggle(panel.hidden));
     close.addEventListener('click', () => toggle(false));
@@ -135,13 +182,25 @@
         if (!question) return;
         const isTicket = event.submitter?.value === 'ticket';
         form.dataset.busy = 'true';
+        try {
+            await restore();
+        } catch {
+            form.dataset.busy = 'false';
+            historyError();
+            return;
+        }
         if (form.contains(document.activeElement)) log.focus({ preventScroll: true });
+        clear.disabled = true;
         for (const control of controls) control.disabled = true;
-        const turn = document.createElement('div');
+        const sameRequest = retry?.question === question && retry.isTicket === isTicket;
+        const id = sameRequest ? retry.id : chat.turnId();
+        const turn = sameRequest ? retry.turn : document.createElement('div');
         turn.className = 'support-turn';
-        const privateTurn = isTicket || /\btickets?\b/i.test(question);
-        log.append(turn);
+        if (sameRequest) turn.replaceChildren();
+        else log.append(turn);
         appendMessage(turn, 'You', question);
+        data.set('conversation', chat.id);
+        data.set('turn_id', id);
         form.reset();
         const progress = window.AgentRequestStatus.start(turn);
         log.scrollTop = log.scrollHeight;
@@ -152,13 +211,15 @@
         let openPath = null;
         let traceId = null;
         let reply = '';
+        clear.hidden = false;
+        prompts.open = false;
         let actions = [];
         try {
             if (isTicket) {
                 data.set('intent', 'ticket');
                 data.set('request_id', await prepareTicket(question));
             }
-            const response = await fetch('/support/ask', { method: 'POST', body: data, signal: abort.signal });
+            const response = await fetch('/support/ask', { method: 'POST', headers: { Accept: 'application/json' }, body: data, signal: abort.signal });
             traceId = response.headers.get('X-Agent-Trace');
             const result = await response.json();
             failed = !response.ok || !!result.error;
@@ -189,13 +250,10 @@
                 turn.append(reference);
             }
             form.dataset.busy = 'false';
+            clear.disabled = false;
             for (const control of controls) control.disabled = false;
             if (failed) message.value = question;
-            if (!privateTurn) {
-                transcript.push({ question, reply, actions });
-                if (transcript.length > 20) transcript.shift();
-                writeStorage(transcriptKey, transcript);
-            }
+            retry = failed ? { question, id, isTicket, turn } : null;
             log.scrollTop = log.scrollHeight;
             if (openPath) location.assign(openPath);
         }

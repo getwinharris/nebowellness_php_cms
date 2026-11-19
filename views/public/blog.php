@@ -25,7 +25,7 @@
     <?php else: ?>
       <div class="blog-grid">
         <?php foreach ($posts as $index => $post): ?>
-          <?php $postImage = $post['image'] ?? $post['og_image'] ?? '/assets/images/nebo-programs.png'; ?>
+          <?php $postImage = $post['image'] ?? $post['og_image'] ?? '/assets/images/nebo-programs.webp'; ?>
           <article class="blog-card <?= $index === 0 ? 'blog-card--featured' : '' ?>">
             <a class="blog-card__media" href="/blog/<?= e($post['slug'] ?? '') ?>" aria-label="Read <?= e($post['title'] ?? 'article') ?>">
               <img class="blog-card__image" src="<?= e($postImage) ?>" alt="<?= e($post['image_alt'] ?? '') ?>" loading="<?= $index === 0 ? 'eager' : 'lazy' ?>">

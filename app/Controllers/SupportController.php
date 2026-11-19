@@ -1,6 +1,6 @@
 <?php
 namespace App\Controllers;
-use App\Services\{AgentRunTrace,AuditLogService,AuthService,SupportBotService,SupportTicketService};
+use App\Services\{AgentConversation,AgentRunTrace,AuditLogService,AuthService,SupportBotService,SupportTicketService};
 
 final class SupportController extends BaseController {
     public function page(): void {
@@ -11,25 +11,29 @@ final class SupportController extends BaseController {
 
     public function ask(): void {
         $this->isApiRequest = true;
+        $message = is_string($_POST['message'] ?? null) ? trim($_POST['message']) : '';
+        $chat = new AgentConversation('support');
+        $isTicket = ($_POST['intent'] ?? '') === 'ticket';
+        if (isset($_POST['conversation']) || isset($_POST['conversation_action']) || isset($_POST['turn_id']) || $isTicket) {
+            $expected = $_SESSION['csrf_token'] ?? '';
+            $submitted = $_POST['_csrf'] ?? null;
+            if (!is_string($submitted) || $expected === '' || !hash_equals($expected, $submitted)) {
+                $this->jsonResponse(['error' => 'Refresh this page before continuing your chat.'], 419);
+            }
+        }
+        $turnId = $this->handleConversation($chat, $message, allowReplay: !$isTicket);
         $this->checkRateLimit('support', 10, 60);
         $startedAt = microtime(true);
         $trace = new AgentRunTrace();
         header('X-Agent-Trace: ' . $trace->id);
         try {
             $user = (new AuthService())->user();
-            $message = is_string($_POST['message'] ?? null) ? trim($_POST['message']) : '';
             if ($message === '' || mb_strlen($message) > 2000) {
                 $this->jsonResponse(['error' => 'Enter a message of 1 to 2,000 characters.'], 422);
                 return;
             }
-            if (($_POST['intent'] ?? '') === 'ticket') {
+            if ($isTicket) {
                 $requestId = $_POST['request_id'] ?? null;
-                $expected = $_SESSION['csrf_token'] ?? '';
-                $submitted = $_POST['_csrf'] ?? null;
-                if (!is_string($submitted) || $expected === '' || !hash_equals($expected, $submitted)) {
-                    $this->jsonResponse(['error' => 'Refresh this page before sending a ticket.'], 419);
-                    return;
-                }
                 if (empty($user['email'])) {
                     $this->jsonResponse(['error' => 'Sign in before sending a support ticket.'], 401);
                     return;
@@ -44,7 +48,9 @@ final class SupportController extends BaseController {
                 $this->jsonResponse(['reply' => 'Sent to the clinic team. Track ticket ' . $ticket['id'] . ' in this chat.', 'ticket_id' => $ticket['id']]);
                 return;
             }
-            $answer = (new SupportBotService(trace: $trace))->answer($message, $user);
+            $answer = (new SupportBotService(trace: $trace))->answer($message, $user, $turnId === null ? '' : $chat->promptContext());
+            if ($turnId === null) $answer['memory'] = 'none';
+            if ($turnId !== null && ($answer['memory'] ?? '') === 'session') $chat->remember($turnId, $message, $answer, $trace->id);
             $this->jsonResponse($answer);
         } catch (\Throwable $e) {
             (new AuditLogService())->agentRun('support', 'error', $startedAt, $trace);
@@ -65,7 +71,8 @@ final class SupportController extends BaseController {
                 $current = ['section' => trim($m[1]), 'links' => []];
             } elseif ($current && preg_match('/^\s+-\s+(\S+):\s*(.+)$/', $line, $m)) {
                 $path = trim($m[1]);
-                if (preg_match('#^/(shop|cart|checkout|account)(/|$)#', $path) && !module_on('shop')) continue;
+                if ($path === '/account/therapy' && ($_SESSION['user']['role'] ?? '') !== 'customer') continue;
+                if (preg_match('#^/(shop|cart|checkout|account/dashboard)(/|$)#', $path) && !module_on('shop')) continue;
                 if (preg_match('#^/campaigns(/|$)#', $path) && !module_on('campaigns')) continue;
                 if (preg_match('#^/blog(/|$)#', $path) && !module_on('blog')) continue;
                 $current['links'][] = ['path' => $path, 'label' => trim($m[2])];

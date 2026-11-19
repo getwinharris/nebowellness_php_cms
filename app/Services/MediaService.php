@@ -6,7 +6,8 @@ final class MediaService {
     private string $storageDir;
 
     public function __construct(
-        private ImageOptimizerService $optimizer = new ImageOptimizerService()
+        private ImageOptimizerService $optimizer = new ImageOptimizerService(),
+        private DatabaseService $store = new DatabaseService()
     ) {
         $this->storageDir = storage_path('media');
     }
@@ -23,11 +24,16 @@ final class MediaService {
         'shared'      => 'assets/images/media',
     ];
 
-    public function all(?string $context = null): array {
+    public function all(?string $context = null, bool $includeArchived = false): array {
         $contexts = $context ? [$context] : self::CONTEXTS;
         $all = [];
         foreach ($contexts as $ctx) {
             $all = array_merge($all, $this->readWithAliases($ctx));
+        }
+        foreach ($this->store->read('media_files') as $record) {
+            if ($context !== null && ($record['context'] ?? '') !== $context) continue;
+            $record['path'] = $record['url'] ?? '';
+            $all[] = $record;
         }
         // The catalogue only records files uploaded through the admin, so product and
         // campaign artwork that ships with the site never appeared in the library and
@@ -41,7 +47,7 @@ final class MediaService {
         foreach ($this->scanAssetFiles($context) as $file) {
             if (!isset($byPath[$file['url']])) $byPath[$file['url']] = $file;
         }
-        $merged = array_values($byPath);
+        $merged = array_values($includeArchived ? $byPath : array_filter($byPath, static fn(array $record) => empty($record['archived_at'])));
         usort($merged, fn($a, $b) => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
         return $merged;
     }
@@ -63,6 +69,7 @@ final class MediaService {
             sort($paths, SORT_STRING);   // stable order across platforms
             foreach ($paths as $path) {
                 $url = '/' . ltrim(str_replace(app_path(), '', $path), '/');
+                if (str_starts_with($url, '/assets/images/media/uploads/')) continue;  // MySQL owns managed uploads, including archived ones.
                 $out[] = [
                     'id'          => 'file:' . $url,
                     'url'         => $url,
@@ -81,11 +88,11 @@ final class MediaService {
 
     public function upload(array $files, string $context = 'shared', ?string $description = null, array $usedIn = []): array {
         if (empty($files['name']) || !is_array($files['name'])) return [];
-        $folder = 'assets/images/media/' . date('Y/m');
+        if (!in_array($context, self::CONTEXTS, true)) throw new \InvalidArgumentException('Unknown media context.');
+        $folder = 'assets/images/media/uploads/' . date('Y/m');
         $dir = app_path($folder);
         if (!is_dir($dir)) mkdir($dir, 0775, true);
         $uploaded = [];
-        $records = $this->readYaml($context);
         foreach ($files['name'] as $i => $original) {
             if (($files['error'][$i] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
             $ext = strtolower(pathinfo((string)$original, PATHINFO_EXTENSION));
@@ -128,58 +135,102 @@ final class MediaService {
                     'created_at' => date('c'),
                 ];
             }
-            $records[] = $record;
+            $record['source'] = 'upload';
+            $this->store->upsert('media_files', $record);
             $uploaded[] = $record;
         }
-        if ($uploaded) $this->writeYaml($context, $records);
         return $uploaded;
     }
 
-    public function delete(string $id, ?string $context = null): void {
-        $contexts = $context ? [$context] : ['shared','products','campaigns','consultants','blog'];
-        foreach ($contexts as $ctx) {
-            $filePath = '';
-            $records = array_values(array_filter($this->readYaml($ctx), function($r) use ($id, &$filePath) {
-                if (($r['id'] ?? '') === $id) { $filePath = $r['url'] ?? ''; return false; }
-                return true;
-            }));
-            if ($filePath !== '') {
-                $fullPath = app_path(ltrim($filePath, '/'));
-                if (is_file($fullPath)) @unlink($fullPath);
-                $this->writeYaml($ctx, $records);
-                return;
+    /** Only uploads created by this service may be archived. Legacy catalogues can include bundled files. */
+    public static function isManagedUpload(array $record): bool {
+        return ($record['source'] ?? '') === 'upload' && is_string($record['url'] ?? null)
+            && preg_match('~^/assets/images/media/uploads/[0-9]{4}/(?:0[1-9]|1[0-2])/[a-z0-9-]+-[0-9a-f]{8}\.(?:png|webp|jpg|jpeg|gif)$~D', $record['url'] ?? '') === 1;
+    }
+
+    public function library(bool $archived): array {
+        $items = array_values(array_filter($this->all(includeArchived: true), static fn(array $item): bool =>
+            $archived === !empty($item['archived_at'])));
+        $references = [];
+        if (array_filter($items, self::isManagedUpload(...))) $references = $this->references();
+        foreach ($items as &$item) {
+            $managed = self::isManagedUpload($item);
+            $current = $references[$item['url'] ?? ''] ?? [];
+            if ($managed) {
+                // Upload-time labels are historical. Show them only while the same entity still uses the URL.
+                $item['used_in'] = array_values(array_filter($item['used_in'] ?? [], static fn(array $usage): bool =>
+                    isset($current[$usage['type'] ?? ''][$usage['id'] ?? ''])));
             }
+            $item['in_use'] = $managed ? $current !== [] : !empty($item['used_in']);
+            $item['selectable'] = $managed && ($archived || !$item['in_use']);
+        }
+        return $items;
+    }
+
+    private function references(): array {
+        $references = [];
+        $schema = require app_path('storage/schema/collections.php');
+        foreach ($schema['collections'] as $collection => $definition) {
+            if (empty($definition['media_fields']) && !in_array($collection, ['settings', 'orders'], true)) continue;
+            foreach ($this->store->read($collection) as $record) {
+                $this->collectReferences($references, $record, $collection, (string)($record['id'] ?? ''));
+            }
+        }
+        foreach (new \DirectoryIterator(app_path('content/blog/posts')) as $file) {
+            if (!$file->isFile() || $file->getExtension() !== 'md') continue;
+            $text = file_get_contents($file->getPathname());
+            if ($text === false) throw new \RuntimeException('Unable to check blog image usage.');
+            $this->collectReferences($references, $text, 'blog', $file->getBasename('.md'));
+        }
+
+        return $references;
+    }
+
+    public function setArchived(array $ids, bool $archive): array {
+        $ids = array_values(array_unique(array_filter($ids, 'is_string')));
+        if (!$ids || count($ids) > 50) throw new \InvalidArgumentException('Select between one and 50 uploads.');
+        $references = $archive ? $this->references() : [];
+        $changed = [];
+        $blocked = 0;
+        $failed = 0;
+        foreach ($ids as $id) {
+            try {
+                $record = $this->store->find('media_files', $id);
+                if (!$record || !self::isManagedUpload($record) || $archive === !empty($record['archived_at'])
+                    || ($archive && isset($references[$record['url']]))) {
+                    ++$blocked;
+                    continue;
+                }
+                // Keep the bytes at their original URL. An open editor or an external page
+                // may publish a reference immediately after the usage check.
+                $this->store->upsertIfRevision('media_files', ['id'=>$id, 'archived_at'=>$archive ? date('c') : null], ResourceService::revision($record));
+                $changed[] = $id;
+            } catch (\Throwable) {
+                ++$failed;
+            }
+        }
+        return ['changed'=>$changed, 'blocked'=>$blocked, 'failed'=>$failed];
+    }
+
+    private function collectReferences(array &$references, mixed $value, string $collection, string $id): void {
+        if (is_array($value)) {
+            foreach ($value as $child) $this->collectReferences($references, $child, $collection, $id);
+        } elseif (is_string($value)) {
+            preg_match_all('~(?:^|/|\b)(assets/images/media/uploads/[0-9]{4}/[0-9]{2}/[a-z0-9-]+\.(?:png|webp|jpe?g|gif))~i', rawurldecode($value), $matches);
+            foreach ($matches[1] as $path) $references['/' . $path][$collection][$id] = true;
         }
     }
 
     public function recordUsage(array $mediaRecords, string $entityType, string $entityId, string $entityName): void {
-        $entry = ['type' => $entityType, 'id' => $entityId, 'name' => $entityName];
-        $grouped = [];
-        foreach ($mediaRecords as $m) {
-            $ctx = $m['context'] ?? 'shared';
-            $grouped[$ctx][] = $m['id'] ?? '';
-        }
-        foreach ($grouped as $ctx => $ids) {
-            $records = $this->readYaml($ctx);
-            $changed = false;
-            foreach ($records as &$r) {
-                if (in_array($r['id'] ?? '', $ids, true)) {
-                    $used = $r['used_in'] ?? [];
-                    $exists = false;
-                    foreach ($used as $u) {
-                        if (($u['type'] ?? '') === $entityType && ($u['id'] ?? '') === $entityId) {
-                            $exists = true;
-                            break;
-                        }
-                    }
-                    if (!$exists) {
-                        $used[] = $entry;
-                        $r['used_in'] = $used;
-                        $changed = true;
-                    }
-                }
+        foreach ($mediaRecords as $media) {
+            $record = $this->store->find('media_files', (string)($media['id'] ?? ''));
+            if (!$record) continue;
+            $usage = $record['used_in'] ?? [];
+            foreach ($usage as $entry) {
+                if (($entry['type'] ?? '') === $entityType && ($entry['id'] ?? '') === $entityId) continue 2;
             }
-            if ($changed) $this->writeYaml($ctx, $records);
+            $usage[] = ['type'=>$entityType, 'id'=>$entityId, 'name'=>$entityName];
+            $this->store->upsertIfRevision('media_files', ['id'=>$record['id'], 'used_in'=>$usage], ResourceService::revision($record));
         }
     }
 
@@ -206,38 +257,6 @@ final class MediaService {
             }
         }
         return $records;
-    }
-
-    private function writeYaml(string $context, array $records): void {
-        if (!is_dir($this->storageDir)) mkdir($this->storageDir, 0775, true);
-        $lines = ["media:"];
-        foreach ($records as $r) {
-            $lines[] = "  - id: " . ($r['id'] ?? '');
-            $lines[] = "    filename: " . ($r['filename'] ?? '');
-            $lines[] = "    original_name: " . ($r['original_name'] ?? '');
-            $lines[] = "    url: " . ($r['url'] ?? '');
-            $lines[] = "    description: " . $this->escapeYaml($r['description'] ?? '');
-            $lines[] = "    context: " . ($r['context'] ?? 'shared');
-            $lines[] = "    mime: " . ($r['mime'] ?? '');
-            if (!empty($r['used_in'])) {
-                $lines[] = "    used_in:";
-                foreach ($r['used_in'] as $u) {
-                    $lines[] = "      - type: " . ($u['type'] ?? '');
-                    $lines[] = "        id: " . ($u['id'] ?? '');
-                    $lines[] = "        name: " . $this->escapeYaml($u['name'] ?? '');
-                }
-            }
-            $lines[] = "    created_at: " . ($r['created_at'] ?? '');
-        }
-        $lines[] = '';
-        file_put_contents($this->filePath($context), implode("\n", $lines), LOCK_EX);
-    }
-
-    private function escapeYaml(string $value): string {
-        if ($value === '' || preg_match('/[:\{\}\[\],&\*#\?\|\-<>=!%@`\n"\']/', $value)) {
-            return '"' . str_replace(['"', "\n"], ['\"', '\n'], $value) . '"';
-        }
-        return $value;
     }
 
     private function parseYamlItems(string $yaml): array {
@@ -302,31 +321,6 @@ final class MediaService {
         return $value;
     }
 
-    private function scanExistingAssets(): array {
-        $base = app_path('assets/images');
-        $items = [];
-        foreach (['products', 'campaigns', 'consultants', 'blog'] as $context) {
-            $dir = $base . '/' . $context;
-            if (!is_dir($dir)) continue;
-            foreach (glob($dir . '/*.{jpg,jpeg,png,webp,gif,svg}', GLOB_BRACE) ?: [] as $file) {
-                $relPath = str_replace(app_path(), '', $file);
-                $items[] = [
-                    'id' => 'asset-' . md5($file),
-                    'filename' => basename($file),
-                    'original_name' => basename($file),
-                    'url' => $relPath,
-                    'path' => $relPath,
-                    'description' => '',
-                    'context' => $context,
-                    'mime' => mime_content_type($file) ?: 'image/*',
-                    'used_in' => [],
-                    'created_at' => date('c', filemtime($file) ?: time()),
-                ];
-            }
-        }
-        return $items;
-    }
-
     public static function migrateFromLegacy(): int {
         $oldFile = storage_path('media.yaml');
         if (!is_file($oldFile)) return 0;
@@ -345,7 +339,10 @@ final class MediaService {
             $grouped[$ctx][] = $item;
         }
         foreach ($grouped as $ctx => $records) {
-            $service->writeYaml($ctx, $records);
+            foreach ($records as $record) {
+                if (empty($record['id']) || $service->store->find('media_files', $record['id'])) continue;
+                $service->store->upsert('media_files', $record);
+            }
         }
         @rename($oldFile, $oldFile . '.bak');
         return count($items);

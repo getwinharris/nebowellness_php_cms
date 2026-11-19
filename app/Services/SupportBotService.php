@@ -12,7 +12,7 @@ final class SupportBotService {
         private ?AgentRunTrace $trace = null
     ) {}
 
-    public function answer(string $message, ?array $user): array {
+    public function answer(string $message, ?array $user, string $previous = ''): array {
         $startedAt = microtime(true);
         $outcome = 'fallback';
         $message = trim($message);
@@ -20,7 +20,7 @@ final class SupportBotService {
         $ticketReply = $this->ticketReply($message, (string)($user['email'] ?? ''));
         if ($ticketReply !== null) {
             $this->trace?->tool('track_support_ticket', 'ok', $startedAt);
-            return $this->finishReply($ticketReply, 'fallback', $startedAt);
+            return array_merge($this->finishReply($ticketReply, 'fallback', $startedAt), ['memory' => 'none']);
         }
         $starter = match ($message) {
             self::PROGRAMS_PROMPT => 'Explore gut health, metabolic wellness, fertility and maternal support, and lifestyle programs at /#programs.',
@@ -62,7 +62,7 @@ final class SupportBotService {
             : null;
         if ($reply !== null) $outcome = 'private_account';
         if ($reply === null) {
-            $aiReply = $this->modelReply($message, $context);
+            $aiReply = $this->modelReply($message, $context, $previous);
             if ($aiReply !== null) {
                 $candidate = $this->cleanReply($aiReply);
                 if (!$this->looksInternal($candidate) && trim($candidate) !== '') {
@@ -72,14 +72,16 @@ final class SupportBotService {
             }
         }
         $reply ??= $this->fallbackReply($message, $context);
-        return $this->finishReply($reply, $outcome, $startedAt, $context);
+        $result = $this->finishReply($reply, $outcome, $startedAt, $context);
+        if ($this->isPrivateAccountQuestion($message) || preg_match('/\btickets?\b/i', $message)) $result['memory'] = 'none';
+        return $result;
     }
 
     private function finishReply(string $reply, string $outcome, float $started, array $context = []): array {
         (new AuditLogService($this->store))->agentRun('support', $outcome, $started, $this->trace);
         $allowed = array_column($this->destinations($context), 'path');
         $actions = array_values(array_filter($this->extractActions($reply), static fn(array $action): bool => in_array($action['path'], $allowed, true)));
-        return ['reply' => $reply, 'ticket_id' => null, 'memory' => 'browser_session', 'actions' => $actions];
+        return ['reply' => $reply, 'ticket_id' => null, 'memory' => 'session', 'actions' => $actions];
     }
 
     private function ticketReply(string $message, string $email): ?string {
@@ -121,7 +123,7 @@ final class SupportBotService {
         foreach ($context['site']['pages'] ?? [] as $name => $path) {
             $pages[$name] ??= ['path' => $path, 'label' => ucfirst($name)];
         }
-        $aliases = ['campaigns' => ['therapy products', 'campaign pages'], 'blog' => ['journal'], 'orders' => ['my orders']];
+        $aliases = ['campaigns' => ['therapy products', 'campaign pages'], 'blog' => ['journal'], 'orders' => ['my orders'], 'therapy requests' => ['my therapy requests', 'therapy status']];
         foreach ($aliases as $key => $names) {
             if (isset($pages[$key])) foreach ($names as $name) $pages[$name] = $pages[$key];
         }
@@ -148,6 +150,7 @@ final class SupportBotService {
         $base = empty($user['email'])
             ? $this->agentContext->forUserEmail('')
             : $this->agentContext->forUserEmail((string)$user['email']);
+        if (($user['role'] ?? '') === 'customer') $base['site']['pages']['therapy requests'] = '/account/therapy';
         // Articles let the agent answer "what is this app?" from real content instead of
         // falling back to a navigation list. BlogService::all() already withholds
         // unpublished posts and posts whose module is off.
@@ -166,7 +169,7 @@ final class SupportBotService {
      * admin agent and left this one calling a model that answered 404 — every customer
      * reply silently fell back to a canned menu.
      */
-    private function modelReply(string $message, array $context): ?string {
+    private function modelReply(string $message, array $context, string $previous = ''): ?string {
         $shopInstructions = module_on('shop')
             ? "For buying a product: explain step-by-step — browse /shop, click a product, add to cart, go to /cart, proceed to /checkout, enter address, pay with card/UPI, view order at /account/dashboard/orders.\nFor product issues or returns: ask the customer to use the /contact form.\n"
             : "Ecommerce is disabled. Do not mention products, shopping, cart, checkout, delivery, payment, saved addresses, or orders.\n";
@@ -187,6 +190,7 @@ final class SupportBotService {
             . "it is genuinely absent from the JSON.\n"
             . "Customer context JSON: "
             . json_encode($context, JSON_UNESCAPED_SLASHES)
+            . $previous
             . "\nCustomer question: " . $message
             . "\nSupport reply:";
         return (new AiClient($this->secrets, routingScope: 'support', trace: $this->trace))->completeOrNull($prompt, 220, 0.2);
@@ -407,7 +411,7 @@ final class SupportBotService {
     }
 
     private function extractActions(string $reply): array {
-        preg_match_all('/\/(?:#programs|shop|cart|checkout|contact|login|about|support|campaigns(?:\/[a-z0-9-]+)?|blog(?:\/category\/[a-z0-9-]+|\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
+        preg_match_all('/\/(?:#programs|shop|cart|checkout|contact|login|about|support|campaigns(?:\/[a-z0-9-]+)?|blog(?:\/category\/[a-z0-9-]+|\/[a-z0-9-]+)?|product\/[a-z0-9-]+|account\/therapy|account\/dashboard(?:\/orders|\/install)?)(?=[\s.,)\/  ]|$)/i', $reply, $matches);
         $seen = [];
         $actions = [];
         foreach ($matches[0] as $path) {
@@ -418,6 +422,7 @@ final class SupportBotService {
             if (in_array($path, $seen, true)) continue;
             $seen[] = $path;
             $label = match (true) {
+                $path === '/account/therapy' => 'My therapy requests',
                 $path === '/shop' => 'View Shop',
                 $path === '/cart' => 'View Cart',
                 $path === '/checkout' => 'Go to Checkout',

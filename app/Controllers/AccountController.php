@@ -11,7 +11,10 @@ final class AccountController extends BaseController {
     // reachable after Ecommerce is switched off — the order and invoice are the only
     // record of a completed purchase, and login lands here. New shopping flows
     // (shop, cart, checkout) remain gated in PublicController/CommerceController.
-    public function dashboard(): void { $this->redirect('/account/dashboard/orders'); }
+    public function dashboard(): void {
+        $therapyFirst = ($_SESSION['user']['role'] ?? '') === 'customer' && !module_on('shop');
+        $this->redirect($therapyFirst ? '/account/therapy' : '/account/dashboard/orders');
+    }
     public function legacyOrders(): void { $this->redirect('/account/dashboard/orders'); }
     public function legacyBookings(): void { $this->redirect('/account/dashboard/orders'); }
 

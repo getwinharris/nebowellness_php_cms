@@ -137,7 +137,7 @@
                                 <?php else: ?>
                                     <dl style="margin:0;">
                                         <?php foreach($formAnswers as $answerKey => $answerValue): ?>
-                                            <dt style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; color:var(--color-text-muted);"><?= e(ucwords(str_replace('_',' ',(string)$answerKey))) ?></dt>
+                                            <dt style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.03em; color:var(--color-text-muted);"><?= e(\App\Services\CampaignPageService::answerLabel($item, (string)$answerKey)) ?></dt>
                                             <dd style="margin:0 0 var(--space-2xs); word-break:break-word;"><?= e(is_scalar($answerValue) ? (string)$answerValue : (string)json_encode($answerValue)) ?></dd>
                                         <?php endforeach; ?>
                                     </dl>

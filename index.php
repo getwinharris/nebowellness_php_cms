@@ -27,13 +27,14 @@ if (PHP_SAPI === 'cli-server' && preg_match('#^/(assets|storage)/#', $uri) === 1
 $pwaFiles = [
     '/manifest.json' => 'assets/pwa/manifest-user.json',
     '/sw.js' => 'assets/pwa/sw-user.js',
+    '/admin/sw.js' => 'assets/pwa/sw-user.js',
 ];
 if (isset($pwaFiles[$uri])) {
     $pwaAsset = __DIR__ . '/' . $pwaFiles[$uri];
     if (is_file($pwaAsset)) {
         $mime = str_ends_with($uri, '.json') ? 'application/json' : 'application/javascript';
         header('Content-Type: ' . $mime);
-        header('Cache-Control: public, max-age=86400');
+        header(str_ends_with($uri, '.js') ? 'Cache-Control: no-cache' : 'Cache-Control: public, max-age=86400');
         readfile($pwaAsset);
         exit;
     }
@@ -58,18 +59,6 @@ if ($uri === '/admin/manifest.json') {
     echo json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     exit;
 }
-if ($uri === '/admin/sw.js') {
-    $cacheName = 'nebo-cache-admin-v2';
-    $precache = json_encode(['/admin', '/login']);
-    header('Content-Type: application/javascript; charset=utf-8');
-    header('Cache-Control: no-cache');
-    echo "const CACHE_NAME = {$cacheName}; const PRECACHE_URLS = {$precache};";
-    echo "self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(PRECACHE_URLS)).then(()=>self.skipWaiting()));});";
-    echo "self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.map(n=>n!==CACHE_NAME?caches.delete(n):null))).then(()=>self.clients.claim()));});";
-    echo "self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(c=>c||fetch(e.request).then(r=>{if(!r||r.status!==200||r.type!=='basic')return r;const url=new URL(e.request.url);if(!url.pathname.startsWith('/api')){caches.open(CACHE_NAME).then(ca=>ca.put(e.request,r.clone()));}return r;}).catch(()=>e.request.mode==='navigate'?caches.match('/'):new Response('Offline',{status:503}))));});";
-    exit;
-}
-
 // Remote DB query endpoint
 if ($uri === '/remotedb') {
     require __DIR__ . '/app/bootstrap.php';
@@ -91,45 +80,11 @@ if ($uri !== null && $uri !== '/' && str_ends_with($uri, '/')) {
     exit;
 }
 
-// PHP routes (admin + public pages)
-$phpRoutes = ['/','/shop','/shop/','/product','/cart','/checkout','/payment','/support','/about','/contact','/forms','/temples','/campaigns','/consult','/consultation','/auth','/login','/logout','/register','/forgot-password','/reset-password','/account','/reviews','/sri-panchami-spiritual','/spiritual','/categories','/terms','/privacy','/blog','/docs','/help','/sitemap.xml'];
-$isPhpRoute = false;
-foreach ($phpRoutes as $route) {
-    if (strpos($uri, $route . '/') === 0 || $uri === $route) {
-        $isPhpRoute = true;
-        break;
-    }
-}
-
-if (strpos($uri, '/admin') === 0 || $isPhpRoute) {
-    require __DIR__ . '/app/bootstrap.php';
-    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-    header('X-Content-Type-Options: nosniff');
-    header('X-Frame-Options: DENY');
-    header('Referrer-Policy: strict-origin-when-cross-origin');
-    $router = new App\Router(require __DIR__ . '/app/routes.php');
-    $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
-    exit;
-}
-
-http_response_code(404);
+// Every web route comes from the registry, including the negotiated 404 fallback.
+require __DIR__ . '/app/bootstrap.php';
 header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('Referrer-Policy: strict-origin-when-cross-origin');
-require __DIR__ . '/app/bootstrap.php';
-$secrets = (new App\Services\SecretService())->all();
-$seo = (new App\Services\SeoService($secrets))->page('404', [
-    'title' => 'Page not found',
-    'description' => 'The page you requested could not be found.',
-    'robots' => 'noindex, follow',
-]);
-$pageTitle = $seo['title'];
-$metaDescription = $seo['description'];
-$metaRobots = $seo['robots'];
-$viewFile = __DIR__ . '/views/public/404.php';
-if (is_file($viewFile)) {
-    require __DIR__ . '/views/layouts/app.php';
-} else {
-    echo 'Page not found';
-}
+$router = new App\Router(require __DIR__ . '/app/routes.php');
+$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

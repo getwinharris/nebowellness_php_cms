@@ -7,7 +7,7 @@
         </div>
 
         <figure class="nebo-about-photo">
-            <img src="/assets/images/nebo-garden.png" alt="Illustrative tropical garden and wellness setting" loading="eager">
+            <img src="/assets/images/nebo-garden.webp" width="1672" height="941" alt="Illustrative tropical garden and wellness setting" loading="eager">
         </figure>
 
         <div class="about-story-grid">
@@ -136,24 +136,4 @@
     </div>
 </section>
 
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "AboutPage",
-    "name": "About Nebo Lifestyle Clinic",
-    "description": "Learn about Nebo Lifestyle Clinic — Kanyakumari's trusted centre for naturopathy, functional medicine, nutritional therapy, and integrative wellness solutions.",
-    "url": "https://nebowellness.com/about",
-    "mainEntity": {
-        "@type": "MedicalClinic",
-        "name": "Nebo Lifestyle Clinic",
-        "email": "nebolifestyleclinic@gmail.com",
-        "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Kaliyal, Kanyakumari",
-            "addressRegion": "Tamil Nadu",
-            "addressCountry": "IN"
-        },
-        "telephone": "+91-7200182025"
-    }
-}
-</script>
+<?= \App\Services\SeoService::jsonLdScript(($__clinicSeo ?? new \App\Services\SeoService())->aboutPageSchema()) ?>

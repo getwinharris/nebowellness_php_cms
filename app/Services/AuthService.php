@@ -6,6 +6,14 @@ final class AuthService {
         return $_SESSION['user'] ?? null;
     }
 
+    public static function landingPage(array $user): string {
+        return match ($user['role'] ?? '') {
+            'admin' => '/admin',
+            'customer' => '/account/dashboard',
+            default => '/',
+        };
+    }
+
     public function requireUser(): void {
         if (!$this->user()) {
             header('Location: /login');

@@ -103,6 +103,26 @@ final class RemoteDbController {
         }
         try {
             $store = $this->store;
+            if ($action === 'therapy_update' && $collection === 'therapy_sessions') {
+                try {
+                    $record = $store->updateTherapySession((string)($input['id'] ?? ''), (string)($input['actionName'] ?? ''), (array)($input['values'] ?? []));
+                    echo json_encode(['success'=>true, 'record'=>$record]);
+                } catch (\DomainException $error) {
+                    http_response_code(409);
+                    echo json_encode(['error'=>$error->getMessage()]);
+                }
+                return;
+            }
+            if ($action === 'bind_customer_google' && $collection === 'users') {
+                $store->bindCustomerGoogle($input['identity'] ?? [], (string)($input['id'] ?? ''), (string)($input['revision'] ?? ''));
+                echo json_encode(['success'=>true]);
+                return;
+            }
+            if ($action === 'register_customer' && $collection === 'users') {
+                $store->registerCustomer($input['record'] ?? [], $input['address'] ?? []);
+                echo json_encode(['success'=>true]);
+                return;
+            }
             if ($action === 'upsert') {
                 $record = $input['record'] ?? null;
                 if (!is_array($record) || empty($record['id'])) throw new \InvalidArgumentException('Record id is required.');

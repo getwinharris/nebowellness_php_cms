@@ -124,6 +124,22 @@ try {
         }
     }
 
+    foreach (['/' => 200, '/missing-discovery-page' => 404, '/blog/missing-discovery-post' => 404] as $path => $status) {
+        $response = httpRequest($base . $path, requestHeaders: ['Accept: text/markdown']);
+        $headers = implode("\n", $response['headers']);
+        if ($response['status'] !== $status || !str_starts_with($response['body'], '# ')
+            || !preg_match('/^content-type: text\/markdown\b/im', $headers)
+            || !preg_match('/^vary: .*\baccept\b/im', $headers)) {
+            $failures[] = "Markdown GET {$path} should return {$status} with negotiated headers";
+        }
+        if ($status === 200 && !str_contains($headers, 'rel="service-desc"')) $failures[] = 'Public discovery contract link missing';
+    }
+    $contract = httpRequest($base . '/openapi.json');
+    $paths = json_decode($contract['body'], true)['paths'] ?? [];
+    if ($contract['status'] !== 200 || array_keys($paths) !== ['/', '/sitemap.xml']) $failures[] = 'Public OpenAPI discovery contract invalid';
+    $head = httpRequest($base . '/openapi.json', 'HEAD');
+    if ($head['status'] !== 200 || $head['body'] !== '') $failures[] = 'Discovery HEAD must return headers without a body';
+
     $unknown = httpRequest($base . '/unknown-spa-route');
     echo "{$unknown['status']} GET /unknown-spa-route\n";
     if ($unknown['status'] !== 404) {
@@ -157,14 +173,15 @@ function waitForServer(string $base): void {
     throw new RuntimeException('Local PHP server did not start.');
 }
 
-function httpRequest(string $url, string $method = 'GET', string $body = ''): array {
+function httpRequest(string $url, string $method = 'GET', string $body = '', array $requestHeaders = []): array {
     $options = [
         'method' => $method,
         'ignore_errors' => true,
         'timeout' => 6,
+        'header' => $requestHeaders,
     ];
     if ($method === 'POST') {
-        $options['header'] = "Content-Type: application/x-www-form-urlencoded\r\n";
+        $options['header'][] = 'Content-Type: application/x-www-form-urlencoded';
         $options['content'] = $body;
     }
     $content = false;

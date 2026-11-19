@@ -9,6 +9,12 @@ category: docs
 
 ## Unreleased
 
+- Customer Support and Enterprise Agent remember a bounded conversation in the current session. Both support reload, follow-up questions, retry and clearing. Owner diagnostics show provider failures and latency by model and request type.
+- Therapy intake now has an owner queue, a customer status page, clinician assignments and conflict-checked scheduling. Paid requests use a distinct Razorpay order and require a verified capture before confirmation.
+- Added owner GA4 and Search Console reports, separate opt-ins for analytics and advertising, and write-only provider credential fields. Google customers can explicitly link a verified identity during sign-in or registration.
+- Added Markdown discovery, a public OpenAPI description, canonical metadata and clearer campaign receipts. Consolidated public styles, served fonts locally, and reduced the transfer size of clinic images.
+- The media library can archive and restore managed uploads while preserving published URLs. The shop has a responsive heading and category controls, and service workers cache versioned scripts and styles only.
+
 - Added 7- and 30-day dashboard views with daily agent charts, provider attempt counts, and shortcuts to clinic enquiries and trace details.
 
 - Added New chat and 24-hour error rate and p95 timing to the Enterprise Agent.

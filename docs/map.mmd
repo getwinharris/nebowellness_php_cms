@@ -79,6 +79,7 @@ mindmap
     BACKUPS["storage/backups/"]
 
     ### Admin Panel
+    ADMIN_admin_therapy["GET /admin/therapy"]
     ADMIN_admin["GET /admin"]
     ADMIN_admin_products["GET /admin/products"]
     ADMIN_admin_categories["GET /admin/categories"]
@@ -92,6 +93,7 @@ mindmap
     ADMIN_admin_tax_report["GET /admin/tax-report"]
     ADMIN_admin_campaigns["GET /admin/campaigns"]
     ADMIN_admin_settings["GET /admin/settings"]
+    ADMIN_admin_search_performance["GET /admin/search-performance"]
     ADMIN_admin_integrations["GET /admin/integrations"]
     ADMIN_admin_agent["GET /admin/agent"]
     ADMIN_admin_contact_submissions["GET /admin/contact-submissions"]
@@ -122,11 +124,13 @@ mindmap
     CTRL_remotedbcontroller["RemoteDbController"]
     CTRL_reviewcontroller["ReviewController"]
     CTRL_supportcontroller["SupportController"]
+    CTRL_therapycontroller["TherapyController"]
 
     ### Services
     SVC_addressservice["AddressService"]
     SVC_agentattachmentservice["AgentAttachmentService"]
     SVC_agentcontextservice["AgentContextService"]
+    SVC_agentconversation["AgentConversation"]
     SVC_agentdraftservice["AgentDraftService"]
     SVC_agentruntrace["AgentRunTrace"]
     SVC_agenttoolregistry["AgentToolRegistry"]
@@ -162,6 +166,7 @@ mindmap
     SVC_paymentservice["PaymentService"]
     SVC_productservice["ProductService"]
     SVC_projectmapservice["ProjectMapService"]
+    SVC_publicdiscoveryservice["PublicDiscoveryService"]
     SVC_ratelimiter["RateLimiter"]
     SVC_resourceservice["ResourceService"]
     SVC_reviewservice["ReviewService"]
@@ -175,6 +180,7 @@ mindmap
     SVC_supportbotservice["SupportBotService"]
     SVC_supportticketservice["SupportTicketService"]
     SVC_taxservice["TaxService"]
+    SVC_therapysessionservice["TherapySessionService"]
 
     ### Schema Collections
     COL_users["users"]
@@ -198,6 +204,7 @@ mindmap
     COL_reviews["reviews"]
     COL_settings["settings"]
     COL_contact_submissions["contact_submissions"]
+    COL_therapy_sessions["therapy_sessions"]
     COL_media_files["media_files"]
     COL_secrets["secrets"]
 
@@ -222,4 +229,4 @@ mindmap
     AGENTFILE_agents_md["AGENTS.md"]
 
     ### Coverage Gaps
-    GAP_services_without_schema_collection_mapping_markd["Services without schema collection mapping: MarkdownRenderer, CartService, SecretService, BlogService, EmailOtpService, AuthService, GoogleCustomerAuthService, TaxService, SchemaService, ShippingService, EnvService, PaymentService, AgentAttachmentService, AgentDraftService, AgentRunTrace, AiReplyCleaner, AiClient, MediaService, SupportBotService, BlogDraftService"]
+    GAP_services_without_schema_collection_mapping_publi["Services without schema collection mapping: PublicDiscoveryService, MarkdownRenderer, CartService, SecretService, BlogService, EmailOtpService, AuthService, GoogleCustomerAuthService, PaymentService, TaxService, SchemaService, ShippingService, EnvService, AgentConversation, AgentAttachmentService, AgentDraftService, AgentRunTrace, AiReplyCleaner, AiClient, SupportBotService, BlogDraftService"]

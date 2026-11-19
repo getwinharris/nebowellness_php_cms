@@ -1,10 +1,16 @@
 <?php
 namespace App\Controllers;
-use App\Services\{AuthService,BlogService,CampaignPageService,ConsultantService,ProductService,CategoryService,SecretService,SeoService,ContactService,ReviewService,MarkdownRenderer};
+use App\Services\{AuthService,BlogService,CampaignPageService,ConsultantService,ProductService,CategoryService,SecretService,SeoService,ContactService,ReviewService,MarkdownRenderer,PublicDiscoveryService,SettingsService};
 final class PublicController extends BaseController {
     
     public function home(): void {
         $this->detectApiRequest();
+        header('Vary: Accept', false);
+        header('Link: </openapi.json>; rel="service-desc"; type="application/json"', false);
+        if (PublicDiscoveryService::prefersMarkdown($_SERVER['HTTP_ACCEPT'] ?? '')) {
+            PublicDiscoveryService::sendHome((new SettingsService())->modules());
+            return;
+        }
         $this->seoKey = 'home';
         $consultants = [];
         try { $consultants = (new ConsultantService())->all(); }
@@ -87,7 +93,7 @@ final class PublicController extends BaseController {
         $this->seoOverrides = [
             'title' => trim((string)($page['seo_title'] ?? '')) ?: $page['title'] . ' – Nebo Lifestyle Clinic',
             'description' => trim((string)($page['seo_description'] ?? '')) ?: (string)($page['summary'] ?? ''),
-            'og_image' => trim((string)($page['image_url'] ?? '')) ?: '/assets/images/nebo-programs.png',
+            'og_image' => trim((string)($page['image_url'] ?? '')) ?: '/assets/images/nebo-programs.webp',
             'canonical' => $this->siteUrl('/campaigns/' . $page['slug']),
         ];
         $this->render('public/campaign', ['campaign' => $page]);
@@ -132,6 +138,7 @@ final class PublicController extends BaseController {
             if (!(new \App\Services\EmailOtpService())->verify('campaign:' . $slug, $submission['email'], $otp)) $errors[] = 'Enter the valid 6-digit code sent to your email.';
         }
         $customValues = [];
+        $customLabels = [];
         foreach (is_array($page['form_fields'] ?? null) ? $page['form_fields'] : [] as $field) {
             if (!is_array($field)) continue;
             $key = preg_replace('/[^a-z0-9_]/', '', strtolower((string)($field['key'] ?? '')));
@@ -161,6 +168,7 @@ final class PublicController extends BaseController {
             // maxlength="2000" in views/public/campaign.php.
             if ($length($value) > 2000) $errors[] = 'Keep ' . (string)($field['label'] ?? $key) . ' under 2,000 characters.';
             $customValues[$key] = $value;
+            $customLabels[$key] = (string)($field['label'] ?? $key);
         }
         if ($errors !== []) {
             foreach (['name'=>150,'email'=>254,'phone'=>40,'message'=>5000] as $field=>$limit) {
@@ -176,9 +184,14 @@ final class PublicController extends BaseController {
             $this->redirect('/campaigns/' . rawurlencode($slug) . '#campaign-enquiry');
         }
         $submission['campaign_slug'] = $slug;
+        // Ownership comes from the authenticated account, never the editable contact email.
+        if (($_SESSION['user']['role'] ?? '') === 'customer') {
+            $submission['customer_id'] = (string)($_SESSION['user']['sub'] ?? '');
+        }
         $submission['campaign_title'] = $page['title'];
         $submission['subject'] = 'Campaign enquiry: ' . $page['title'];
         $submission['form_data'] = $customValues;
+        $submission['form_labels'] = $customLabels;
         $submission['id'] = 'campaign_' . substr(hash('sha256', session_id() . $slug . $token), 0, 24);
         $submission['id'] = (new ContactService())->save($submission);
         try {
@@ -191,7 +204,7 @@ final class PublicController extends BaseController {
             if ($customValues !== []) {
                 $customHtml = '<h3>Campaign answers</h3><dl>';
                 foreach ($customValues as $key => $value) {
-                    $customHtml .= '<dt>' . e(ucwords(str_replace('_', ' ', $key))) . '</dt><dd>' . e($value) . '</dd>';
+                    $customHtml .= '<dt>' . e(CampaignPageService::answerLabel($submission, (string)$key)) . '</dt><dd>' . e($value) . '</dd>';
                 }
                 $customHtml .= '</dl>';
             }
@@ -209,7 +222,7 @@ final class PublicController extends BaseController {
     public function shop(): void {
         $this->requireModule('shop');
         $this->detectApiRequest();
-        $category = $_GET['category'] ?? '';
+        $category = is_string($_GET['category'] ?? null) ? trim($_GET['category']) : '';
         $categories = (new CategoryService())->all();
         $items = (new ProductService())->visible();
         $this->seoKey = 'shop';
@@ -269,13 +282,13 @@ final class PublicController extends BaseController {
             $all = (new ProductService())->visible();
             $related = array_values(array_filter($all, fn($p) => ($p['slug'] ?? '') !== $slug));
             $this->seoKey = 'product';
-            $price = $product['offer_price'] ?? $product['price'] ?? 0;
+            $price = ($product['offer_price'] ?? 0) ?: ($product['price'] ?? 0);
             $schema = (new SeoService((new SecretService())->all()))->productSchema($product);
             $this->seoOverrides = [
                 'title' => ($product['name'] ?? 'Product') . ' – Buy Online at Nebo Lifestyle Clinic',
                 'description' => 'Buy ' . ($product['name'] ?? 'this product') . ' online at Nebo Lifestyle Clinic. ' . ($product['description'] ?? '') . ' Price: ₹' . $price . '. Natural wellness product supporting your plan.',
                 'og_image' => $product['image_url'] ?? '',
-                'json_ld' => '<script type="application/ld+json">' . json_encode($schema) . '</script>',
+                'json_ld' => SeoService::jsonLdScript($schema),
             ];
             if ($adminPreview) {
                 $related = [];
@@ -337,49 +350,39 @@ final class PublicController extends BaseController {
         $this->render('public/checkout', ['items' => $items, 'total' => $this->cartTotal($items), 'secrets' => $secrets, 'addresses' => $addresses, 'razorpayReady' => $razorpayReady, 'settings' => $settings]);
     }
     
+    public function discoveryContract(): void {
+        header('Content-Type: application/json; charset=utf-8');
+        require app_path('views/public/openapi.php');
+    }
+
+    public function notFound(): void {
+        $this->renderNotFound();
+    }
+
     public function sitemap(): void {
+        $modules = (new SettingsService())->modules();
+        $urls = array_fill_keys(['/', '/about', '/contact', '/terms', '/privacy'], null);
+        if ($modules['blog']) {
+            $urls['/blog'] = null;
+            foreach ((new BlogService())->all() as $post) {
+                $date = substr((string)($post['updated_at'] ?? $post['published_at'] ?? ''), 0, 10);
+                $urls['/blog/' . rawurlencode($post['slug'])] = preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date) ? $date : null;
+            }
+        }
+        if ($modules['shop']) {
+            $urls['/shop'] = null;
+            foreach ((new ProductService())->visible() as $product) {
+                if (!empty($product['slug'])) $urls['/product/' . rawurlencode($product['slug'])] = null;
+            }
+        }
+        if ($modules['campaigns']) {
+            $urls['/campaigns'] = null;
+            foreach ((new CampaignPageService())->published() as $page) {
+                $urls['/campaigns/' . rawurlencode($page['slug'])] = null;
+            }
+        }
         header('Content-Type: application/xml; charset=utf-8');
-        $host = $_SERVER['HTTP_HOST'] ?? 'nebowellness.com';
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $base = $scheme . '://' . $host;
-
-        $pages = ['/', '/about', '/contact', '/blog', '/terms', '/privacy'];
-        if (module_on('shop')) $pages[] = '/shop';
-        $products = [];
-        if (module_on('shop')) {
-            try { $products = (new ProductService())->visible(); } catch (\Throwable) {}
-        }
-        $blogPosts = [];
-        try { $blogPosts = (new BlogService())->all(); } catch (\Throwable) {}
-        $campaignPages = module_on('campaigns') ? (new CampaignPageService())->published() : [];
-        if (module_on('campaigns')) $pages[] = '/campaigns';
-
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
-
-        foreach ($pages as $path) {
-            $xml .= '  <url><loc>' . $base . $path . '</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>' . "\n";
-        }
-
-        foreach ($products as $p) {
-            if (!empty($p['slug'])) {
-                $xml .= '  <url><loc>' . $base . '/product/' . e($p['slug']) . '</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>' . "\n";
-            }
-        }
-
-        foreach ($blogPosts as $post) {
-            if (!empty($post['slug']) && !empty($post['published'])) {
-                $xml .= '  <url><loc>' . $base . '/blog/' . e($post['slug']) . '</loc><lastmod>' . e(substr((string)($post['updated_at'] ?? $post['published_at'] ?? ''), 0, 10)) . '</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>' . "\n";
-            }
-        }
-
-        foreach ($campaignPages as $campaignPage) {
-            $xml .= '  <url><loc>' . $base . '/campaigns/' . e($campaignPage['slug']) . '</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>' . "\n";
-        }
-
-        $xml .= '</urlset>';
-        echo $xml;
-        exit;
+        require app_path('views/public/sitemap.php');
     }
 
     public function contact(): void {
@@ -495,12 +498,12 @@ final class PublicController extends BaseController {
         // their dashboard instead of offering a second login. /account/dashboard is a
         // 404 while the shop module is off, so those customers go home instead.
         if (!empty($_SESSION['user'])) {
-            $target = (($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : (module_on('shop') ? '/account/dashboard' : '/');
-            $this->redirect($target);
+            $this->redirect(AuthService::landingPage($_SESSION['user']));
         }
         $this->seoKey = 'login';
         $secrets = (new \App\Services\SecretService())->all();
         $this->render('public/login', [
+            'pendingGoogleEmail' => \App\Services\GoogleCustomerAuthService::pending($_SESSION, time())['email'] ?? '',
             'googleAuthEnabled' => !empty($secrets['google_client_id']) && !empty($secrets['google_client_secret']),
         ]); 
     }

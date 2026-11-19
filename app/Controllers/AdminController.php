@@ -1,11 +1,14 @@
 <?php
 namespace App\Controllers;
-use App\Services\{AuditLogService,MailQueueService,AuthService,BlogDraftService,CampaignPageService,ConsultationService,EnvService,MailStorageService,MarkdownRenderer,MediaService,OrderService,ResourceService,SchemaService,SecretService,SettingsService,StoragePermissionService};
+use App\Services\{AgentConversation,AuditLogService,MailQueueService,AuthService,BlogDraftService,CampaignPageService,ConsultationService,EnvService,MailStorageService,MarkdownRenderer,MediaService,OrderService,ResourceService,SchemaService,SecretService,SettingsService,StoragePermissionService};
 final class AdminController extends BaseController {
     protected string $layout = 'admin';
     public function __construct() {
         (new AuthService())->requireAdmin();
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') $this->validateCsrf();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->isApiRequest = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) === '/admin/agent/ask';
+            $this->validateCsrf();
+        }
         $this->seoKey = 'admin';
     }
 
@@ -19,7 +22,7 @@ final class AdminController extends BaseController {
         $appointments = (new ResourceService('appointments'))->all();
         $dashboardDays = ($_GET['days'] ?? null) === '30' ? 30 : 7;
         $agentMonitoring = null;
-        try { $agentMonitoring = AuditLogService::agentDashboard((new AuditLogService())->all(), $dashboardDays); }
+        try { $agentMonitoring = (new AuditLogService())->dashboardForPeriod($dashboardDays); }
         catch (\Throwable) { /* Monitoring must not prevent dashboard access. */ }
         usort($appointments, static fn(array $a, array $b): int => strcmp(
             (string)($b['created_at'] ?? $b['preferred_date'] ?? ''),
@@ -187,7 +190,28 @@ final class AdminController extends BaseController {
     }
     public function saveAdminCredentials(): void{(new EnvService())->saveAdminCredentials($_POST); (new AuditLogService())->record('save','admin-credentials','env'); $this->flash('Admin credentials saved.','success'); $this->redirect('/admin/settings');}
     public function integrations(): void{$this->render('admin/integrations',['pageTitle' => 'Integrations', 'secrets'=>(new SecretService())->all(), 'googleCallbackUri'=>\App\Services\GoogleCustomerAuthService::callbackUri()]);}
-    public function saveIntegrations(): void{(new SecretService())->save($_POST); (new AuditLogService())->record('save','integrations','secrets'); $this->flash('Integration settings saved.','success'); $this->redirect('/admin/integrations');}
+    public function saveIntegrations(): void {
+        try {
+            $values = \App\Integrations\GoogleSiteKit\GoogleSiteKitClient::settings($_POST);
+            (new SecretService())->save(SecretService::integrationChanges($values));
+            (new AuditLogService())->record('save','integrations','secrets');
+            $this->flash('Integration settings saved.', 'success');
+        } catch (\InvalidArgumentException $error) {
+            $this->flash($error->getMessage(), 'error');
+        } catch (\Throwable) {
+            $this->flash('Integration settings could not be saved. Try again.', 'error');
+        }
+        $this->redirect('/admin/integrations');
+    }
+
+    public function searchPerformance(): void {
+        $this->seoOverrides['title'] = 'Search performance';
+        $days = (int)($_GET['days'] ?? 28);
+        if (!in_array($days, [7, 28, 90], true)) $days = 28;
+        $_SESSION['google_report_cache'] ??= [];
+        $reports = (new \App\Integrations\GoogleSiteKit\GoogleSiteKitClient())->reports((new SecretService())->all(), $days, $_SESSION['google_report_cache']);
+        $this->render('admin/search-performance', ['pageTitle'=>'Search performance', 'reports'=>$reports, 'days'=>$days]);
+    }
     public function agent(): void{
         $secrets = new SecretService();
         $modelConfig = $secrets->getModelConfig();
@@ -197,19 +221,22 @@ final class AdminController extends BaseController {
         $agentMonitoring = null;
         $agentTraces = [];
         try {
-            $events = (new AuditLogService())->all();
-            $agentMonitoring = AuditLogService::agentSummary($events);
-            usort($events, static fn(array $a, array $b): int => strcmp((string)($b['created_at'] ?? ''), (string)($a['created_at'] ?? '')));
-            $agentTraces = array_slice(array_values(array_filter($events, static fn(array $event): bool =>
-                ($event['event'] ?? '') === 'agent.run' && isset($event['meta']['trace_id'])
-            )), 0, 12);
+            $audit = new AuditLogService();
+            $now = time();
+            $agentMonitoring = AuditLogService::agentSummary($audit->agentRunsBetween($now - 86400, $now), $now);
+            $agentTraces = $audit->latestAgentTraces($now);
         }
         catch (\Throwable $error) { error_log('Agent workspace monitoring unavailable: ' . get_class($error)); }
         $this->render('admin/agent',['pageTitle'=>'Enterprise Agent','modelConfig'=>$modelConfig,'attachables'=>$attachables,'shopEnabled'=>module_on('shop'),'campaignsEnabled'=>module_on('campaigns'),'agentMonitoring'=>$agentMonitoring,'agentTraces'=>$agentTraces]);
     }
     public function agentAsk(): void{
-        $message = trim((string)($_POST['message'] ?? ''));
-        if ($message === '') {$this->jsonResponse(['error'=>'Message is required'],400); return;}
+        $message = is_string($_POST['message'] ?? null) ? trim($_POST['message']) : '';
+        $chat = new AgentConversation('admin');
+        $turnId = $this->handleConversation($chat, $message);
+        if ($message === '' || mb_strlen($message) > 8000) {
+            $this->jsonResponse(['error'=>'Enter a message of 1 to 8,000 characters.'], 422);
+            return;
+        }
         $startedAt = microtime(true);
         $trace = new \App\Services\AgentRunTrace();
         header('X-Agent-Trace: ' . $trace->id);
@@ -225,6 +252,7 @@ final class AdminController extends BaseController {
                 }
                 $answer = 'Historical appointments: ' . $summary['total'] . '. These are archived records, separate from current campaign enquiries.';
                 foreach ($summary['by_status'] as $status => $count) $answer .= "\n- " . ucfirst($status) . ': ' . $count;
+                if ($turnId !== null) $chat->remember($turnId, $message, ['answer' => $answer], $trace->id);
                 $this->jsonResponse(['answer' => $answer]);
                 return;
             }
@@ -242,6 +270,7 @@ final class AdminController extends BaseController {
                     $summary['request_count'], $summary['days'], $status['new'], $status['read'], $status['closed'], $status['other']
                 );
                 (new AuditLogService())->agentRun('admin', 'fallback', $startedAt, $trace);
+                if ($turnId !== null) $chat->remember($turnId, $message, ['answer' => $answer], $trace->id);
                 $this->jsonResponse(['answer' => $answer, 'missing' => []]);
                 return;
             }
@@ -282,6 +311,7 @@ final class AdminController extends BaseController {
                 $context .= "\n\nDocuments the owner attached with @:" . $attachments['context'];
             }
             if (!empty($modelConfig['apiKey'])) {
+                if ($turnId !== null) $context .= $chat->promptContext();
                 $answer = $this->callAiApi($modelConfig, $message, $context, $trace);
             } else {
                 $answer = "AI model not configured. Go to Admin → Integrations and set api_endpoint, ai_api_key, and agent_model.";
@@ -292,7 +322,9 @@ final class AdminController extends BaseController {
                 $this->jsonResponse(['error'=>'The model could not answer. Try again or use a clinic workflow from the sidebar.', 'missing'=>$attachments['missing']],502);
                 return;
             }
-            $this->jsonResponse(['answer'=>$answer, 'missing'=>$attachments['missing']]);
+            $response = ['answer' => $answer, 'missing' => $attachments['missing']];
+            if ($turnId !== null) $chat->remember($turnId, $message, $response, $trace->id);
+            $this->jsonResponse($response);
         } catch (\Throwable $e) {
             (new AuditLogService())->agentRun('admin', 'error', $startedAt, $trace);
             error_log('Owner agent failed: ' . get_class($e));
@@ -460,7 +492,34 @@ final class AdminController extends BaseController {
     }
     public function emailInbox(): void{$this->render('admin/mailbox',['pageTitle'=>'Email Inbox','title'=>'Email Inbox','box'=>'inbox','items'=>(new MailStorageService())->inbox()]);}
     public function emailOutbox(): void{$this->render('admin/mailbox',['pageTitle'=>'Email Outbox','title'=>'Email Outbox','box'=>'outbox','items'=>(new MailStorageService())->outbox()]);}
-    public function media(): void{$this->render('admin/media',['pageTitle'=>'Media Library','items'=>(new MediaService())->all()]);}
+    public function media(): void {
+        $archived = ($_GET['view'] ?? '') === 'archive';
+        $this->render('admin/media', [
+            'pageTitle'=>'Media Library', 'archived'=>$archived, 'items'=>(new MediaService())->library($archived)
+        ]);
+    }
+
+    public function archiveMedia(): void {
+        $action = $_POST['action'] ?? '';
+        $returnTo = $action === 'restore' ? '/admin/media?view=archive' : '/admin/media';
+        if (($_POST['confirm_change'] ?? '') !== '1' || !in_array($action, ['archive', 'restore'], true)) {
+            $this->flash('Confirm the selected action first.', 'error');
+            $this->redirect($returnTo);
+        }
+        try {
+            $result = (new MediaService())->setArchived(is_array($_POST['media_ids'] ?? null) ? $_POST['media_ids'] : [], $action === 'archive');
+            foreach ($result['changed'] as $id) (new AuditLogService())->record($action, 'media', $id);
+            $message = count($result['changed']) . ($action === 'archive' ? ' archived.' : ' restored.');
+            if ($result['blocked']) $message .= ' ' . $result['blocked'] . ' protected or already changed.';
+            if ($result['failed']) $message .= ' ' . $result['failed'] . ' could not be updated. Try again.';
+            $this->flash($message, $result['failed'] || $result['blocked'] ? 'warning' : 'success');
+        } catch (\InvalidArgumentException $error) {
+            $this->flash($error->getMessage(), 'error');
+        } catch (\Throwable) {
+            $this->flash('Media usage could not be verified. Try again when the library is available.', 'error');
+        }
+        $this->redirect($returnTo);
+    }
     /**
      * Every upload in the admin lands in the media library, whichever screen sent it.
      *
