@@ -22,15 +22,15 @@
             <h2 class="section-title">The Nebo Foundation</h2>
             <p class="lede">Nebo Lifestyle Clinic is a flagship initiative of the Nebo Foundation, dedicated to making integrative, root-cause healthcare accessible and sustainable.</p>
         </div>
-        <div style="max-width:900px; margin:0 auto;">
-            <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Vision</h3>
+        <div class="nebo-intro-copy">
+            <h3>Our Vision</h3>
             <p>To transform how people approach chronic disease and wellness by combining the wisdom of naturopathy with the precision of functional medicine, all delivered through compassionate, personalized care.</p>
 
-            <h3 style="color:var(--color-primary); margin-top:var(--space-xl);">Our Pillars</h3>
-            <ul style="list-style:none; padding:0; margin:var(--space-md) 0;">
-                <li style="padding:var(--space-xs) 0;">✓ Gut Health & Digestive Restoration</li>
-                <li style="padding:var(--space-xs) 0;">✓ Metabolic Health Support (diabetes, PCOS, thyroid, fatty liver)</li>
-                <li style="padding:var(--space-xs) 0;">✓ Lifestyle Medicine & Sustainable Habit Change</li>
+            <h3>Our Pillars</h3>
+            <ul class="nebo-intro-pillars">
+                <li>Gut Health & Digestive Restoration</li>
+                <li>Metabolic Health Support (diabetes, PCOS, thyroid, fatty liver)</li>
+                <li>Lifestyle Medicine & Sustainable Habit Change</li>
             </ul>
         </div>
     </div>

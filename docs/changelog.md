@@ -16,6 +16,8 @@ category: docs
 
 ### Changed
 
+- Removed the fixed mobile page links and compacted the Foundation, featured therapy, testimonials, and footer. Missing therapy images now use a local fallback.
+
 - Made the mobile menu compact and keyboard-accessible, kept floating controls behind it, centered the header logo, and moved bottom clearance into the footer.
 
 - Added searchable page and module navigation, keyboard skips to the main content, labeled admin table filters with overflow hints, and accessible feedback messages across the public and admin layouts.
