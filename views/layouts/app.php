@@ -227,6 +227,7 @@ echo $critical;
 ?>
 </style>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
+<script src="/assets/navigation-drawer.js?v=<?= filemtime(__DIR__ . '/../../assets/navigation-drawer.js') ?>" defer></script>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
 <script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
@@ -312,7 +313,7 @@ gtag('js', new Date());
 <?php $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'; ?>
 <?php $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
 <header class="site-header" id="site-header">
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Menu" aria-controls="primary-nav">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Menu" aria-controls="navigation-drawer" aria-haspopup="dialog">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         <span>Menu</span>
     </button>
@@ -320,40 +321,41 @@ gtag('js', new Date());
         <img src="<?= e($__logo) ?>" width="160" height="88" alt="Nebo Lifestyle Clinic">
     </a>
 <?php try { $__blogCats = (new \App\Services\BlogService())->categories(); } catch (\Throwable $e) { $__blogCats = []; } ?>
-    <nav id="primary-nav" aria-label="Main navigation">
-        <button class="nav-close" type="button" aria-label="Close menu">×</button>
-        <a href="/" class="nav-home-brand" aria-label="Nebo Lifestyle Clinic home">
-            <img src="<?= e($__logo) ?>" width="180" height="100" alt="Nebo Lifestyle Clinic">
-        </a>
-        <p class="nav-kicker">Explore Nebo</p>
-        <a href="/#programs">Programs</a>
-        <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Products</a><?php endif; ?>
-        <?php if ($__modules['shop']): ?>
-        <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
-        <?php endif; ?>
-        <?php if ($__modules['blog']): ?>
-        <div class="nav-dropdown">
-            <a href="/blog" class="nav-dropdown__trigger"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog <span class="nav-dropdown__arrow">▾</span></a>
-            <div class="nav-dropdown__menu">
-                <a href="/blog">All Posts</a>
-                <?php foreach ($__blogCats as $__cat): ?>
-                <a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a>
-                <?php endforeach; ?>
-            </div>
+    <dialog class="navigation-drawer" id="navigation-drawer" aria-label="Site menu">
+        <div class="navigation-drawer__header">
+            <a href="/" class="navigation-drawer__brand" aria-label="Nebo Lifestyle Clinic home">
+                <img src="<?= e($__logo) ?>" width="108" height="60" alt="">
+            </a>
+            <button class="nav-close" type="button" aria-label="Close menu" autofocus>×</button>
         </div>
-        <?php endif; ?>
-        <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
-        <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
-        <?php if(!empty($_SESSION['user']) && $__modules['shop']): ?>
-            <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
-            <a href="/logout">Logout</a>
-        <?php elseif(!empty($_SESSION['user'])): ?>
-            <a href="/logout">Logout</a>
-        <?php else: ?>
-            <a href="/login">Login</a>
-        <?php endif; ?>
-    </nav>
-    <div class="nav-scrim" data-nav-close hidden></div>
+        <nav id="primary-nav" aria-label="Main navigation">
+            <a href="/#programs">Programs</a>
+            <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Products</a><?php endif; ?>
+            <?php if ($__modules['shop']): ?>
+            <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
+            <?php endif; ?>
+            <?php if ($__modules['blog']): ?>
+            <div class="nav-dropdown">
+                <a href="/blog" class="nav-dropdown__trigger"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog <span class="nav-dropdown__arrow">▾</span></a>
+                <div class="nav-dropdown__menu">
+                    <?php foreach ($__blogCats as $__cat): ?>
+                    <a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+            <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
+            <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
+            <?php if(!empty($_SESSION['user']) && $__modules['shop']): ?>
+                <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
+                <a href="/logout">Logout</a>
+            <?php elseif(!empty($_SESSION['user'])): ?>
+                <a href="/logout">Logout</a>
+            <?php else: ?>
+                <a href="/login">Login</a>
+            <?php endif; ?>
+        </nav>
+    </dialog>
     <div class="header-actions">
         <button class="page-finder-trigger" type="button" data-page-finder="primary-nav" aria-haspopup="dialog" aria-label="Find a page" hidden>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
@@ -505,16 +507,6 @@ if ('serviceWorker' in navigator) {
     var swScope = '/';
     navigator.serviceWorker.register(swPath, { scope: swScope }).catch(function(){});
 }
-document.getElementById('site-header').querySelector('.menu-toggle').addEventListener('click',function(){
-    var n=document.getElementById('primary-nav'),open=!n.classList.contains('open');n.classList.toggle('open',open);
-    document.querySelector('.nav-scrim').hidden=!open;document.body.classList.toggle('nav-open',open);
-    this.setAttribute('aria-expanded',open?'true':'false');if(open){document.querySelector('.nav-close').focus();}
-});
-function closePrimaryNav(){var n=document.getElementById('primary-nav'),t=document.querySelector('.menu-toggle');n.classList.remove('open');document.querySelector('.nav-scrim').hidden=true;document.body.classList.remove('nav-open');t.setAttribute('aria-expanded','false');}
-document.querySelector('.nav-close').addEventListener('click',closePrimaryNav);
-document.querySelector('.nav-scrim').addEventListener('click',closePrimaryNav);
-document.querySelectorAll('#primary-nav a').forEach(function(link){link.addEventListener('click',closePrimaryNav);});
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closePrimaryNav();}});
 var h=document.getElementById('site-header');
 var s=document.createElement('div');s.style.cssText='height:1px;position:absolute;top:0';
 document.body.prepend(s);

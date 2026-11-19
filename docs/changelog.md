@@ -16,6 +16,8 @@ category: docs
 
 ### Changed
 
+- Made the mobile menu compact and keyboard-accessible, kept floating controls behind it, centered the header logo, and moved bottom clearance into the footer.
+
 - Added searchable page and module navigation, keyboard skips to the main content, labeled admin table filters with overflow hints, and accessible feedback messages across the public and admin layouts.
 
 - Enterprise Agent run filters distinguish provider attempts from failed runs. Support preserves an unsent draft when a suggested question is clicked and explains how to retry a ticket when receipt is uncertain.
