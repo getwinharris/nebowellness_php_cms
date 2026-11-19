@@ -228,6 +228,8 @@ echo $critical;
 </style>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
+<script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
+<script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-status.js') ?>" defer></script>
 <script src="/assets/support-chat.js?v=<?= filemtime(__DIR__ . '/../../assets/support-chat.js') ?>" defer></script>
 <style>
@@ -306,10 +308,11 @@ gtag('js', new Date());
 <?php endif; ?>
 </head>
 <body>
+<a class="skip-content" href="#main-content">Skip to content</a>
 <?php $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'; ?>
 <?php $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
 <header class="site-header" id="site-header">
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Menu">
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-label="Menu" aria-controls="primary-nav">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         <span>Menu</span>
     </button>
@@ -352,6 +355,10 @@ gtag('js', new Date());
     </nav>
     <div class="nav-scrim" data-nav-close hidden></div>
     <div class="header-actions">
+        <button class="page-finder-trigger" type="button" data-page-finder="primary-nav" aria-haspopup="dialog" aria-label="Find a page" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
+            <span>Find a page</span>
+        </button>
         <a href="/contact" class="header-contact">Contact</a>
         <a href="/contact#contact-form" class="header-book">Book a consultation</a>
         <?php if ($__modules['shop']): ?><a href="/cart" class="cart-btn" aria-label="Cart">
@@ -360,7 +367,7 @@ gtag('js', new Date());
         </a><?php endif; ?>
     </div>
 </header>
-<main class="<?= $currentPath === '/' ? 'home-main' : '' ?>">
+<main id="main-content" tabindex="-1" class="<?= $currentPath === '/' ? 'home-main' : '' ?>">
 <?php
 $__flash = $_SESSION['flash'] ?? null;
 if ($__flash):
@@ -646,7 +653,6 @@ document.querySelectorAll('[data-editorial-stack]').forEach(function(stack){
         });
     }
 });
-function showToast(msg,type){type=type||'info';var c=document.getElementById('toast-container');if(!c){c=document.createElement('div');c.id='toast-container';document.body.appendChild(c);}var t=document.createElement('div');t.className='toast toast--'+type;var icons={success:'✓',error:'✕',warning:'⚠',info:'ℹ'};t.innerHTML='<span class="toast__icon">'+(icons[type]||'ℹ')+'</span><span class="toast__text">'+msg+'</span><button class="toast__close" aria-label="Dismiss">&times;</button>';t.querySelector('.toast__close').addEventListener('click',function(e){e.stopPropagation();dismiss(t);});t.addEventListener('click',function(){dismiss(t);});c.appendChild(t);var timer=setTimeout(function(){dismiss(t);},4000);function dismiss(el){if(el.classList.contains('toast--out'))return;el.classList.add('toast--out');clearTimeout(timer);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},250);}}
 document.addEventListener('submit',async function(event){
     var form=event.target.closest('[data-cart-add],[data-cart-change]');if(!form||!window.fetch)return;
     event.preventDefault();var control=form.closest('[data-cart-control]');

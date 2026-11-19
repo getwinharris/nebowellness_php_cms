@@ -16,6 +16,8 @@ category: docs
 
 ### Changed
 
+- Added searchable page and module navigation, keyboard skips to the main content, labeled admin table filters with overflow hints, and accessible feedback messages across the public and admin layouts.
+
 - Enterprise Agent run filters distinguish provider attempts from failed runs. Support preserves an unsent draft when a suggested question is clicked and explains how to retry a ticket when receipt is uncertain.
 
 - Mobile navigation distributes the visible links evenly. The cart tray and support button clear the navigation and device safe area, and Programs reflects the homepage fragment.

@@ -17,6 +17,9 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <meta name="apple-mobile-web-app-title" content="Nebo Admin">
 <link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__.'/../../assets/css/band.css') ?>">
+<script src="/assets/admin-tables.js?v=<?= filemtime(__DIR__ . '/../../assets/admin-tables.js') ?>" defer></script>
+<script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
+<script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__.'/../../assets/agent-status.js') ?>" defer></script>
 <style>
 .admin-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
@@ -57,6 +60,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 </style>
 </head>
 <body>
+<a class="skip-content" href="#main-content">Skip to content</a>
 <div class="admin-shell">
     <aside class="admin-sidebar" id="admin-sidebar">
         <div class="admin-sidebar__brand">
@@ -129,13 +133,17 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
             </a>
         </div>
     </aside>
-    <main class="admin-main">
+    <main id="main-content" tabindex="-1" class="admin-main">
         <div class="admin-topbar">
             <button type="button" class="btn btn-sm btn-ghost" id="sidebarToggle" aria-label="Admin navigation" aria-controls="admin-sidebar" aria-expanded="false" style="display:none; margin-right:var(--space-sm);">
                 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
             <h1><?= e($pageTitle ?? 'Dashboard') ?></h1>
             <div class="admin-topbar__actions">
+        <button class="page-finder-trigger" type="button" data-page-finder="admin-nav" aria-haspopup="dialog" aria-label="Find a module" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
+            <span>Find a module</span>
+        </button>
                 <a href="/" class="btn btn-sm btn-ghost" target="_blank">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     View Site
@@ -194,7 +202,6 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <script>
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/admin/sw.js', { scope: '/admin/' }).catch(function(){}); }
 var installPrompt=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();installPrompt=e;document.getElementById('pwa-install-btn').style.display='flex';});window.addEventListener('appinstalled',function(){installPrompt=null;document.getElementById('pwa-install-btn').style.display='none';});document.addEventListener('click',function(e){if(e.target.closest('#pwa-install-btn')){if(!installPrompt)return;installPrompt.prompt();installPrompt.userChoice.then(function(){installPrompt=null;document.getElementById('pwa-install-btn').style.display='none';});}});
-function showToast(msg,type){type=type||'info';var c=document.getElementById('toast-container');if(!c){c=document.createElement('div');c.id='toast-container';document.body.appendChild(c);}var t=document.createElement('div');t.className='toast toast--'+type;var icons={success:'✓',error:'✕',warning:'⚠',info:'ℹ'};t.innerHTML='<span class="toast__icon">'+(icons[type]||'ℹ')+'</span><span class="toast__text">'+msg+'</span><button class="toast__close" aria-label="Dismiss">&times;</button>';t.querySelector('.toast__close').addEventListener('click',function(e){e.stopPropagation();dismiss(t);});t.addEventListener('click',function(){dismiss(t);});c.appendChild(t);var timer=setTimeout(function(){dismiss(t);},4000);function dismiss(el){if(el.classList.contains('toast--out'))return;el.classList.add('toast--out');clearTimeout(timer);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},250);}}
 const sidebar = document.getElementById('admin-sidebar');
 const toggle = document.getElementById('sidebarToggle');
 if (sidebar && toggle) {
@@ -231,7 +238,6 @@ if (sidebar && toggle) {
     mobile.addEventListener('change', () => setSidebarOpen(false));
 }
 document.querySelectorAll('.admin-nav-toggle').forEach(function(btn){btn.addEventListener('click',function(){var target=document.getElementById(btn.dataset.target);if(!target)return;var expanded=btn.getAttribute('aria-expanded')==='true';btn.setAttribute('aria-expanded',String(!expanded));target.style.display=expanded?'none':'';});});
-document.querySelectorAll('.table-wrap').forEach(function(wrap){var table=wrap.querySelector('table');if(!table||table.querySelector('.admin-search-added'))return;var search=document.createElement('input');search.type='text';search.placeholder='Search\u2026';search.style.cssText='width:100%;max-width:320px;margin-bottom:var(--space-sm);padding:0.5rem 0.75rem;font-size:0.85rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:var(--color-white);';wrap.parentNode.insertBefore(search,wrap);search.addEventListener('input',function(){var q=this.value.toLowerCase().trim();table.querySelectorAll('tbody tr').forEach(function(row){if(!q||row.textContent.toLowerCase().includes(q)){row.style.display=''}else{row.style.display='none'}});});table.classList.add('admin-search-added');});
 </script>
 <div id="toast-container"></div>
 <button id="pwa-install-btn" class="pwa-install-btn">
