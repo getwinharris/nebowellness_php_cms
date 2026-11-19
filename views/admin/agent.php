@@ -1,4 +1,7 @@
-<?php $__campaignsEnabled = !empty($campaignsEnabled); ?>
+<?php
+$__campaignsEnabled = !empty($campaignsEnabled);
+$ownerChat = new \App\Services\AgentConversation('admin');
+?>
 <div class="admin-card">
     <div class="agent-head">
         <div>
@@ -48,10 +51,10 @@
 
     <noscript><p>Enable JavaScript to use chat. The operations links below open the corresponding admin pages.</p></noscript>
     <div class="agent-composer-wrap" id="agent-composer-wrap" hidden>
-        <form id="agent-form" class="agent-composer" action="/admin/agent/ask" method="post">
+        <form data-conversation="<?= e($ownerChat->id()) ?>" data-has-turns="<?= $ownerChat->hasTurns() ? '1' : '0' ?>" id="agent-form" class="agent-composer" action="/admin/agent/ask" method="post">
             <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
             <label for="agent-input">Message</label>
-            <textarea id="agent-input" name="message" rows="1" required
+            <textarea id="agent-input" name="message" rows="1" maxlength="8000" required
                       placeholder="Ask a question"
                       aria-describedby="agent-hint" aria-controls="agent-mentions"></textarea>
             <div id="agent-mentions" class="agent-mentions" role="group" aria-label="Available attachments" hidden></div>
@@ -62,7 +65,7 @@
             </div>
         </form>
         <p class="agent-hint" id="agent-hint">
-            Type <code>@</code> to find a page or image. Shift+Enter starts a new line.
+            Type <code>@</code> to find a page or image. Shift+Enter starts a new line. Save draft forms before leaving this page.
         </p>
         <p class="agent-composer__status" id="agent-composer-status" role="status"></p>
     </div>
@@ -165,6 +168,7 @@
                 <?php foreach ($meta['steps'] ?? [] as $step): ?>
                     <p><?= e($step['kind']) ?>: <?= e($step['name']) ?>
                         <?= isset($step['model']) ? e($step['model']) : '' ?>
+                        <?= ($step['mode'] ?? '') === 'tools' ? '· With tools' : (($step['mode'] ?? '') === 'plain' ? '· Plain request' : '') ?>
                         <?= !empty($step['status']) ? 'HTTP ' . (int)$step['status'] : '' ?>
                         · <?= e(str_replace('_', ' ', $step['outcome'])) ?> · <?= (int)$step['duration_ms'] ?> ms
                     </p>
@@ -185,4 +189,5 @@
 <script id="agent-attachables" type="application/json"><?= json_encode($attachables ?? [], JSON_HEX_TAG | JSON_UNESCAPED_SLASHES) ?></script>
 
 
+<script src="/assets/agent-conversation.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-conversation.js') ?>" defer></script>
 <script src="/assets/admin-agent.js?v=<?= filemtime(__DIR__ . '/../../assets/admin-agent.js') ?>" defer></script>

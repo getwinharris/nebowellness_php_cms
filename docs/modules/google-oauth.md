@@ -4,32 +4,10 @@ title: Google OAuth Module
 description: Owns optional customer sign-in through Google.
 category: module
 ---
-# Google OAuth Module
+# Google customer sign-in
 
-Owns optional customer sign-in through Google.
+Enter the customer OAuth client ID and secret in Admin → Integrations. Copy the callback shown there into the web client's authorized redirect URIs in Google Cloud. The callback uses the configured `APP_URL` plus `/auth/google/callback`, including its exact scheme and hostname. When changing hosts, authorize the new callback before switching and allow ten minutes for outstanding sign-ins.
 
-Main files: `GoogleOAuthClient.php`, `AuthController.php`, `views/admin/integrations.php`, `views/public/login.php`, `views/public/register.php`.
+The login and registration pages offer Google when both credentials are configured. Authorization requests `openid email`. After the private code exchange the server checks the issuer, audience, verified email, nonce and expiry. A returning customer signs in using the stored Google subject.
 
-## Configuration
-
-1. Go to **Admin → Integrations** and fill in:
-   - **Google Client ID**
-   - **Google Client Secret**
-
-2. In the Google Cloud Console, add the Authorized redirect URIs that exactly match the deployed `APP_URL`:
-   - `https://www.nebowellness.com/auth/google/callback` (production)
-   - `http://127.0.0.1:6020/auth/google/callback` (local dev)
-
-   When moving an already configured site from the apex domain to `www`, add both callbacks first, allow any started sign-ins to expire (10 minutes), then update `APP_URL`. Retain the apex callback until the transition is complete.
-
-3. The button appears on both /login and /register pages only when credentials are set. Missing credentials hide the button entirely — no dead click targets.
-
-## Behavior
-
-- Login uses sign-in scopes only (`openid email profile`), no Calendar/Meet permissions.
-- After authentication, users are redirected based on their role:
-  - **admin** → `/admin`
-  - Historical service records are owner-only; public consultation booking is retired.
-  - **customer** → `/` (home)
-- New Google-authenticated users are upserted into the MySQL `users` collection with role `customer`.
-- Existing users (matched by email) retain their previously assigned role.
+For a first-time connection the verified Google email is held in the PHP session for ten minutes. An existing customer confirms the link with their password and the link checkbox. A new customer completes the registration form, delivery details and terms, sets a password for recovery, and selects the Google sign-in checkbox. The server saves the account and address before linking. An owner, consultant, ambiguous record or customer with outstanding account requirements cannot link through this flow.

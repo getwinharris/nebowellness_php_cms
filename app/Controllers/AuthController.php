@@ -1,6 +1,6 @@
 <?php
 namespace App\Controllers;
-use App\Services\{EnvService,SecretService,DatabaseService,GoogleCustomerAuthService,PasswordResetService,AddressService,MailQueueService,SettingsService};
+use App\Services\{EnvService,SecretService,DatabaseService,GoogleCustomerAuthService,PasswordResetService,MailQueueService};
 use App\Integrations\GoogleOAuth\GoogleOAuthClient;
 final class AuthController extends BaseController {
   public function googleRedirect(): void {
@@ -14,6 +14,7 @@ final class AuthController extends BaseController {
       'state'=>bin2hex(random_bytes(32)), 'nonce'=>bin2hex(random_bytes(32)),
       'redirect_uri'=>GoogleCustomerAuthService::callbackUri(), 'issued_at'=>time(),
     ];
+    unset($_SESSION['google_link']);
     $_SESSION['google_oauth'] = $transaction;
     $client = new GoogleOAuthClient($s['google_client_id'], $s['google_client_secret']);
     $this->redirect($client->authorizationUrl($transaction['redirect_uri'], $transaction['state'], $transaction['nonce']));
@@ -42,25 +43,26 @@ final class AuthController extends BaseController {
       $identity = $client->exchange($code, $transaction['redirect_uri'], $transaction['nonce']);
       $store = new DatabaseService();
       // SettingsService falls back on read failure. A failed owner lookup must instead stop OAuth.
-      $ownerEmails = array_column($store->read('settings'), 'admin_email');
-      $ownerEmails[] = getenv('ADMIN_EMAIL') ?: '';
-      $user = GoogleCustomerAuthService::linkedSession($identity, $store->read('users'), $ownerEmails);
+      $ownerEmails = $this->ownerEmails($store);
+      $users = $store->read('users');
+      $user = GoogleCustomerAuthService::linkedSession($identity, $users, $ownerEmails);
       $target = module_on('shop') ? '/account/dashboard' : '/';
     } catch (\Throwable) {
       $this->flash('Google sign-in is temporarily unavailable. Please try again or use your password.', 'error');
       $this->redirect('/login');
     }
     if ($user === null) {
-      $this->flash('Google sign-in is only available for eligible linked customer accounts. If you previously signed in with Google, use “Forgot your password?” to set a password. Otherwise, sign in with your password or create an account.', 'info');
+      $_SESSION['google_link'] = ['identity'=>$identity, 'expires_at'=>time() + 600];
+      if (GoogleCustomerAuthService::canBind($identity, $users, $ownerEmails, null)) {
+          $this->flash('Complete registration to use Google with your customer account.', 'info');
+          $this->redirect('/register');
+      }
+      $this->flash('Sign in with your password to link an eligible customer account.', 'info');
       $this->redirect('/login');
     }
 
     // A session is issued only after finding a durable, eligible Google binding.
-    if (!session_regenerate_id(true)) {
-      $this->flash('Could not start a sign-in session. Please try again.', 'error');
-      $this->redirect('/login');
-    }
-    $_SESSION['user'] = $user;
+    $this->startSession($user);
     $this->flash('Signed in.', 'success');
     $this->redirect($target);
   }
@@ -79,7 +81,11 @@ final class AuthController extends BaseController {
   public function register(): void {
      if (!empty($_SESSION['user'])) $this->redirect((($_SESSION['user']['role'] ?? '') === 'admin') ? '/admin' : (module_on('shop') ? '/account/dashboard' : '/'));
      $this->seoKey = 'register';
-     $this->render('public/register');
+     $secrets = (new SecretService())->all();
+     $this->render('public/register', [
+         'googleAuthEnabled'=>!empty($secrets['google_client_id']) && !empty($secrets['google_client_secret']),
+         'pendingGoogleEmail'=>GoogleCustomerAuthService::pending($_SESSION, time())['email'] ?? '',
+     ]);
   }
   public function registerPost(): void {
     $this->validateCsrf();
@@ -98,14 +104,30 @@ final class AuthController extends BaseController {
     if (empty($_POST['accept_terms'])) { $this->flash('You must accept the Terms of Service and Privacy Policy to register.','error'); $this->redirect('/register'); }
     $store = new DatabaseService();
     $users = $store->read('users');
-    foreach ($users as $u) { if (($u['email'] ?? '') === $email) { $this->flash('Email already registered.','error'); $this->redirect('/login'); } }
+    foreach ($users as $u) { if (strcasecmp((string)($u['email'] ?? ''), $email) === 0) { $this->flash('Email already registered.','error'); $this->redirect('/login'); } }
+    $linkGoogle = !empty($_POST['link_google']);
+    if ($linkGoogle) {
+        $identity = GoogleCustomerAuthService::pending($_SESSION, time());
+        if (!$identity || strcasecmp($identity['email'], $email) !== 0
+            || !GoogleCustomerAuthService::canBind($identity, $users, $this->ownerEmails($store), null)) {
+            $this->flash('Google could not be linked. Restart Google sign-in or register with your password.', 'error');
+            $this->redirect('/register');
+        }
+    }
     $id = bin2hex(random_bytes(8));
     $role = 'customer';
     $record = ['id'=>$id,'email'=>$email,'name'=>$name,'role'=>$role,'password_hash'=>password_hash($password,PASSWORD_DEFAULT),'accepted_terms_at'=>date('c')];
-    $store->upsert('users',$record,'id');
-    (new AddressService($store))->save($email, ['address_name'=>'Home','name'=>$name,'phone'=>$phone,'address'=>$address,'city'=>$city,'pincode'=>$pincode,'is_default'=>true]);
-    session_regenerate_id(true);
-    $_SESSION['user'] = ['sub'=>$id,'email'=>$email,'name'=>$name,'role'=>$role];
+    if ($linkGoogle) $record['google_subject'] = $identity['sub'];
+    try {
+        $store->registerCustomer($record, ['address_name'=>'Home','name'=>$name,'phone'=>$phone,'address'=>$address,'city'=>$city,'pincode'=>$pincode,'is_default'=>true]);
+    } catch (\DomainException) {
+        $this->flash('Email already registered. Sign in with your password.', 'info');
+        $this->redirect('/login');
+    } catch (\Throwable) {
+        $this->flash('Registration could not be confirmed. Please try signing in or retry registration.', 'error');
+        $this->redirect('/register');
+    }
+    $this->startSession(['sub'=>$id,'email'=>$email,'name'=>$name,'role'=>$role]);
     try {
         (new MailQueueService())->enqueue('welcome', $email, 'Welcome to Nebo Lifestyle Clinic',
             '<p>Hello ' . e($name) . ',</p><p>Your account is ready. You can view orders and saved addresses in your dashboard.</p>'
@@ -114,6 +136,30 @@ final class AuthController extends BaseController {
     $this->flash('Registered and signed in.','success');
     $this->redirect('/');
  }
+  private function startSession(array $user): void {
+    if (!session_regenerate_id(true)) {
+        $this->flash('Could not start a sign-in session. Please try again.', 'error');
+        $this->redirect('/login');
+    }
+    unset($_SESSION['google_link'], $_SESSION['google_oauth'], $_SESSION['agent_conversations']);
+    $_SESSION['user'] = $user;
+  }
+
+  private function ownerEmails(DatabaseService $store): array {
+    return [...array_column($store->read('settings'), 'admin_email'), getenv('ADMIN_EMAIL') ?: ''];
+  }
+
+  private function bindGoogle(DatabaseService $store, array $user, ?array $identity): void {
+    try {
+        if (!$identity) {
+            throw new \DomainException();
+        }
+        $store->bindCustomerGoogle($identity, $user['id'], \App\Services\ResourceService::revision($user));
+    } catch (\Throwable) {
+        $this->flash('Google was not linked. You can use your password or restart Google sign-in.', 'error');
+        $this->redirect('/login');
+    }
+  }
   public function loginPost(): void {
     $this->validateCsrf();
     $this->checkRateLimit('login', 5, 60);
@@ -122,12 +168,11 @@ final class AuthController extends BaseController {
     if ($email === '' || $password === '') { $this->flash('Username or email and password required.','error'); $this->redirect('/login'); }
     $admin = (new EnvService())->adminCredentials();
     if ($admin['email'] !== '' && $admin['password'] !== '' && $email === $admin['email']) {
-        if (password_verify($password, $admin['password']) || hash_equals($admin['password'], $password)) {
-            if (hash_equals($admin['password'], $password) && ($admin['source'] ?? '') === 'settings') {
+        if (EnvService::matchesAdminPassword($password, $admin['password'])) {
+            if (!str_starts_with($admin['password'], '$') && ($admin['source'] ?? '') === 'settings') {
                 (new EnvService())->saveAdminCredentials(['admin_password' => $password]);
             }
-            session_regenerate_id(true);
-            $_SESSION['user'] = ['sub'=>'env-admin','email'=>$admin['email'],'name'=>$admin['username'] ?: 'Admin','role'=>'admin'];
+            $this->startSession(['sub'=>'env-admin','email'=>$admin['email'],'name'=>$admin['username'] ?: 'Admin','role'=>'admin']);
             try { (new MailQueueService())->enqueueLoginNotification($admin['email'], $admin['username'] ?: 'Admin', 'admin'); }
             catch (\Throwable $e) { error_log('Login notification failed: ' . $e->getMessage()); }
             $this->flash('Signed in.','success');
@@ -140,8 +185,10 @@ final class AuthController extends BaseController {
         $matches = strcasecmp((string)($u['email'] ?? ''), $email) === 0 || strcasecmp((string)($u['username'] ?? ''), $email) === 0;
         if ($matches && !empty($u['password_hash']) && password_verify($password,$u['password_hash'])) {
             if (($u['role'] ?? '') === 'consultant') { $this->flash('Consultant access is managed by the site administrator.','info'); $this->redirect('/login'); }
-            session_regenerate_id(true);
-            $_SESSION['user'] = ['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'consultant_slug'=>$u['consultant_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)];
+            if (!empty($_POST['link_google'])) {
+                $this->bindGoogle($store, $u, GoogleCustomerAuthService::pending($_SESSION, time()));
+            }
+            $this->startSession(['sub'=>$u['id'],'email'=>$u['email'] ?? '','username'=>$u['username'] ?? '','name'=>$u['name'] ?? '','role'=>$u['role'] ?? (!empty($u['is_admin']) ? 'admin' : 'customer'),'consultant_slug'=>$u['consultant_slug'] ?? '','must_change_password'=>(bool)($u['must_change_password'] ?? false)]);
             $this->flash('Signed in.','success');
             session_write_close();
             $this->redirect(($u['role'] ?? '') === 'customer' && module_on('shop') ? '/account/dashboard' : '/');

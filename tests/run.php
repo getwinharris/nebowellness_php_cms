@@ -59,6 +59,19 @@ function assertMinCount(int $min, array $items, string $msg): void {
 $failures = [];
 $tests = [];
 
+$tests['uncaught CLI errors fail the command without emitting a web error page'] = function (): void {
+    $process = proc_open([PHP_BINARY], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+    if (!is_resource($process)) throw new RuntimeException('Could not start the CLI fixture.');
+    fwrite($pipes[0], '<?php require ' . var_export(app_path('app/bootstrap.php'), true) . '; throw new RuntimeException("Synthetic CLI failure");');
+    fclose($pipes[0]);
+    $output = stream_get_contents($pipes[1]);
+    $errors = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    assertTrue(proc_close($process) !== 0, 'An uncaught command exception must fail a CI step.');
+    assertTrue(!str_contains($output, '<html') && str_contains($errors . $output, 'Synthetic CLI failure'), 'CLI errors retain their diagnostic.');
+};
+
 function runAdminAgentFixture(string $mode, string $message): array {
     $capture = tempnam(sys_get_temp_dir(), 'nebo-prompt-');
     $pipes = [];
@@ -333,15 +346,15 @@ $tests['local development router serves existing static files directly'] = funct
 $tests['public and api routes cover spiritual and category pages without fallback gaps'] = function (): void {
     $index = file_get_contents(app_path('index.php'));
     $paths = routePaths();
-    assertTrue(str_contains($index, "'/sri-panchami-spiritual'"), 'Router should dispatch /sri-panchami-spiritual to PHP');
+    assertTrue(str_contains($index, "require __DIR__ . '/app/routes.php'") && str_contains($index, '$router->dispatch'), 'Router should dispatch /sri-panchami-spiritual to PHP');
     assertTrue(in_array('/sri-panchami-spiritual', $paths, true), 'Route registry should include /sri-panchami-spiritual');
     assertTrue(in_array('/spiritual', $paths, true), 'Route registry should include /spiritual or remove it from route detection');
     assertTrue(in_array('/categories', $paths, true), 'API /api/categories should map through /categories route');
     assertTrue(in_array('/forgot-password', $paths, true), 'Login forgot-password link should have a GET route');
     assertTrue(in_array('/reset-password', $paths, true), 'Password reset page should have a GET route');
-    assertTrue(str_contains($index, "'/logout'"), 'Logout should dispatch through PHP routes so the session is actually destroyed');
-    assertTrue(str_contains($index, "'/consultation'"), 'Consultation POST actions should dispatch through PHP routes instead of SPA fallback');
-    assertTrue(str_contains($index, "'/payment'"), 'Payment verification POST actions should dispatch through PHP routes instead of SPA fallback');
+    assertTrue(in_array('/logout', $paths, true), 'Logout should dispatch through PHP routes so the session is actually destroyed');
+    assertTrue(in_array('/consultation/initiate', $paths, true), 'Consultation POST actions should dispatch through PHP routes instead of SPA fallback');
+    assertTrue(in_array('/payment/verify', $paths, true), 'Payment verification POST actions should dispatch through PHP routes instead of SPA fallback');
 };
 
 $tests['cart does not expose unfinished coupon placeholder ui'] = function (): void {
@@ -436,13 +449,11 @@ $tests['private account admin and review endpoints enforce authentication guards
     }
 };
 
-$tests['public service worker does not cache dynamic commerce pages first'] = function (): void {
-    $sw = file_get_contents(app_path('assets/pwa/sw-user.js'));
-    assertTrue(str_contains($sw, "const CACHE = 'nebo-user-v3'"), 'Public service worker cache should use the current Nebo version after navigation caching changes');
-    assertTrue(!str_contains($sw, "['/','/shop','/consult','/login']"), 'Public service worker should not precache dynamic PHP pages');
-    assertTrue(str_contains($sw, "e.request.mode === 'navigate'"), 'Public service worker should handle navigations explicitly');
-    assertTrue(str_contains($sw, "fetch(e.request).catch"), 'Public navigations should be network-first to avoid stale shop/cart/checkout UI');
-    assertTrue(str_contains($sw, "css|js|webp|png|jpg|jpeg|svg|ico|woff2?"), 'Public service worker should only runtime-cache static assets');
+$tests['public and admin workers share the static asset policy'] = function (): void {
+    $router = file_get_contents(app_path('index.php'));
+    foreach (['/sw.js', '/admin/sw.js'] as $path) {
+        assertTrue(str_contains($router, "'{$path}' => 'assets/pwa/sw-user.js'"), "{$path} must serve the tested worker");
+    }
 };
 
 $tests['customer installation is an account menu workflow'] = function (): void {
@@ -582,12 +593,11 @@ $tests['public pages expose general enquiry ctas'] = function (): void {
 $tests['public anchor scrolling respects reduced motion before and after styles load'] = function (): void {
     $smoothRoot = 'html\s*\{[^}]*\bscroll-behavior\s*:\s*smooth\b[^}]*\}';
     $optIn = '/@media\s*\(prefers-reduced-motion:\s*no-preference\)\s*\{\s*' . $smoothRoot . '\s*\}/';
-    foreach (['views/layouts/app.php', 'assets/css/band.css'] as $path) {
-        $source = file_get_contents(app_path($path));
-        assertTrue(preg_match($optIn, $source) === 1, "{$path} should enable smooth anchors for visitors without a reduced motion preference");
-        $remaining = preg_replace($optIn, '', $source);
-        assertTrue(preg_match('/' . $smoothRoot . '/', $remaining) === 0, "{$path} should leave smooth anchor scrolling off outside that preference");
-    }
+    $source = file_get_contents(app_path('assets/css/band.css'));
+    assertTrue(preg_match($optIn, $source) === 1, 'The public stylesheet opts into smooth scrolling only with motion enabled.');
+    assertTrue(preg_match('/' . $smoothRoot . '/', preg_replace($optIn, '', $source)) === 0, 'Smooth scrolling must respect the visitor preference.');
+    $layout = file_get_contents(app_path('views/layouts/app.php'));
+    assertTrue(str_contains($layout, '/assets/css/band.css') && !str_contains($layout, 'scroll-behavior'), 'The public layout delegates motion styles to the shared stylesheet.');
 };
 
 $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] = function (): void {
@@ -732,6 +742,39 @@ $tests['Google can sign in only a unique previously linked eligible customer'] =
     assertSame(null, $class::linkedSession($identity, [$user], ['owner@example.test', 'PERSON@example.test']), 'Owner credentials cannot be inherited through Google');
 };
 
+$tests['Google enrollment requires consent, fresh identity and a unique eligible customer'] = function (): void {
+    $class = \App\Services\GoogleCustomerAuthService::class;
+    $identity = ['sub'=>'verified-sub', 'email'=>'person@example.test'];
+    $user = ['id'=>'customer', 'email'=>'PERSON@example.test', 'role'=>'customer', 'accepted_terms_at'=>'2026-11-01'];
+    assertTrue($class::canBind($identity, [], [], null), 'New verified address can finish registration');
+    assertTrue(!$class::canBind($identity, [$user], [], null), 'Existing email requires a password-proven customer');
+    assertTrue($class::canBind($identity, [$user], [], 'customer'), 'Eligible customer can link after password verification');
+    foreach ([['id'=>'other'], ['role'=>'admin'], ['is_admin'=>1], ['google_subject'=>'another-sub'], ['must_change_password'=>1], ['accepted_terms_at'=>'']] as $change) {
+        assertTrue(!$class::canBind($identity, [array_replace($user, $change)], [], 'customer'), 'Privileged, changed or incomplete accounts cannot be bound');
+    }
+    assertTrue(!$class::canBind($identity, [$user], ['PERSON@example.test'], 'customer'), 'Owner email stays protected');
+    assertTrue(!$class::canBind($identity, [$user,$user], [], 'customer'), 'Ambiguous customer stays protected');
+    $session = ['google_link'=>['identity'=>$identity,'expires_at'=>1000]];
+    assertSame($identity, $class::pending($session, 999), 'Consent page sees verified identity');
+    assertSame(null, $class::pending($session, 1000), 'Expired link cannot be applied');
+    assertSame([], $session, 'Expired identity removed');
+};
+
+$tests['Owner hashes are never accepted as credentials'] = function (): void {
+    $hash = password_hash('synthetic-password', PASSWORD_DEFAULT);
+    assertTrue(\App\Services\EnvService::matchesAdminPassword('synthetic-password', $hash), 'Owner password is verified normally');
+    assertTrue(!\App\Services\EnvService::matchesAdminPassword($hash, $hash), 'Encoded verifier does not grant account access');
+    assertTrue(\App\Services\EnvService::matchesAdminPassword('legacy', 'legacy'), 'Legacy settings can migrate at sign-in');
+};
+
+$tests['Media bulk actions require explicit upload provenance'] = function (): void {
+    $item = ['source'=>'upload','url'=>'/assets/images/media/uploads/2026/11/file-aabbccdd.webp'];
+    assertTrue(\App\Services\MediaService::isManagedUpload($item), 'New upload is selectable');
+    foreach ([['source'=>'file'], ['source'=>''], ['url'=>'/assets/images/media/2026/06/file-aabbccdd.webp'], ['url'=>'/assets/images/media/uploads/2026/11/../file-aabbccdd.webp']] as $change) {
+        assertTrue(!\App\Services\MediaService::isManagedUpload(array_replace($item, $change)), 'Unmanaged files are protected');
+    }
+};
+
 $tests['google oauth callback uses the configured app url'] = function (): void {
     $previous = $_SERVER['APP_URL'] ?? null;
     $previousHost = $_SERVER['HTTP_HOST'] ?? null;
@@ -785,6 +828,12 @@ $tests['razorpay secrets support test and live modes'] = function (): void {
     ]);
     assertSame('test', $legacy['razorpay_mode'], 'Legacy test key ids should infer test mode');
     assertSame('rzp_test_legacy', $legacy['razorpay_test_key_id'], 'Legacy key id should migrate into the inferred mode');
+    $switch = $method->invoke($service, array_replace($legacy, ['razorpay_mode'=>'live']));
+    assertSame('', $switch['razorpay_live_key_id'], 'Selecting live mode cannot migrate a test key to live');
+    assertSame('', $switch['razorpay_key_secret'], 'A missing live key disables checkout after a mode change');
+    $wrong = $method->invoke($service, ['razorpay_mode'=>'live','razorpay_live_key_id'=>'rzp_test_misplaced','razorpay_live_key_secret'=>'fixture']);
+    assertSame('', $wrong['razorpay_key_id'], 'Previously misplaced test credentials cannot collect a live payment');
+
 };
 
 $tests['admin settings form persists shipping settings instead of rendering a dead form'] = function (): void {
@@ -851,7 +900,7 @@ $tests['wallet and recharge routes are not customer facing'] = function (): void
     fileNotContains('app/Controllers/ConsultationController.php', 'WalletService', 'Consultation booking should not check wallet balance');
 };
 
-$tests['support assistant widget uses browser session memory and google model setting'] = function (): void {
+$tests['support assistant widget uses scoped session memory and shared provider configuration'] = function (): void {
     $layout = file_get_contents(app_path('views/layouts/app.php'));
     $script = file_get_contents(app_path('assets/support-chat.js'));
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
@@ -862,7 +911,7 @@ $tests['support assistant widget uses browser session memory and google model se
     foreach (['/support/ask', 'sessionStorage', 'request_id'] as $needle) {
         assertTrue(str_contains($script, $needle), "Support browser behavior should include {$needle}");
     }
-    foreach (['Customer context JSON', 'browser_session'] as $needle) {
+    foreach (['Customer context JSON', "'memory' => 'session'"] as $needle) {
         assertTrue(str_contains($service, $needle), "Support bot service should include {$needle}");
     }
     // This test used to require the service to name gemma-4-31b-it and read its own
@@ -881,6 +930,40 @@ $tests['support assistant widget uses browser session memory and google model se
     assertTrue(str_contains($admin, 'AiClient') && !str_contains($admin, 'x-goog-api-key'),
         'Admin agent should share the same client rather than keep a second provider call');
     assertTrue(!str_contains($service, "upsert('support_tickets'"), 'Support bot chat should not persist browser chat into project JSON files');
+};
+
+$tests['agent conversations isolate surfaces, accounts, replay and quoted context'] = function (): void {
+    $savedSession = $_SESSION;
+    try {
+        $_SESSION = [];
+        $support = new App\Services\AgentConversation('support');
+        for ($i = 0; $i < 15; $i++) {
+            $support->remember(str_pad((string)$i, 32, 'f'), "Question {$i}", ['reply' => "Answer {$i}", 'sensitive' => 'discard this']);
+        }
+        $resumed = new App\Services\AgentConversation('support');
+        $snapshot = $resumed->snapshot();
+        assertSame($support->id(), $resumed->id(), 'Reload uses the same conversation');
+        assertSame(12, count($snapshot['turns']), 'The resume window is bounded');
+        assertSame('Question 3', $snapshot['turns'][0]['question'], 'Oldest turns expire first');
+        assertTrue(!str_contains(json_encode($snapshot), 'discard this'), 'Unknown provider fields never enter session history');
+        assertTrue(str_contains($resumed->promptContext(), 'Question 11') && !str_contains($resumed->promptContext(), 'Question 10'), 'Only the last four turns reach the provider');
+        $lastId = str_pad('14', 32, 'f');
+        assertSame(['reply' => 'Answer 14'], $resumed->replay($lastId, 'Question 14')['response'], 'An accepted retry returns its original response');
+        try {
+            $resumed->replay($lastId, 'Different question');
+            throw new RuntimeException('Conflicting retry should fail');
+        } catch (DomainException $expected) {}
+        $admin = new App\Services\AgentConversation('admin');
+        assertTrue($admin->id() !== $support->id() && !$admin->hasTurns(), 'The other surface is isolated');
+        $admin->remember(str_repeat('a', 32), 'Owner question', ['answer' => 'Owner answer']);
+        $resumed->clear();
+        assertTrue(!$resumed->hasTurns() && $resumed->id() !== $support->id(), 'New chat invalidates the old conversation identifier');
+        assertTrue((new App\Services\AgentConversation('admin'))->hasTurns(), 'Clearing one surface preserves the other');
+        $_SESSION['user'] = ['email' => 'new@example.test', 'role' => 'customer'];
+        assertTrue(!(new App\Services\AgentConversation('admin'))->hasTurns(), 'An authentication change invalidates all prior surfaces');
+    } finally {
+        $_SESSION = $savedSession;
+    }
 };
 
 $tests['admin retains historical service records without public consultant profiles'] = function (): void {
@@ -1039,7 +1122,8 @@ $tests['cart quantity controls update progressively and remove at zero'] = funct
     assertTrue(str_contains($cart, 'breadcrumb breadcrumb--page'), 'Cart should use the aligned page breadcrumb');
     assertTrue(str_contains(file_get_contents(app_path('views/public/checkout.php')), 'breadcrumb breadcrumb--page'), 'Checkout should use the aligned page breadcrumb');
     $layout = file_get_contents(app_path('views/layouts/app.php'));
-    assertTrue(str_contains($layout, ".product-card__stepper form"), 'Product card steppers should update without page navigation');
+    $cartScript = file_get_contents(app_path('assets/product-cart.js'));
+    assertTrue(str_contains($layout, '/assets/product-cart.js') && str_contains($cartScript, '[data-cart-change]') && str_contains($cartScript, 'event.preventDefault()'), 'The product card uses the JSON cart handler for stepper forms');
     assertTrue(str_contains($controller, 'if ($this->wantsJson()) $this->jsonResponse($this->cartState($slug));'), 'Add-to-cart should support progressive JSON updates');
 };
 
@@ -1126,7 +1210,7 @@ $tests['registration creates a default delivery address'] = function (): void {
     $auth = file_get_contents(app_path('app/Controllers/AuthController.php'));
     $register = file_get_contents(app_path('views/public/register.php'));
     foreach (['phone', 'address', 'city', 'pincode'] as $field) assertTrue(str_contains($register, 'name="' . $field . '"'), "Registration should collect {$field}");
-    assertTrue(str_contains($auth, 'new AddressService') && str_contains($auth, "'is_default'=>true"), 'Registration should save the first address as default');
+    assertTrue(str_contains($auth, 'registerCustomer($record') && str_contains(file_get_contents(app_path('app/Services/DatabaseService.php')), 'new AddressService($this)') && str_contains($auth, "'is_default'=>true"), 'Registration should save the first address as default');
 };
 
 $tests['authenticated sessions persist for thirty days until logout'] = function (): void {
@@ -1450,8 +1534,8 @@ $tests['the model answer is separated from the model thinking out loud'] = funct
     assertSame('Hello world', \App\Services\AiClient::answerFromParts([
         ['text' => 'planning', 'thought' => true], ['text' => 'Hello '], ['text' => 'world'],
     ]), 'A multi-part answer is joined');
-    assertSame('only thinking', \App\Services\AiClient::answerFromParts([['text' => 'only thinking', 'thought' => true]]),
-        'A response that is nothing but thought is still shown, since an empty string explains nothing');
+    assertSame('', \App\Services\AiClient::answerFromParts([['text' => 'only thinking', 'thought' => true]]),
+        'A thought-only response triggers the fallback without storing or displaying reasoning');
     assertSame('', \App\Services\AiClient::answerFromParts([]), 'No parts means no answer');
 
     // The thought flag is not always set — sometimes the reasoning arrives as prose —
@@ -1596,8 +1680,7 @@ $tests['both chat surfaces share accessible bounded request status'] = function 
     assertTrue(str_contains($css, '.ai-request-status summary:focus-visible') && str_contains($css, 'prefers-reduced-motion'), 'Status needs focus and reduced-motion behavior');
     $controller = file_get_contents(app_path('app/Controllers/AdminController.php'));
     assertTrue(str_contains($controller, "'The model could not answer.") && str_contains($controller, "'missing'=>\$attachments['missing']],502"), 'Provider failures must return safe guidance with a non-success status');
-    $admin = file_get_contents(app_path('views/layouts/admin.php'));
-    assertTrue(str_contains($admin, 'min-width: 0;') && str_contains($admin, 'flex-wrap: wrap; gap: var(--space-sm)'), 'Admin grid and mobile header must shrink without horizontal overflow');
+    assertTrue(str_contains($css, '.admin-main { background: var(--color-bg-alt); min-height: 100vh; min-width: 0; }') && preg_match('/\.admin-topbar\s*\{[^}]*flex-wrap:\s*wrap/', $css) === 1, 'Admin grid and mobile header must shrink without horizontal overflow');
 };
 
 $tests['ticket tracking isolates owners and traces exclude chat content'] = function (): void {
@@ -1612,7 +1695,7 @@ $tests['ticket tracking isolates owners and traces exclude chat content'] = func
     $trace->tool('track_support_ticket', 'ok', microtime(true));
     $meta = $trace->metadata();
     assertTrue((bool)preg_match('/^[a-f0-9]{16}$/D', $meta['trace_id']), 'Trace is an opaque correlation ID');
-    assertSame(['kind', 'name', 'model', 'status', 'outcome', 'duration_ms'], array_keys($meta['steps'][0]), 'Provider trace only contains operational metadata');
+    assertSame(['kind', 'name', 'model', 'mode', 'status', 'outcome', 'duration_ms'], array_keys($meta['steps'][0]), 'Provider trace only contains operational metadata');
     assertSame(['kind', 'name', 'outcome', 'duration_ms'], array_keys($meta['steps'][1]), 'Tool trace excludes arguments and results');
     assertSame('http_error', $meta['steps'][0]['outcome'], 'A provider failure is retained even if the agent can fall back');
     $trace->provider('google', 'gemma-4-31b-it', 200, 0, microtime(true));
@@ -1929,7 +2012,37 @@ $tests['legacy duplicate frontend modules are removed from the php template app'
     assertTrue(!is_dir(app_path('assets/js')), 'The legacy SPA app directory should be removed entirely');
     $index = file_get_contents(app_path('index.php'));
     assertTrue(!str_contains($index, 'views/layouts/spa.php'), 'Unknown routes should not load the legacy SPA fallback');
-    assertTrue(str_contains($index, 'http_response_code(404)'), 'Unknown routes should return a real 404');
+    assertTrue(str_contains($index, '$router->dispatch') && str_contains(fileRead('app/Controllers/BaseController.php'), 'http_response_code(404)'), 'Web requests use the shared router and real 404 response');
+};
+
+$tests['public discovery honors media preferences and uses canonical, script-safe metadata'] = function (): void {
+    foreach ([
+        ['text/markdown', true], ['*/*', false], ['text/markdown, */*', true],
+        ['text/markdown;q=0,*/*;q=1', false], ['text/markdown;q=0.1,text/html;q=0.8', false],
+        ['text/markdown;q=0.7,text/html;q=0.2', true], ['text/markdown,text/html', false],
+        ['text/markdown;q=broken', false]
+    ] as [$accept, $expected]) {
+        assertSame($expected, \App\Services\PublicDiscoveryService::prefersMarkdown($accept), 'Accept negotiation for ' . $accept);
+    }
+    assertSame([], \App\Router::matchPath('/openapi.json', '/openapi.json'), 'Literal discovery URL matches');
+    assertSame(null, \App\Router::matchPath('/openapi.json', '/openapiXjson'), 'Route punctuation is literal');
+    assertSame(['sample'], \App\Router::matchPath('/blog/{slug}', '/blog/sample'), 'Existing route captures are preserved');
+    $seoService = new \App\Services\SeoService();
+    $meta = $seoService->page('campaigns', ['og_image' => '/image.jpg']);
+    assertSame(\App\Services\SeoService::publicUrl('/image.jpg'), $meta['og_image'], 'Relative previews use the configured origin');
+    assertSame($meta['canonical'], $meta['og_url'], 'Social shares and search agree on the canonical URL');
+    $product = $seoService->productSchema(['name' => 'A < B', 'price' => 250, 'stock_status' => 'out_of_stock']);
+    assertSame('https://schema.org/OutOfStock', $product['offers']['availability'], 'Search results reflect unavailable stock');
+    $jsonLd = \App\Services\SeoService::jsonLdScript($product);
+    assertTrue(!str_contains($jsonLd, 'A < B'), 'Raw angle brackets stay outside script data');
+    ob_start();
+    require app_path('views/public/openapi.php');
+    $contract = json_decode(ob_get_clean(), true, 512, JSON_THROW_ON_ERROR);
+    assertSame(['/', '/sitemap.xml'], array_keys($contract['paths']), 'Only reviewed public discovery operations are advertised');
+    foreach ($contract['paths'] as $path => $operations) {
+        routeExists($path);
+        assertSame(['get'], array_keys($operations), 'Discovery operations are read-only');
+    }
 };
 
 $tests['php 404 page uses themed template classes'] = function (): void {
@@ -1963,7 +2076,7 @@ $tests['documentation has deployment agent instructions and no one-line placehol
 $tests['pull requests use non mutating CI with fresh project and documentation maps'] = function (): void {
     $workflow = file_get_contents(app_path('.github/workflows/ci.yml'));
     $cli = file_get_contents(app_path('cli/bapXphp'));
-    foreach (['pull_request:', 'branches: [main]', './bapXphp ci'] as $needle) assertTrue(str_contains($workflow, $needle), "CI workflow should include {$needle}");
+    foreach (['pull_request:', 'branches: [main,', "'feat/**'", './bapXphp ci', 'php tests/therapy-integration.php'] as $needle) assertTrue(str_contains($workflow, $needle), "CI workflow should include {$needle}");
     foreach (['cmd_ci()', 'validate-project-map.php', 'validate-docs-map.php', 'cmd_update()', 'cmd_hooks()', 'cmd_ai_probe()'] as $needle) {
         assertTrue(str_contains($cli, str_replace('\\n', "\n", $needle)), "CLI should include {$needle}");
     }
@@ -2063,7 +2176,7 @@ $tests['retired booking endpoint creates no new appointment'] = function (): voi
 $tests['legacy help URLs redirect into the Nebo journal'] = function (): void {
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
     routeExists('/help/{slug}', 'Help center should expose a hosting-safe guide detail route');
-    assertTrue(str_contains(file_get_contents(app_path('index.php')), "'/help'"), 'Front controller should dispatch hosting-safe help routes into PHP');
+    assertTrue(str_contains(fileRead('index.php'), "require __DIR__ . '/app/routes.php'"), 'Front controller should dispatch hosting-safe help routes into PHP');
     assertTrue(str_contains($controller, "\$this->redirect('/blog');") && str_contains($controller, "'/blog/' . \$slug"), 'Legacy docs routes should redirect to the current journal');
     $categories = file_get_contents(app_path('content/blog/categories.yaml'));
     assertTrue(str_contains($categories, 'slug: wellness') && !str_contains($categories, 'slug: astrology') && !str_contains($categories, 'slug: spirituality'), 'Public blog taxonomy should contain wellness topics without legacy categories');
@@ -2098,7 +2211,7 @@ $tests['Nebo articles share accessible card and article images'] = function (): 
         assertTrue(str_contains($admin, 'name="' . $field . '"'), "Admin blog editor should expose {$field}");
     }
     assertTrue(str_contains($index, "\$post['og_image']") && str_contains($article, "\$meta['og_image']"), 'Card and article should share og_image');
-    assertTrue(str_contains($article, "\$schemaImage ?: 'undefined'") && str_contains($article, 'e($sourceUrl)'), 'Article metadata should tolerate missing images and render the validated source URL');
+    assertTrue(str_contains($article, "array_filter(\$schema['@graph'][1]") && str_contains($article, 'e($sourceUrl)'), 'Article metadata should tolerate missing images and render the validated source URL');
     foreach (['your-first-nebo-consultation', 'sustainable-wellness-habits'] as $slug) {
         $post = file_get_contents(app_path("content/blog/posts/{$slug}.md"));
         assertTrue(str_contains($post, "\nsummary:") && str_contains($post, "\ncategory: wellness"), "Nebo article {$slug} should retain summary and wellness category");
@@ -2249,6 +2362,9 @@ $tests['dashboard separates failed attempts from failed runs and groups by UTC d
     assertSame(['runs' => 1, 'errors' => 0], $week['daily']['2026-11-10'], 'Normalize recorded offsets to UTC');
     assertSame(['runs' => 1, 'errors' => 1], $week['daily']['2026-11-11'], 'Exclude future events');
     assertSame(['attempts' => 3, 'failures' => 2], $week['providers']['support'], 'Tool failures and recovered provider attempts are distinct');
+    $legacy = $week['provider_details'][0];
+    assertSame('unknown', $legacy['mode'], 'An older trace without a request type must not be counted as plain');
+    assertSame(null, $legacy['p95_ms'], 'Legacy traces without provider timings must not imply zero latency');
     assertSame(2, $week['surfaces']['support']['requests'], 'Cards and charts agree');
     assertSame(3, App\Services\AuditLogService::agentDashboard($events, 30, $now)['surfaces']['support']['requests'], 'Longer range includes older runs');
 };
@@ -2447,6 +2563,9 @@ $tests['custom campaign answers reach the owner through the admin contact surfac
     assertTrue(str_contains($resourceView, 'Campaign answers'), 'Saved campaign answers are labelled in the admin table');
     assertTrue(str_contains($resourceView, 'e(is_scalar($answerValue)'), 'Custom answers are escaped before output');
     assertTrue(str_contains($resourceView, "is_array(\$item['form_data']"), 'Custom answers are read from the canonical form_data field');
+    $submission = ['form_data'=>['field_123'=>'Friday'], 'form_labels'=>['field_123'=>'Which day works for you?']];
+    assertSame('Which day works for you?', \App\Services\CampaignPageService::answerLabel($submission, 'field_123'), 'A saved question keeps its human-readable wording');
+    assertSame('Preferred Day', \App\Services\CampaignPageService::answerLabel([], 'preferred_day'), 'Historical records retain their original field-key fallback');
     $mailStorage = file_get_contents(app_path('app/Services/MailStorageService.php'));
     assertTrue(str_contains($mailStorage, "is_array(\$contact['form_data']"), 'The inbox copy reads the canonical form_data field');
     assertTrue(str_contains($mailStorage, 'Campaign answers:'), 'The inbox copy appends the campaign answers to the message body');
@@ -2551,6 +2670,26 @@ $tests['signed-in login redirect only uses the account dashboard while ecommerce
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
     assertTrue(str_contains($controller, "module_on('shop') ? '/account/dashboard' : '/'"), 'A signed-in customer without the shop module is sent home instead of a 404 dashboard');
 };
+require __DIR__ . '/google-reports.php';
+$tests['therapy capture confirms only a verified available future session'] = function (): void {
+    $now = 1700000000;
+    $base = ['id'=>'request','status'=>'approved','fee_paise'=>2500,'revision'=>2,
+        'payment_status'=>'pending','order_id'=>'order_fixture','starts_at'=>$now + 300];
+    $payment = ['id'=>'pay_fixture','status'=>'captured','amount'=>2500,'currency'=>'INR','order_id'=>'order_fixture'];
+    $capture = static fn($request, $available) => \App\Services\TherapySessionService::update(
+        $request,'capture',['payment'=>$payment], static fn()=>$available, $now);
+    $paid = $capture($base, true);
+    assertSame('confirmed',$paid['status'],'A matching captured fee commits an available slot');
+    assertSame($paid,$capture($paid,false),'Repeated provider notifications are idempotent');
+    assertSame('approved',$capture($base,false)['status'],'A busy slot remains awaiting scheduling');
+    assertSame('paid',$capture($base,false)['payment_status'],'Money received remains visible independently of scheduling');
+    assertSame('approved',$capture(array_replace($base,['starts_at'=>$now]),true)['status'],'A past slot cannot be confirmed');
+    assertSame('cancelled',$capture(array_replace($base,['status'=>'cancelled']),true)['status'],'A late capture cannot revive a cancelled request');
+    foreach (['order_id'=>'wrong','amount'=>1,'status'=>'authorized','currency'=>'USD'] as $key=>$value) {
+        assertTrue(!\App\Services\TherapySessionService::matchesCapture($base,array_replace($payment,[$key=>$value])), 'Mismatched payment '.$key.' must be rejected');
+    }
+};
+
 foreach ($tests as $name => $test) {
     try {
         $test();

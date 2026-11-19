@@ -68,6 +68,9 @@ function img_tag(string $src, string $alt = '', array $attrs = []): string {
 
 \App\Services\EnvService::load();
 
+// CLI failures must preserve a non-zero process exit status for migrations, tests and automation.
+if (PHP_SAPI === 'cli') return;
+
 set_exception_handler(static function (\Throwable $error): void {
     error_log('[unhandled] ' . $error::class . ': ' . $error->getMessage()
         . ' @ ' . $error->getFile() . ':' . $error->getLine());

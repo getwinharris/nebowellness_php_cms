@@ -130,13 +130,5 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
     </div>
 </section>
 
-<script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "ContactPage",
-    "name": "Contact Nebo Lifestyle Clinic",
-    "description": "Contact Nebo Lifestyle Clinic for wellness consultations, naturopathy services, and integrative health programs.",
-    "url": "https://nebowellness.com/contact"
-}
-</script>
+<?= \App\Services\SeoService::jsonLdScript(($__clinicSeo ?? new \App\Services\SeoService())->contactPageSchema()) ?>
 <?php if (!empty($otpAvailable)): ?><script src="/assets/email-otp.js?v=<?= filemtime(app_path('assets/email-otp.js')) ?>" defer></script><?php endif; ?>

@@ -12,17 +12,15 @@ final class SeoService {
         $configuredOgImage = (string)($secrets['seo_default_og_image'] ?? '');
         $this->defaultOgImage = $configuredOgImage !== '' && !str_contains(strtolower($configuredOgImage), 'sripanchami')
             ? $configuredOgImage
-            : 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . '/assets/images/nebo-clinic-hero.webp';
+            : self::publicUrl('/assets/images/nebo-clinic-hero.webp');
         $this->twitterHandle = $secrets['seo_twitter_handle'] ?? '';
         $phone = $secrets['phone'] ?? getenv('CONTACT_PHONE') ?: '';
         $this->telephone = $phone !== '' ? [$phone] : ['+917200182025', '+919585182025'];
     }
 
     public function page(string $key, array $overrides = []): array {
-        $host = $_SERVER['HTTP_HOST'] ?? 'nebowellness.com';
         $uri = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $url = $scheme . '://' . $host . $uri;
+        $url = self::publicUrl($uri);
 
         $defaults = $this->defaults($key);
         $meta = array_merge($defaults, $overrides);
@@ -34,10 +32,10 @@ final class SeoService {
         }
 
         $meta['canonical'] ??= $url;
-        $meta['og_url'] ??= $url;
+        $meta['og_url'] ??= $meta['canonical'];
         $meta['og_site_name'] = $this->siteName;
-        $meta['og_image'] ??= $this->defaultOgImage;
-        if (str_starts_with((string)$meta['og_image'], '/')) $meta['og_image'] = $scheme . '://' . $host . $meta['og_image'];
+        if (empty($meta['og_image'])) $meta['og_image'] = $this->defaultOgImage;
+        if (str_starts_with((string)$meta['og_image'], '/')) $meta['og_image'] = self::publicUrl($meta['og_image']);
         $meta['twitter_image'] ??= $meta['og_image'];
         $meta['twitter_title'] ??= $meta['og_title'] ?? $meta['title'];
         $meta['twitter_description'] ??= $meta['og_description'] ?? $meta['description'];
@@ -82,7 +80,7 @@ final class SeoService {
                 'robots' => 'index, follow',
             ],
             'campaigns' => [
-                'title' => 'Therapy Products – ' . $brand,
+                'title' => 'Therapy Services – ' . $brand,
                 'description' => 'Explore Nebo Lifestyle Clinic therapies and request a session with the clinic team.',
                 'og_type' => 'website',
                 'robots' => 'index, follow',
@@ -193,9 +191,9 @@ final class SeoService {
         ];
     }
 
-    public function jsonLdScript(array $data): string {
+    public static function jsonLdScript(array $data): string {
         if (!$data) return '';
-        return '<script type="application/ld+json">' . json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . '</script>';
+        return '<script type="application/ld+json">' . json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_INVALID_UTF8_SUBSTITUTE) . '</script>';
     }
 
     public function organizationSchema(): array {
@@ -204,8 +202,9 @@ final class SeoService {
             '@type' => ['Organization', 'MedicalClinic'],
             'name' => $this->siteName,
             'description' => 'Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.',
-            'url' => $this->pageUrl(''),
+            'url' => self::publicUrl(''),
             'telephone' => $this->telephone,
+            'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Kaliyal, Kanyakumari', 'addressRegion' => 'Tamil Nadu', 'addressCountry' => 'IN'],
             'email' => 'nebolifestyleclinic@gmail.com',
         ];
     }
@@ -217,7 +216,7 @@ final class SeoService {
             $entry = ['@type' => 'ListItem', 'position' => $position++];
             if (is_string($item)) {
                 $entry['name'] = $item;
-                $entry['item'] = $this->pageUrl($item === 'Home' ? '' : strtolower(str_replace(' ', '-', $item)));
+                $entry['item'] = self::publicUrl($item === 'Home' ? '' : strtolower(str_replace(' ', '-', $item)));
             } else {
                 $entry['name'] = $item['name'] ?? '';
                 $entry['item'] = $item['url'] ?? '';
@@ -232,19 +231,21 @@ final class SeoService {
     }
 
     public function productSchema(array $product): array {
-        $price = $product['offer_price'] ?? $product['price'] ?? 0;
+        $price = ($product['offer_price'] ?? 0) ?: ($product['price'] ?? 0);
+        $image = trim((string)($product['image_url'] ?? '')) ?: $this->defaultOgImage;
         return [
             '@context' => 'https://schema.org',
             '@type' => 'Product',
             'name' => $product['name'] ?? '',
             'description' => $product['description'] ?? '',
-            'image' => $product['image_url'] ?? $this->defaultOgImage,
+            'image' => str_starts_with($image, '/') ? self::publicUrl($image) : $image,
             'offers' => [
                 '@type' => 'Offer',
                 'price' => (float)$price,
                 'priceCurrency' => 'INR',
-                'availability' => 'https://schema.org/InStock',
-                'url' => $this->pageUrl('/product/' . ($product['slug'] ?? '')),
+                'availability' => in_array($product['stock_status'] ?? 'in_stock', ['in_stock', 'active'], true)
+                    ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+                'url' => self::publicUrl('/product/' . rawurlencode((string)($product['slug'] ?? ''))),
             ],
         ];
     }
@@ -265,6 +266,7 @@ final class SeoService {
             '@context' => 'https://schema.org',
             '@type' => 'AboutPage',
             'name' => 'About ' . $this->siteName,
+            'url' => self::publicUrl('/about'),
             'description' => 'Learn about ' . $this->siteName . ', a naturopathy and functional medicine clinic offering root-cause, personalised wellness care.',
             'mainEntity' => $this->organizationSchema(),
         ];
@@ -275,6 +277,7 @@ final class SeoService {
             '@context' => 'https://schema.org',
             '@type' => 'ContactPage',
             'name' => 'Contact ' . $this->siteName,
+            'url' => self::publicUrl('/contact'),
             'description' => 'Get in touch with ' . $this->siteName . ' to book a consultation or ask about wellness programs and bookings.',
             'mainEntity' => $this->organizationSchema(),
         ];
@@ -297,9 +300,9 @@ final class SeoService {
         ];
     }
 
-    private function pageUrl(string $path): string {
-        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'nebowellness.com';
-        return $scheme . '://' . $host . '/' . ltrim($path, '/');
+    public static function publicUrl(string $path): string {
+        static $base = null;
+        $base ??= rtrim((require app_path('config/database.php'))['app_url'], '/');
+        return $base . '/' . ltrim($path, '/');
     }
 }

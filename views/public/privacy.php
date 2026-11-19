@@ -1,10 +1,26 @@
-<section class="section document-page">
+<section class="section document-page privacy-page">
     <div class="container container--narrow">
         <header class="document-page__header">
             <span class="eyebrow serif-accent">Legal</span>
             <h1 class="section-title"><?= e($document['title'] ?? 'Privacy Policy') ?></h1>
             <p class="lede">A clear explanation of how the platform handles personal information.</p>
         </header>
+        <?php if (!empty($__measurement)): ?>
+        <section id="measurement" class="measurement-preferences" aria-labelledby="measurement-title" hidden>
+            <h2 id="measurement-title">Measurement preferences</h2>
+            <p>Choose whether to measure homepage and About page visits in this browser. Optional measurement is off until you choose it. Providers can receive your device’s IP address and browser information.</p>
+            <form id="measurement-choices">
+                <?php if ($__measurement['ga'] !== ''): ?>
+                    <label><input type="checkbox" name="analytics"> Share page visits with Google Analytics</label>
+                <?php endif; ?>
+                <?php if ($__measurement['ads'] !== '' || $__measurement['pixel'] !== ''): ?>
+                    <label><input type="checkbox" name="advertising"> Share page views with <?= e(implode(' and ', array_filter([$__measurement['ads'] !== '' ? 'Google Ads' : '', $__measurement['pixel'] !== '' ? 'Meta' : '']))) ?></label>
+                <?php endif; ?>
+                <button type="submit" class="btn btn-primary">Save preferences</button>
+                <p role="status" aria-live="polite"></p>
+            </form>
+        </section>
+        <?php endif; ?>
         <article class="document-page__content reveal"><?= $document['html'] ?? '' ?></article>
     </div>
 </section>

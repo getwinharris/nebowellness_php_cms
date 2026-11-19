@@ -11,32 +11,32 @@
                 <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
                 <input type="hidden" name="_csrf" value="<?= $csrf ?>">
                 <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" name="name" required placeholder="Your full name">
+                    <label for="register-name">Full Name</label>
+                    <input type="text" id="register-name" name="name" autocomplete="name" required placeholder="Your full name">
                 </div>
                 <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" required placeholder="your@email.com">
+                    <label for="register-email">Email Address</label>
+                    <input type="email" id="register-email" name="email" autocomplete="email" value="<?= e($pendingGoogleEmail ?? '') ?>" required placeholder="your@email.com">
                 </div>
                 <div class="form-group">
-                    <label>Phone</label>
-                    <input type="tel" name="phone" required placeholder="+91 XXXXX XXXXX">
+                    <label for="register-phone">Phone</label>
+                    <input type="tel" id="register-phone" name="phone" autocomplete="tel" required placeholder="+91 XXXXX XXXXX">
                 </div>
                 <div class="form-group">
-                    <label>Default delivery address</label>
-                    <textarea name="address" required rows="2" placeholder="Door no, street, area"></textarea>
+                    <label for="register-address">Default delivery address</label>
+                    <textarea id="register-address" name="address" autocomplete="street-address" required rows="2" placeholder="Door no, street, area"></textarea>
                 </div>
                 <div class="auth-form__row">
-                    <div class="form-group"><label>City</label><input type="text" name="city" required placeholder="City"></div>
-                    <div class="form-group"><label>PIN code</label><input type="text" name="pincode" required inputmode="numeric" placeholder="600001"></div>
+                    <div class="form-group"><label for="register-city">City</label><input type="text" id="register-city" name="city" autocomplete="address-level2" required placeholder="City"></div>
+                    <div class="form-group"><label for="register-pincode">PIN code</label><input type="text" id="register-pincode" name="pincode" autocomplete="postal-code" required inputmode="numeric" placeholder="600001"></div>
                 </div>
                 <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required placeholder="••••••••" minlength="6">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" autocomplete="new-password" required placeholder="••••••••" minlength="6">
                 </div>
                 <div class="form-group">
-                    <label>Confirm Password</label>
-                    <input type="password" name="password_confirm" required placeholder="••••••••" minlength="6">
+                    <label for="register-password_confirm">Confirm Password</label>
+                    <input type="password" id="register-password_confirm" name="password_confirm" autocomplete="new-password" required placeholder="••••••••" minlength="6">
                 </div>
                 <div class="form-group form-check">
                     <label class="checkbox-label">
@@ -44,8 +44,14 @@
                         <span>I accept the <a href="/terms" target="_blank">Terms of Service</a> and <a href="/privacy" target="_blank">Privacy Policy</a></span>
                     </label>
                 </div>
+                <?php if (!empty($pendingGoogleEmail)): ?>
+                <label class="checkbox-label"><input type="checkbox" name="link_google" value="1"> Enable Google sign-in for <?= e($pendingGoogleEmail) ?></label>
+                <?php endif; ?>
                 <button class="btn btn-primary btn-block">Create Account</button>
             </form>
+            <?php if (!empty($googleAuthEnabled) && empty($pendingGoogleEmail)): ?>
+            <a href="/auth/google" class="btn-google">Continue with Google</a>
+            <?php endif; ?>
             <div class="auth-footer">
                 <p>Already have an account? <a href="/login">Sign in here</a></p>
             </div>

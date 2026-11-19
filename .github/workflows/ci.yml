@@ -3,7 +3,7 @@ name: Validate application
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, 'feat/**', 'fix/**', 'codex/**', 'bapX/**']
 
 permissions:
   contents: read
@@ -17,6 +17,19 @@ jobs:
     if: github.actor != 'ci-ai-bot' && github.repository == 'getwinharris/nebowellness_php_cms'
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    services:
+      mariadb:
+        image: mariadb:11.8
+        env:
+          MARIADB_RANDOM_ROOT_PASSWORD: 'yes'
+          MARIADB_DATABASE: clinic_test
+          MARIADB_USER: clinic_fixture
+          MARIADB_PASSWORD: disposable-fixture
+        ports:
+          - 3306/tcp
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,7 +41,22 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Verify Support browser behavior
-        run: node --test tests/support-chat.test.cjs
+      - name: Verify JavaScript behavior
+        run: node --test tests/*.test.cjs
       - name: Validate code, tests, maps, and routes
         run: ./bapXphp ci
+
+      - name: Exercise durable clinic workflows in strict MariaDB
+        env:
+          BAPX_MYSQL_HOST: 127.0.0.1
+          BAPX_MYSQL_PORT: ${{ job.services.mariadb.ports[3306] }}
+          BAPX_MYSQL_DB: clinic_test
+          BAPX_MYSQL_USER: clinic_fixture
+          BAPX_MYSQL_PASS: disposable-fixture
+          APP_URL: http://127.0.0.1
+          BAPX_REMOTE_DB_URL: http://127.0.0.1/remotedb
+        run: |
+          ./bapXphp db init
+          php tests/therapy-integration.php
+          php tests/identity-media-integration.php
+          php tests/agent-audit-integration.php

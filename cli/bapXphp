@@ -160,20 +160,24 @@ if [ -L "$BAPX_SRC" ]; then
 fi
 ROOT="$(cd "$(dirname "$BAPX_SRC")/.." && pwd)"
 
-# Load project and ignored operator connection settings for CLI subcommands.
+# Match EnvService: process settings win, and file values are literal data.
+# Later operator files may override values read from the earlier project file.
+declare -A loaded_settings=()
 for env_file in "$ROOT/.env" "$ROOT/.env.mysql" "$ROOT/.env.test-user"; do
-if [ -f "$env_file" ]; then
+  [ -f "$env_file" ] || continue
   while IFS= read -r line || [ -n "$line" ]; do
-    # Skip comments and empty lines
-    [[ "$line" =~ ^[[:space:]]*# ]] && continue
-    [[ -z "${line// }" ]] && continue
-    # Strip carriage returns
-    line=$(echo "$line" | tr -d '\r')
-    if [[ "$line" =~ ^[A-Za-z_][A-Za-z0-9_]*= ]]; then
-      eval "export $line"
-    fi
+    line=${line%$'\r'}
+    [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]] || continue
+    setting_name=${BASH_REMATCH[1]}
+    setting_value=${BASH_REMATCH[2]}
+    if [[ -v "$setting_name" && -z "${loaded_settings[$setting_name]:-}" ]]; then continue; fi
+    case "$setting_value" in
+      \"*\") setting_value=${setting_value:1:${#setting_value}-2} ;;
+      \'*\') setting_value=${setting_value:1:${#setting_value}-2} ;;
+    esac
+    export "$setting_name=$setting_value"
+    loaded_settings[$setting_name]=1
   done < "$env_file"
-fi
 done
 
 MYSQL_HOST="${BAPX_MYSQL_HOST:-srv1877.hstgr.io}"
@@ -583,18 +587,20 @@ cmd_test() {
 
 cmd_lint() {
   require_php
-  local target="${1:-}"
-  if [ -n "$target" ]; then
-    if [ -f "$target" ]; then
-      php -l "$target"
-    else
-      find "$target" -name '*.php' -exec php -l {} \; 2>&1 | grep -v 'No syntax errors' || true
-    fi
-  else
-    find "$ROOT/app" "$ROOT/api" "$ROOT/tests" "$ROOT/cli" "$ROOT/views" "$ROOT/index.php" -name '*.php' 2>/dev/null \
-      -exec php -l {} \; 2>&1 | grep -v 'No syntax errors' || true
-    ok "PHP syntax check complete"
+  local targets=("$ROOT/app" "$ROOT/api" "$ROOT/tests" "$ROOT/cli" "$ROOT/views"
+                 "$ROOT/integrations" "$ROOT/config" "$ROOT/storage/schema" "$ROOT/index.php")
+  if [ -n "${1:-}" ]; then
+    [ -e "$1" ] || { err "Lint target does not exist: $1"; return 1; }
+    if [ -f "$1" ]; then php -l "$1"; return; fi
+    targets=("$1")
   fi
+  # Preserve parse failures while suppressing one success message per file.
+  local output
+  if ! output=$(find "${targets[@]}" -type f -name '*.php' -print0 | xargs -0 -r -n 1 php -l 2>&1); then
+    printf '%s\n' "$output" | sed '/^No syntax errors detected in /d' >&2
+    return 1
+  fi
+  ok "PHP syntax check complete"
 }
 
 cmd_ci() {
@@ -1135,34 +1141,24 @@ cmd_db_hosted_sql() {
 cmd_db_init() {
   require_php
   echo "Creating MySQL tables from collections.php schema..."
-  php -r "
-    \$dsn = 'mysql:host=$MYSQL_HOST;port=$MYSQL_PORT;dbname=$MYSQL_DB;charset=utf8mb4';
-    \$pdo = new PDO(\$dsn, '$MYSQL_USER', '$MYSQL_PASS', [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 5]);
-    if (!\$pdo) { fprintf(STDERR, \"Cannot connect to MySQL. Check config/database.php.\n\"); exit(1); }
-
-    \$schema = require '$SCHEMA_FILE';
-    foreach (\$schema['collections'] as \$name => \$col) {
-      \$table = preg_replace('/[^a-z_]/', '', \$name);
-      \$pdo->exec(\"CREATE TABLE IF NOT EXISTS {\$table} (
-        id VARCHAR(36) PRIMARY KEY,
-        _data JSON NOT NULL,
-        _owner VARCHAR(255) DEFAULT NULL,
-        _status VARCHAR(50) DEFAULT NULL,
-        _created_at DATETIME DEFAULT NULL,
-        _updated_at DATETIME DEFAULT NULL,
-        INDEX idx_owner (_owner),
-        INDEX idx_status (_status),
-        INDEX idx_created (_created_at)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci\");
-      echo \"  CREATED TABLE \$table\n\";
-      if (\$name === 'consultation_signals') {
-        try { \$pdo->exec(\"ALTER TABLE consultation_signals ADD COLUMN appointment_id VARCHAR(36) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(_data, '$.appointment_id'))) STORED\"); } catch (\PDOException \$e) {}
-        try { \$pdo->exec(\"CREATE INDEX idx_signals_appointment_id ON consultation_signals (appointment_id)\"); } catch (\PDOException \$e) {}
-        echo \"  INDEXED consultation_signals.appointment_id\n\";
-      }
+  php -r '
+    require $argv[1] . "/app/bootstrap.php";
+    $store = new App\Services\DatabaseService(true);
+    $collections = (require app_path("storage/schema/collections.php"))["collections"];
+    foreach (array_keys($collections) as $name) {
+      $store->ensureSchemaCollection($name);
+      echo "  Ready: ", $name, PHP_EOL;
     }
-    echo \"Done. \" . count(\$schema['collections']) . \" tables created.\n\";
-  "
+    $pdo = $store->connection();
+    $column = $pdo->query("SHOW COLUMNS FROM consultation_signals LIKE ".$pdo->quote("appointment_id"))->fetch();
+    if (!$column) {
+      $path = $pdo->quote("$.appointment_id");
+      $pdo->exec("ALTER TABLE consultation_signals ADD COLUMN appointment_id VARCHAR(36) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(_data, $path))) STORED");
+    }
+    $index = $pdo->query("SHOW INDEX FROM consultation_signals WHERE Key_name = ".$pdo->quote("idx_signals_appointment_id"))->fetch();
+    if (!$index) $pdo->exec("CREATE INDEX idx_signals_appointment_id ON consultation_signals (appointment_id)");
+    echo "Schema ready.", PHP_EOL;
+  ' "$ROOT"
 }
 
 # ── db sync — Compatibility alias for db init ─────────────────

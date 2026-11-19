@@ -1,5 +1,5 @@
 (() => {
-    const fallbackPath = '/assets/images/nebo-programs.png';
+    const fallbackPath = '/assets/images/nebo-programs.webp';
     const fallbackUrl = new URL(fallbackPath, document.baseURI).href;
     for (const image of document.querySelectorAll('[data-therapy-image]')) {
         function showFallback() {

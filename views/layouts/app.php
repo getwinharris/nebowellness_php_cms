@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="public-site">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -28,201 +28,37 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Nebo Lifestyle Clinic">
 <link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
-<link rel="canonical" href="<?= e($seo['canonical'] ?? 'https://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com') . (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/')) ?>">
+<link rel="service-desc" type="application/json" href="/openapi.json">
+<link rel="canonical" href="<?= e($seo['canonical'] ?? \App\Services\SeoService::publicUrl(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/')) ?>">
 <meta property="og:type" content="<?= e($seo['og_type'] ?? 'website') ?>">
 <meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>">
 <meta property="og:title" content="<?= e($seo['og_title'] ?? $pageTitle) ?>">
 <meta property="og:description" content="<?= e($seo['og_description'] ?? $metaDescription) ?>">
-<meta property="og:url" content="<?= e($seo['og_url'] ?? 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) ?>">
-<meta property="og:image" content="<?= e($seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.webp') ?>">
+<meta property="og:url" content="<?= e($seo['og_url'] ?? \App\Services\SeoService::publicUrl(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/')) ?>">
+<meta property="og:image" content="<?= e($seo['og_image'] ?? \App\Services\SeoService::publicUrl('/assets/images/nebo-clinic-hero.webp')) ?>">
 <meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= e($seo['twitter_title'] ?? $seo['og_title'] ?? $pageTitle) ?>">
 <meta name="twitter:description" content="<?= e($seo['twitter_description'] ?? $seo['og_description'] ?? $metaDescription) ?>">
-<meta name="twitter:image" content="<?= e($seo['twitter_image'] ?? $seo['og_image'] ?? 'https://' . $_SERVER['HTTP_HOST'] . '/assets/images/nebo-clinic-hero.webp') ?>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet"></noscript>
-<style>
-<?php
-// Inline critical CSS for instant first paint — header, nav, hero, product cards
-$critical = '
-:root{--color-ink:#222222;--color-ink-light:#3f3f3f;--color-gold:#70AD47;--color-gold-light:#e7f2df;--color-gold-dark:#55853a;--color-maroon:#4472C4;--color-maroon-deep:#2f5aa8;--color-accent:#70AD47;--color-accent-light:#8cc069;--color-bg:#f7f9fa;--color-bg-alt:#eef2f4;--color-bg-warm:#edf3f6;--color-border:#d7e1e6;--color-border-light:#e6ecef;--color-text-muted:#5b6872;--color-white:#ffffff;--color-success:#2d8a4e;--color-error:#d64045;--color-rating:#d68641;--font-display:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-serif:Georgia,"Times New Roman",serif;--font-accent:"Playfair Display",Georgia,serif;--shadow-sm:0 1px 2px rgba(0,0,0,0.08);--shadow-md:0 2px 8px rgba(0,0,0,0.12);--shadow-lg:0 2px 8px rgba(0,0,0,0.12);--radius-md:8px;--radius-lg:8px;--radius-xl:8px;--radius-pill:999px;--space-xs:0.5rem;--space-sm:0.75rem;--space-md:1rem;--space-lg:1.5rem;--space-xl:2rem;--space-2xl:3rem}
-*,*::before,*::after{box-sizing:border-box;-webkit-font-smoothing:antialiased}
-@media (prefers-reduced-motion: no-preference) {
-    html{scroll-behavior:smooth}
-}
-body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--color-bg);color:var(--color-ink);line-height:1.55;overflow-x:hidden}
-a{color:var(--color-maroon);text-decoration:none}
-img{max-width:100%;height:auto;display:block}
-.brand{display:flex;align-items:center;gap:var(--space-xs);color:var(--color-ink);font-weight:700;font-size:1rem;text-decoration:none}
- .brand img{width:40px;height:40px;border-radius:50%;border:2px solid var(--color-gold);object-fit:cover;box-shadow:0 0 0 1px rgba(255,255,255,0.9) inset}
-nav a{position:relative;font-weight:500;color:var(--color-ink);padding:var(--space-xs) 0;font-size:0.9rem;text-decoration:none}
-nav a:hover,nav a[aria-current="page"]{color:var(--color-ink)}
-nav a[aria-current="page"]::after{position:absolute;right:0;bottom:-7px;left:0;height:2px;border-radius:999px;background:var(--color-gold);content:""}
-.nav-dropdown{position:relative;display:inline-flex}
-.nav-dropdown__trigger{padding-right:4px!important;cursor:default}
-.nav-dropdown__arrow{font-size:0.65rem;margin-left:2px;opacity:0.6}
-.nav-dropdown__menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);min-width:160px;background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);opacity:0;visibility:hidden;transition:opacity 0.2s ease,visibility 0.2s ease;z-index:200;padding:6px 0;margin-top:8px}
-.nav-dropdown__menu::before{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%);border:6px solid transparent;border-bottom-color:var(--color-white);filter:drop-shadow(0 -1px 1px rgba(0,0,0,0.1))}
-.nav-dropdown__menu a{display:block;padding:8px 18px;font-size:0.85rem;color:var(--color-ink);white-space:nowrap;text-decoration:none}
-.nav-dropdown__menu a:hover{background:var(--color-bg-alt);color:var(--color-maroon)}
-.nav-dropdown:hover .nav-dropdown__menu,.nav-dropdown:focus-within .nav-dropdown__menu{opacity:1;visibility:visible}
-@media(max-width:768px){.nav-dropdown__menu{position:static;transform:none;box-shadow:none;border:0;opacity:1;visibility:visible;margin:0;padding:0 0 0 16px;background:transparent}
-.nav-dropdown__menu::before{display:none}
-.nav-dropdown__menu a{padding:6px 0;font-size:0.85rem}}
-.header-actions{display:flex;align-items:center;gap:var(--space-md)}
-.cart-btn{background:transparent;border:0;font-size:1.3rem;cursor:pointer;position:relative;color:var(--color-ink);padding:var(--space-xs);border-radius:var(--radius-md)}
- .cart-count{position:absolute;top:-6px;right:-8px;background:var(--color-maroon);color:var(--color-white);font-size:0.6rem;width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold}
-main{padding-bottom:0}
-.container{max-width:1300px;margin:0 auto;padding:0 var(--space-xl)}
-.section{padding:64px 0}
-.section--alt{background:var(--color-bg-alt)}
-.home-hero{position:relative;min-height:90vh;padding:64px 5vw;background:var(--color-maroon-deep);color:var(--color-white);overflow:hidden}
-.hero-copy h1{font-family:Inter,system-ui,sans-serif;font-size:1.75rem;line-height:1.2;margin:0 0 var(--space-md);color:var(--color-ink)}
-.lede{font-size:1rem;line-height:1.7;color:var(--color-text-muted);margin-bottom:var(--space-lg)}
- .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--space-xs);min-height:48px;padding:0 24px;border-radius:8px;font-weight:600;cursor:pointer;border:0;text-decoration:none;font-size:0.85rem;white-space:nowrap;line-height:1.4;transition:background 0.2s ease,border-color 0.2s ease}
-.btn-primary{background:var(--color-maroon);color:var(--color-white);box-shadow:none}
-.btn-primary:hover{background:var(--color-maroon-deep)}
-.btn-outline{background:var(--color-white);border:1px solid var(--color-border);color:var(--color-ink)}
-.hero-actions{display:flex;gap:var(--space-md);margin-bottom:var(--space-xl)}
-.section-header{text-align:center;margin-bottom:var(--space-2xl)}
-.section-title{font-family:Inter,system-ui,sans-serif;font-size:clamp(1.375rem,2.5vw,1.75rem);margin:0;padding:0 0 var(--space-sm)}
-.section-title::before,.section-title::after{display:none}
-.section-header .lede{color:var(--color-text-muted);max-width:500px;margin:var(--space-sm) auto 0;font-size:0.9rem}
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--space-xl)}
- .product-card{background:var(--color-white);border:1px solid var(--color-border-light);border-radius:var(--radius-md);overflow:hidden;transition:box-shadow 0.2s ease,border-color 0.2s ease;box-shadow:none}
-.product-card:hover{box-shadow:var(--shadow-md);border-color:var(--color-border)}
-.product-card__image{position:relative;overflow:hidden;aspect-ratio:1}
-.product-card__image{background:var(--color-bg-alt)}
-.product-card__image img{width:100%;height:100%;object-fit:cover;transition:transform 0.4s ease}
-.product-card:hover .product-card__image img{transform:scale(1.05)}
-.product-card__badge{position:absolute;top:var(--space-sm);left:var(--space-sm);padding:0.2rem 0.6rem;border-radius:var(--radius-pill);font-size:0.65rem;font-weight:700;text-transform:uppercase}
-.product-card__badge--sale{background:var(--color-error);color:var(--color-white)}
-.product-card__body{padding:var(--space-md)}
-.product-card h3{font-family:Inter,system-ui,sans-serif;font-size:0.95rem;margin:0 0 var(--space-xs);color:var(--color-ink)}
-.product-card__desc{font-size:0.8rem;color:var(--color-text-muted);margin-bottom:var(--space-sm);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.product-card__price-row{display:flex;align-items:center;gap:var(--space-xs);margin-bottom:var(--space-sm)}
-.price{font-weight:700;color:var(--color-maroon);font-size:1.1rem}
-.old-price{text-decoration:line-through;color:var(--color-text-muted);font-size:0.85rem}
-.product-card__actions{display:flex;gap:var(--space-xs);align-items:center}
-.product-card__actions .btn{flex:1}
-.product-card__add-form{display:flex;flex:1;margin:0}
-.product-card__add-form .btn{width:100%}
-.product-card__actions .product-card__form{display:flex;align-items:center;gap:6px;margin-left:auto}
-.product-card__stepper{height:30px;min-height:30px;border:1.5px solid var(--color-gold);background:var(--color-gold-light);border-radius:999px;overflow:hidden}
-.product-card__stepper form{display:flex;height:100%;margin:0}
-.product-card__stepper button{width:30px;height:100%;border:0;background:transparent;color:var(--color-maroon);cursor:pointer;font-size:.9rem;line-height:1;padding:0}
-.product-card__stepper button:disabled{color:var(--color-text-light);cursor:default;opacity:.55}
-.qty-input__value{min-width:22px;color:var(--color-maroon);font-size:.8rem;font-weight:700;text-align:center}
-.feature-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--space-xl)}
-.panel{background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-xl);transition:all 0.25s ease;box-shadow:var(--shadow-sm)}
-.panel:hover{box-shadow:var(--shadow-md)}
-.consultant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-xl)}
- .consultant-card{background:var(--color-white);border:1px solid var(--color-border);border-radius:18px;overflow:hidden;transition:all 0.3s ease;box-shadow:var(--shadow-sm)}
-.consultant-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-xl);border-color:rgba(68, 114, 196,0.65)}
-.consultant-card__media{position:relative;aspect-ratio:3/4;overflow:hidden;background:linear-gradient(180deg,rgba(34, 34, 34,0.02),rgba(34, 34, 34,0.08)),linear-gradient(135deg,rgba(68, 114, 196,0.12),rgba(255,255,255,0.2))}
- .consultant-card__photo{width:100%;height:100%;object-fit:cover;object-position:center top;display:block;transform:scale(1.01)}
-.consultant-card__media::after{content:\'\';position:absolute;inset:auto 0 0 0;height:42%;background:linear-gradient(180deg,rgba(18,12,8,0),rgba(18,12,8,0.28));pointer-events:none}
-.consultant-card__media-badge{position:absolute;left:var(--space-sm);bottom:var(--space-sm);z-index:1;padding:0.3rem 0.65rem;border-radius:var(--radius-pill);background:rgba(34, 34, 34,0.78);color:var(--color-white);font-size:0.64rem;letter-spacing:0.08em;text-transform:uppercase;backdrop-filter:blur(8px)}
-.consultant-card__body--portrait{padding:var(--space-md) var(--space-md) var(--space-sm);display:grid;gap:var(--space-xs)}
-.consultant-card__title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-sm)}
-.consultant-card__status{padding:0.22rem 0.55rem;border-radius:var(--radius-pill);background:rgba(68, 114, 196,0.16);color:var(--color-maroon);font-size:0.64rem;font-weight:700;text-transform:uppercase;white-space:nowrap}
-.consultant-card__speciality{margin:0;color:var(--color-text-muted);font-size:0.84rem}
-.consultant-card__bio{margin:0;color:var(--color-ink);font-size:0.83rem;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.consultant-card__meta{display:flex;flex-wrap:wrap;gap:var(--space-xs);font-size:0.72rem;color:var(--color-text-muted)}
-.consultant-card__meta span{padding:0.25rem 0.5rem;border:1px solid var(--color-border);border-radius:var(--radius-pill);background:var(--color-bg-alt)}
-.consultants-hero{margin-bottom:var(--space-lg)}
-.consultants-hero .lede{max-width:640px;margin:var(--space-sm) auto 0;line-height:1.55;color:var(--color-text-muted)}
-.consultant-card__footer{padding:var(--space-md);border-top:1px solid var(--color-border);display:grid;gap:var(--space-sm)}
-.consultant-card__price{font-size:0.88rem;font-weight:700;color:var(--color-maroon)}
-.consultant-card__actions{display:grid;grid-template-columns:1fr 0.8fr 1fr;gap:var(--space-xs)}
-.consultant-card__actions .btn{width:100%;padding-left:0.75rem;padding-right:0.75rem}
-.btn-call{background:var(--color-success);color:white;border:none;padding:0.5rem 1rem;border-radius:var(--radius-pill);font-weight:600;cursor:pointer;font-size:0.85rem}
-.btn-message{background:#3b82f6;color:white;border:none;padding:0.5rem 1rem;border-radius:var(--radius-pill);font-weight:600;cursor:pointer;font-size:0.85rem}
- .category-grid{grid-template-columns:repeat(auto-fit,minmax(180px,220px));justify-content:center;gap:var(--space-xl);max-width:760px;margin:0 auto}
- .category-card{cursor:pointer;transition:all 0.3s ease;text-align:center;text-decoration:none;color:var(--color-ink)}
- .category-img-wrap{width:clamp(124px,14vw,178px);height:clamp(124px,14vw,178px);border-radius:50%;overflow:hidden;margin:0 auto var(--space-xs);border:4px solid var(--color-white);background:radial-gradient(circle at 50% 50%,rgba(224, 11, 65,0.92),rgba(34, 34, 34,0.96));box-shadow:0 4px 15px rgba(34, 34, 34,0.1)}
- .category-img-wrap img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.temple-scroll{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(720px,82vw);gap:var(--space-xl);max-width:1300px;margin:0 auto;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 0 var(--space-md)}
-.temple-slide{display:grid;grid-template-columns:minmax(280px,0.85fr) minmax(320px,1fr);align-items:stretch;gap:var(--space-xl);scroll-snap-align:center;min-height:320px}
-.temple-slide__media{background:var(--color-bg-alt);border-radius:var(--radius-md);min-height:280px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.temple-slide__media img{width:100%;height:100%;min-height:280px;object-fit:cover;margin:0;border-radius:0}
-.temple-slide__copy{display:flex;flex-direction:column;justify-content:center;text-align:left}
-.temple-slide__address{display:flex;align-items:flex-start;gap:var(--space-xs);margin-top:var(--space-sm);font-size:0.82rem!important}
-.astro-search,.astro-filter{min-height:64px;border-radius:var(--radius-pill);background:var(--color-white);border-color:var(--color-border);box-shadow:var(--shadow-sm)}
-.consultation-pricing-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-xl);padding:var(--space-lg) var(--space-xl);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white);color:var(--color-ink);box-shadow:var(--shadow-sm)}
-.consultation-pricing-card h2{margin:0 0 var(--space-xs);font-size:1.35rem}.consultation-pricing-card p{margin:0;color:var(--color-text-muted);max-width:58ch}.consultation-pricing-card__rates{display:flex;gap:var(--space-lg);align-items:stretch}.consultation-pricing-card__rates div{display:grid;gap:2px;min-width:130px;padding-left:var(--space-lg);border-left:1px solid var(--color-border)}.consultation-pricing-card__rates strong{font-size:1.35rem;color:var(--color-maroon)}.consultation-pricing-card__rates span{font-size:.78rem;color:var(--color-text-muted)}
-.consultant-card,.panel{border-color:var(--color-border-light);border-radius:var(--radius-md);box-shadow:none}
-.consultant-card:hover,.panel:hover{transform:none;border-color:var(--color-border);box-shadow:var(--shadow-md)}
-.support-fab{background:var(--color-maroon);box-shadow:var(--shadow-md)}
-.site-footer{background:#2f3437;color:#ffffff;padding:var(--space-2xl) 0 var(--space-md);font-size:0.85rem;border-top:1px solid rgba(255,255,255,.18)}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:var(--space-xl);margin-bottom:var(--space-xl)}
-.footer-brand{font-family:Inter,system-ui,sans-serif;font-size:1.2rem;color:#ffffff;font-weight:600;display:block;margin-bottom:var(--space-xs)}
-.footer-desc{font-size:0.85rem;line-height:1.6;opacity:0.7}
-.footer-heading{font-size:0.75rem;text-transform:uppercase;letter-spacing:.12em;color:#ffffff;margin:0 0 var(--space-sm)}
-.footer-links{list-style:none;padding:0;margin:0}
-.footer-links li{margin-bottom:var(--space-xs)}
-.footer-links a{color:#eef2f4;text-decoration:none;font-size:0.85rem}
-.footer-links a:hover{color:var(--color-white)}
-.footer-bottom{text-align:center;padding-top:var(--space-md);border-top:1px solid rgba(255,255,255,.22);font-size:0.75rem;color:#eef2f4}
-.flash{padding:var(--space-md);border-radius:var(--radius-md);margin-bottom:var(--space-md);font-size:0.85rem;font-weight:500}
-.flash--success{background:#e8f5ed;color:var(--color-success)}
-.flash--error{background:#fde8e9;color:var(--color-error)}
-.flash--info{background:#eff6ff;color:#3b82f6}
-.reveal{opacity:1;transform:none}
-.reveal.revealed{opacity:1;transform:translateY(0)}
-@media(max-width:860px){
-nav a{font-size:0.95rem;padding:var(--space-sm) var(--space-md);border-radius:var(--radius-md)}
-.home-hero{grid-template-columns:1fr;text-align:center;width:100vw;margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);padding:var(--space-2xl) var(--space-md) var(--space-lg)}
-.hero-actions{justify-content:center}
-.category-grid{grid-template-columns:repeat(2,minmax(0,128px));justify-content:center;gap:var(--space-md)}
-.temple-scroll{grid-auto-columns:minmax(82vw,1fr);gap:var(--space-md);padding-left:var(--space-sm);padding-right:var(--space-sm)}
-.temple-slide{grid-template-columns:1fr;min-height:0;gap:var(--space-md)}
-.temple-slide__media,.temple-slide__media img{min-height:190px}
-.temple-slide__copy{text-align:center}
-.footer-grid{grid-template-columns:1fr 1fr}
-.cart-btn{width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center}
-.brand span{display:none}
-.consultants-page{padding-top:var(--space-md)!important}
-.consultants-hero{margin-bottom:var(--space-lg)}
-.consultants-hero .lede{font-size:0.86rem;line-height:1.45;max-width:88%}
-.consultant-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-sm)}
-.consultant-card__media{aspect-ratio:1/1.1}
-.consultant-card__media-badge{font-size:0.52rem;padding:0.18rem 0.4rem;left:0.45rem;bottom:0.45rem}
-.consultant-card__name{font-size:0.86rem;line-height:1.15}
-.consultant-card__status{display:none}
-.consultant-card__speciality{font-size:0.72rem;line-height:1.25}
-.consultant-card__bio{display:none}
-.consultant-card__meta{gap:0.25rem;font-size:0.62rem}
-.consultant-card__meta span{padding:0.15rem 0.35rem}
-.consultant-card__body--portrait{padding:var(--space-sm)}
-.consultant-card__footer{padding:var(--space-sm);gap:var(--space-xs)}
-.consultant-card__price{font-size:0.68rem;line-height:1.3}
-.consultant-card__actions{grid-template-columns:repeat(3,minmax(0,1fr));gap:0.3rem}
-.consultant-card__actions .btn{min-height:34px;padding:0.35rem 0.2rem;font-size:0.62rem;border-radius:4px;letter-spacing:0}
-}
-@media(max-width:480px){
-.product-grid{grid-template-columns:1fr}
-.consultant-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.footer-grid{grid-template-columns:1fr}
-.hero-actions{flex-direction:column;align-items:center}
-}
-@media(max-width:743px){.section{padding:48px 0}.home-hero{min-height:auto;padding:48px 16px}.astro-search,.astro-filter{min-height:56px}.consultation-pricing-card{grid-template-columns:1fr;gap:var(--space-md);padding:var(--space-md)}.consultation-pricing-card__rates{gap:var(--space-sm)}.consultation-pricing-card__rates div{min-width:0;flex:1;padding-left:var(--space-sm)}}
-';
-echo $critical;
-?>
-</style>
+<meta name="twitter:image" content="<?= e($seo['twitter_image'] ?? $seo['og_image'] ?? \App\Services\SeoService::publicUrl('/assets/images/nebo-clinic-hero.webp')) ?>">
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
 <script src="/assets/navigation-drawer.js?v=<?= filemtime(__DIR__ . '/../../assets/navigation-drawer.js') ?>" defer></script>
+<?php if (basename($viewFile ?? '') === 'home.php'): ?>
 <script src="/assets/editorial-rails.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-rails.js') ?>" defer></script>
+<?php endif; ?>
 <script src="/assets/editorial-stack.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-stack.js') ?>" defer></script>
+<?php if (basename($viewFile ?? '') === 'home.php'): ?>
 <script src="/assets/therapy-media.js?v=<?= filemtime(__DIR__ . '/../../assets/therapy-media.js') ?>" defer></script>
+<?php endif; ?>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
+<script src="/assets/public-shell.js?v=<?= filemtime(app_path('assets/public-shell.js')) ?>" defer></script>
+<?php if (in_array(basename($viewFile ?? ''), ['shop.php', 'product.php'], true)): ?>
+<script src="/assets/product-cart.js?v=<?= filemtime(app_path('assets/product-cart.js')) ?>" defer></script>
+<?php endif; ?>
 <script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-status.js') ?>" defer></script>
+<script src="/assets/agent-conversation.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-conversation.js') ?>" defer></script>
 <script src="/assets/support-chat.js?v=<?= filemtime(__DIR__ . '/../../assets/support-chat.js') ?>" defer></script>
 <style>
 <?php
@@ -243,60 +79,23 @@ $__palette_css .= '}';
 echo $__palette_css;
 ?>
 </style>
-<style>
-.document-page__header{max-width:760px;margin:0 auto var(--space-2xl)}.document-page__content{max-width:760px;margin:0 auto;padding:clamp(24px,4vw,48px);border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-white);box-shadow:var(--shadow-sm)}.document-page__content h2{margin:2rem 0 .65rem;color:var(--color-maroon);font-size:1.35rem}.document-page__content h2:first-child{margin-top:0}.document-page__content p,.document-page__content li{color:var(--color-text-muted);line-height:1.7}.document-page__content ul{padding-left:1.25rem}.document-index{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-md)}.document-index__item{display:grid;gap:var(--space-xs);padding:var(--space-lg);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white);color:inherit;text-decoration:none;box-shadow:var(--shadow-sm);transition:transform var(--transition-base),box-shadow var(--transition-base),border-color var(--transition-base)}.document-index__item:hover{transform:translateY(-3px);border-color:var(--color-gold);box-shadow:var(--shadow-md)}.document-index__item h2{margin:0;color:var(--color-maroon);font-size:1.15rem}.document-index__item p{margin:0;color:var(--color-text-muted);line-height:1.55}.document-index__link{color:var(--color-maroon);font-weight:700;font-size:.82rem;margin-top:var(--space-sm)}
-.blog-page{padding:var(--space-3xl) 0}.blog-page .container{max-width:1180px}.page-title{margin:0 0 var(--space-lg);font-size:clamp(1.8rem,4vw,2.6rem);color:var(--color-ink)}.blog-categories{display:flex;flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-2xl)}.blog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-xl)}.blog-card{overflow:hidden;border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white);box-shadow:var(--shadow-sm)}.blog-card__body{display:grid;gap:var(--space-sm);padding:var(--space-lg)}.blog-card__title{margin:0;font-size:1.15rem;line-height:1.3}.blog-card__title a{color:var(--color-maroon)}.blog-card__excerpt{margin:0;color:var(--color-text-muted);line-height:1.55}.blog-card__date{font-size:.8rem;color:var(--color-text-soft)}.blog-card__category{font-size:.72rem;color:var(--color-maroon);font-weight:700;text-transform:uppercase}
-@media(max-width:900px){.blog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.document-index,.blog-grid{grid-template-columns:1fr}.blog-page{padding:var(--space-2xl) 0}}
-</style>
-<noscript><link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>"></noscript>
-<link rel="stylesheet" href="/assets/css/brand.css?v=<?= filemtime(__DIR__ . '/../../assets/css/brand.css') ?>">
-<?php $__secrets_org = (new \App\Services\SecretService())->all(); $__phone = $__secrets_org['phone'] ?? ''; $__telephone = $__phone !== '' ? '["' . e($__phone) . '"]' : '["+917200182025","+919585182025"]'; ?>
-<script type="application/ld+json">
-{"@context":"https://schema.org","@type":["MedicalClinic"],"name":"<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>","description":"Naturopathy, functional medicine, nutritional therapy, and integrative wellness solutions.","url":"https://<?= e($_SERVER['HTTP_HOST']) ?>","telephone":<?= $__telephone ?>,"email":"nebolifestyleclinic@gmail.com"}
-</script>
+
+<?php
+$__tagSettings = $secrets ?? (new \App\Services\SecretService())->all();
+$__clinicSeo = new \App\Services\SeoService($__tagSettings);
+?>
+<?= \App\Services\SeoService::jsonLdScript($__clinicSeo->organizationSchema()) ?>
 <?php if (!empty($seo['json_ld'])): ?><?= $seo['json_ld'] ?><?php endif; ?>
 <?php
-$__secrets = (new \App\Services\SecretService())->all();
-// Meta Pixel
-$__metaPixelId = $__secrets['meta_pixel_id'] ?? '';
-if ($__metaPixelId !== ''):
-?>
-<!-- Meta Pixel Code -->
-<script>
-!function(f,b,e,v,n,t,s)
-{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];t=b.createElement(e);t.async=!0;
-t.src=v;s=b.getElementsByTagName(e)[0];
-s.parentNode.insertBefore(t,s)}(window, document,'script',
-'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '<?= e($__metaPixelId) ?>');
-fbq('track', 'PageView');
-</script>
-<noscript><img height="1" width="1" style="display:none"
-src="https://www.facebook.com/tr?id=<?= e($__metaPixelId) ?>&ev=PageView&noscript=1"
-/></noscript>
-<!-- End Meta Pixel Code -->
-<?php endif;
-// Google Site Kit
-$__gaId = $__secrets['google_analytics_id'] ?? '';
-$__adsId = $__secrets['google_ads_id'] ?? '';
-$__gsv = $__secrets['google_site_verification'] ?? '';
-$__gtagSrc = $__gaId ?: $__adsId;
-if ($__gsv !== ''): ?>
-<meta name="google-site-verification" content="<?= e($__gsv) ?>" />
-<?php endif;
-if ($__gtagSrc !== ''): ?>
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=<?= e($__gtagSrc) ?>"></script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-<?php if ($__gaId !== ''): ?>gtag('config', '<?= e($__gaId) ?>');<?php endif; ?>
-<?php if ($__adsId !== ''): ?>gtag('config', '<?= e($__adsId) ?>');<?php endif; ?>
-</script>
+$__measurement = \App\Integrations\GoogleSiteKit\GoogleSiteKitClient::measurement($__tagSettings, $_SERVER['REQUEST_URI'] ?? '/', !empty($_SESSION['user']));
+$__verification = \App\Integrations\GoogleSiteKit\GoogleSiteKitClient::verificationToken((string)($__tagSettings['google_site_verification'] ?? ''));
+if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_match('/^[a-zA-Z0-9_-]{1,255}$/D', $__verification)): ?>
+<meta name="google-site-verification" content="<?= e($__verification) ?>">
+<?php endif; ?>
+<?php if ($__measurement): ?>
+<script defer id="clinic-measurement" src="/assets/measurement-consent.js?v=<?= filemtime(app_path('assets/measurement-consent.js')) ?>"
+    data-ga="<?= e($__measurement['ga']) ?>" data-ads="<?= e($__measurement['ads']) ?>"
+    data-pixel="<?= e($__measurement['pixel']) ?>" data-page="<?= e($__measurement['page']) ?>"></script>
 <?php endif; ?>
 </head>
 <body>
@@ -389,9 +188,11 @@ if ($__flash):
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>
     <span class="sr-only">Support</span>
 </button>
-<section class="support-panel" id="support-panel" aria-labelledby="support-title" data-support-key="nebo-support-chat-<?= !empty($_SESSION['user']['email']) ? hash('sha256', strtolower((string)$_SESSION['user']['email'])) : 'guest' ?>" hidden>
+<?php $supportChat = new \App\Services\AgentConversation('support'); ?>
+<section class="support-panel" id="support-panel" data-conversation="<?= e($supportChat->id()) ?>" data-has-turns="<?= $supportChat->hasTurns() ? '1' : '0' ?>" aria-labelledby="support-title" data-support-key="nebo-support-chat-<?= !empty($_SESSION['user']['email']) ? hash('sha256', strtolower((string)$_SESSION['user']['email'])) : 'guest' ?>" hidden>
     <div class="support-panel__head">
         <strong id="support-title">Nebo Support</strong>
+        <button type="button" class="btn btn-outline btn-sm" id="support-clear" hidden>New chat</button>
         <button type="button" class="support-panel__close" aria-label="Close support">×</button>
     </div>
     <div class="support-panel__body" id="support-log" role="log" aria-label="Conversation" tabindex="0">
@@ -399,13 +200,16 @@ if ($__flash):
     </div>
     <form class="support-panel__form" id="support-form">
         <input type="hidden" name="_csrf" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
-        <div class="support-starters" role="group" aria-label="Suggested questions">
-            <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::PROGRAMS_PROMPT) ?>">Explore programs</button>
-            <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::CONSULTATION_PROMPT) ?>">Request a consultation</button>
-            <?php if (!empty($_SESSION['user']['email'])): ?>
-                <button type="button" class="btn btn-outline btn-sm" data-support-prompt="My support tickets">My tickets</button>
-            <?php endif; ?>
-        </div>
+        <details id="support-prompts" class="support-prompts" open>
+            <summary>Suggested questions</summary>
+            <div class="support-starters" role="group" aria-label="Suggested questions">
+                <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::PROGRAMS_PROMPT) ?>">Explore programs</button>
+                <button type="button" class="btn btn-outline btn-sm" data-support-prompt="<?= e(\App\Services\SupportBotService::CONSULTATION_PROMPT) ?>">Request a consultation</button>
+                <?php if (!empty($_SESSION['user']['email'])): ?>
+                    <button type="button" class="btn btn-outline btn-sm" data-support-prompt="My support tickets">My tickets</button>
+                <?php endif; ?>
+            </div>
+        </details>
         <label for="support-message">Your message</label>
         <textarea id="support-message" name="message" rows="2" maxlength="2000" required></textarea>
         <div class="support-panel__actions">
@@ -484,76 +288,6 @@ if ($__flash):
     </div>
 </footer>
 <?php endif; ?>
-<script>
-if ('serviceWorker' in navigator) {
-    var swPath = '/sw.js';
-    var swScope = '/';
-    navigator.serviceWorker.register(swPath, { scope: swScope }).catch(function(){});
-}
-var h=document.getElementById('site-header');
-var s=document.createElement('div');s.style.cssText='height:1px;position:absolute;top:0';
-document.body.prepend(s);
-var supportsIntersectionObserver='IntersectionObserver' in window;
-if(supportsIntersectionObserver)new IntersectionObserver(function(e){h.classList.toggle('scrolled',!e[0].isIntersecting);},{threshold:0}).observe(s);
-document.documentElement.classList.add('motion-ready');
-var io=supportsIntersectionObserver?new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('revealed');io.unobserve(e.target);}});},{threshold:0.1,rootMargin:'0px 0px -50px 0px'}):null;
-document.querySelectorAll('.reveal,.panel,.product-card,.consultant-card').forEach(function(el){if(io)io.observe(el);else el.classList.add('revealed');});
-document.querySelectorAll('[data-team-showcase]').forEach(function(showcase){
-    var rail=showcase.querySelector('.team-rail'),cards=Array.from(rail.children),detail=showcase.querySelector('.team-detail');
-    var previous=document.querySelector('[data-rail-prev="team-rail"]'),next=document.querySelector('[data-rail-next="team-rail"]'),selected=0;
-    if(!cards.length)return;
-    var previousScrollEnd=0;
-    function updateRailOnResize(){
-        var scrollEnd=rail.scrollWidth-rail.clientWidth;
-        // Follow the featured portrait only if the visitor was already at the rail's end.
-        if(Math.abs(rail.scrollLeft-previousScrollEnd)<=1) rail.scrollLeft=scrollEnd;
-        previousScrollEnd=scrollEnd;
-    }
-    function select(index){
-        selected=(index+cards.length)%cards.length;
-        cards.forEach(function(card,i){
-            var active=i===selected;
-            card.classList.toggle('is-rail-current',active);
-            card.style.order=String(active?cards.length:(i-selected-1+cards.length)%cards.length);
-            card.querySelector('button').setAttribute('aria-pressed',String(active));
-            card.querySelector('button').tabIndex=active?0:-1;
-        });
-        detail.replaceChildren(cards[selected].querySelector('.team-slide__body').cloneNode(true));
-        previousScrollEnd=rail.scrollWidth-rail.clientWidth;
-        rail.scrollLeft=previousScrollEnd;
-        if(previous)previous.disabled=cards.length<2;
-        if(next)next.disabled=cards.length<2;
-    }
-    cards.forEach(function(card,i){card.querySelector('button').addEventListener('click',function(){select(i);});});
-    if(previous)previous.addEventListener('click',function(){select(selected-1);});
-    if(next)next.addEventListener('click',function(){select(selected+1);});
-    rail.addEventListener('keydown',function(event){if(event.key==='ArrowRight'||event.key==='ArrowLeft'){event.preventDefault();select(selected+(event.key==='ArrowRight'?1:-1));cards[selected].querySelector('button').focus();}});
-    showcase.classList.add('team-enhanced');
-    select(0);
-    if('ResizeObserver' in window) new ResizeObserver(updateRailOnResize).observe(rail);
-    else window.addEventListener('resize',updateRailOnResize);
-});
-document.addEventListener('submit',async function(event){
-    var form=event.target.closest('[data-cart-add],[data-cart-change]');if(!form||!window.fetch)return;
-    event.preventDefault();var control=form.closest('[data-cart-control]');
-    if(control.dataset.busy==='true')return;
-    control.dataset.busy='true';control.querySelectorAll('button').forEach(function(b){b.disabled=true;});
-    try{
-        var response=await fetch(form.getAttribute('action'),{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
-        var data=await response.json();if(!response.ok)throw new Error(data.error||'Unable to update cart.');
-        document.querySelectorAll('[data-cart-control]').forEach(function(card){
-            if(card.dataset.slug!==data.slug)return;
-            card.querySelector('[data-cart-add]').hidden=data.quantity>0;
-            card.querySelector('[data-cart-stepper]').hidden=data.quantity<=0;
-            card.querySelector('[data-cart-quantity]').textContent=data.quantity;
-        });
-        var badge=document.querySelector('.cart-count'),tray=document.getElementById('mobile-cart-tray'),count=document.getElementById('mobile-cart-count'),label=document.getElementById('mobile-cart-label');
-        if(badge)badge.textContent=data.cart_count;if(tray)tray.hidden=data.cart_count<=0;
-        if(count)count.textContent=data.cart_count;if(label)label.textContent=data.cart_count===1?'item':'items';
-    }catch(error){showToast(error.message||'Unable to update cart.','error');}
-    finally{delete control.dataset.busy;control.querySelectorAll('button').forEach(function(b){b.disabled=false;});}
-});
-</script>
 <div id="toast-container" role="alert" aria-live="polite"></div>
 </body>
 </html>

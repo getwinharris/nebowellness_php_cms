@@ -11,7 +11,7 @@ description: Use when editing public, account, shop, consultant, temple, cart, c
 - Use `bapXphp dev:user` for repeatable authenticated browser checks. Keep `BAPX_TEST_USER_PASSWORD` only in ignored operator configuration.
 - Render landmarks, links, initial values, and native forms in PHP. Use JavaScript for fragment navigation, client-side filtering, asynchronous cart updates, and interactive controls when they need browser state. Reuse existing scripts or add a focused deferred script under `assets/`. Keep essential content and ordinary navigation and form submissions usable without enhancement.
 - Templates consume controller-provided data and existing services; they never read databases, local YAML catalogues, or generated indexes directly.
-- Use `assets/css/band.css` for shared and component styles. When moving affected rules from `brand.css` or inline CSS, preserve the intended cascade and remove the superseded declarations. Use semantic classes and data attributes as JavaScript hooks.
+- Use `assets/css/band.css` for shared and component styles. When moving affected rules from inline CSS, preserve the intended cascade and remove the superseded declarations. Use semantic classes and data attributes as JavaScript hooks.
 - Preserve the product's real routes and content. Apply the design system surgically instead of copying reference-product labels or scaffolding parallel components.
 - Essential content must be legible before JavaScript enhancement. Never make reveal-animation opacity a loading dependency.
 - Audit card families together. Product, consultant, account, authentication, and admin cards have different jobs but share the geometry and focus rules in `Design.md`.

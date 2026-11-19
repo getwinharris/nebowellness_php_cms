@@ -61,7 +61,7 @@ final class DatabaseService {
         $body = @curl_exec($ch);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $result = json_decode((string)$body, true) ?: [];
-        if ($code === 409) throw new \DomainException('This record changed. Reload the latest version.');
+        if ($code === 409) throw new \DomainException($action === 'therapy_update' ? (string)($result['error'] ?? 'The request changed.') : 'This record changed. Reload the latest version.');
         if ($body === false || $code < 200 || $code >= 300 || empty($result['success'])) {
             throw new \RuntimeException((string)($result['error'] ?? 'Remote mutation failed.'));
         }
@@ -145,6 +145,16 @@ final class DatabaseService {
         $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         return array_map(fn($r) => array_merge(json_decode($r['_data'] ?? '{}', true) ?: [], ['id' => $r['id']]), $rows);
     }
+    /** MySQL indexes use clinic-local DATETIME; the JSON retains the original timestamp and offset. */
+    private function sqlTimestamp(mixed $value): string {
+        if ($value === null || $value === '') return date('Y-m-d H:i:s');
+        if (is_int($value) || (is_string($value) && ctype_digit($value))) {
+            return date('Y-m-d H:i:s', (int)$value);
+        }
+        $date = new \DateTimeImmutable((string)$value);
+        return $date->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format('Y-m-d H:i:s');
+    }
+
     public function write(string $table, array $records): void {
         if ($this->isTestMode()) return;
         if ($this->isRemote()) { $this->remoteMutation('replace', $table, ['records' => $records]); return; }
@@ -160,8 +170,8 @@ final class DatabaseService {
                 $id = $rec['id'] ?? bin2hex(random_bytes(8));
                 $owner = $rec['customer_email'] ?? $rec['email'] ?? $rec['user_id'] ?? null;
                 $status = $rec['status'] ?? null;
-                $created = $rec['created_at'] ?? date('c');
-                $updated = $rec['updated_at'] ?? $created;
+                $created = $this->sqlTimestamp($rec['created_at'] ?? null);
+                $updated = $this->sqlTimestamp($rec['updated_at'] ?? $created);
                 $stmt->execute([$id, json_encode($rec), $owner, $status, $created, $updated]);
             }
             $this->db()->commit();
@@ -191,19 +201,82 @@ final class DatabaseService {
             $merged = array_merge($existing, $record);
             $owner = $merged['customer_email'] ?? $merged['email'] ?? $merged['user_id'] ?? null;
             $status = $merged['status'] ?? null;
-            $updated = $merged['updated_at'] ?? date('c');
+            $updated = $this->sqlTimestamp($merged['updated_at'] ?? null);
             $stmt = $this->db()->prepare("UPDATE {$clean} SET _data = ?, _owner = ?, _status = ?, _updated_at = ? WHERE id = ?");
             $stmt->execute([json_encode($merged), $owner, $status, $updated, $id]);
         } else {
             $owner = $record['customer_email'] ?? $record['email'] ?? $record['user_id'] ?? null;
             $status = $record['status'] ?? null;
-            $created = $record['created_at'] ?? date('c');
-            $updated = $record['updated_at'] ?? $created;
+            $created = $this->sqlTimestamp($record['created_at'] ?? null);
+            $updated = $this->sqlTimestamp($record['updated_at'] ?? $created);
             $stmt = $this->db()->prepare("INSERT INTO {$clean} (id, _data, _owner, _status, _created_at, _updated_at) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$id, json_encode($record), $owner, $status, $created, $updated]);
         }
         return $record;
     }
+    /** Create the account and first delivery address together, including through the remote bridge. */
+    public function registerCustomer(array $user, array $address): void {
+        $email = trim((string)($user['email'] ?? ''));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || ($user['role'] ?? '') !== 'customer'
+            || empty($user['id']) || empty($user['password_hash']) || empty($user['accepted_terms_at'])) {
+            throw new \InvalidArgumentException('Incomplete customer registration.');
+        }
+        if ($this->isTestMode()) return;
+        if ($this->isRemote()) {
+            $this->remoteMutation('register_customer', 'users', ['record'=>$user, 'address'=>$address]);
+            return;
+        }
+        $this->withCustomerIdentityLock(function () use ($user, $address, $email): void {
+            $pdo = $this->db();
+            $pdo->beginTransaction();
+            try {
+                foreach ($this->read('users') as $existing) {
+                    if ($existing['id'] === $user['id'] || strcasecmp((string)($existing['email'] ?? ''), $email) === 0
+                        || (!empty($user['google_subject']) && $user['google_subject'] === ($existing['google_subject'] ?? null))) {
+                        throw new \DomainException('Customer identity already registered.');
+                    }
+                }
+                $this->upsert('users', $user);
+                (new AddressService($this))->save($email, $address);
+                $pdo->commit();
+                self::$remoteQueryCache = [];
+            } catch (\Throwable $error) {
+                if ($pdo->inTransaction()) $pdo->rollBack();
+                throw $error;
+            }
+        });
+    }
+
+    /** Require the exact customer revision whose password was checked, and a still-available identity. */
+    public function bindCustomerGoogle(array $identity, string $id, string $revision): void {
+        if ($this->isRemote()) {
+            $this->remoteMutation('bind_customer_google', 'users', ['identity'=>$identity, 'id'=>$id, 'revision'=>$revision]);
+            return;
+        }
+        $this->withCustomerIdentityLock(function () use ($identity, $id, $revision): void {
+            $ownerEmails = [...array_column($this->read('settings'), 'admin_email'), getenv('ADMIN_EMAIL') ?: ''];
+            if (!GoogleCustomerAuthService::canBind($identity, $this->read('users'), $ownerEmails, $id)) {
+                throw new \DomainException('Google identity cannot be linked to this customer.');
+            }
+            $this->upsertIfRevision('users', ['id'=>$id, 'google_subject'=>$identity['sub']], $revision);
+        });
+    }
+
+    /** Serialize alias creation across registration and linking regardless of MySQL isolation level. */
+    private function withCustomerIdentityLock(callable $write): void {
+        $pdo = $this->db();
+        $lock = hash('sha256', $this->cfg['dbname'] . ':customer-identity');
+        $acquire = $pdo->prepare('SELECT GET_LOCK(?, 5)');
+        $acquire->execute([$lock]);
+        if ((int)$acquire->fetchColumn() !== 1) throw new \RuntimeException('Customer registration is busy.');
+        try {
+            $write();
+        } finally {
+            $release = $pdo->prepare('SELECT RELEASE_LOCK(?)');
+            $release->execute([$lock]);
+        }
+    }
+
     /** Lock the row and compare the same revision shown by the editor before saving. */
     public function upsertIfRevision(string $table, array $record, string $expectedRevision): array {
         if (!preg_match('/^[a-z_]+$/', $table) || empty($record['id'])) throw new \InvalidArgumentException('Record id is required.');
@@ -279,6 +352,45 @@ final class DatabaseService {
         $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+    /** Serialize clinic scheduling decisions. Only this short database transaction holds the lock. */
+    public function updateTherapySession(string $id, string $action, array $values): array {
+        if ($this->isTestMode()) throw new \RuntimeException('Scheduling writes require an isolated database.');
+        if ($this->isRemote()) {
+            return $this->remoteMutation('therapy_update', 'therapy_sessions', ['id'=>$id, 'actionName'=>$action, 'values'=>$values])['record'];
+        }
+        $pdo = $this->db();
+        $lock = $pdo->query("SELECT SHA2(CONCAT(DATABASE(), ':therapy-schedule'), 256)")->fetchColumn();
+        $acquire = $pdo->prepare('SELECT GET_LOCK(?, 5)');
+        $acquire->execute([$lock]);
+        if ((int)$acquire->fetchColumn() !== 1) throw new \RuntimeException('The scheduling calendar is busy.');
+        try {
+            $pdo->beginTransaction();
+            $current = $this->find('therapy_sessions', $id);
+            if ($current === null) {
+                if ($action !== 'triage') throw new \DomainException('Therapy request not found.');
+                $current = TherapySessionService::fromIntake($this->find('contact_submissions', $id) ?? []);
+            }
+            $available = static function(array $session) use ($pdo): bool {
+                $check = $pdo->prepare("SELECT id FROM therapy_sessions WHERE _status = 'confirmed' AND id <> ?
+                    AND (COALESCE(JSON_UNQUOTE(JSON_EXTRACT(_data,'$.assignee_id')), 'clinic') = ? OR _owner = NULLIF(?, ''))
+                    AND CAST(JSON_UNQUOTE(JSON_EXTRACT(_data,'$.starts_at')) AS UNSIGNED) < ?
+                    AND CAST(JSON_UNQUOTE(JSON_EXTRACT(_data,'$.ends_at')) AS UNSIGNED) > ? LIMIT 1");
+                $check->execute([$session['id'], $session['assignee_id'] ?? 'clinic', $session['user_id'], $session['ends_at'], $session['starts_at']]);
+                return !$check->fetchColumn();
+            };
+            $result = TherapySessionService::update($current, $action, $values, $available, time());
+            if ($result !== $current) $this->upsert('therapy_sessions', $result);
+            $pdo->commit();
+            return $result;
+        } catch (\Throwable $error) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            throw $error;
+        } finally {
+            $release = $pdo->prepare('SELECT RELEASE_LOCK(?)');
+            $release->execute([$lock]);
+        }
+    }
+
     public function connection(): \PDO {
         if ($this->isTestMode()) throw new \RuntimeException('Database connection is disabled in test mode.');
         return $this->db();

@@ -1,7 +1,7 @@
 <?php
-    $schemaBase = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'nebowellness.com');
-    $schemaUrl = $schemaBase . '/blog/' . ($slug ?? '');
-    $schemaImage = $meta['og_image'] ?? $meta['image'] ?? ($seo['og_image'] ?? '');
+    $schemaBase = rtrim(\App\Services\SeoService::publicUrl('/'), '/');
+    $schemaUrl = $schemaBase . '/blog/' . rawurlencode($slug ?? '');
+    $schemaImage = $seo['og_image'] ?? '';
     $schema = [
         '@context' => 'https://schema.org',
         '@graph' => [
@@ -17,7 +17,7 @@
                 '@type' => 'Article',
                 'headline' => $meta['title'] ?? '',
                 'description' => $meta['seo_description'] ?? $meta['excerpt'] ?? '',
-                'image' => $schemaImage ?: 'undefined',
+                'image' => $schemaImage,
                 'datePublished' => $meta['published_at'] ?? '',
                 'dateModified' => $meta['updated_at'] ?? $meta['published_at'] ?? '',
                 'author' => [
@@ -32,10 +32,9 @@
             ],
         ],
     ];
-    // Filter out undefined values
-    $schema['@graph'][1] = array_filter($schema['@graph'][1], fn($v) => $v !== 'undefined');
+    $schema['@graph'][1] = array_filter($schema['@graph'][1], static fn($value) => $value !== '');
 ?>
-<script type="application/ld+json"><?= json_encode($schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?></script>
+<?= \App\Services\SeoService::jsonLdScript($schema) ?>
 <section class="blog-post-page blog-article">
   <div class="container">
     <nav class="breadcrumbs blog-article__breadcrumbs" aria-label="Breadcrumb">
@@ -57,7 +56,7 @@
         </div>
       </header>
 
-      <?php $articleImage = $meta['image'] ?? $meta['og_image'] ?? '/assets/images/nebo-programs.png'; ?>
+      <?php $articleImage = $meta['image'] ?? $meta['og_image'] ?? '/assets/images/nebo-programs.webp'; ?>
       <figure class="blog-post__featured"><img src="<?= e($articleImage) ?>" alt="<?= e($meta['image_alt'] ?? '') ?>" loading="eager"></figure>
 
       <div class="blog-post__content">

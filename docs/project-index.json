@@ -3,11 +3,11 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 116,
-        "controllers": 12,
-        "services": 51,
-        "views": 45,
-        "collections": 23
+        "routes": 125,
+        "controllers": 13,
+        "services": 54,
+        "views": 50,
+        "collections": 24
     },
     "routes": [
         {
@@ -18,7 +18,9 @@
             "view": "public/home",
             "services": [
                 "CampaignPageService",
-                "ConsultantService"
+                "ConsultantService",
+                "PublicDiscoveryService",
+                "SettingsService"
             ]
         },
         {
@@ -118,6 +120,41 @@
         },
         {
             "method": "GET",
+            "path": "/account/therapy",
+            "name": "account.therapy",
+            "controller": "TherapyController@account",
+            "view": "account/therapy",
+            "services": [
+                "TherapySessionService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/account/therapy/{id}/pay",
+            "name": "account.therapy.pay",
+            "controller": "TherapyController@checkout",
+            "view": "account/therapy-checkout",
+            "services": [
+                "TherapySessionService",
+                "SecretService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/account/therapy/{id}/verify",
+            "name": "account.therapy.verify",
+            "controller": "TherapyController@verify",
+            "view": "account/therapy",
+            "services": [
+                "TherapySessionService",
+                "PaymentService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
             "path": "/admin",
             "name": "admin.dashboard",
             "controller": "AdminController@dashboard",
@@ -135,6 +172,7 @@
             "controller": "AdminController@agent",
             "view": "admin/agent",
             "services": [
+                "AgentConversation",
                 "SecretService",
                 "AgentAttachmentService",
                 "AuditLogService",
@@ -149,6 +187,7 @@
             "controller": "AdminController@agentAsk",
             "view": "admin/agent",
             "services": [
+                "AgentConversation",
                 "SecretService",
                 "AgentContextService",
                 "AuditLogService",
@@ -566,6 +605,18 @@
         },
         {
             "method": "POST",
+            "path": "/admin/media/archive",
+            "name": "admin.media.archive",
+            "controller": "AdminController@archiveMedia",
+            "view": "admin/media",
+            "services": [
+                "MediaService",
+                "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
             "path": "/admin/media/upload",
             "name": "admin.media.upload",
             "controller": "AdminController@uploadMedia",
@@ -650,6 +701,17 @@
         },
         {
             "method": "GET",
+            "path": "/admin/search-performance",
+            "name": "admin.search-performance",
+            "controller": "AdminController@searchPerformance",
+            "view": "admin/search-performance",
+            "services": [
+                "SecretService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
             "path": "/admin/settings",
             "name": "admin.settings",
             "controller": "AdminController@settings",
@@ -728,6 +790,31 @@
             "services": [
                 "OrderService",
                 "TaxService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/admin/therapy",
+            "name": "admin.therapy",
+            "controller": "TherapyController@inbox",
+            "view": "admin/therapy",
+            "services": [
+                "TherapySessionService",
+                "ConsultantService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/therapy/{id}",
+            "name": "admin.therapy.triage",
+            "controller": "TherapyController@triage",
+            "view": "admin/therapy",
+            "services": [
+                "TherapySessionService",
+                "ConsultantService",
+                "AuditLogService",
                 "AuthService"
             ]
         },
@@ -1091,6 +1178,16 @@
         },
         {
             "method": "GET",
+            "path": "/openapi.json",
+            "name": "discovery.openapi",
+            "controller": "PublicController@discoveryContract",
+            "view": "public/openapi",
+            "services": [
+                "SeoService"
+            ]
+        },
+        {
+            "method": "GET",
             "path": "/payment/stripe/return",
             "name": "payment.stripe.return",
             "controller": "CommerceController@completeStripe",
@@ -1101,6 +1198,17 @@
                 "TaxService",
                 "SettingsService",
                 "MailQueueService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/payment/therapy/webhook/{mode}",
+            "name": "therapy.webhook",
+            "controller": "TherapyController@webhook",
+            "view": "account/therapy",
+            "services": [
+                "TherapySessionService",
+                "SecretService"
             ]
         },
         {
@@ -1215,7 +1323,9 @@
             "services": [
                 "BlogService",
                 "ProductService",
-                "CampaignPageService"
+                "CampaignPageService",
+                "SettingsService",
+                "SeoService"
             ]
         },
         {
@@ -1251,6 +1361,7 @@
             "controller": "SupportController@ask",
             "view": "public/support",
             "services": [
+                "AgentConversation",
                 "SupportBotService",
                 "AgentContextService",
                 "SupportTicketService",
@@ -1312,12 +1423,14 @@
         "PublicController",
         "RemoteDbController",
         "ReviewController",
-        "SupportController"
+        "SupportController",
+        "TherapyController"
     ],
     "services": [
         "AddressService",
         "AgentAttachmentService",
         "AgentContextService",
+        "AgentConversation",
         "AgentDraftService",
         "AgentRunTrace",
         "AgentToolRegistry",
@@ -1353,6 +1466,7 @@
         "PaymentService",
         "ProductService",
         "ProjectMapService",
+        "PublicDiscoveryService",
         "RateLimiter",
         "ResourceService",
         "ReviewService",
@@ -1365,7 +1479,8 @@
         "StoragePermissionService",
         "SupportBotService",
         "SupportTicketService",
-        "TaxService"
+        "TaxService",
+        "TherapySessionService"
     ],
     "views": [
         "account/_nav",
@@ -1373,6 +1488,8 @@
         "account/invoice",
         "account/order",
         "account/orders",
+        "account/therapy",
+        "account/therapy-checkout",
         "admin/_campaign-fields",
         "admin/agent",
         "admin/appearance",
@@ -1387,8 +1504,10 @@
         "admin/media",
         "admin/product-form",
         "admin/resource",
+        "admin/search-performance",
         "admin/settings",
         "admin/tax-report",
+        "admin/therapy",
         "layouts/admin",
         "layouts/app",
         "partials/therapy-products",
@@ -1405,6 +1524,7 @@
         "public/forgot-password",
         "public/home",
         "public/login",
+        "public/openapi",
         "public/privacy",
         "public/product",
         "public/register",
@@ -1436,6 +1556,7 @@
         "secrets",
         "settings",
         "support_tickets",
+        "therapy_sessions",
         "users",
         "wallet_transactions"
     ],

@@ -1,4 +1,4 @@
-<section class="section">
+<section class="section shop-page" aria-labelledby="shop-title">
     <?php
         $cartQuantities = [];
         foreach ($_SESSION['cart'] ?? [] as $cartItem) {
@@ -6,24 +6,27 @@
         }
         $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16));
     ?>
-    <div class="shop-layout">
+    <header class="shop-page__heading">
+        <h1 id="shop-title">Wellness shop</h1>
+        <span class="shop-toolbar__count"><?= count($items) ?> product<?= count($items) !== 1 ? 's' : '' ?></span>
+    </header>
+    <div class="shop-layout<?= empty($categories) && $category === '' ? ' shop-layout--unfiltered' : '' ?>">
+        <?php if ($categories || $category !== ''): ?>
         <aside class="shop-sidebar">
             <div class="shop-sidebar-card">
                 <div class="shop-filters">
-                    <h3>Categories</h3>
+                    <h2>Categories</h2>
                     <div class="filter-group">
-                        <a href="/shop" class="filter-chip <?= ($category ?? '') === '' ? 'active' : '' ?>">All</a>
+                        <a href="/shop" <?= $category === '' ? 'aria-current="page"' : '' ?> class="filter-chip <?= ($category ?? '') === '' ? 'active' : '' ?>">All</a>
                         <?php foreach($categories as $cat): ?>
-                            <a href="/shop?category=<?= e($cat['slug'] ?? '') ?>" class="filter-chip <?= ($category === ($cat['slug'] ?? '')) ? 'active' : '' ?>"><?= e($cat['name'] ?? 'Category') ?></a>
+                            <a href="/shop?category=<?= e(rawurlencode($cat['slug'] ?? '')) ?>" <?= $category === ($cat['slug'] ?? '') ? 'aria-current="page"' : '' ?> class="filter-chip <?= ($category === ($cat['slug'] ?? '')) ? 'active' : '' ?>"><?= e($cat['name'] ?? 'Category') ?></a>
                         <?php endforeach; ?>
                     </div>
                 </div>
             </div>
         </aside>
+        <?php endif; ?>
         <div>
-            <div class="shop-toolbar">
-                <span class="shop-toolbar__count"><?= count($items) ?> product<?= count($items) !== 1 ? 's' : '' ?></span>
-            </div>
             <?php if(empty($items)): ?>
                 <div class="panel" style="text-align:center; padding:var(--space-2xl);">
                     <span style="display:block; margin-bottom:var(--space-md);"><svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/><path d="M2 12h20"/></svg></span>

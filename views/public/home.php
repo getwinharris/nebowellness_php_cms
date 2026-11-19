@@ -19,7 +19,7 @@
 <!-- About Nebo Foundation -->
 <section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card data-nebo-chapter="foundation">
     <div class="container">
-        <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.png" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
+        <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.webp" width="1672" height="941" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
         <div class="section-header">
             <span class="eyebrow serif-accent">About Us</span>
             <h2 class="section-title">The Nebo Foundation</h2>
@@ -159,18 +159,21 @@
                 <h2 class="section-title">Meet Our Team</h2>
                 <p class="lede">A multidisciplinary team of naturopathy and wellness practitioners.</p>
             </div>
-            <div class="rail-controls" aria-label="Team slides">
-                <button type="button" class="rail-control" data-rail-prev="team-rail" aria-label="Previous team members">←</button>
-                <button type="button" class="rail-control" data-rail-next="team-rail" aria-label="Next team members">→</button>
+            <div class="rail-controls" aria-label="Team slides" data-team-controls hidden>
+                <button type="button" class="rail-control" data-rail-prev="team-rail" aria-controls="team-detail" aria-label="Previous team members">←</button>
+                <button type="button" class="rail-control" data-rail-next="team-rail" aria-controls="team-detail" aria-label="Next team members">→</button>
             </div>
         </div>
         <div class="team-showcase" data-team-showcase>
         <div class="team-rail" id="team-rail" aria-label="Nebo practitioner profiles">
-            <?php foreach ($consultants as $teamIndex => $consultant): ?>
+            <?php foreach ($consultants as $teamIndex => $consultant):
+                $portrait = trim((string)($consultant['photo_url'] ?? '')) ?: '/assets/images/consultants/default-female.webp';
+                $placeholder = in_array($portrait, ['/assets/images/consultants/default-female.webp', '/assets/images/consultants/default-male.webp'], true);
+            ?>
             <article class="team-slide">
-                <button type="button" class="team-slide__media" aria-label="View <?= e($consultant['name'] ?? 'practitioner') ?>" aria-pressed="<?= $teamIndex === 0 ? 'true' : 'false' ?>">
-                    <img src="<?= e($consultant['photo_url'] ?? '/assets/images/consultants/default-female.webp') ?>" alt="Temporary portrait placeholder for <?= e($consultant['name'] ?? 'Nebo practitioner') ?>" loading="lazy">
-                    <span class="team-placeholder">Portrait placeholder</span>
+                <button type="button" class="team-slide__media" disabled aria-controls="team-detail" aria-label="View <?= e($consultant['name'] ?? 'practitioner') ?>" aria-pressed="<?= $teamIndex === 0 ? 'true' : 'false' ?>">
+                    <img src="<?= e($portrait) ?>" alt="" loading="lazy">
+                    <?php if ($placeholder): ?><span class="team-placeholder">Portrait placeholder</span><?php endif; ?>
                     <span class="team-preview-name"><?= e($consultant['name'] ?? '') ?></span>
                 </button>
                 <div class="team-slide__body">
@@ -182,10 +185,11 @@
             </article>
             <?php endforeach; ?>
         </div>
-        <div class="team-detail" aria-live="polite" aria-atomic="true"></div>
+        <div class="team-detail" id="team-detail" aria-live="polite" aria-atomic="true"></div>
         </div>
     </div>
 </section>
+<script src="/assets/team-showcase.js?v=<?= filemtime(app_path('assets/team-showcase.js')) ?>" defer></script>
 
 <!-- Client-provided testimonials -->
 <section class="editorial-stack-card section" style="--stack-order:8" data-stack-card data-nebo-chapter="stories">
