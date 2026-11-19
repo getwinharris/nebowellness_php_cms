@@ -8,7 +8,39 @@
     const close = panel.querySelector('.support-panel__close');
     const message = form.elements.message;
     const controls = form.querySelectorAll('textarea, button');
-    let pendingTicket = null;
+    const transcriptKey = panel.dataset.supportKey + ':turns-v2';
+    const ticketKey = panel.dataset.supportKey + ':pending-ticket';
+    let pendingTicket = readStorage(ticketKey);
+    const transcript = [];
+
+    function readStorage(key) {
+        try {
+            return JSON.parse(sessionStorage.getItem(key));
+        } catch {
+            return null;
+        }
+    }
+
+    function writeStorage(key, value) {
+        try {
+            if (value === null) sessionStorage.removeItem(key);
+            else sessionStorage.setItem(key, JSON.stringify(value));
+        } catch {
+            // Storage can be disabled. The active page retains its in-memory state.
+        }
+    }
+
+    async function prepareTicket(question) {
+        const bytes = new TextEncoder().encode(question);
+        const digest = await crypto.subtle.digest('SHA-256', bytes);
+        const fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+        if (pendingTicket?.fingerprint !== fingerprint || !/^[a-f0-9]{32}$/.test(pendingTicket.id)) {
+            const id = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
+            pendingTicket = { fingerprint, id };
+            writeStorage(ticketKey, pendingTicket);
+        }
+        return pendingTicket.id;
+    }
 
     function isActionPath(path) {
         return typeof path === 'string' && /^\/(?!\/)[a-z0-9/#-]*$/i.test(path);
@@ -41,21 +73,26 @@
         (open ? close : launcher).focus();
     }
 
-    function saveLog() {
-        try {
-            const copy = log.cloneNode(true);
-            copy.querySelectorAll('[data-support-private]').forEach(node => node.remove());
-            sessionStorage.setItem(panel.dataset.supportKey, copy.innerHTML);
-        } catch {
-            // Chat remains usable when browser storage is unavailable.
-        }
+    function validActions(actions) {
+        return Array.isArray(actions)
+            ? actions.filter(action => action?.type === 'navigate'
+                && typeof action.label === 'string' && isActionPath(action.path))
+            : [];
     }
 
-    try {
-        const saved = sessionStorage.getItem(panel.dataset.supportKey);
-        if (saved) log.innerHTML = saved;
-    } catch {
-        // An unavailable transcript must not prevent a new question.
+    writeStorage(panel.dataset.supportKey, null);
+    const saved = readStorage(transcriptKey);
+    if (Array.isArray(saved)) {
+        for (const entry of saved.slice(-20)) {
+            if (typeof entry?.question !== 'string' || typeof entry.reply !== 'string') continue;
+            const actions = validActions(entry.actions);
+            const turn = document.createElement('div');
+            appendMessage(turn, 'You', entry.question);
+            appendMessage(turn, 'Support', entry.reply);
+            appendActions(turn, actions);
+            log.append(turn);
+            transcript.push({ question: entry.question, reply: entry.reply, actions });
+        }
     }
 
     launcher.addEventListener('click', () => toggle(panel.hidden));
@@ -82,19 +119,10 @@
         const question = String(data.get('message') || '').trim();
         if (!question) return;
         const isTicket = event.submitter?.value === 'ticket';
-        if (isTicket) {
-            if (pendingTicket?.question !== question) {
-                const id = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
-                pendingTicket = { question, id };
-            }
-            data.set('intent', 'ticket');
-            data.set('request_id', pendingTicket.id);
-        }
-
         form.dataset.busy = 'true';
         for (const control of controls) control.disabled = true;
         const turn = document.createElement('div');
-        if (isTicket || /\btickets?\b/i.test(question)) turn.dataset.supportPrivate = '';
+        const privateTurn = isTicket || /\btickets?\b/i.test(question);
         log.append(turn);
         appendMessage(turn, 'You', question);
         form.reset();
@@ -106,17 +134,25 @@
         let failed = false;
         let openPath = null;
         let traceId = null;
+        let reply = '';
+        let actions = [];
         try {
+            if (isTicket) {
+                data.set('intent', 'ticket');
+                data.set('request_id', await prepareTicket(question));
+            }
             const response = await fetch('/support/ask', { method: 'POST', body: data, signal: abort.signal });
             traceId = response.headers.get('X-Agent-Trace');
             const result = await response.json();
             failed = !response.ok || !!result.error;
-            const actions = Array.isArray(result.actions)
-                ? result.actions.filter(action => action?.type === 'navigate' && isActionPath(action.path))
-                : [];
-            appendMessage(turn, 'Support', result.reply || result.error || 'Unable to answer right now.');
+            actions = validActions(result.actions);
+            reply = String(result.reply || result.error || 'Unable to answer right now.');
+            appendMessage(turn, 'Support', reply);
             appendActions(turn, actions);
-            if (!failed && isTicket) pendingTicket = null;
+            if (!failed && isTicket) {
+                pendingTicket = null;
+                writeStorage(ticketKey, null);
+            }
             if (!failed && actions.some(action => action.path === result.open)) openPath = result.open;
         } catch {
             failed = true;
@@ -125,7 +161,8 @@
                 : abort.signal.aborted
                     ? 'Support took too long to respond. Please try again.'
                     : 'Unable to answer right now. Please try again.';
-            appendMessage(turn, 'Support', guidance);
+            reply = guidance;
+            appendMessage(turn, 'Support', reply);
         } finally {
             clearTimeout(timeout);
             progress.finish(failed);
@@ -137,7 +174,11 @@
             form.dataset.busy = 'false';
             for (const control of controls) control.disabled = false;
             if (failed) message.value = question;
-            saveLog();
+            if (!privateTurn) {
+                transcript.push({ question, reply, actions });
+                if (transcript.length > 20) transcript.shift();
+                writeStorage(transcriptKey, transcript);
+            }
             log.scrollTop = log.scrollHeight;
             if (openPath) location.assign(openPath);
         }

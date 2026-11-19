@@ -167,6 +167,15 @@ php -S 127.0.0.1:8811 index.php    # local server
 Check computed styles rather than trusting a screenshot: an author rule like
 `display:flex` silently overrides `[hidden]` and breaks JS filters with no error.
 
+## Pull request review and merge
+
+- Include `[**@codex**](https://github.com/codex) review` in the PR description.
+  Post the same request as a PR comment after pushing review fixes. Check for an
+  existing request for the same head commit before posting.
+- Check CI and reviewer findings on the current PR head, fix actionable findings,
+  and repeat the checks. When authorized to deploy, merge the PR after those gates
+  pass and verify the resulting commit on `main`.
+
 ## Rules
 
 - Extend existing controllers, services and views. No parallel implementations.

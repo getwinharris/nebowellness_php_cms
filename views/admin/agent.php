@@ -141,7 +141,7 @@
             $meta = $run['meta'];
             $providerFailed = false;
             foreach ($meta['steps'] ?? [] as $step) {
-                if (($step['kind'] ?? '') === 'provider' && in_array($step['outcome'] ?? '', ['http_error', 'transport_error'], true)) {
+                if (($step['kind'] ?? '') === 'provider' && \App\Services\AgentRunTrace::providerFailed((string)($step['outcome'] ?? ''))) {
                     $providerFailed = true;
                     break;
                 }

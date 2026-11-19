@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 
 concurrency:
   group: branch-pr-${{ github.ref }}
@@ -40,8 +41,23 @@ jobs:
                 head: `${context.repo.owner}:${head}`,
                 base: 'main'
               });
+              const reviewRequest = '[**@codex**](https://github.com/codex) review';
               if (pulls.data.length) {
-                core.info(`PR #${pulls.data[0].number} already tracks ${head}`);
+                const { number: issue_number, head: currentHead } = pulls.data[0];
+                if (currentHead.sha !== context.sha) {
+                  core.info(`PR #${issue_number} has advanced past this push`);
+                  return;
+                }
+                const marker = `<!-- codex-review:${context.sha} -->`;
+                const comments = await github.paginate(github.rest.issues.listComments, {
+                  ...context.repo, issue_number
+                });
+                if (!comments.some(comment => (comment.body || '').includes(marker))) {
+                  await github.rest.issues.createComment({
+                    ...context.repo, issue_number, body: `${reviewRequest}\n\n${marker}`
+                  });
+                }
+                core.info(`PR #${issue_number} already tracks ${head}`);
                 return;
               }
               const title = head
@@ -57,13 +73,15 @@ jobs:
                   'Created automatically from a pushed implementation branch.',
                   '',
                   'GitHub Actions owns CI and pull-request creation.',
-                  'Merge only after validation and Reviewer evidence pass.'
+                  'Merge after validation and the latest review findings are resolved.',
+                  '',
+                  reviewRequest
                 ].join('\n')
               });
               core.info(`Created PR #${result.data.number}`);
             } catch (error) {
               if (error.status === 403) {
-                core.warning('PR creation is disabled for GITHUB_TOKEN. Configure the bapXai GitHub App or enable Actions pull-request creation in repository settings.');
+                core.warning('The GitHub token lacks permission to create the PR or request review. Configure the bapXai GitHub App or enable Actions pull-request creation in repository settings.');
                 return;
               }
               throw error;
