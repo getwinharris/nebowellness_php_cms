@@ -50,6 +50,15 @@ git rev-parse HEAD
 Hostinger hPanel normally performs the pull automatically. Manual SSH Git
 commands are recovery and diagnosis tools only.
 
+## Pull request review and merge
+
+- Include `[**@codex**](https://github.com/codex) review` in the PR description.
+  Post the same request as a PR comment after pushing review fixes. Check for an
+  existing request for the same head commit before posting.
+- Check CI and reviewer findings on the current PR head, fix actionable findings,
+  and repeat the checks. When authorized to deploy, merge the PR after those gates
+  pass and verify the resulting commit on `main`.
+
 ## Testing
 
 `./bapXphp ci` before pushing. Branch, push, open a PR; never commit straight to `main`.

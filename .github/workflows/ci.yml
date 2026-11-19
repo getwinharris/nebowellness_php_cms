@@ -25,5 +25,10 @@ jobs:
         with:
           php-version: '8.2'
           extensions: curl, json, mbstring, pdo_mysql
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify Support browser behavior
+        run: node --test tests/support-chat.test.cjs
       - name: Validate code, tests, maps, and routes
         run: ./bapXphp ci

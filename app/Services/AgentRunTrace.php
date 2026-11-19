@@ -6,6 +6,7 @@ final class AgentRunTrace
 {
     public readonly string $id;
     private array $steps = [];
+    private ?int $lastProviderStep = null;
 
     public function __construct()
     {
@@ -14,6 +15,7 @@ final class AgentRunTrace
 
     public function provider(string $provider, string $model, int $status, int $transportError, float $started): void
     {
+        $this->lastProviderStep = count($this->steps) < 16 ? count($this->steps) : null;
         $this->add([
             'kind' => 'provider',
             'name' => in_array($provider, ['google', 'openai', 'anthropic'], true) ? $provider : 'compatible',
@@ -21,6 +23,19 @@ final class AgentRunTrace
             'status' => $status,
             'outcome' => $transportError ? 'transport_error' : ($status === 200 ? 'http_ok' : 'http_error'),
         ], $started);
+    }
+
+    public function markProviderResponseUnusable(): void
+    {
+        $last = $this->lastProviderStep;
+        if ($last !== null && $this->steps[$last]['kind'] === 'provider' && $this->steps[$last]['outcome'] === 'http_ok') {
+            $this->steps[$last]['outcome'] = 'unusable_response';
+        }
+    }
+
+    public static function providerFailed(string $outcome): bool
+    {
+        return in_array($outcome, ['http_error', 'transport_error', 'unusable_response'], true);
     }
 
     public function tool(string $name, string $outcome, float $started): void

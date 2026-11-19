@@ -133,12 +133,13 @@ final class AiClient
 
             $result = json_decode((string)$body, true);
             $parts = $result['candidates'][0]['content']['parts'] ?? [];
+            $parts = is_array($parts) ? $parts : [];
 
             $calls = [];
             foreach ($parts as $part) {
                 if (isset($part['functionCall']['name'])) $calls[] = $part['functionCall'];
             }
-            if ($calls === []) return self::answerFromParts($parts);
+            if ($calls === []) return $this->traceProviderAnswer(self::answerFromParts($parts));
 
             // Keep the model's own turn in the history, or the next request has a
             // function response answering a call the conversation no longer contains.
@@ -229,7 +230,8 @@ final class AiClient
         $body = $this->post($url, $payload, $headers, $status, 20, $provider, $model);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
-        return (string)($result['choices'][0]['message']['content'] ?? '');
+        $answer = $result['choices'][0]['message']['content'] ?? '';
+        return $this->traceProviderAnswer(is_string($answer) ? $answer : '');
     }
 
     private function completeGooglePlain(array $config, string $model, string $prompt, int $maxTokens, float $temperature, int $timeout = 20): string
@@ -249,7 +251,16 @@ final class AiClient
         $body = $this->post($url, $payload, $headers, $status, $timeout, 'google', $model);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
-        return self::answerFromParts($result['candidates'][0]['content']['parts'] ?? []);
+        $parts = $result['candidates'][0]['content']['parts'] ?? [];
+        return $this->traceProviderAnswer(self::answerFromParts(is_array($parts) ? $parts : []));
+    }
+
+    private function traceProviderAnswer(string $answer): string
+    {
+        if (trim($answer) === '' || self::isError($answer)) {
+            $this->trace?->markProviderResponseUnusable();
+        }
+        return $answer;
     }
 
     /** Record the outcome and retry once only when the third failure switches model. */

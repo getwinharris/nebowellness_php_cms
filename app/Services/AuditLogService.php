@@ -75,7 +75,7 @@ final class AuditLogService {
             if ($meta['outcome'] === 'error') $daily[$key]['errors']++;
             foreach (array_slice(is_array($meta['steps'] ?? null) ? $meta['steps'] : [], 0, 16) as $step) {
                 $outcome = $step['outcome'] ?? '';
-                if (($step['kind'] ?? '') !== 'provider' || !in_array($outcome, ['http_ok', 'http_error', 'transport_error'], true)) continue;
+                if (($step['kind'] ?? '') !== 'provider' || ($outcome !== 'http_ok' && !AgentRunTrace::providerFailed($outcome))) continue;
                 $providers[$surface]['attempts']++;
                 if ($outcome !== 'http_ok') $providers[$surface]['failures']++;
             }

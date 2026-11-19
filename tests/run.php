@@ -846,10 +846,14 @@ $tests['wallet and recharge routes are not customer facing'] = function (): void
 
 $tests['support assistant widget uses browser session memory and google model setting'] = function (): void {
     $layout = file_get_contents(app_path('views/layouts/app.php'));
+    $script = file_get_contents(app_path('assets/support-chat.js'));
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
     routeExists('/support/ask', 'Support ask route should be registered');
-    foreach (['support-fab', 'support-panel', '/support/ask', 'data-support-prompt', 'sessionStorage', 'data-support-key'] as $needle) {
+    foreach (['support-fab', 'support-panel', 'data-support-prompt', 'data-support-key', '/assets/support-chat.js'] as $needle) {
         assertTrue(str_contains($layout, $needle), "Support widget should include {$needle}");
+    }
+    foreach (['/support/ask', 'sessionStorage', 'request_id'] as $needle) {
+        assertTrue(str_contains($script, $needle), "Support browser behavior should include {$needle}");
     }
     foreach (['Customer context JSON', 'browser_session'] as $needle) {
         assertTrue(str_contains($service, $needle), "Support bot service should include {$needle}");
@@ -1576,7 +1580,7 @@ $tests['both chat surfaces share accessible bounded request status'] = function 
     assertTrue(str_contains($status, "createElement('details')") && str_contains($status, "createElement('summary')"), 'Status toggle must use keyboard-accessible native disclosure');
     assertTrue(str_contains($status, 'performance.now()') && str_contains($status, 'clearInterval(timer)'), 'Elapsed timer must stop on completion');
     assertTrue(str_contains($status, 'not internal model reasoning') && str_contains($status, 'Request failed'), 'Status must not expose thoughts or imply success on error');
-    foreach (['views/layouts/app.php', 'views/admin/agent.php'] as $path) {
+    foreach (['assets/support-chat.js', 'views/admin/agent.php'] as $path) {
         $source = file_get_contents(app_path($path));
         assertTrue(str_contains($source, 'window.AgentRequestStatus.start('), "{$path} must use shared request status");
         assertTrue(str_contains($source, 'progress.finish(failed') && str_contains($source, '35000'), "{$path} must settle status and bound waiting");
@@ -1604,6 +1608,14 @@ $tests['ticket tracking isolates owners and traces exclude chat content'] = func
     assertSame(['kind', 'name', 'model', 'status', 'outcome', 'duration_ms'], array_keys($meta['steps'][0]), 'Provider trace only contains operational metadata');
     assertSame(['kind', 'name', 'outcome', 'duration_ms'], array_keys($meta['steps'][1]), 'Tool trace excludes arguments and results');
     assertSame('http_error', $meta['steps'][0]['outcome'], 'A provider failure is retained even if the agent can fall back');
+    $trace->provider('google', 'gemma-4-31b-it', 200, 0, microtime(true));
+    $trace->markProviderResponseUnusable();
+    $trace->provider('google', 'gemma-4-26b-a4b-it', 200, 0, microtime(true));
+    $steps = $trace->metadata()['steps'];
+    assertSame('unusable_response', $steps[2]['outcome'], 'An unusable HTTP 200 counts as a failed attempt');
+    assertTrue(\App\Services\AgentRunTrace::providerFailed($steps[2]['outcome']), 'Unusable responses appear in failure filters');
+    assertSame('http_ok', $steps[3]['outcome'], 'A usable retry remains successful');
+
 };
 
 $tests['admin product preview protects hidden catalog content and disables purchase'] = function (): void {
@@ -2117,10 +2129,10 @@ $tests['public navigation uses brand home link and mobile cart tray'] = function
 
 $tests['support assistant exposes only allowlisted internal navigation actions'] = function (): void {
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
-    $layout = file_get_contents(app_path('views/layouts/app.php'));
+    $script = file_get_contents(app_path('assets/support-chat.js'));
     assertTrue(str_contains($service, 'exact internal path') && str_contains($service, 'Never invent admin paths'), 'Support prompt should ground navigation');
-    assertTrue(str_contains($layout, 'function supportActionsHtml') && str_contains($layout, 'supportEscape(action.path)') && str_contains($layout, 'supportEscape(j.reply'), 'Support UI should render server-approved actions separately from escaped reply text');
-    assertTrue(!str_contains($layout, 'innerHTML=j.reply'), 'Support reply must not inject model HTML');
+    assertTrue(str_contains($script, 'isActionPath(action.path)') && str_contains($script, 'link.textContent = action.label') && str_contains($script, "appendMessage(turn, 'Support', reply)"), 'Support UI should render server-approved actions separately from escaped reply text');
+    assertTrue(!preg_match('/\b(?:innerHTML|outerHTML|insertAdjacentHTML)\b/', $script), 'Support reply must not inject model HTML');
 };
 
 $tests['support assistant answers signed-out visitors instead of printing a menu'] = function (): void {
@@ -2213,6 +2225,7 @@ $tests['dashboard separates failed attempts from failed runs and groups by UTC d
     $events = [
         $event('2026-11-11T01:00:00+02:00', 'fallback', [
             ['kind' => 'provider', 'outcome' => 'transport_error'],
+            ['kind' => 'provider', 'outcome' => 'unusable_response'],
             ['kind' => 'provider', 'outcome' => 'http_ok'],
             ['kind' => 'tool', 'outcome' => 'error'],
         ]),
@@ -2224,7 +2237,7 @@ $tests['dashboard separates failed attempts from failed runs and groups by UTC d
     assertSame(7, count($week['daily']), 'Include zero days in the period');
     assertSame(['runs' => 1, 'errors' => 0], $week['daily']['2026-11-10'], 'Normalize recorded offsets to UTC');
     assertSame(['runs' => 1, 'errors' => 1], $week['daily']['2026-11-11'], 'Exclude future events');
-    assertSame(['attempts' => 2, 'failures' => 1], $week['providers']['support'], 'Tool failures and recovered provider attempts are distinct');
+    assertSame(['attempts' => 3, 'failures' => 2], $week['providers']['support'], 'Tool failures and recovered provider attempts are distinct');
     assertSame(2, $week['surfaces']['support']['requests'], 'Cards and charts agree');
     assertSame(3, App\Services\AuditLogService::agentDashboard($events, 30, $now)['surfaces']['support']['requests'], 'Longer range includes older runs');
 };
