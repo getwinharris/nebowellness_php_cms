@@ -16,6 +16,8 @@ category: docs
 
 ### Changed
 
+- Mobile navigation distributes the visible links evenly. The cart tray and support button clear the navigation and device safe area, and Programs reflects the homepage fragment.
+
 - Therapy campaigns appear under Products, with the newest published offering featured on the homepage.
 - Home chapters settle in short, staggered entrances while preserving native scrolling.
 - Admin consultation analytics compares historical session counts and completion shares.

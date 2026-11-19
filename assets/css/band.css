@@ -3020,23 +3020,23 @@ tr:hover td { background: var(--color-bg-alt); }
 /* ── Bottom Navigation for Mobile ── */
 .bottom-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    inset: auto 0 0;
+    box-sizing: border-box;
+    height: var(--mobile-nav-height);
     background: rgba(255, 253, 250, 0.97);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-top: 1px solid var(--color-border);
-    padding: var(--space-xs) 0;
-    padding-bottom: max(var(--space-xs), env(safe-area-inset-bottom));
+    padding: var(--space-xs) 0 calc(var(--space-xs) + env(safe-area-inset-bottom));
     z-index: 1000;
     box-shadow: 0 -4px 24px rgba(34, 34, 34, 0.1);
     display: none;
 }
 .nav-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    max-width: var(--container-max);
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    max-width: 480px;
     margin: 0 auto;
 }
 .nav-item {
@@ -3069,10 +3069,7 @@ tr:hover td { background: var(--color-bg-alt); }
 }
 
 @media (max-width: 767px) {
-    nav.bottom-nav { display: block; }
     .wallet-panel { grid-template-columns: 1fr; }
-    .support-fab { bottom: 78px; right: 14px; }
-    .support-panel { right: 12px; bottom: 140px; width: calc(100vw - 24px); }
 }
 
 /* Design.md public component contract */
@@ -3898,7 +3895,22 @@ body.nav-open { overflow: hidden; }
 .admin-blog-editor__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-md);max-width:980px}
 .admin-blog-editor__grid>*{min-width:0;overflow-wrap:anywhere}
 .admin-blog-editor__wide{grid-column:1/-1}.admin-blog-editor small{display:block;margin-top:4px;color:var(--color-text-muted)}
-.mobile-cart-tray{display:none}.mobile-cart-tray[hidden]{display:none!important}@media(min-width:701px){.mobile-cart-tray{position:fixed;right:24px;bottom:88px;z-index:999;display:flex;align-items:center;gap:16px;min-height:48px;padding:10px 20px;border-radius:8px;background:var(--color-maroon);box-shadow:var(--shadow-lg);color:var(--color-white);font-size:.85rem;font-weight:600;transition:opacity .2s,transform .2s}.mobile-cart-tray>span:last-child{padding-left:12px;border-left:1px solid rgba(255,255,255,.28)}.support-fab{right:24px;bottom:24px}.support-panel{right:24px;bottom:88px}}.mobile-cart-tray:hover{opacity:.92}
+.mobile-cart-tray {
+    position: fixed;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    min-height: 56px;
+    border-radius: 8px;
+    background: var(--color-maroon);
+    box-shadow: var(--shadow-lg);
+    color: var(--color-white);
+    font-size: .85rem;
+    font-weight: 600;
+}
+.mobile-cart-tray[hidden] { display: none; }
+.mobile-cart-tray:hover { opacity: .92; }
+.mobile-cart-tray > span:last-child { border-left: 1px solid rgba(255, 255, 255, .28); }
 .support-action{display:inline-flex;margin:.35rem .2rem 0 0;padding:.45rem .7rem;border:1px solid var(--color-gold);border-radius:6px;background:var(--color-gold-light);color:var(--color-maroon);font-size:.78rem;font-weight:700}
 .support-actions{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.35rem}
 .support-action-btn{min-height:32px;padding:.25rem .65rem;font-size:.75rem;text-decoration:none}
@@ -3915,61 +3927,55 @@ body.nav-open { overflow: hidden; }
 .document-help-cta div{display:grid;gap:.2rem}.document-help-cta span{color:var(--color-text-muted)}
 .payment-status{display:grid;gap:.15rem;margin:0 0 var(--space-md);padding:var(--space-md);border:1px solid var(--color-outline-variant);border-radius:var(--radius-sm);font-size:.9rem}.payment-status span{color:var(--color-text-muted)}.payment-status--live{border-color:rgba(45,138,78,.35);background:rgba(45,138,78,.08)}.payment-status--unavailable{border-color:rgba(232,163,23,.45);background:rgba(232,163,23,.09)}
 @media(max-width:900px){.blog-editorial .blog-grid{grid-template-columns:1fr}.blog-card--featured{grid-column:auto}}
-@media(max-width:700px){.blog-editorial .blog-card,.blog-card--featured{grid-template-columns:1fr;min-height:0}.blog-card__media{aspect-ratio:16/9}.blog-post__header h1{font-size:2rem}.blog-post__featured{aspect-ratio:16/9}.blog-post__cta,.document-help-cta{align-items:stretch;flex-direction:column}.blog-post__cta .btn,.document-help-cta .btn{width:100%}.admin-blog-editor__grid{grid-template-columns:minmax(0,1fr)}.blog-post__source{align-items:flex-start;flex-direction:column}.mobile-cart-tray{position:fixed;right:70px;bottom:78px;left:12px;z-index:999;display:flex;align-items:center;justify-content:space-between;min-height:56px;padding:10px 16px;border-radius:8px;background:var(--color-maroon);box-shadow:var(--shadow-lg);color:var(--color-white);font-size:.88rem;font-weight:600}.mobile-cart-tray[hidden]{display:none}.mobile-cart-tray>span:last-child{padding-left:12px;border-left:1px solid rgba(255,255,255,.28)}}
+@media(max-width:700px){.blog-editorial .blog-card,.blog-card--featured{grid-template-columns:1fr;min-height:0}.blog-card__media{aspect-ratio:16/9}.blog-post__header h1{font-size:2rem}.blog-post__featured{aspect-ratio:16/9}.blog-post__cta,.document-help-cta{align-items:stretch;flex-direction:column}.blog-post__cta .btn,.document-help-cta .btn{width:100%}.admin-blog-editor__grid{grid-template-columns:minmax(0,1fr)}.blog-post__source{align-items:flex-start;flex-direction:column}}
 
-/* ── Floating support button + cart tray ──────────────────────────────────────
-   The support button is a floating action button at every viewport. It used to be
-   pinned into the header on mobile (position:absolute, top:10px), which put it in
-   the top bar instead. The cart tray shares its line and stops short of it so the
-   two never overlap. */
-@media (max-width: 700px) {
-    /* Cart bar and support button share ONE line. The bar stretches across everything
-       left of the button rather than the full viewport — a truly full-width bar leaves
-       no room beside it and pushes the button onto a second line. */
+/* Keep the floating controls clear of the fixed navigation and the device safe area. */
+@media (width < 744px) {
+    body {
+        --mobile-nav-height: calc(49px + 2 * var(--space-xs) + env(safe-area-inset-bottom));
+        --mobile-controls-bottom: calc(var(--mobile-nav-height) + 12px);
+    }
+    body:has(#bottom-nav) { padding-bottom: calc(var(--mobile-controls-bottom) + 68px); }
+    nav.bottom-nav { display: block; border-bottom: 0; }
     .mobile-cart-tray {
         left: 12px;
         right: 80px;
-        transform: none;
-        width: auto;
-        max-width: none;
-        bottom: 14px;
-        height: 56px;
-        min-height: 56px;
-        border-radius: 999px;
+        bottom: var(--mobile-controls-bottom);
         justify-content: space-between;
         gap: 10px;
-        padding: 0 20px;
-        font-size: 0.85rem;
-        white-space: nowrap;
+        padding: 0 16px;
     }
     .mobile-cart-tray > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mobile-cart-tray > span:last-child { padding-left: 10px; flex: 0 0 auto; }
-    .support-fab { position: fixed; top: auto; right: 12px; bottom: 14px; width: 56px; height: 56px; z-index: 1100; }
-    .support-panel { right: 12px; bottom: 82px; }
+    .support-fab {
+        right: 12px;
+        bottom: var(--mobile-controls-bottom);
+        width: 56px;
+        height: 56px;
+        z-index: 1100;
+    }
+    .support-panel {
+        right: 12px;
+        bottom: calc(var(--mobile-controls-bottom) + 68px);
+        width: calc(100vw - 24px);
+    }
+    .support-panel:not([hidden]) {
+        max-height: calc(100dvh - var(--mobile-controls-bottom) - 80px);
+    }
 }
 
-/* Desktop: the cart pill and support button share one horizontal line.
-   They were previously stacked in the same right-hand column (tray bottom:88px,
-   button bottom:24px), which read as one above the other rather than side by side. */
-@media (min-width: 701px) {
+@media (width >= 744px) {
     .support-fab { right: 24px; bottom: 24px; width: 56px; height: 56px; }
     .mobile-cart-tray {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        bottom: 24px;
-        height: 56px;
-        min-height: 56px;
-        /* Stretched, not shrink-to-fit. max-content sized it to the text, which read as
-           a small chip; this gives it real width while staying clear of the button. */
-        width: min(720px, calc(100vw - 220px));
-        max-width: none;
-        border-radius: 999px;
+        right: 24px;
+        bottom: 88px;
+        width: min(360px, calc(100vw - 48px));
         justify-content: space-between;
         padding: 0 28px;
         white-space: nowrap;
     }
-    .support-panel { right: 24px; bottom: 96px; }
+    .mobile-cart-tray > span:last-child { padding-left: 12px; }
+    .support-panel { right: 24px; bottom: 156px; }
 }
 
 /* Cart toggle carries the same gold stroke as the support button, so the two read as

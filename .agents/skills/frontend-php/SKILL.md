@@ -4,7 +4,7 @@ description: Use when editing public, account, shop, consultant, temple, cart, c
 ---
 # PHP Templates, JavaScript, and CSS
 
-- Follow the UI workflow in `CLAUDE.md`. Capture the issue, owning files, baseline, and acceptance checks before editing.
+- Follow the UI workflow in `AGENTS.md`. Capture the issue, owning files, baseline, and acceptance checks before editing.
 - Read and follow root `Design.md` before changing any customer-facing UI. Treat it as the canonical token, typography, component, and responsive contract.
 - Capture the current desktop and mobile page before editing. Validate the complete customer path from first viewport through primary action and authenticated result, not only isolated markup.
 - Before using a browser capture as blog/help media, wait until every represented image reports `complete` with a non-zero `naturalWidth`, reveal content is visible, and no loading skeleton or empty data state remains. Inspect the saved bitmap before attaching it with `bapXphp blog:image`.
@@ -22,7 +22,7 @@ description: Use when editing public, account, shop, consultant, temple, cart, c
 
 ## Testing
 
-Verify in the built-in Browser at desktop, 375px, and both sides of each affected
+Verify in the built-in Browser at desktop, 375px, 390×844, and both sides of each affected
 breakpoint. For shared navigation, test empty and populated carts, enabled and disabled
 module combinations, support open and closed, direct fragment links, and Back/Forward.
 Check computed visibility and geometry, keyboard focus, touch targets, and native

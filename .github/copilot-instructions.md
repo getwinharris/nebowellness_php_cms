@@ -1,0 +1,1 @@
+Read [AGENTS.md](../AGENTS.md) for the repository workflow and verification requirements. Apply the relevant project skill from `.agents/skills/<name>/SKILL.md` when implementing or reviewing a change.

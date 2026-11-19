@@ -4,7 +4,7 @@ description: Use when editing owner/admin pages, CRUD forms, media library, envi
 ---
 # Admin UI
 
-- Follow the UI workflow in `CLAUDE.md` and the responsive contract in `Design.md`. Record the issue, baseline, and acceptance checks before editing.
+- Follow the UI workflow in `AGENTS.md` and the responsive contract in `Design.md`. Record the issue, baseline, and acceptance checks before editing.
 - Render records, initial form values, and native submissions in PHP templates. Use JavaScript for interactive controls, media selection, previews, and asynchronous feedback through existing routes. Load browser behavior from focused deferred scripts under `assets/`.
 - Keep mutations, authorization, CSRF, validation, and audit logging in controllers and services. Local interaction state stays in the browser and persisted state comes from the server response.
 - Put new and migrated styles in `assets/css/band.css`. Preserve the cascade when migrating existing template CSS and remove the corresponding duplicate rules.
@@ -49,7 +49,9 @@ Configured in Admin → Integrations with these fields stored in MySQL `secrets`
 
 ## Testing
 
-Log into `/admin` with the development account and exercise the affected flow in
+Use authorized admin credentials for a development environment to log into `/admin`.
+`bapXphp dev:user` creates a customer account. Record the blocked checks if no
+development admin account is available. Exercise the affected flow in
 the built-in Browser at desktop and 375px. Check applicable breakpoint edges, sidebar
 and dialogs, computed overflow with long field values, keyboard focus, permission
 errors, and save or delete feedback. Confirm that submitting one form preserves

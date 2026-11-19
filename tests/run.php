@@ -216,12 +216,12 @@ $tests['project map grounds shared navigation in registered get routes'] = funct
 };
 
 $tests['agent workflow diagnoses before issue tracking and stays source grounded'] = function (): void {
-    $contract = file_get_contents(app_path('CLAUDE.md'));
+    $contract = file_get_contents(app_path('AGENTS.md'));
     $readme = file_get_contents(app_path('README.md'));
     foreach (['Work order', 'evidence-backed', 'Inspect existing implementations before creating', 'Verify in a browser'] as $needle) {
-        assertTrue(str_contains($contract, $needle), "CLAUDE.md should include {$needle}");
+        assertTrue(str_contains($contract, $needle), "AGENTS.md should include {$needle}");
     }
-    assertTrue(str_contains($readme, 'AGENTS.md') || str_contains($readme, 'CLAUDE.md'), 'README should reference the agent contract instead of duplicating its workflow');
+    assertTrue(str_contains($readme, 'AGENTS.md'), 'README should reference the agent contract instead of duplicating its workflow');
 };
 
 $tests['independent deployment repository and runtime artifacts are properly managed'] = function (): void {
@@ -248,12 +248,12 @@ $tests['repo has agent-readable schema and built-in skills'] = function (): void
     assertTrue((new SchemaService())->adminFields('products') !== [], 'SchemaService should expose admin fields');
     foreach ([
         'AGENTS.md',
-        '.claude/skills/backend-php-mysql/SKILL.md',
-        '.claude/skills/schema/SKILL.md',
-        '.claude/skills/admin-ui/SKILL.md',
-        '.claude/skills/frontend-php/SKILL.md',
-        '.claude/skills/deployment/SKILL.md',
-        '.claude/skills/docs/SKILL.md',
+        '.agents/skills/backend-php-mysql/SKILL.md',
+        '.agents/skills/schema/SKILL.md',
+        '.agents/skills/admin-ui/SKILL.md',
+        '.agents/skills/frontend-php/SKILL.md',
+        '.agents/skills/deployment/SKILL.md',
+        '.agents/skills/docs/SKILL.md',
     ] as $path) {
         assertTrue(is_file(app_path($path)), "Built-in agent instruction file should exist: {$path}");
     }
@@ -267,13 +267,8 @@ $tests['repo has agent-readable schema and built-in skills'] = function (): void
     foreach (['example-Agent.md', '.codex'] as $path) {
         assertTrue(!file_exists(app_path($path)), "Obsolete duplicated agent instruction path should not exist: {$path}");
     }
-    // CLAUDE.md now holds the contract and AGENTS.md is the pointer, so the roles are
-    // the reverse of the earlier arrangement. Assert exactly one of them carries the
-    // rules, which is what stops the two from drifting apart.
-    assertTrue(file_exists(app_path('CLAUDE.md')), 'CLAUDE.md must exist and carry the binding contract');
-    $agentsMd = (string)file_get_contents(app_path('AGENTS.md'));
-    assertTrue(str_contains($agentsMd, 'CLAUDE.md'), 'AGENTS.md must point at CLAUDE.md as the binding contract');
-    assertTrue(substr_count($agentsMd, "\n") < 40, 'AGENTS.md must stay a short pointer, not a second copy of the contract');
+    assertTrue(!file_exists(app_path('CLAUDE.md')) && !is_dir(app_path('.claude')), 'Retired agent instructions and skills should be absent');
+    assertTrue(str_contains((string)file_get_contents(app_path('AGENTS.md')), '## Work order'), 'AGENTS.md should carry the repository contract');
     assertTrue(!is_dir(app_path('.agents/handoffs')) && !is_dir(app_path('.agents/workflows')), 'Removed agent orchestration must not return');
 };
 
@@ -294,18 +289,18 @@ $tests['application exposes exactly admin chat and customer support agents'] = f
 };
 
 $tests['every project skill has portable frontmatter and no empty reference placeholder'] = function (): void {
-    $skillFiles = glob(app_path('.claude/skills/*/SKILL.md')) ?: [];
+    $skillFiles = glob(app_path('.agents/skills/*/SKILL.md')) ?: [];
     assertTrue(count($skillFiles) >= 8, 'All canonical project skills should be present');
     foreach ($skillFiles as $file) {
         $text = (string)file_get_contents($file);
         assertTrue((bool)preg_match('/\A---\nname: [a-z0-9]+(?:-[a-z0-9]+)*\ndescription: .+\n---\n/s', $text), basename(dirname($file)) . ' should have only portable name/description frontmatter first');
         assertTrue(!str_contains($text, 'type: skill'), basename(dirname($file)) . ' should not use ignored type frontmatter');
     }
-    assertTrue(!(bool)glob(app_path('.claude/skills/*/references/.gitkeep')), 'Skills should not carry empty reference placeholders');
-    assertTrue(!is_dir(app_path('.claude/skills/backend-json')), 'Obsolete backend-json skill name should not return');
-    assertTrue(!is_dir(app_path('.agents/skills')), 'Canonical skills should not be duplicated under .agents');
+    assertTrue(!(bool)glob(app_path('.agents/skills/*/references/.gitkeep')), 'Skills should not carry empty reference placeholders');
+    assertTrue(!is_dir(app_path('.agents/skills/backend-json')), 'Obsolete backend-json skill name should not return');
+    assertTrue(!is_dir(app_path('.github/skills')), 'Copilot and Codex should share the canonical project skills');
     $cliSkills = shell_exec('cd ' . escapeshellarg(app_path()) . ' && ./bapXphp skills 2>&1') ?: '';
-    assertTrue(str_contains($cliSkills, 'backend-php-mysql'), 'CLI skill discovery should include canonical .claude skills');
+    assertTrue(str_contains($cliSkills, 'backend-php-mysql'), 'CLI skill discovery should include canonical .agents skills');
     assertTrue(!str_contains($cliSkills, 'backend-json'), 'CLI skill discovery should not expose the obsolete backend-json name');
 };
 
@@ -316,7 +311,7 @@ $tests['knowledge index keeps type-qualified concepts collision-free'] = functio
     foreach (array_keys($schema['collections']) as $collection) {
         assertTrue(isset($concepts['schema:' . $collection]), "Knowledge index should include schema:{$collection}");
     }
-    foreach (glob(app_path('.claude/skills/*/SKILL.md')) ?: [] as $file) {
+    foreach (glob(app_path('.agents/skills/*/SKILL.md')) ?: [] as $file) {
         $name = basename(dirname($file));
         assertTrue(isset($concepts['skill:' . $name]), "Knowledge index should include skill:{$name}");
     }
@@ -1929,9 +1924,8 @@ $tests['php 404 page uses themed template classes'] = function (): void {
 };
 
 $tests['documentation has deployment agent instructions and no one-line placeholder pages'] = function (): void {
-    assertTrue(is_file(app_path('AGENTS.md')), 'Agent operating guide pointer should exist');
-    assertTrue(is_file(app_path('CLAUDE.md')), 'Binding agent contract should exist');
-    $agent = file_get_contents(app_path('CLAUDE.md'));
+    assertTrue(is_file(app_path('AGENTS.md')), 'Binding agent contract should exist');
+    $agent = file_get_contents(app_path('AGENTS.md'));
     foreach (['Repository', 'docs/systematic-map.mmd', 'bapXphp ci', 'Before pushing to `main`'] as $needle) {
         assertTrue(str_contains($agent, $needle), "Agent contract should mention {$needle}");
     }
@@ -1961,9 +1955,11 @@ $tests['pull requests use non mutating CI with fresh project and documentation m
 };
 
 $tests['repository operations use git and GitHub Actions without duplicate agent folders'] = function (): void {
-    assertTrue(is_file(app_path('.claude/skills/git/SKILL.md')), 'Plain Git skill should exist');
-    assertTrue(!is_file(app_path('.claude/skills/gh-cli/SKILL.md')), 'GitHub CLI skill should be removed');
-    assertTrue(is_dir(app_path('.claude')), 'Agent tooling should live in .claude');
+    assertTrue(is_file(app_path('.agents/skills/git/SKILL.md')), 'Plain Git skill should exist');
+    assertTrue(!is_file(app_path('.agents/skills/gh-cli/SKILL.md')), 'GitHub CLI skill should be removed');
+    foreach (['pre-commit', 'pre-push'] as $hook) {
+        assertTrue(is_executable(app_path('.agents/hooks/' . $hook)), "Migrated Git hook should be executable: {$hook}");
+    }
     assertTrue(!is_dir(app_path('.agents/handoffs')) && !is_dir(app_path('.agents/workflows')) && !is_dir(app_path('.agents/ops')), 'Legacy handoff and orchestration folders should not exist');
     assertTrue(is_file(app_path('.github/workflows/branch-pr.yml')), 'Branch pushes should have an Actions-owned PR workflow');
     assertTrue(!is_file(app_path('.github/workflows/sync-upstream.yml')), 'Unforked repository should not contain sync-upstream workflow');
@@ -1972,8 +1968,8 @@ $tests['repository operations use git and GitHub Actions without duplicate agent
         app_path('AGENTS.md'),
         app_path('README.md'),
         app_path('cli/bapXphp'),
-        app_path('.claude/skills/git/SKILL.md'),
-        app_path('.claude/skills/deployment/SKILL.md'),
+        app_path('.agents/skills/git/SKILL.md'),
+        app_path('.agents/skills/deployment/SKILL.md'),
     ];
     foreach ($activeFiles as $path) {
         $source = file_get_contents($path);
@@ -1987,7 +1983,7 @@ $tests['repository operations use git and GitHub Actions without duplicate agent
     assertTrue(str_contains($branchPr, "github.repository == 'getwinharris/nebowellness_php_cms'"), 'Automatic PR creation should run only in the deployment working repository');
     assertTrue(str_contains($branchPr, 'actions/create-github-app-token@v2') && str_contains($branchPr, 'error.status === 403'), 'Automatic PR creation should use the bapXai App when configured and explain disabled token permissions');
 
-    $agents = file_get_contents(app_path('CLAUDE.md'));
+    $agents = file_get_contents(app_path('AGENTS.md'));
     assertTrue(str_contains($agents, '`getwinharris/nebowellness_php_cms` is the only working repository'), 'Agent contract should pin work to the deployment repository');
     assertTrue(str_contains($agents, 'repository is independent and unforked'), 'Agent contract should record the independent repository state');
     assertTrue(str_contains($agents, 'Do not add an upstream remote'), 'Agent contract should prohibit stale fork synchronization');
@@ -2106,8 +2102,16 @@ $tests['public navigation uses brand home link and mobile cart tray'] = function
     assertTrue(!str_contains($layout, '>Home</a>') && !str_contains($layout, '<span>Home</span>'), 'Public navigation should not duplicate Home');
     assertTrue(str_contains($layout, 'href="/blog/category/<?= e($__cat[\'slug\']'), 'Website help should be reachable through the generated journal categories');
     foreach (['mobile-cart-tray', 'mobile-cart-count', 'mobile-cart-label'] as $needle) assertTrue(str_contains($layout, $needle), "Cart tray should include {$needle}");
-    assertTrue(str_contains($css, '.mobile-cart-tray') && str_contains($css, 'bottom:78px'), 'Mobile cart tray should sit above bottom navigation');
-    assertTrue(str_contains($css, '.support-fab{right:24px;bottom:24px}') && str_contains($css, '.mobile-cart-tray{position:fixed;right:24px;bottom:88px'), 'Desktop support should align directly below the cart tray');
+    assertTrue(preg_match('/--mobile-nav-height:[^;]+env\(safe-area-inset-bottom\)/', $css) === 1, 'Mobile navigation must reserve the safe area');
+    assertTrue(preg_match('/--mobile-controls-bottom:[^;]+var\(--mobile-nav-height\)/', $css) === 1, 'Floating controls must clear mobile navigation');
+    assertTrue(preg_match('/\.mobile-cart-tray\s*\{[^}]*bottom: var\(--mobile-controls-bottom\)/', $css) === 1, 'Mobile cart tray must use the shared offset');
+    assertTrue(preg_match('/\.support-fab\s*\{[^}]*bottom: var\(--mobile-controls-bottom\)/', $css) === 1, 'Mobile support must use the shared offset');
+    assertTrue(preg_match('/\.nav-grid\s*\{[^}]*grid-auto-columns: minmax\(0, 1fr\)/', $css) === 1, 'Navigation must distribute the rendered links');
+    assertTrue(str_contains($layout, 'href="/#programs" class="nav-item" data-programs-nav'), 'Programs must have a native fragment link and a browser state hook');
+    $navScript = file_get_contents(app_path('assets/mobile-nav.js'));
+    foreach (['location.hash', 'hashchange', 'popstate', 'aria-current'] as $needle) {
+        assertTrue(str_contains($navScript, $needle), "Programs state must handle {$needle}");
+    }
     assertSame(substr_count($css, '{'), substr_count($css, '}'), 'Stylesheet should have balanced rule braces');
 };
 
@@ -2331,7 +2335,7 @@ $tests['campaign custom forms and module controls are wired through schema and U
     $layout = file_get_contents(app_path('views/layouts/admin.php'));
     assertTrue(str_contains($layout, "if (\$__modules['shop'])"), 'Commerce navigation is controlled by ecommerce module');
     $publicLayout = file_get_contents(app_path('views/layouts/app.php'));
-    assertTrue(str_contains($publicLayout, "\$__modules['shop'] && \$currentPath !== '/cart'"), 'Mobile cart tray is hidden with ecommerce');
+    assertTrue(str_contains($publicLayout, "\$__modules['shop'] && !in_array(\$currentPath, ['/cart', '/login', '/register'], true)"), 'Mobile cart tray respects ecommerce and pages without mobile navigation');
     foreach (['menu-clinic','menu-content','menu-enquiries','menu-commerce','menu-appearance','menu-settings'] as $group) {
         assertTrue(str_contains($layout, $group), 'Admin sidebar includes the expected ' . $group . ' group');
     }

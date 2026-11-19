@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
 <title><?= e($pageTitle ?? 'Nebo Lifestyle Clinic') ?></title>
 <meta name="description" content="<?= e($metaDescription ?? 'Naturopathy, functional medicine, and integrative wellness solutions for sustainable health transformation.') ?>">
@@ -155,10 +155,6 @@ main{padding-bottom:0}
 .temple-slide__media img{width:100%;height:100%;min-height:280px;object-fit:cover;margin:0;border-radius:0}
 .temple-slide__copy{display:flex;flex-direction:column;justify-content:center;text-align:left}
 .temple-slide__address{display:flex;align-items:flex-start;gap:var(--space-xs);margin-top:var(--space-sm);font-size:0.82rem!important}
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--color-border);padding:var(--space-xs) 0;z-index:1000}
-.nav-grid{display:grid;grid-template-columns:repeat(5,1fr);max-width:480px;margin:0 auto}
-.nav-item{display:flex;flex-direction:column;align-items:center;padding:var(--space-xs) 0;color:var(--color-text-muted);font-size:0.6rem;text-decoration:none;min-height:48px;justify-content:center}
-.nav-item .icon svg{width:20px;height:20px;margin-bottom:2px}
 .astro-search,.astro-filter{min-height:64px;border-radius:var(--radius-pill);background:var(--color-white);border-color:var(--color-border);box-shadow:var(--shadow-sm)}
 .consultation-pricing-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-xl);padding:var(--space-lg) var(--space-xl);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-white);color:var(--color-ink);box-shadow:var(--shadow-sm)}
 .consultation-pricing-card h2{margin:0 0 var(--space-xs);font-size:1.35rem}.consultation-pricing-card p{margin:0;color:var(--color-text-muted);max-width:58ch}.consultation-pricing-card__rates{display:flex;gap:var(--space-lg);align-items:stretch}.consultation-pricing-card__rates div{display:grid;gap:2px;min-width:130px;padding-left:var(--space-lg);border-left:1px solid var(--color-border)}.consultation-pricing-card__rates strong{font-size:1.35rem;color:var(--color-maroon)}.consultation-pricing-card__rates span{font-size:.78rem;color:var(--color-text-muted)}
@@ -194,8 +190,6 @@ nav.open{display:flex}
 .temple-slide__media,.temple-slide__media img{min-height:190px}
 .temple-slide__copy{text-align:center}
 .footer-grid{grid-template-columns:1fr 1fr}
-.bottom-nav{display:block}
-.main-content{padding-bottom:calc(60px + var(--space-md))}
 /* Mobile header order: brand left, then cart, then the menu button hard right. */
 .site-header{display:flex;align-items:center;gap:4px}
 .site-header .brand{order:1;margin-right:auto}
@@ -233,6 +227,7 @@ echo $critical;
 ?>
 </style>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
+<script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-status.js') ?>" defer></script>
 <style>
 <?php
@@ -378,7 +373,7 @@ if ($__flash):
 </main>
 
 <?php if (!in_array($currentPath, ['/login', '/register'])): ?>
-<nav class="bottom-nav" id="bottom-nav">
+<nav class="bottom-nav" id="bottom-nav" aria-label="Mobile navigation">
     <div class="nav-grid">
         <?php if ($__modules['shop']): ?>
         <a href="/shop" class="nav-item <?= (strpos($_SERVER['REQUEST_URI'], '/shop') === 0 ? 'active' : '') ?>">
@@ -386,7 +381,7 @@ if ($__flash):
             <span>Shop</span>
         </a>
         <?php endif; ?>
-        <a href="/#programs" class="nav-item <?= ($currentPath === '/#programs' ? 'active' : '') ?>">
+        <a href="/#programs" class="nav-item" data-programs-nav>
             <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             <span>Programs</span>
         </a>
@@ -404,7 +399,7 @@ if ($__flash):
 </nav>
 <?php endif; ?>
 
-<?php if ($__modules['shop'] && $currentPath !== '/cart'): ?>
+<?php if ($__modules['shop'] && !in_array($currentPath, ['/cart', '/login', '/register'], true)): ?>
 <a href="/cart" class="mobile-cart-tray" id="mobile-cart-tray" <?= $cartCount > 0 ? '' : 'hidden' ?>>
     <span><strong id="mobile-cart-count"><?= (int)$cartCount ?></strong> <span id="mobile-cart-label"><?= $cartCount === 1 ? 'item' : 'items' ?></span> in cart</span>
     <span>View cart <span aria-hidden="true">→</span></span>
