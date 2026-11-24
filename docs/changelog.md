@@ -22,6 +22,10 @@ category: docs
 
 ### Changed
 
+- Refined the public menu and image-led program, service and shop cards using the SHA component reference while retaining Nebo imagery, native navigation, and purchase/enquiry behavior.
+- Added a distinct Nebo hero entrance and direct consultation form link, increased mobile rail targets, and gave the customer Support panel a larger transcript and direct entry from the Support page.
+- Restored the project CLI's environment loading on macOS system Bash so local maintainers can run project checks.
+
 - Refined the homepage hero, Services layout, and footer. Support and Enterprise Agent now have clearer composer controls and feedback.
 
 - Restored layered homepage chapter transitions on phones. Tall chapters scroll fully before settling, and the footer finishes in normal flow.

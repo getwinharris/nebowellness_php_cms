@@ -184,11 +184,10 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 ## Components
 
 - **Header:** soft white, pinned to the viewport top, with a hairline bottom border and the complete client-supplied Nebo logo centered. The drawer repeats this logo as a home link; account/cart actions remain right aligned.
-- **Home hero (editorial):** Use `nebo-clinic-hero.png` as a full-width photo with a dark blue text scrim. Left-align the headline and consultation action; keep the people and clinic setting visible at the right. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff.
+- **Home hero (editorial):** Use the full-width Nebo clinic image with a dark blue text scrim, a Playfair Display headline and an immediately available consultation action that opens the form. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff. The image settles once, then supporting copy rises a short distance and the actions fade into full opacity in place. Reduced motion leaves the complete composition still.
 - **Program rail:** a horizontal, equal-height scroll-snap editorial rail with a partial next card
-  visible on mobile. Each card uses a blue-paper surface, a single deep-blue top rule,
-  duration label, prominent program name, short factual description, and enquiry
-  link. Each arrow action advances exactly one card plus its grid gap; keyboard and touch scrolling remain
+  visible on mobile. Each card leads with illustrative artwork, followed by duration,
+  program name, a short factual description and an enquiry link. Each 44px or larger arrow target advances exactly one card plus its grid gap; keyboard and touch scrolling remain
   available. When the rail enters view, its cards use one short staggered rise; only the current card receives a subtle lift. Nebo offers programs only: never introduce destinations, accommodation,
   room selection, stay length, or hotel booking concepts.
 - **Therapy products:** published campaign pages are the public Products catalogue. The homepage gives the newest record a large image and session-request action, followed by two quieter older entries. The catalogue uses the same hierarchy for all published offerings. On phones the featured therapy comes first in a single column. Preserve existing campaign URLs. Drafts never have a public route or sitemap entry. A request does not confirm a session.
@@ -204,6 +203,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Navigation:** the linked brand mark and name are the home control. Keep mobile page links in Menu and Search. Use JavaScript for fragment-based active state and synchronize it on initial load, hash changes, and browser history navigation.
 - **Mobile commerce tray:** after the cart becomes non-empty, show one fixed blue tray above the device safe area with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
 - **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep Support and the cart tray side by side above the device safe area. Reserve enough space to reach the final page action and keep the open support panel clear of the navigation.
+- **Customer Support chat:** use a deep blue identity bar, a separate scrollable transcript and a compact composer with Send next to the message field. Keep suggested questions, clinic contact and the signed-in staff handoff available. The Support page launches the same panel and restores focus on close. Keep interactive targets at least 44px and keep the composer above the phone keyboard.
 - **Editorial media:** every blog post uses one intentional 16:9 image for both its listing thumbnail and article hero. UI guides use a legible screenshot of the exact page, cropped around the relevant interface rather than a decorative stock image, and link the represented page below the article.
 - **Buttons (`button-primary` / `button-secondary`):** `48px` minimum height, `8px` radius, no uppercase, no letter-spacing. Primary is solid blue with a darker-blue hover; hover moves from `shadow-md` to `shadow-lg` and lifts 2px, no more. Secondary is solid green with white text. Hover states never shift layout.
 - **Forms:** white fields (`on-primary`), `8px` radius, `48px` height, clear labels, a single-value focus ring (`--shadow-focus`) -- no glow.
@@ -387,14 +387,14 @@ visual system.
 
 ### Home motion score
 
-- **Arrival:** the hero establishes Nebo with immediately available actions. The
-  next chapter covers it after a short stretch of native scrolling.
+- **Arrival:** the image settles behind the headline, supporting copy rises, and the actions fade into full opacity in place. The actions remain available throughout. The Foundation chapter covers the hero after a short stretch of native scrolling and opens with a small rule reveal.
 - **Foundation:** the clinic story enters as the first opaque sticky act, using a
   small upward copy-in to settle the image and copy together.
 - **Focus:** visible cards enter in reading order, then settle into a still grid.
 - **Confidence:** the proof cards enter individually within one centred composition.
-- **Programs:** the program rail keeps a fixed card geometry; each arrow advances one
-  item, with no autoplay or size change.
+- **Programs:** the program rail uses illustrative Nebo imagery above duration, title,
+  description and a whole-card enquiry link. Card geometry is stable; each arrow advances
+  one item, with no autoplay or size change. Use 32px desktop and 16px phone gaps.
 - **Team:** the selected portrait grows relative to named previews, then the biography
   updates beside it. This is the signature move: the practitioner's consultation link
   opens an enquiry with their name in the editable message. The same link works in
@@ -428,7 +428,7 @@ visual system.
 
 ## Sticky navigation and portrait alignment
 
-The white main navigation bar stays at the viewport top during scrolling. The
+The white main navigation bar stays at the viewport top during scrolling. The native modal menu uses a two-line trigger, spacious editorial links grouped by exploration and account, and a consultation action. It occupies roughly one-third of a wide desktop and the full phone width, with a restrained 300ms entrance only when reduced motion is not requested. Keep the native disclosure fallback, module gating, keyboard focus, and independently scrollable menu content. The
 hero and subsequent sections stay in native document flow. At the end of each
 chapter, a short scroll distance lets the pinned content settle before the next
 surface covers it. This distance is smaller on phones and absent with reduced
@@ -462,4 +462,4 @@ At widths below 744px, enhanced homepage chapters settle under the header and th
 
 ### Homepage hero, services and footer
 
-Use the consultation photo as a wide backdrop on desktop and preserve both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The Services chapter places the featured card on the left and additional cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.
+Use the consultation photo as a wide backdrop on desktop and preserve both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The Services chapter places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.

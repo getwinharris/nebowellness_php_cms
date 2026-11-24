@@ -45,14 +45,14 @@
                         ?>
                         <article class="product-card reveal">
                             <a class="product-card__image" href="<?= e($productUrl) ?>" aria-label="View <?= e($item['name']) ?>">
-                                <img src="<?= e(webp_src($item['image_url'] ?? placeholder_img($item['name']))) ?>" alt="<?= e($item['name']) ?>" decoding="async">
+                                <img src="<?= e(webp_src($item['image_url'] ?? placeholder_img($item['name']))) ?>" alt="<?= e($item['name']) ?>" loading="lazy" decoding="async">
                                 <?php if($hasOffer): ?>
                                     <span class="product-card__badge product-card__badge--sale">Sale</span>
                                 <?php endif; ?>
                             </a>
                             <div class="product-card__body">
                                 <?php if(!empty($item['category'])): ?>
-                                    <span style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-gold); font-weight:600;"><?= e($item['category']) ?></span>
+                                    <span class="product-card__category"><?= e($item['category']) ?></span>
                                 <?php endif; ?>
                                 <h3><a class="product-card__title" href="<?= e($productUrl) ?>"><?= e($item['name']) ?></a></h3>
                                 <p class="product-card__desc"><?= e($item['description']) ?></p>
