@@ -5613,13 +5613,23 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 #program-rail .program-slide__card-link:is(:hover, :focus-visible) .program-slide__link { text-decoration: underline; text-underline-offset: .2em; }
 
 @media (min-width: 1129px) {
-    #program-rail {
+    [data-nebo-chapter="programs"] .home-rail-section {
         --program-gap: 32px;
+        --program-card-width: 320px;
+        --program-rail-width: calc(3 * var(--program-card-width) + 2 * var(--program-gap) + 1.6rem);
+    }
+
+    [data-nebo-chapter="programs"] .home-rail-heading,
+    #program-rail {
+        max-width: var(--program-rail-width);
+    }
+
+    #program-rail {
         gap: var(--program-gap);
     }
 
     #program-rail .program-slide {
-        flex-basis: min(320px, calc((100% - 2 * var(--program-gap)) / 3));
+        flex-basis: min(var(--program-card-width), calc((100% - 2 * var(--program-gap)) / 3));
     }
 }
 
