@@ -4921,7 +4921,8 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 }
 .nebo-home-hero .hero-copy { max-width: min(42rem, 59%); margin: 0; text-align: start; }
 .nebo-home-hero .eyebrow { color: #e1edda; margin-block-end: 14px; letter-spacing: .12em; }
-.nebo-home-hero h1 { max-width: 16ch; font-family: var(--font-serif); font-weight: 400; font-size: clamp(2.65rem, 5.1vw, 4.8rem); line-height: 1.04; letter-spacing: -.035em; margin-block-end: 18px; text-wrap: balance; }
+.nebo-home-hero h1 { max-width: 19ch; font-family: var(--font-display); font-weight: 300; font-size: clamp(2.65rem, 5.1vw, 4.8rem); line-height: 1.06; letter-spacing: -.035em; margin-block-end: 18px; text-wrap: balance; }
+.nebo-home-hero h1 em { font-family: var(--font-serif); font-weight: 600; }
 .nebo-home-hero .lede { max-width: 44ch; font-size: clamp(1rem, 1.4vw, 1.15rem); line-height: 1.55; margin-block-end: 24px; }
 .nebo-home-hero .hero-actions { gap: 10px; align-items: stretch; justify-content: flex-start; }
 .nebo-home-hero .hero-actions .btn { min-height: 48px; height: auto; max-width: 100%; white-space: normal; text-align: center; }
@@ -4939,6 +4940,19 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 @keyframes nebo-hero-settle { from { scale: 1.045; } to { scale: 1; } }
 @keyframes nebo-action-arrival { from { opacity: .88; } to { opacity: 1; } }
 @keyframes nebo-intro-rule { from { scale: 0 1; } to { scale: 1 1; } }
+
+@supports (animation-timeline: view()) and (timeline-scope: --foundation-entry) {
+    @media (prefers-reduced-motion: no-preference) {
+        .stack-ready:not(.stack-keyboard-flow) { timeline-scope: --foundation-entry; }
+        .stack-ready:not(.stack-keyboard-flow) > .nebo-intro-section { view-timeline-name: --foundation-entry; }
+        .stack-ready:not(.stack-keyboard-flow) .nebo-hero-media {
+            animation: nebo-artwork-handoff linear both;
+            animation-timeline: --foundation-entry;
+            animation-range: entry 0% entry 55%;
+        }
+    }
+}
+@keyframes nebo-artwork-handoff { from { opacity: 1; } to { opacity: .68; } }
 
 .editorial-stack-card.therapy-products .therapy-products__heading { margin-block-end: clamp(16px, 3vw, 30px); }
 .editorial-stack-card.therapy-products .therapy-grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(16px, 3vw, 36px); align-items: start; }
