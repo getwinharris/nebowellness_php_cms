@@ -4460,15 +4460,15 @@ body { overflow-x: clip; }
     }
     .editorial-stack > .chapter-arrived > .container > :not(.hero-copy, .consultation-invitation, .value-strip, .therapy-grid, .editorial-rail, .team-showcase, .nebo-testimonials, .footer-grid),
     .editorial-stack > .chapter-arrived .consultation-invitation__copy > * {
-        animation: nebo-chapter-arrival .7s cubic-bezier(.22,1,.36,1) backwards;
+        animation: nebo-chapter-arrival .56s cubic-bezier(.22,1,.36,1) backwards;
     }
     .editorial-stack > .chapter-arrived > .container > :nth-child(2),
-    .editorial-stack > .chapter-arrived .consultation-invitation__copy > h2 { animation-delay: 75ms; }
+    .editorial-stack > .chapter-arrived .consultation-invitation__copy > h2 { animation-delay: 55ms; }
     .editorial-stack > .chapter-arrived > .container > :nth-child(n+3),
-    .editorial-stack > .chapter-arrived .consultation-invitation__copy > :is(p, a) { animation-delay: 150ms; }
+    .editorial-stack > .chapter-arrived .consultation-invitation__copy > :is(p, a) { animation-delay: 110ms; }
 
     .editorial-stack .chapter-item-arrived {
-        animation: nebo-card-arrival .7s cubic-bezier(.22,1,.36,1) var(--chapter-delay, 0ms) backwards;
+        animation: nebo-card-arrival .56s cubic-bezier(.22,1,.36,1) var(--chapter-delay, 0ms) backwards;
     }
     .editorial-stack .chapter-item-arrived:focus-within { animation: none; }
     .editorial-stack .program-slide.is-rail-current {
@@ -4481,8 +4481,8 @@ body { overflow-x: clip; }
         margin-block-end: clamp(40px, 7svh, 64px);
     }
 }
-@keyframes nebo-chapter-arrival { from { translate: 0 16px; } to { translate: 0 0; } }
-@keyframes nebo-card-arrival { from { translate: 0 22px; } to { translate: 0 0; } }
+@keyframes nebo-chapter-arrival { from { translate: 0 10px; } to { translate: 0 0; } }
+@keyframes nebo-card-arrival { from { translate: 0 14px; } to { translate: 0 0; } }
 
 .analytics-overview { display: grid; gap: var(--space-lg); }
 .analytics-summary { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2fr); gap: var(--space-lg); }
@@ -4935,9 +4935,10 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 .nebo-home-hero .hero-actions .btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .nebo-intro-section .section-header::before { content: ""; display: block; width: 48px; height: 2px; margin-block-end: 18px; background: var(--brand-action); }
 @media (prefers-reduced-motion: no-preference) {
-    .nebo-hero-media img { animation: nebo-hero-settle 1.35s cubic-bezier(.18,.66,.3,1); }
-    .chapter-arrived.nebo-home-hero .hero-copy > .lede { animation: nebo-chapter-arrival .62s cubic-bezier(.22,1,.36,1) 90ms backwards; }
-    .chapter-arrived.nebo-home-hero .hero-copy > .hero-actions { animation: nebo-action-arrival .5s ease-out 180ms backwards; }
+    .nebo-hero-media img { animation: nebo-hero-settle 1.1s cubic-bezier(.18,.66,.3,1); }
+    .chapter-arrived.nebo-home-hero .hero-copy > :is(h1, .lede) { animation: nebo-chapter-arrival .56s cubic-bezier(.22,1,.36,1) backwards; }
+    .chapter-arrived.nebo-home-hero .hero-copy > .lede { animation-delay: 65ms; }
+    .chapter-arrived.nebo-home-hero .hero-copy > .hero-actions { animation: nebo-action-arrival .42s ease-out 120ms backwards; }
     .chapter-arrived.nebo-home-hero .hero-copy:focus-within > * { animation: none; }
     .chapter-arrived.nebo-intro-section .section-header::before { transform-origin: left; animation: nebo-intro-rule .55s ease-out both; }
 }
@@ -4949,14 +4950,18 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     @media (prefers-reduced-motion: no-preference) {
         .stack-ready:not(.stack-keyboard-flow) { timeline-scope: --foundation-entry; }
         .stack-ready:not(.stack-keyboard-flow) > .nebo-intro-section { view-timeline-name: --foundation-entry; }
-        .stack-ready:not(.stack-keyboard-flow) .nebo-hero-media {
-            animation: nebo-artwork-handoff linear both;
+        .stack-ready:not(.stack-keyboard-flow) :is(.nebo-hero-media, .nebo-intro-image img) {
+            animation: nebo-artwork-handoff ease-in-out both;
             animation-timeline: --foundation-entry;
-            animation-range: entry 0% entry 55%;
+            animation-range: entry 0% entry 72%;
+        }
+        .stack-ready:not(.stack-keyboard-flow) .nebo-intro-image img {
+            animation-name: nebo-foundation-settle;
         }
     }
 }
 @keyframes nebo-artwork-handoff { from { opacity: 1; } to { opacity: .68; } }
+@keyframes nebo-foundation-settle { from { scale: 1.035; } to { scale: 1; } }
 
 .editorial-stack-card.therapy-products .therapy-products__heading { margin-block-end: clamp(16px, 3vw, 30px); }
 .editorial-stack-card.therapy-products .therapy-grid { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: clamp(16px, 3vw, 36px); align-items: start; }
