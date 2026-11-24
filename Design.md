@@ -389,7 +389,7 @@ visual system.
 
 ### Home motion score
 
-- **Arrival:** set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, supporting copy rises, and the actions fade into full opacity in place. In browsers with scroll-driven animation support, dim only the artwork as Foundation enters. The actions remain available throughout. Foundation covers the hero through native scrolling and opens with a small rule reveal.
+- **Arrival:** set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, ease the outgoing artwork dim and the incoming Foundation image settle on the same reversible timeline. The actions remain available throughout. Foundation covers the hero through native scrolling and opens with a small rule reveal.
 - **Foundation:** the clinic story enters as the first opaque sticky act, using a
   small upward copy-in to settle the image and copy together.
 - **Focus:** visible cards enter in reading order, then settle into a still grid.
