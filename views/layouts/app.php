@@ -47,7 +47,7 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <script src="/assets/editorial-rails.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-rails.js') ?>" defer></script>
 <?php endif; ?>
 <script src="/assets/editorial-stack.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-stack.js') ?>" defer></script>
-<?php if (basename($viewFile ?? '') === 'home.php'): ?>
+<?php if (in_array(basename($viewFile ?? ''), ['home.php', 'campaigns.php', 'campaign.php'], true)): ?>
 <script src="/assets/therapy-media.js?v=<?= filemtime(__DIR__ . '/../../assets/therapy-media.js') ?>" defer></script>
 <?php endif; ?>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
