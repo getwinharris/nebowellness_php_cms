@@ -292,7 +292,9 @@ remain required. Enquiries retain campaign attribution in the existing inbox.
 
 The team module uses a clipped portrait track on the left and a selected biography
 column on the right. Portrait previews always show names. Exactly one portrait is
-large; its description and consultation action appear in the detail column.
+large; its description and consultation action appear in the detail column. Size that
+column for the longest current biography at each width so profile selection keeps
+the section height steady.
 Arrows cycle one practitioner at a time; portrait buttons and left/right keys also
 select profiles. On mobile the detail column follows the portraits. Without script
 enhancement, every profile renders with its own readable biography.

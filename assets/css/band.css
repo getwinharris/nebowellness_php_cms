@@ -4411,10 +4411,14 @@ body.navigation-drawer-open :is(.mobile-cart-tray, .support-fab, .support-panel)
 .team-showcase .team-preview-name { inset: auto 0 0; padding: 28px 10px 12px; background: linear-gradient(transparent,rgba(22,30,35,.85)); color: white; font-size: .85rem; line-height: 1.25; letter-spacing: 0; text-transform: none; overflow-wrap: anywhere; }
 .team-showcase .team-placeholder { top: 8px; left: 8px; bottom: auto; font-size: .55rem; padding: 4px; }
 .team-enhanced .team-slide:not(.is-rail-current) .team-placeholder { display: none; }
-.team-enhanced .team-slide > .team-slide__body { display: none; }
 .team-detail { display: none; }
-.team-enhanced .team-detail { display: block; }
-.team-detail .team-slide__body { display: flex; flex-direction: column; gap: 18px; min-height: 0; padding: 0; }
+.team-enhanced .team-detail { display: grid; }
+.team-detail .team-slide__body { grid-area: 1 / 1; align-self: start; display: flex; flex-direction: column; gap: 18px; min-height: 0; padding: 0; }
+.team-detail .team-slide__body:not(.is-team-current) { visibility: hidden; }
+@media (prefers-reduced-motion: no-preference) {
+    .team-detail .team-slide__body.is-team-current { animation: nebo-team-profile-in .24s ease-out; }
+}
+@keyframes nebo-team-profile-in { from { opacity: .85; } to { opacity: 1; } }
 .team-detail h3 { font-size: 2rem; font-style: italic; font-weight: 300; margin: 0; }
 .team-detail p { margin: 0; line-height: 1.65; }
 .team-detail .program-slide__link { margin-top: 12px; }

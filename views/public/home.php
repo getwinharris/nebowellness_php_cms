@@ -208,7 +208,8 @@
             </article>
             <?php endforeach; ?>
         </div>
-        <div class="team-detail" id="team-detail" aria-live="polite" aria-atomic="true"></div>
+        <div class="team-detail" id="team-detail"></div>
+        <span class="sr-only" role="status" data-team-status></span>
         </div>
     </div>
 </section>
