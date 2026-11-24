@@ -52,6 +52,7 @@
                 </div>
                 <h3>Gut Health</h3>
                 <p>Explore practitioner-led nutrition and lifestyle support for digestion, bloating, IBS symptoms, and everyday gut wellbeing.</p>
+                <a class="focus-program-link" href="#programs-gut">Explore gut health programs <span aria-hidden="true">↗</span></a>
             </article>
             <article class="value-card">
                 <div class="value-card__icon">
@@ -59,6 +60,7 @@
                 </div>
                 <h3>Metabolic Diseases</h3>
                 <p>Support insulin sensitivity, PCOS and thyroid care, and sustainable weight goals alongside appropriate medical treatment.</p>
+                <a class="focus-program-link" href="#programs-metabolic">Explore metabolic health programs <span aria-hidden="true">↗</span></a>
             </article>
             <article class="value-card">
                 <div class="value-card__icon">
@@ -66,6 +68,7 @@
                 </div>
                 <h3>Lifestyle Transformation</h3>
                 <p>Build lasting habits with personalized nutrition, stress management, and movement plans designed for your unique biology and life stage.</p>
+                <a class="focus-program-link" href="#programs-lifestyle">Explore lifestyle programs <span aria-hidden="true">↗</span></a>
             </article>
             <article class="value-card">
                 <div class="value-card__icon">
@@ -73,6 +76,7 @@
                 </div>
                 <h3>Maternal & Fertility Wellness</h3>
                 <p>Support preconception health, pregnancy vitality, and postpartum recovery with gentle, drug-free therapies that nurture both mother and baby.</p>
+                <a class="focus-program-link" href="#programs-fertility">Explore fertility and maternal programs <span aria-hidden="true">↗</span></a>
             </article>
         </div>
     </div>
@@ -115,7 +119,11 @@
 <?php endif; ?>
 
 <!-- Programs -->
+<?php $programAreas = ['all' => 'All programs', 'gut' => 'Gut health', 'metabolic' => 'Metabolic health', 'fertility' => 'Fertility & maternal care', 'lifestyle' => 'Lifestyle']; ?>
 <span class="editorial-anchor" id="programs" aria-hidden="true"></span>
+<?php foreach (array_slice($programAreas, 1, null, true) as $area => $label): ?>
+    <span class="editorial-anchor" id="programs-<?= e($area) ?>" aria-hidden="true"></span>
+<?php endforeach; ?>
 <section class="editorial-stack-card section" style="--stack-order:6" data-stack-card data-nebo-chapter="programs">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
@@ -137,7 +145,6 @@
         ]; ?>
         <?php
         $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle'];
-        $programAreas = ['all' => 'All programs', 'gut' => 'Gut health', 'metabolic' => 'Metabolic health', 'fertility' => 'Fertility & maternal care', 'lifestyle' => 'Lifestyle'];
         // Illustrative Nebo-owned media; not clinical outcome or patient evidence.
         $programImages = ['blog/gut-health-food.webp', 'nebo-programs.webp', 'nebo-garden.webp', 'nebo-clinic-hero.webp', 'blog/wellness-habits.webp'];
         ?>
