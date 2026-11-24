@@ -5566,6 +5566,19 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     text-wrap: pretty;
 }
 
+.focus-program-link {
+    grid-column: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-self: start;
+    min-height: 44px;
+    color: var(--brand-deep-blue);
+    font-weight: 600;
+    text-underline-offset: .2em;
+}
+.focus-program-link:focus-visible { outline: 2px solid var(--brand-focus); outline-offset: 2px; }
+
 [data-nebo-chapter="confidence"] .value-strip {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;

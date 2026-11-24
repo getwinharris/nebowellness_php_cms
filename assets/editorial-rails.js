@@ -77,25 +77,44 @@
         if (filters) {
             const buttons = Array.from(filters.querySelectorAll('[data-rail-filter]'));
             const status = filters.querySelector('[data-rail-filter-status]');
+            function applyFilter(button) {
+                if (button.getAttribute('aria-pressed') === 'true') return;
+                const area = button.dataset.railFilter;
+                const matching = allCards.filter(card => area === 'all' || card.dataset.railArea === area);
+                if (!matching.length) return;
+                clearTimeout(settling);
+                moving = false;
+                cards = matching;
+                for (const card of allCards) {
+                    card.classList.remove('is-rail-current');
+                    card.hidden = !cards.includes(card);
+                }
+                for (const filter of buttons) filter.setAttribute('aria-pressed', String(filter === button));
+                rail.scrollTo({left: 0, behavior: 'instant'});
+                sync();
+                if (status) status.textContent = cards.length === 1 ? '1 program shown' : `${cards.length} programs shown`;
+            }
+
+            function filterFragment(button) {
+                const area = button.dataset.railFilter;
+                return area === 'all' ? '#programs' : `#programs-${area}`;
+            }
+
+            function restoreFilter() {
+                const button = buttons.find(filter => filterFragment(filter) === location.hash);
+                if (button) applyFilter(button);
+            }
+
             for (const button of buttons) {
                 button.addEventListener('click', () => {
-                    if (button.getAttribute('aria-pressed') === 'true') return;
-                    const area = button.dataset.railFilter;
-                    const matching = allCards.filter(card => area === 'all' || card.dataset.railArea === area);
-                    if (!matching.length) return;
-                    clearTimeout(settling);
-                    moving = false;
-                    cards = matching;
-                    for (const card of allCards) {
-                        card.classList.remove('is-rail-current');
-                        card.hidden = !cards.includes(card);
+                    applyFilter(button);
+                    if (buttons.some(filter => filterFragment(filter) === location.hash)) {
+                        history.replaceState(history.state, '', filterFragment(button));
                     }
-                    for (const filter of buttons) filter.setAttribute('aria-pressed', String(filter === button));
-                    rail.scrollTo({left: 0, behavior: 'instant'});
-                    sync();
-                    if (status) status.textContent = cards.length === 1 ? '1 program shown' : `${cards.length} programs shown`;
                 });
             }
+            window.addEventListener('hashchange', restoreFilter);
+            restoreFilter();
             filters.hidden = false;
         }
         rail.addEventListener('scroll', () => {
