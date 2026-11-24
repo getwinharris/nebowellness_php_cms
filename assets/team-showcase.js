@@ -10,6 +10,8 @@
     const previous = controls.querySelector('[data-rail-prev]');
     const next = controls.querySelector('[data-rail-next]');
     const portraits = cards.map(card => card.querySelector('button'));
+    const biographies = cards.map(card => card.querySelector('.team-slide__body'));
+    const status = showcase.querySelector('[data-team-status]');
     let selected = 0;
     let lastScrollEnd = 0;
 
@@ -21,8 +23,9 @@
             card.style.order = String(active ? cards.length : (position - selected - 1 + cards.length) % cards.length);
             portraits[position].setAttribute('aria-pressed', String(active));
             portraits[position].tabIndex = active ? 0 : -1;
+            biographies[position].classList.toggle('is-team-current', active);
         });
-        detail.replaceChildren(cards[selected].querySelector('.team-slide__body').cloneNode(true));
+        status.textContent = portraits[selected].querySelector('.team-preview-name').textContent;
         lastScrollEnd = rail.scrollWidth - rail.clientWidth;
         rail.scrollLeft = lastScrollEnd;
         const focused = document.activeElement;
@@ -52,6 +55,7 @@
         if (Math.abs(rail.scrollLeft - lastScrollEnd) <= 1) rail.scrollLeft = end;
         lastScrollEnd = end;
     }
+    detail.append(...biographies);
     showcase.classList.add('team-enhanced');
     controls.hidden = cards.length < 2;
     select(0);
