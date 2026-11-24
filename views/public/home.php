@@ -137,12 +137,19 @@
         ]; ?>
         <?php
         $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle'];
+        $programAreas = ['all' => 'All programs', 'gut' => 'Gut health', 'metabolic' => 'Metabolic health', 'fertility' => 'Fertility & maternal care', 'lifestyle' => 'Lifestyle'];
         // Illustrative Nebo-owned media; not clinical outcome or patient evidence.
         $programImages = ['blog/gut-health-food.webp', 'nebo-programs.webp', 'nebo-garden.webp', 'nebo-clinic-hero.webp', 'blog/wellness-habits.webp'];
         ?>
+        <div class="program-filters" role="group" aria-label="Filter programs by care area" data-rail-filters="program-rail" hidden>
+            <?php foreach ($programAreas as $area => $label): ?>
+                <button type="button" data-rail-filter="<?= e($area) ?>" aria-controls="program-rail" aria-pressed="<?= $area === 'all' ? 'true' : 'false' ?>"><?= e($label) ?></button>
+            <?php endforeach; ?>
+            <span class="sr-only" data-rail-filter-status role="status"></span>
+        </div>
         <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
             <?php foreach ($programs as $index => $program): ?>
-            <article class="program-slide">
+            <article class="program-slide" data-rail-area="<?= e($programSubjects[$index]) ?>">
                 <a class="program-slide__card-link" href="/contact?subject=<?= e($programSubjects[$index]) ?>#contact-form" aria-label="Enquire about <?= e($program[0]) ?>">
                     <div class="program-slide__media">
                         <img src="/assets/images/<?= e($programImages[$index]) ?>" alt="" loading="lazy" decoding="async">
