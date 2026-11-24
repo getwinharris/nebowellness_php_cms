@@ -4,7 +4,8 @@
     document.addEventListener('submit', event => {
         const form = event.target.closest('[data-cart-add],[data-cart-change]');
         const control = form?.closest('[data-cart-control]');
-        if (!control || !window.fetch) return;
+        const endpoint = form?.getAttribute('action');
+        if (!control || !endpoint || !window.fetch) return;
         event.preventDefault();
         if (control.getAttribute('aria-busy') === 'true') return;
 
@@ -15,7 +16,7 @@
         buttons.forEach(button => { button.disabled = true; });
         queue = queue.then(async () => {
             try {
-                const response = await fetch(form.action, {method: 'POST', body, headers: {Accept: 'application/json'}});
+                const response = await fetch(endpoint, {method: 'POST', body, headers: {Accept: 'application/json'}});
                 const data = await response.json();
                 if (!response.ok || data.slug !== control.dataset.slug || !Number.isInteger(data.quantity) || !Number.isInteger(data.cart_count)) {
                     throw new Error(data.error || 'Unable to update the cart.');
