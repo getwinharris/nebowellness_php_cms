@@ -1001,7 +1001,7 @@ $tests['home page rejects malformed remote categories and retains complete sales
     assertSame('ring', $kept[1]['slug'], 'A category is kept only when both slug and name are present');
     $view = file_get_contents(app_path('views/public/home.php'));
     foreach (['Where Science Meets Nature for Lifelong Wellness', 'The Nebo Foundation', 'Our Vision', 'Gut Health'] as $heading) {
-        assertTrue(str_contains($view, $heading), "Home should retain the {$heading} section");
+        assertTrue(str_contains(strip_tags($view), $heading), "Home should retain the {$heading} section");
     }
     assertTrue(!str_contains($view, 'Online Consultation'), 'Home should not retain the retired consultation section');
 };
@@ -1017,11 +1017,12 @@ $tests['product cards retain responsive image presentation'] = function (): void
     }
 };
 
-$tests['home hero leads with spiritual products and a working shop cta'] = function (): void {
+$tests['home hero leads with wellness and working consultation and program links'] = function (): void {
     $view = file_get_contents(app_path('views/public/home.php'));
     assertTrue(!str_contains($view, 'Spiritual Products Online in Chennai'), 'Home hero headline should not say products online in Chennai');
     assertTrue(!str_contains($view, 'Remote Astrology Consultation</a>'), 'Home hero retired consultation button should remain absent');
-    foreach (['Where Science Meets Nature for Lifelong Wellness', '/contact', 'Book Your Consultation', 'Explore Our Programs'] as $needle) {
+    assertTrue(str_contains(strip_tags($view), 'Where Science Meets Nature for Lifelong Wellness'), 'Home hero should retain the complete headline');
+    foreach (['href="/contact#contact-form"', 'href="#programs"', 'Book Your Consultation', 'Explore Our Programs'] as $needle) {
         assertTrue(str_contains($view, $needle), "Home hero should include {$needle}");
     }
     assertTrue(!str_contains($view, 'href="/consult"'), 'Home hero should not link to retired consultation pages');

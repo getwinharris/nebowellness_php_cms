@@ -6,7 +6,7 @@
     <div class="container home-hero-inner">
         <div class="hero-copy">
             <span class="eyebrow">Integrative care in Kanyakumari</span>
-            <h1>Where Science Meets Nature for Lifelong Wellness</h1>
+            <h1>Where Science Meets Nature for <em>Lifelong Wellness</em></h1>
             <p class="lede">Personalised naturopathy, functional medicine, and lifestyle care. Find support for gut health, metabolic health, and maternal wellness.</p>
             <div class="hero-actions">
                 <a href="/contact#contact-form" class="btn btn-primary">Book Your Consultation</a>
