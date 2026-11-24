@@ -28,9 +28,14 @@ $otherServices = array_slice($therapyProducts, 1);
             <div class="therapy-grid__older"<?= !$isCatalog ? ' id="service-rail" role="region" aria-label="More services" data-editorial-rail data-overflow-controls' : '' ?>>
                 <?php foreach ($otherServices as $product): ?>
                     <article class="therapy-product">
-                        <<?= $productHeading ?>><a href="/campaigns/<?= e(rawurlencode($product['slug'])) ?>"><?= e($product['title']) ?></a></<?= $productHeading ?>>
-                        <p><?= e($product['summary'] ?? '') ?></p>
-                        <a class="therapy-product__link" href="/campaigns/<?= e(rawurlencode($product['slug'])) ?>" aria-label="View service: <?= e($product['title']) ?>">View service <span aria-hidden="true">↗</span></a>
+                        <div class="therapy-product__media">
+                            <img src="<?= e(trim((string)($product['image_url'] ?? '')) ?: '/assets/images/nebo-programs.webp') ?>" alt="" loading="lazy" decoding="async" data-therapy-image>
+                        </div>
+                        <div class="therapy-product__body">
+                            <<?= $productHeading ?>><a href="/campaigns/<?= e(rawurlencode($product['slug'])) ?>"><?= e($product['title']) ?></a></<?= $productHeading ?>>
+                            <p><?= e($product['summary'] ?? '') ?></p>
+                            <a class="therapy-product__link" href="/campaigns/<?= e(rawurlencode($product['slug'])) ?>" aria-label="View service: <?= e($product['title']) ?>">View service <span aria-hidden="true">↗</span></a>
+                        </div>
                     </article>
                 <?php endforeach; ?>
             </div>

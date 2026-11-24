@@ -47,7 +47,7 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <script src="/assets/editorial-rails.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-rails.js') ?>" defer></script>
 <?php endif; ?>
 <script src="/assets/editorial-stack.js?v=<?= filemtime(__DIR__ . '/../../assets/editorial-stack.js') ?>" defer></script>
-<?php if (basename($viewFile ?? '') === 'home.php'): ?>
+<?php if (in_array(basename($viewFile ?? ''), ['home.php', 'campaigns.php', 'campaign.php'], true)): ?>
 <script src="/assets/therapy-media.js?v=<?= filemtime(__DIR__ . '/../../assets/therapy-media.js') ?>" defer></script>
 <?php endif; ?>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
@@ -109,10 +109,11 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
 <?php try { $__blogCats = (new \App\Services\BlogService())->categories(); } catch (\Throwable $e) { $__blogCats = []; } ?>
     <details class="navigation-fallback" id="navigation-fallback">
         <summary class="menu-toggle" aria-label="Menu">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 8h18M3 16h18"/></svg>
             <span>Menu</span>
         </summary>
         <nav id="primary-nav" aria-label="Main navigation">
+            <p class="nav-section-label">Explore Nebo</p>
             <a href="/#programs" data-programs-nav>Programs</a>
             <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Services</a><?php endif; ?>
             <?php if ($__modules['shop']): ?>
@@ -130,6 +131,7 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
             <?php endif; ?>
             <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
             <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
+            <p class="nav-section-label nav-section-label--account">Your account</p>
             <?php if(!empty($_SESSION['user'])): ?>
                 <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
                 <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
@@ -147,6 +149,9 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
                 <img src="<?= e($__logo) ?>" width="108" height="60" alt="">
             </a>
             <button class="nav-close" type="button" aria-label="Close menu" autofocus>×</button>
+        </div>
+        <div class="navigation-drawer__footer">
+            <a class="btn btn-primary" href="/contact#contact-form">Book a consultation <span aria-hidden="true">↗</span></a>
         </div>
     </dialog>
     <div class="header-actions">
@@ -192,12 +197,15 @@ if ($__flash):
 <?php $supportChat = new \App\Services\AgentConversation('support'); ?>
 <section class="support-panel" id="support-panel" data-conversation="<?= e($supportChat->id()) ?>" data-has-turns="<?= $supportChat->hasTurns() ? '1' : '0' ?>" aria-labelledby="support-title" data-support-key="nebo-support-chat-<?= !empty($_SESSION['user']['email']) ? hash('sha256', strtolower((string)$_SESSION['user']['email'])) : 'guest' ?>" hidden>
     <div class="support-panel__head">
-        <strong id="support-title">Nebo Support</strong>
+        <div class="support-panel__identity">
+            <span class="support-panel__mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8m-8 4h5"/></svg></span>
+            <div><strong id="support-title">Nebo Support</strong><span>Clinic information assistant</span></div>
+        </div>
         <button type="button" class="btn btn-outline btn-sm" id="support-clear" hidden>New chat</button>
         <button type="button" class="support-panel__close" aria-label="Close support">×</button>
     </div>
     <div class="support-panel__body" id="support-log" role="log" aria-label="Conversation" tabindex="0">
-        <p class="support-panel__intro">Ask about programs, consultations, or clinic contact details. Please leave medical details out of chat.</p>
+        <p class="support-panel__intro">Ask about programs, consultations, or the clinic. Please leave medical details out of chat.</p>
     </div>
     <form class="support-panel__form" id="support-form">
         <input type="hidden" name="_csrf" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
@@ -212,16 +220,15 @@ if ($__flash):
             </div>
         </details>
         <label for="support-message">Your message</label>
-        <textarea id="support-message" name="message" rows="2" maxlength="2000" required></textarea>
-        <div class="support-panel__actions">
-            <button class="btn btn-primary btn-sm" type="submit">Send</button>
-            <?php if (!empty($_SESSION['user']['email'])): ?>
-                <button class="btn btn-outline btn-sm" type="submit" value="ticket" title="Share this message with clinic staff">Send to clinic</button>
-            <?php endif; ?>
+        <div class="support-panel__compose">
+            <textarea id="support-message" name="message" rows="2" maxlength="2000" required></textarea>
+            <button class="btn btn-primary" type="submit">Send</button>
         </div>
         <div class="support-panel__links">
-            <a href="/contact#contact-form">Contact the clinic team</a>
-            <?php if (empty($_SESSION['user']['email'])): ?>
+            <a href="/contact#contact-form">Contact the clinic</a>
+            <?php if (!empty($_SESSION['user']['email'])): ?>
+                <button class="support-panel__handoff" type="submit" value="ticket" title="Share this message with clinic staff">Send to clinic</button>
+            <?php else: ?>
                 <a href="/login">Sign in to track tickets</a>
             <?php endif; ?>
         </div>

@@ -9,7 +9,7 @@
             <h1>Where Science Meets Nature for Lifelong Wellness</h1>
             <p class="lede">Personalised naturopathy, functional medicine, and lifestyle care. Find support for gut health, metabolic health, and maternal wellness.</p>
             <div class="hero-actions">
-                <a href="/contact" class="btn btn-primary">Book Your Consultation</a>
+                <a href="/contact#contact-form" class="btn btn-primary">Book Your Consultation</a>
                 <a href="#programs" class="btn btn-secondary">Explore Our Programs</a>
             </div>
         </div>
@@ -135,16 +135,25 @@
             ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.'],
             ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.'],
         ]; ?>
-        <?php $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle']; ?>
+        <?php
+        $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle'];
+        // Illustrative Nebo-owned media; not clinical outcome or patient evidence.
+        $programImages = ['blog/gut-health-food.webp', 'nebo-programs.webp', 'nebo-garden.webp', 'nebo-clinic-hero.webp', 'blog/wellness-habits.webp'];
+        ?>
         <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
             <?php foreach ($programs as $index => $program): ?>
             <article class="program-slide">
-                <div class="program-slide__body">
-                    <span class="program-slide__meta"><?= e($program[1]) ?></span>
-                    <h3><?= e($program[0]) ?></h3>
-                    <p><?= e($program[2]) ?></p>
-                    <a href="/contact?subject=<?= e($programSubjects[$index]) ?>#contact-form" class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></a>
-                </div>
+                <a class="program-slide__card-link" href="/contact?subject=<?= e($programSubjects[$index]) ?>#contact-form" aria-label="Enquire about <?= e($program[0]) ?>">
+                    <div class="program-slide__media">
+                        <img src="/assets/images/<?= e($programImages[$index]) ?>" alt="" loading="lazy" decoding="async">
+                    </div>
+                    <div class="program-slide__body">
+                        <span class="program-slide__meta"><?= e($program[1]) ?></span>
+                        <h3><?= e($program[0]) ?></h3>
+                        <p><?= e($program[2]) ?></p>
+                        <span class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></span>
+                    </div>
+                </a>
             </article>
             <?php endforeach; ?>
         </div>

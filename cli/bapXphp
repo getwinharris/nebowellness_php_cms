@@ -162,7 +162,7 @@ ROOT="$(cd "$(dirname "$BAPX_SRC")/.." && pwd)"
 
 # Match EnvService: process settings win, and file values are literal data.
 # Later operator files may override values read from the earlier project file.
-declare -A loaded_settings=()
+loaded_settings=' '
 for env_file in "$ROOT/.env" "$ROOT/.env.mysql" "$ROOT/.env.test-user"; do
   [ -f "$env_file" ] || continue
   while IFS= read -r line || [ -n "$line" ]; do
@@ -170,13 +170,13 @@ for env_file in "$ROOT/.env" "$ROOT/.env.mysql" "$ROOT/.env.test-user"; do
     [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]] || continue
     setting_name=${BASH_REMATCH[1]}
     setting_value=${BASH_REMATCH[2]}
-    if [[ -v "$setting_name" && -z "${loaded_settings[$setting_name]:-}" ]]; then continue; fi
+    if [[ -n "${!setting_name+x}" && "$loaded_settings" != *" $setting_name "* ]]; then continue; fi
     case "$setting_value" in
       \"*\") setting_value=${setting_value:1:${#setting_value}-2} ;;
       \'*\') setting_value=${setting_value:1:${#setting_value}-2} ;;
     esac
     export "$setting_name=$setting_value"
-    loaded_settings[$setting_name]=1
+    loaded_settings+="$setting_name "
   done < "$env_file"
 done
 

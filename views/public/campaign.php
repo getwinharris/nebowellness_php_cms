@@ -27,7 +27,7 @@ $copy = static fn(string $field, string $fallback): string => trim((string)($cam
         <a class="campaign-text-link" href="#campaign-overview">About this program</a>
       </div>
     </div>
-    <img class="campaign-hero__image" src="<?= e(($campaign['image_url'] ?? '') ?: '/assets/images/nebo-programs.webp') ?>" alt="" loading="eager" fetchpriority="high">
+    <img class="campaign-hero__image" src="<?= e(trim((string)($campaign['image_url'] ?? '')) ?: '/assets/images/nebo-programs.webp') ?>" alt="" loading="eager" fetchpriority="high" data-therapy-image>
   </header>
   <div class="container campaign-page__layout" id="campaign-overview">
     <div class="campaign-page__body"><span class="eyebrow">Program overview</span><?= (new \App\Services\MarkdownRenderer())->render((string)($campaign['body'] ?? '')) ?></div>

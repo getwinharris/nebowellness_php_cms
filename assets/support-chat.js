@@ -14,6 +14,8 @@
     const intro = log.firstElementChild;
     const introduction = intro.textContent;
     const prompts = document.getElementById('support-prompts');
+    const pageLauncher = document.getElementById('support-page-launch');
+    let returnFocus = launcher;
     let loading = null;
     let retry = null;
     const ticketKey = panel.dataset.supportKey + ':pending-ticket';
@@ -81,10 +83,12 @@
         panel.style.setProperty('--support-keyboard-inset', Math.max(0, inset) + 'px');
     }
 
-    function toggle(open) {
+    function toggle(open, source = launcher) {
+        if (open) returnFocus = source;
         panel.hidden = !open;
         launcher.setAttribute('aria-expanded', String(open));
-        (open ? close : launcher).focus();
+        pageLauncher?.setAttribute('aria-expanded', String(open));
+        (open ? close : returnFocus).focus();
         if (open) {
             restore().catch(historyError);
             fitViewport();
@@ -156,6 +160,10 @@
     });
 
     launcher.addEventListener('click', () => toggle(panel.hidden));
+    if (pageLauncher) {
+        pageLauncher.hidden = false;
+        pageLauncher.addEventListener('click', () => toggle(panel.hidden, pageLauncher));
+    }
     close.addEventListener('click', () => toggle(false));
     viewport?.addEventListener('resize', fitViewport);
     viewport?.addEventListener('scroll', fitViewport);

@@ -43,6 +43,8 @@
         if (startedOutside && outside(event)) drawer.close();
         startedOutside = false;
     });
-    drawer.append(nav);
+    const footer = drawer.querySelector('.navigation-drawer__footer');
+    footer?.querySelector('a[href]')?.addEventListener('click', () => drawer.close());
+    drawer.insertBefore(nav, footer);
     fallback.replaceWith(trigger);
 })();
