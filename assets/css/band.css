@@ -5577,6 +5577,26 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     gap: 16px 32px;
 }
 
+.program-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block-end: 16px;
+}
+.program-filters button {
+    min-height: 44px;
+    padding: 7px 14px;
+    border: 1px solid var(--brand-rule);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--brand-deep-blue);
+    font: inherit;
+    cursor: pointer;
+}
+.program-filters button:hover { background: var(--brand-blue-paper); }
+.program-filters button[aria-pressed="true"] { background: var(--brand-deep-blue); color: #fff; }
+.program-filters button:focus-visible { outline: 2px solid var(--brand-focus); outline-offset: 2px; }
+
 #program-rail .program-slide {
     border: 0;
     background: transparent;
