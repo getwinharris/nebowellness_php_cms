@@ -55,6 +55,21 @@ absence as a finding.
 7. Inspect existing implementations before creating any file, route, service, view,
    collection or navigation item.
 
+### Improve the guidance with the change
+
+When improving a feature or workflow, review the project skills and canonical
+docs that describe the affected behavior. If the work changes a contract, reveals
+stale guidance, or establishes a reusable implementation or verification step,
+update the relevant `.agents/skills/<name>/SKILL.md` and canonical document in the
+same PR. Put product behavior in its owning document, repeatable steps in the
+skill, and turn-specific evidence in the issue or PR.
+
+Use the scope of the work to decide what to revise. A homepage layout improvement
+can update `Design.md` and the frontend skill with the new layout contract and
+browser checks. A change with no reusable lesson or contract change can leave
+the existing guidance as written. Regenerate affected indexes and maps with
+`./bapXphp update` and record the guidance changes in the PR.
+
 ### UI workflow
 
 1. Before editing UI, read [Design.md](Design.md) and the matching public or admin

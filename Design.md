@@ -235,8 +235,8 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
   admin-only mail. It must not describe Nebo as a store or use legacy colour names in
   customer-visible copy.
 - **Scroll motion:** establish the complete static layout first. The Nebo home page
-  uses an editorial layer system: an incoming opaque chapter rises over the preceding
-  chapter, then becomes still. Copy uses a quiet copy-in, not alternating sideways,
+  lets the Foundation introduction cover the briefly pinned hero, then uses
+  content-led sections in document order. Copy uses a quiet copy-in, not alternating sideways,
   scaling, bouncing, or looping effects. A card can have one entrance and one selected
   state only. The important item moves first, total stagger stays below 500ms, and
   `prefers-reduced-motion` removes transforms and smooth scrolling. Never animate
@@ -301,9 +301,9 @@ enhancement, every profile renders with its own readable biography.
 
 ## Editorial scroll and hero handoff
 
-Keep native scrolling. Hold the hero briefly under the header while the clinic
-statement arrives, then let Foundation and the following chapters scroll in
-document order. The statement uses one accessible heading and a decorative
+Keep native scrolling. Hold the hero briefly under the header while the dark
+Foundation introduction arrives. Follow it with Programs and service discovery.
+Place the statement between client stories and Team. It uses one accessible heading and a decorative
 light treatment that sweeps upward with scroll, revealing the same letters in
 deep blue against pale paper. It reverses when the visitor scrolls back.
 Keyboard flow, reduced motion, and unsupported browsers keep the statement
@@ -319,8 +319,8 @@ Use these terms consistently in product copy, implementation notes, and code rev
 - **Copy-in:** a short upward entrance triggered once as a chapter enters view.
   Essential copy remains opaque and ends in a still composition.
 - **Content composition:** the complete group of heading, media, supporting copy, and
-  action within an act. It is vertically centered below navigation when it fits, and
-  grows naturally when the content is taller than the viewport.
+  action within an act. Center the hero copy within its stage and let later
+  compositions follow the content and reading order.
 - **Selection rail:** the horizontal program or practitioner control. Arrow actions
   advance exactly one item. The rail never auto-advances.
 - **Featured portrait:** the one selected practitioner portrait. It is larger than the
@@ -388,21 +388,23 @@ visual system.
 
 ### Home motion score
 
-- **Arrival:** set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, ease the outgoing artwork dim and the incoming Foundation image settle on the same reversible timeline. The actions remain available throughout. The clinic statement covers the hero through native scrolling and introduces Foundation.
+- **Arrival:** set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, ease the outgoing artwork dim and the incoming Foundation image settle on the same reversible timeline. The actions remain available throughout. The dark Foundation introduces the clinic immediately after the hero.
 - **Foundation:** the clinic story enters in document flow, using a
   small upward copy-in to settle the image and copy together.
-- **Focus:** visible cards enter in reading order, then settle into a still grid.
-- **Confidence:** the proof cards enter individually within one centred composition.
 - **Programs:** the program rail uses illustrative Nebo imagery above duration, title,
-  description and a whole-card enquiry link. Card geometry is stable; each arrow advances
-  one item, with no autoplay or size change. Use 32px desktop and 16px phone gaps.
+  description and a whole-card enquiry link. Align the first image with the heading.
+  Give copy 16px desktop and 12px phone insets. Place filters and arrows on the same
+  row where they fit. Each arrow advances one stable card. Use 32px desktop and
+  16px phone gaps.
+- **Focus and Confidence:** let the cards enter in reading order. Keep related
+  Services before the story feature when the module is enabled.
+- **Stories:** place two attributed quotes on a dark surface beside one illustrative
+  scene at desktop widths. On phones the image precedes the quotes. Keep imagery
+  separate from attribution and follow the stories with the statement sweep.
 - **Team:** the selected portrait grows relative to named previews, then the biography
   updates beside it. This is the signature move: the practitioner's consultation link
   opens an enquiry with their name in the editable message. The same link works in
   each profile without JavaScript.
-- **Stories:** use one illustrative scene across the height of two attributed quotes
-  on desktop. On phones the image precedes the quotes. Keep imagery separate from
-  attribution and keep the quotes readable in normal document flow.
 - **Resolve:** the consultation card and charcoal footer close the sequence as complete
   end states; the footer is the final surface. On phones it stays in normal flow so the contact and legal links are fully visible.
 
@@ -433,15 +435,13 @@ The white main navigation bar stays at the viewport top during scrolling. The na
 hero holds for a short handoff. The hold is shorter on phones and absent with
 reduced motion. The measured header reserves space for anchors. Later sections
 remain in document flow and the opaque header stays above the content.
-Team preview portraits align around the featured portrait's vertical center, with
-centered image crops and visible names. Details move below the portrait rail at
+Team preview portraits align with the foot of the featured portrait. The biography
+starts at the top of the rail. Keep centered image crops and visible names. Details move below the portrait rail at
 tablet widths as well as mobile, so the preview names retain useful space.
 
-Every non-hero scroll section centers its complete content composition vertically
-within the available viewport below navigation. Desktop program artwork, spacing,
-and portraits scale with viewport height so copy and actions stay inside the card.
-Sections expand naturally for longer text and mobile; do not impose a fixed height
-or crop readable text to manufacture a fit. Section boundaries contain decorative
+Later sections size to their content, with separate vertical padding at each
+breakpoint. Desktop program artwork and portraits retain their own responsive
+geometry. Let sections expand for longer text or phone layouts. Section boundaries contain decorative
 motion, while horizontal rails keep their own scrolling region.
 
 The final consultation card uses a generous editorial heading, one clear request
@@ -464,4 +464,4 @@ hero scrolls in normal flow. Programs uses a stationary anchor so the menu can j
 
 ### Homepage hero, services and footer
 
-Use the consultation photo as a wide backdrop on desktop and preserve both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The Services chapter places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.
+Use the illustrative veranda as a wide backdrop on desktop and keep both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The Services chapter places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.

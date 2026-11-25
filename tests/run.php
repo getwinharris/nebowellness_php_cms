@@ -620,7 +620,10 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     assertTrue(str_contains($layout, '/assets/editorial-stack.js'), 'Home enhancement should load from the shared layout');
     assertTrue(str_contains($stack, 'new ResizeObserver') && str_contains($stack, "window.addEventListener('resize', measureLayout)"), 'Stack cards should be measured with a ResizeObserver fallback');
     assertTrue(str_contains($stack, "footer.classList.add('editorial-stack-card', 'landing-footer-card')"), 'The footer should become the final landing-page stack card');
-    assertTrue(str_contains($css, '.stack-ready > [data-nebo-chapter] { min-height: calc(var(--stack-viewport) - var(--site-header-height, 82px)); }'), 'Enhanced mobile chapters should fill the stage when their copy is short');
+    assertTrue(!str_contains($css, '.stack-ready > [data-nebo-chapter] { min-height:'), 'Homepage chapters after the hero should fit their own content');
+    $home = file_get_contents(app_path('views/public/home.php'));
+    assertTrue(preg_match('/data-nebo-chapter="arrival".*data-nebo-chapter="foundation".*data-nebo-chapter="programs".*data-nebo-chapter="stories".*id="nebo-scroll-statement-title".*data-nebo-chapter="team"/s', $home) === 1,
+        'The introduction follows the hero, Programs follow the introduction, and the statement bridges Stories and Team');
     assertTrue(str_contains($css, '--stack-viewport: 100dvh'), 'Mobile pinning should follow the available viewport as browser controls retract');
     assertTrue(str_contains($stack, "target.matches(':focus-visible')") && str_contains($css, '.stack-ready.stack-keyboard-flow > .editorial-stack-card'),
         'Keyboard focus should restore normal flow for the hero');

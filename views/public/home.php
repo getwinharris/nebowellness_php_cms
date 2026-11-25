@@ -19,22 +19,15 @@
     </div>
 </section>
 
-<section class="nebo-scroll-statement" aria-labelledby="nebo-scroll-statement-title">
-    <h2 class="container nebo-scroll-statement__title" id="nebo-scroll-statement-title">Care for the <em>whole person.</em></h2>
-    <div class="nebo-scroll-statement__light" aria-hidden="true">
-        <p class="container nebo-scroll-statement__title">Care for the <em>whole person.</em></p>
-    </div>
-</section>
-
 <!-- About Nebo Foundation -->
 <section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card data-nebo-chapter="foundation">
     <div class="container">
-        <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.webp" width="1672" height="941" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
         <div class="section-header">
             <span class="eyebrow serif-accent">About Us</span>
             <h2 class="section-title">The Nebo Foundation</h2>
             <p class="lede">Nebo Lifestyle Clinic is a flagship initiative of the Nebo Foundation, dedicated to making integrative, root-cause healthcare accessible and sustainable.</p>
         </div>
+        <div class="nebo-intro-image"><img src="/assets/images/nebo-programs.webp" width="1672" height="941" alt="Illustrative nutrition consultation in a calm clinic setting" loading="lazy"></div>
         <div class="nebo-intro-copy">
             <h3>Our Vision</h3>
             <p>To transform how people approach chronic disease and wellness by combining the wisdom of naturopathy with the precision of functional medicine, all delivered through compassionate, personalized care.</p>
@@ -49,8 +42,66 @@
     </div>
 </section>
 
+<!-- Programs -->
+<?php $programAreas = ['all' => 'All programs', 'gut' => 'Gut health', 'metabolic' => 'Metabolic health', 'fertility' => 'Fertility & maternal care', 'lifestyle' => 'Lifestyle']; ?>
+<span class="editorial-anchor" id="programs" aria-hidden="true"></span>
+<?php foreach (array_slice($programAreas, 1, null, true) as $area => $label): ?>
+    <span class="editorial-anchor" id="programs-<?= e($area) ?>" aria-hidden="true"></span>
+<?php endforeach; ?>
+<section class="editorial-stack-card section" style="--stack-order:3" data-stack-card data-nebo-chapter="programs">
+    <div class="container home-rail-section">
+        <div class="home-rail-heading">
+            <div>
+                <h2 class="section-title">Our Programs</h2>
+                <p class="lede">Personalised, practitioner-led pathways designed around your health goals.</p>
+            </div>
+        </div>
+        <?php $programs = [
+            ['Gut Restoration Program','6–12 weeks','Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.'],
+            ['Metabolic Reset','Personalised duration','A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.'],
+            ['Fertility & Preconception Wellness','Personalised duration','Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.'],
+            ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.'],
+            ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.'],
+        ]; ?>
+        <?php
+        $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle'];
+        // Illustrative Nebo-owned media; not clinical outcome or patient evidence.
+        $programImages = ['blog/gut-health-food.webp', 'nebo-programs.webp', 'nebo-garden.webp', 'nebo-clinic-hero.webp', 'blog/wellness-habits.webp'];
+        ?>
+        <div class="program-toolbar">
+            <div class="program-filters" role="group" aria-label="Filter programs by care area" data-rail-filters="program-rail" hidden>
+                <?php foreach ($programAreas as $area => $label): ?>
+                    <button type="button" data-rail-filter="<?= e($area) ?>" aria-controls="program-rail" aria-pressed="<?= $area === 'all' ? 'true' : 'false' ?>"><?= e($label) ?></button>
+                <?php endforeach; ?>
+                <span class="sr-only" data-rail-filter-status role="status"></span>
+            </div>
+            <div class="rail-controls" aria-label="Program slides">
+                <button type="button" class="rail-control" data-rail-prev="program-rail" aria-label="Previous programs">←</button>
+                <button type="button" class="rail-control" data-rail-next="program-rail" aria-label="Next programs">→</button>
+            </div>
+        </div>
+        <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
+            <?php foreach ($programs as $index => $program): ?>
+            <article class="program-slide" data-rail-area="<?= e($programSubjects[$index]) ?>">
+                <a class="program-slide__card-link" href="/contact?subject=<?= e($programSubjects[$index]) ?>#contact-form" aria-label="Enquire about <?= e($program[0]) ?>">
+                    <div class="program-slide__media">
+                        <img src="/assets/images/<?= e($programImages[$index]) ?>" alt="" loading="lazy" decoding="async">
+                    </div>
+                    <div class="program-slide__body">
+                        <span class="program-slide__meta"><?= e($program[1]) ?></span>
+                        <h3><?= e($program[0]) ?></h3>
+                        <p><?= e($program[2]) ?></p>
+                        <span class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></span>
+                    </div>
+                </a>
+            </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
 <!-- Focus Areas -->
-<section class="editorial-stack-card section" style="--stack-order:3" data-stack-card data-nebo-chapter="focus">
+<section class="editorial-stack-card section" style="--stack-order:4" data-stack-card data-nebo-chapter="focus">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Our Focus Areas</h2>
@@ -93,7 +144,7 @@
 </section>
 
 <!-- Why Choose Nebo -->
-<section class="editorial-stack-card section section--warm" style="--stack-order:4" data-stack-card data-nebo-chapter="confidence">
+<section class="editorial-stack-card section section--warm" style="--stack-order:5" data-stack-card data-nebo-chapter="confidence">
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">Why Choose Nebo Wellness?</h2>
@@ -117,7 +168,7 @@
 
 <?php if (!empty($therapyProducts)): ?>
 <span class="editorial-anchor" id="therapy-products" aria-hidden="true"></span>
-<section class="editorial-stack-card section therapy-products" style="--stack-order:5" data-stack-card data-nebo-chapter="products" aria-labelledby="therapy-products-title">
+<section class="editorial-stack-card section therapy-products" style="--stack-order:6" data-stack-card data-nebo-chapter="products" aria-labelledby="therapy-products-title">
     <div class="container">
         <header class="therapy-products__heading">
             <div><h2 class="section-title" id="therapy-products-title">Services</h2><p class="lede">Explore clinic-led therapies and request a session with the Nebo team.</p></div>
@@ -128,64 +179,37 @@
 </section>
 <?php endif; ?>
 
-<!-- Programs -->
-<?php $programAreas = ['all' => 'All programs', 'gut' => 'Gut health', 'metabolic' => 'Metabolic health', 'fertility' => 'Fertility & maternal care', 'lifestyle' => 'Lifestyle']; ?>
-<span class="editorial-anchor" id="programs" aria-hidden="true"></span>
-<?php foreach (array_slice($programAreas, 1, null, true) as $area => $label): ?>
-    <span class="editorial-anchor" id="programs-<?= e($area) ?>" aria-hidden="true"></span>
-<?php endforeach; ?>
-<section class="editorial-stack-card section" style="--stack-order:6" data-stack-card data-nebo-chapter="programs">
-    <div class="container home-rail-section">
-        <div class="home-rail-heading">
-            <div>
-                <h2 class="section-title">Our Programs</h2>
-                <p class="lede">Personalised, practitioner-led pathways designed around your health goals.</p>
-            </div>
-            <div class="rail-controls" aria-label="Program slides">
-                <button type="button" class="rail-control" data-rail-prev="program-rail" aria-label="Previous programs">←</button>
-                <button type="button" class="rail-control" data-rail-next="program-rail" aria-label="Next programs">→</button>
-            </div>
+<!-- Client-provided testimonials -->
+<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card data-nebo-chapter="stories">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Experiences shared by Nebo clients</h2>
         </div>
-        <?php $programs = [
-            ['Gut Restoration Program','6–12 weeks','Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.'],
-            ['Metabolic Reset','Personalised duration','A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.'],
-            ['Fertility & Preconception Wellness','Personalised duration','Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.'],
-            ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.'],
-            ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.'],
-        ]; ?>
-        <?php
-        $programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle'];
-        // Illustrative Nebo-owned media; not clinical outcome or patient evidence.
-        $programImages = ['blog/gut-health-food.webp', 'nebo-programs.webp', 'nebo-garden.webp', 'nebo-clinic-hero.webp', 'blog/wellness-habits.webp'];
-        ?>
-        <div class="program-filters" role="group" aria-label="Filter programs by care area" data-rail-filters="program-rail" hidden>
-            <?php foreach ($programAreas as $area => $label): ?>
-                <button type="button" data-rail-filter="<?= e($area) ?>" aria-controls="program-rail" aria-pressed="<?= $area === 'all' ? 'true' : 'false' ?>"><?= e($label) ?></button>
-            <?php endforeach; ?>
-            <span class="sr-only" data-rail-filter-status role="status"></span>
-        </div>
-        <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
-            <?php foreach ($programs as $index => $program): ?>
-            <article class="program-slide" data-rail-area="<?= e($programSubjects[$index]) ?>">
-                <a class="program-slide__card-link" href="/contact?subject=<?= e($programSubjects[$index]) ?>#contact-form" aria-label="Enquire about <?= e($program[0]) ?>">
-                    <div class="program-slide__media">
-                        <img src="/assets/images/<?= e($programImages[$index]) ?>" alt="" loading="lazy" decoding="async">
-                    </div>
-                    <div class="program-slide__body">
-                        <span class="program-slide__meta"><?= e($program[1]) ?></span>
-                        <h3><?= e($program[0]) ?></h3>
-                        <p><?= e($program[2]) ?></p>
-                        <span class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></span>
-                    </div>
-                </a>
-            </article>
-            <?php endforeach; ?>
+        <div class="nebo-testimonials" aria-label="Client testimonials">
+            <div class="nebo-testimonials__art">
+                <img src="/assets/images/editorial/nebo-stories.webp" alt="" width="850" height="1275" loading="lazy" decoding="async">
+            </div>
+            <figure class="nebo-testimonial">
+                <blockquote>“After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again.”</blockquote>
+                <figcaption>Priya S. <span>Bengaluru</span></figcaption>
+            </figure>
+            <figure class="nebo-testimonial">
+                <blockquote>“The IV nutrition and ozone therapy transformed my chronic fatigue. I can finally keep up with my kids and work without crashing.”</blockquote>
+                <figcaption>Nebo client <span>Client-provided testimonial</span></figcaption>
+            </figure>
         </div>
     </div>
 </section>
 
+<section class="nebo-scroll-statement" aria-labelledby="nebo-scroll-statement-title">
+    <h2 class="container nebo-scroll-statement__title" id="nebo-scroll-statement-title">Care for the <em>whole person.</em></h2>
+    <div class="nebo-scroll-statement__light" aria-hidden="true">
+        <p class="container nebo-scroll-statement__title">Care for the <em>whole person.</em></p>
+    </div>
+</section>
+
 <!-- Team -->
-<section class="editorial-stack-card section section--alt" style="--stack-order:7" data-stack-card data-nebo-chapter="team">
+<section class="editorial-stack-card section section--alt" style="--stack-order:8" data-stack-card data-nebo-chapter="team">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -224,28 +248,6 @@
     </div>
 </section>
 <script src="/assets/team-showcase.js?v=<?= filemtime(app_path('assets/team-showcase.js')) ?>" defer></script>
-
-<!-- Client-provided testimonials -->
-<section class="editorial-stack-card section" style="--stack-order:8" data-stack-card data-nebo-chapter="stories">
-    <div class="container">
-        <div class="section-header">
-            <h2 class="section-title">Experiences shared by Nebo clients</h2>
-        </div>
-        <div class="nebo-testimonials" aria-label="Client testimonials">
-            <div class="nebo-testimonials__art">
-                <img src="/assets/images/editorial/nebo-stories.webp" alt="" width="850" height="1275" loading="lazy" decoding="async">
-            </div>
-            <figure class="nebo-testimonial value-card">
-                <blockquote>“After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again.”</blockquote>
-                <figcaption>Priya S. <span>Bengaluru</span></figcaption>
-            </figure>
-            <figure class="nebo-testimonial value-card">
-                <blockquote>“The IV nutrition and ozone therapy transformed my chronic fatigue. I can finally keep up with my kids and work without crashing.”</blockquote>
-                <figcaption>Nebo client <span>Client-provided testimonial</span></figcaption>
-            </figure>
-        </div>
-    </div>
-</section>
 
 <!-- Contact CTA -->
 <section class="editorial-stack-card section section--warm" style="--stack-order:9" data-stack-card data-nebo-chapter="resolve">

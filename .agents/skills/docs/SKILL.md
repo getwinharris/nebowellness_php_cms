@@ -18,6 +18,7 @@ description: Use when editing README, docs, project-map docs, or agent-facing in
 - Query `index.yaml` narrowly to locate original files; never load it wholesale or treat generated summaries as the source of truth. `docs/project-index.json` is the machine-readable code index.
 - Validate with `./bapXphp ci`.
 - Keep durable docs concise and aligned with the PHP/MySQL shared-hosting architecture and Markdown-file blog boundary.
+- Follow the guidance improvement section in `AGENTS.md` when implementation exposes a gap. Update the canonical contract and its relevant project skill in the same PR, and keep task-specific evidence in the issue or PR.
 
 ## Testing
 
@@ -25,4 +26,4 @@ description: Use when editing README, docs, project-map docs, or agent-facing in
 
 ## Keeping this skill current
 
-Update whenever a route, controller, service or view is added or removed — the generated maps are committed and CI fails when they drift.
+Update this skill when the documentation workflow changes. When routes, controllers, services or views change, regenerate the committed maps and indexes.
