@@ -1,27 +1,30 @@
-<section class="section section--warm">
+<section class="section nebo-about-page">
     <div class="container">
-        <div class="section-header">
-            <span class="eyebrow serif-accent">Our Story</span>
-            <h1 class="section-title" style="margin-bottom:var(--space-sm);">About Nebo Lifestyle Clinic</h1>
-            <p class="lede">A holistic wellness sanctuary dedicated to naturopathy, functional medicine, and lifestyle transformation. Serving individuals and families across Kanyakumari and South India with personalised integrative health solutions.</p>
-        </div>
-
-        <figure class="nebo-about-photo">
-            <img src="/assets/images/nebo-garden.webp" width="1672" height="941" alt="Illustrative tropical garden and wellness setting" loading="eager">
-        </figure>
+        <header class="nebo-about-intro">
+            <div class="nebo-about-intro__copy">
+                <span class="eyebrow">Our story</span>
+                <h1>About Nebo Lifestyle Clinic</h1>
+                <p>We bring naturopathy, functional medicine and lifestyle care together for individuals and families in Kanyakumari and across South India.</p>
+                <a class="btn btn-primary" href="/contact#contact-form">Request a consultation</a>
+            </div>
+            <figure class="nebo-about-photo">
+                <img src="/assets/images/nebo-garden.webp" width="1672" height="941" alt="Tropical garden and shaded terrace" fetchpriority="high">
+                <figcaption>Illustrative scene</figcaption>
+            </figure>
+        </header>
 
         <div class="about-story-grid">
             <div class="about-story-card reveal">
-                <h3>The Nebo Foundation</h3>
+                <h2>The Nebo Foundation</h2>
                 <p>Nebo was born from a vision to bridge the gap between modern medical science and ancient natural healing wisdom. Founded by a team of experienced naturopaths and functional medicine practitioners, we recognise that true wellness extends beyond symptom management to address root causes through personalised, evidence-based natural therapies.</p>
             </div>
             <div class="about-story-card reveal">
-                <h3>Our Vision</h3>
+                <h2>Our Vision</h2>
                 <p>To be a beacon of integrative health excellence, empowering individuals to reclaim vitality and achieve sustainable wellness through personalised naturopathic care, functional nutrition, and lifestyle medicine.</p>
             </div>
         </div>
 
-        <div class="section-header" style="margin-top:var(--space-3xl);">
+        <div class="section-header nebo-about-section-heading">
             <span class="eyebrow serif-accent">The Three Pillars</span>
             <h2 class="section-title">Roots of Our Practice</h2>
         </div>
@@ -58,7 +61,7 @@
             </article>
         </div>
 
-        <div class="section-header" style="margin-top:var(--space-3xl);">
+        <div class="section-header nebo-about-section-heading">
             <span class="eyebrow serif-accent">Why Choose Nebo</span>
             <h2 class="section-title">Science · Nature · Care</h2>
             <p class="lede">Committed to clinical excellence and compassionate healing—every consultation reflects our dedication to your wellness journey.</p>
@@ -104,12 +107,12 @@
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
                 </div>
-                <h3>Safe & Natural</h3>
-                <p>All therapies prioritise safety, using evidence-based natural interventions free from harmful side effects, always respecting your body's innate healing intelligence.</p>
+                <h3>Care tailored to you</h3>
+                <p>Discuss your health history, preferences and questions with the team before choosing a care plan.</p>
             </article>
         </div>
 
-        <div class="section-header" style="margin-top:var(--space-3xl);">
+        <div class="section-header nebo-about-section-heading">
             <span class="eyebrow serif-accent">Our Commitment</span>
             <h2 class="section-title">Your Wellness Partner</h2>
         </div>
@@ -131,7 +134,7 @@
                 <h3>Book Your Wellness Consultation</h3>
                 <p>Start your journey toward vibrant health. Our team is here to guide you every step of the way with personalised, compassionate care.</p>
             </div>
-            <a class="btn btn-primary page-cta-card__button" href="/contact">Schedule Consultation →</a>
+            <a class="btn btn-primary page-cta-card__button" href="/contact#contact-form">Schedule Consultation →</a>
         </div>
     </div>
 </section>

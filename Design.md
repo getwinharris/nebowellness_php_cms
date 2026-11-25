@@ -193,16 +193,16 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Mobile commerce tray:** after the cart becomes non-empty, show one fixed blue tray above the device safe area with item count and a direct View cart action. Use an 8px radius and stable 56px minimum height; update it without page reload.
 - **Floating support stack:** on desktop, align the support circle directly below the cart tray at the same right edge. On mobile, keep Support and the cart tray side by side above the device safe area. Reserve enough space to reach the final page action and keep the open support panel clear of the navigation.
 - **Customer Support chat:** use a deep blue identity bar, a separate scrollable transcript and a compact composer with Send next to the message field. Keep suggested questions, clinic contact and the signed-in staff handoff available. The Support page launches the same panel and restores focus on close. Keep interactive targets at least 44px and keep the composer above the phone keyboard.
-- **Editorial media:** every blog post uses one intentional 16:9 image for both its listing thumbnail and article hero. UI guides use a legible screenshot of the exact page, cropped around the relevant interface rather than a decorative stock image, and link the represented page below the article.
+- **Editorial media:** every blog post uses one intentional 16:9 image for both its listing thumbnail and article hero. UI guides use a legible screenshot of the exact page, cropped around the relevant interface rather than a decorative stock image, and link the represented page below the article. In the Journal, give the lead image approximately half the card on desktop and place it above the text on phones. Give each entry one article link, with its category and date visible.
 - **Buttons (`button-primary` / `button-secondary`):** `48px` minimum height, `8px` radius, no uppercase, no letter-spacing. Primary is solid blue with a darker-blue hover; hover moves from `shadow-md` to `shadow-lg` and lifts 2px, no more. Secondary is solid green with white text. Hover states never shift layout.
 - **Forms:** white fields (`on-primary`), `8px` radius, `48px` height, clear labels, a single-value focus ring (`--shadow-focus`) -- no glow.
-- **Consultation form:** the form is the one elevated work surface. Use the `shadow-sm` surface token, a blue top rule, and an offset blue outline for keyboard focus. Keep hours, address, and contact details on open ruled rows below it. Preserve the form's field order, verification controls, and confirmation behavior.
+- **Contact and consultation enquiries:** introduce the page with a short editorial heading, labelled Nebo imagery, and links to the form, phone and email. Pair the form with open ruled clinic details on wide screens and put the details after the form on phones. Keep the form as the only elevated surface, with a visible keyboard focus outline. Preserve subject and practitioner prefill, field order, and verification. Keep success and error messages visible at the form after submission.
 - **Search/filter:** one rounded (`pill`) search control, or a quiet grouped filter row. No nested cards for filters.
 - **Product cards (`product-card`):** linked image/title, short description, price, Buy Now and one stateful cart control. Initially show Add to Cart; adding one unit replaces it in place with `− quantity +`. The number is the actual cart quantity. Each press updates the cart immediately; decrementing the final unit restores Add to Cart. Keep 44px targets, native form fallback, visible focus and disabled controls during requests. Do not show a separate Quantity row or redundant in-cart link.
 - **Cart quantity:** provide `−` and `+` controls beside every product, update line totals and the cart count, and remove the line when decreased to zero. Repeated additions of the same product merge into one line. Distinguish selecting a quantity to add from editing the quantity already in the cart.
 - **Commerce responsiveness:** use `minmax(0, 1fr)` for purchase-button columns, wrap quantity labels when space is tight, and keep keyboard focus visible. Verify home, shop, product and cart at 375px and desktop in the built-in Browser. Do not shrink purchase controls to 30px to force them onto one row.
 - **Consultant cards (`card-consultant`):** white, `8px` radius, face-forward portrait, name, speciality, language/experience metadata, review summary when present, and one clear profile/booking action. Every card uses equal media and content tracks so rows align.
-- **Section rhythm** begins with the Foundation introduction, figures, vision, and pillars. Programs follow. Use the [home motion score](#home-motion-score) for the later chapters, including the image-led care areas. On phones, keep each care principle's copy below its title. About uses a wide tropical-garden image before the story cards. Label generated scenes as illustrative. The primary action opens the contact form.
+- **Section rhythm** begins with the Foundation introduction, figures, vision, and pillars. Programs follow. Use the [home motion score](#home-motion-score) for the later chapters, including the image-led care areas. On phones, keep each care principle's copy below its title. About pairs the story heading and consultation action with a labelled tropical-garden illustration. Keep the action before the image on phones.
 - **Authentication:** login and registration are task pages, not marketing pages. Use a centered form surface, suppress the public footer, and keep the complete form visible on common mobile heights.
 - **Product details:** keep the short introduction, feature bullets, detailed description, and labelled specification rows in separate readable sections. Admin-created products use the same fields and layout as existing products; never paste table markup into a plain-text description. Omit empty sections instead of fabricating claims.
 - **Account:** use a persistent internal menu and one unframed content region. Orders, addresses, and installation are tasks, not promotional cards.
@@ -423,8 +423,9 @@ visual system.
 
 ## Sticky navigation and portrait alignment
 
-The white main navigation bar stays at the viewport top during scrolling. The native modal menu uses a two-line trigger, spacious editorial links grouped by exploration and account, and a consultation action. It occupies roughly one-third of a wide desktop and the full phone width, with a restrained 300ms entrance only when reduced motion is not requested. Keep the native disclosure fallback, module gating, keyboard focus, and independently scrollable menu content. The
-hero holds for a short handoff. The hold is shorter on phones and absent with
+- **Menu:** align the close control and logo with the closed header. Use a compact primary pane with a separate panel for program filters and blog topics on desktop. On phones the second level slides in from the right, with Back above its links. Keep consultation visible below both levels. Use native disclosures when JavaScript is unavailable.
+
+The homepage hero holds for a short handoff. The hold is shorter on phones and absent with
 reduced motion. The measured header reserves space for anchors. Later sections
 remain in document flow and the opaque header stays above the content.
 Team preview portraits align with the foot of the featured portrait. The biography
@@ -441,11 +442,16 @@ button and three concise next-step explanations. The shared charcoal footer clos
 
 ### Therapy campaign detail
 
-Lead with the program title and one clear form link in a split editorial hero.
-Keep program details and the clinic's next steps distinct, then show the enquiry
-in a light form card on a darker section. On mobile the title and action precede
-the image, and the form stacks in a single column. Keep enquiry wording explicit
-until a verified payment and session workflow is available.
+Use the published campaign's title, summary and media in a split hero with one
+prominent enquiry action. On phones the title and action precede the image. Keep
+the configured program details distinct from the next steps, and repeat the form
+link there after the visitor has read the details. The enquiry band pairs brief
+guidance with a light form card, stacked on phones. The in-page links use the
+shared header offset and the configured form fields stay in their saved order.
+The Services index opens each program at its overview. Its latest published
+program leads in a wide feature, followed by smaller program cards below. Use
+the configured campaign image when supplied, with subject-specific Nebo artwork
+for programs that still use the legacy shared image.
 
 ### Mobile homepage reading order
 

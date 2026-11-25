@@ -1,14 +1,12 @@
 (() => {
-    const programsLink = document.querySelector('[data-programs-nav]');
-    if (!programsLink) return;
+    const programsLinks = document.querySelectorAll('[data-programs-nav]');
+    if (!programsLinks.length) return;
 
     function syncProgramsLink() {
-        const active = location.pathname === programsLink.pathname && location.hash === programsLink.hash;
-        programsLink.classList.toggle('active', active);
-        if (active) {
-            programsLink.setAttribute('aria-current', 'location');
-        } else {
-            programsLink.removeAttribute('aria-current');
+        for (const link of programsLinks) {
+            const active = location.pathname === link.pathname && location.hash === link.hash;
+            if (active) link.setAttribute('aria-current', 'location');
+            else link.removeAttribute('aria-current');
         }
     }
 
