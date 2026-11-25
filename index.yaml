@@ -41,13 +41,13 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 300
+  concepts: 306
   relationships: 279
   by_type:
     blog: 5
     controller: 13
     doc: 37
-    image: 33
+    image: 39
     route: 125
     schema: 24
     service: 54
@@ -590,31 +590,29 @@ concepts:
   - id: "image:assets/images/consultants/default-female.webp"
     type: "image"
     title: "default-female.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/consultants/default-female.webp"
     tags:
       - "image"
       - "used"
     filename: "default-female.webp"
     mime: "image/webp"
-    usage_count: 2
+    usage_count: 1
     used_in:
       - "app/Controllers/PublicController.php"
-      - "views/public/home.php"
   - id: "image:assets/images/consultants/default-male.webp"
     type: "image"
     title: "default-male.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/consultants/default-male.webp"
     tags:
       - "image"
       - "used"
     filename: "default-male.webp"
     mime: "image/webp"
-    usage_count: 2
+    usage_count: 1
     used_in:
       - "app/Controllers/PublicController.php"
-      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-arrival-small.webp"
     type: "image"
     title: "nebo-arrival-small.webp"
@@ -641,6 +639,45 @@ concepts:
     usage_count: 1
     used_in:
       - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-daily-practice.webp"
+    type: "image"
+    title: "nebo-daily-practice.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-daily-practice.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-daily-practice.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-maternal-care.webp"
+    type: "image"
+    title: "nebo-maternal-care.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-maternal-care.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-maternal-care.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-preconception.webp"
+    type: "image"
+    title: "nebo-preconception.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-preconception.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-preconception.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-stories.webp"
     type: "image"
     title: "nebo-stories.webp"
@@ -650,6 +687,45 @@ concepts:
       - "image"
       - "used"
     filename: "nebo-stories.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-workplace-sound-bath.webp"
+    type: "image"
+    title: "nebo-workplace-sound-bath.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-workplace-sound-bath.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-workplace-sound-bath.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-workplace-sound-healing.webp"
+    type: "image"
+    title: "nebo-workplace-sound-healing.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-workplace-sound-healing.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-workplace-sound-healing.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-workplace-yoga.webp"
+    type: "image"
+    title: "nebo-workplace-yoga.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-workplace-yoga.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-workplace-yoga.webp"
     mime: "image/webp"
     usage_count: 1
     used_in:

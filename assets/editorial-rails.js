@@ -58,6 +58,29 @@
             select(positions, closest);
         }
 
+        function revealFilter(button) {
+            if (filters.scrollWidth <= filters.clientWidth) return;
+            const stripBounds = filters.getBoundingClientRect();
+            const buttonBounds = button.getBoundingClientRect();
+            const padding = getComputedStyle(filters);
+            const clipLeft = stripBounds.left + parseFloat(padding.paddingLeft);
+            const clipRight = stripBounds.right - parseFloat(padding.paddingRight);
+            const hiddenLeft = Math.min(0, buttonBounds.left - clipLeft);
+            const hiddenRight = Math.max(0, buttonBounds.right - clipRight);
+            filters.scrollLeft += hiddenLeft || hiddenRight;
+        }
+
+        function revealCurrentFilter() {
+            const focused = filters?.querySelector('[data-rail-filter]:focus');
+            const selectedFilter = focused || filters?.querySelector('[aria-pressed="true"]');
+            if (selectedFilter) revealFilter(selectedFilter);
+        }
+
+        function resize() {
+            sync();
+            revealCurrentFilter();
+        }
+
         function move(direction) {
             const positions = stops();
             const position = Math.min(selected, positions.length - 1) + direction;
@@ -77,6 +100,7 @@
         if (filters) {
             const buttons = Array.from(filters.querySelectorAll('[data-rail-filter]'));
             const status = filters.querySelector('[data-rail-filter-status]');
+
             function applyFilter(button) {
                 if (button.getAttribute('aria-pressed') === 'true') return;
                 const area = button.dataset.railFilter;
@@ -102,20 +126,26 @@
 
             function restoreFilter() {
                 const button = buttons.find(filter => filterFragment(filter) === location.hash);
-                if (button) applyFilter(button);
+                if (!button) return;
+                applyFilter(button);
+                revealCurrentFilter();
             }
 
             for (const button of buttons) {
+                button.addEventListener('focus', () => revealFilter(button));
                 button.addEventListener('click', () => {
                     applyFilter(button);
+                    revealFilter(button);
                     if (buttons.some(filter => filterFragment(filter) === location.hash)) {
                         history.replaceState(history.state, '', filterFragment(button));
                     }
                 });
             }
             window.addEventListener('hashchange', restoreFilter);
-            restoreFilter();
+            window.addEventListener('pageshow', () => requestAnimationFrame(restoreFilter));
+            document.fonts?.ready.then(restoreFilter);
             filters.hidden = false;
+            restoreFilter();
         }
         rail.addEventListener('scroll', () => {
             if (moving) return;
@@ -127,8 +157,8 @@
             clearTimeout(settling);
             sync();
         });
-        if ('ResizeObserver' in window) new ResizeObserver(sync).observe(rail);
-        else window.addEventListener('resize', sync);
+        if ('ResizeObserver' in window) new ResizeObserver(resize).observe(rail);
+        else window.addEventListener('resize', resize);
         sync();
         if (reveal) reveal.observe(rail);
         else rail.classList.add('rail-entered');

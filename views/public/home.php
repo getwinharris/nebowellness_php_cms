@@ -1,15 +1,33 @@
 <?php
 $programAreas = ['all' => 'All programs', 'gut' => 'Gut health', 'metabolic' => 'Metabolic health', 'fertility' => 'Fertility & maternal care', 'lifestyle' => 'Lifestyle'];
+// Program art is illustrative. Each crop represents the subject of its card.
 $programs = [
-    ['Gut Restoration Program','6–12 weeks','Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.'],
-    ['Metabolic Reset','Personalised duration','A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.'],
-    ['Fertility & Preconception Wellness','Personalised duration','Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.'],
-    ['Maternal Vitality','Stage based','Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.'],
-    ['Lifestyle Transformation','90 days','A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.'],
+    [
+        'title' => 'Gut Restoration Program', 'duration' => '6–12 weeks', 'area' => 'gut',
+        'copy' => 'Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.',
+        'image' => ['/assets/images/blog/gut-health-food.webp', 1599, 900],
+    ],
+    [
+        'title' => 'Metabolic Reset', 'duration' => 'Personalised duration', 'area' => 'metabolic',
+        'copy' => 'A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.',
+        'image' => ['/assets/images/nebo-programs.webp', 1672, 941],
+    ],
+    [
+        'title' => 'Fertility & Preconception Wellness', 'duration' => 'Personalised duration', 'area' => 'fertility',
+        'copy' => 'Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.',
+        'image' => ['/assets/images/editorial/nebo-preconception.webp', 760, 832],
+    ],
+    [
+        'title' => 'Maternal Vitality', 'duration' => 'Stage based', 'area' => 'fertility',
+        'copy' => 'Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.',
+        'image' => ['/assets/images/editorial/nebo-maternal-care.webp', 760, 868],
+    ],
+    [
+        'title' => 'Lifestyle Transformation', 'duration' => '90 days', 'area' => 'lifestyle',
+        'copy' => 'A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.',
+        'image' => ['/assets/images/blog/wellness-habits.webp', 1599, 900],
+    ],
 ];
-$programSubjects = ['gut', 'metabolic', 'fertility', 'fertility', 'lifestyle'];
-// Illustrative Nebo-owned media; not clinical outcome or patient evidence.
-$programImages = ['blog/gut-health-food.webp', 'nebo-programs.webp', 'nebo-garden.webp', 'nebo-clinic-hero.webp', 'blog/wellness-habits.webp'];
 $consultationSteps = [
     ['Tell us what matters', 'Let us know your goals and the support you are looking for.'],
     ['Connect with our team', 'Discuss the relevant program and what a consultation involves.'],
@@ -28,10 +46,11 @@ $consultationSteps = [
         <div class="hero-copy">
             <span class="eyebrow">Integrative care in Kanyakumari</span>
             <h1>Where Science Meets Nature for <em>Lifelong Wellness</em></h1>
-            <p class="lede">Personalised naturopathy, functional medicine, and lifestyle care. Find support for gut health, metabolic health, and maternal wellness.</p>
+            <p class="lede">Personalised naturopathy, functional medicine and lifestyle care shaped around work and daily life.</p>
             <div class="hero-actions">
                 <a href="/contact#contact-form" class="btn btn-primary">Book Your Consultation</a>
-                <a href="#programs" class="btn btn-secondary">Explore Our Programs</a>
+                <a href="#programs" class="nebo-hero-section-link">Explore Our Programs <span aria-hidden="true">↓</span></a>
+                <a href="#movement-and-sound" class="nebo-hero-section-link">Workplace Wellness <span aria-hidden="true">↓</span></a>
             </div>
         </div>
     </div>
@@ -48,7 +67,7 @@ $consultationSteps = [
         <?php
         $homeFigures = [
             [count($programs), 'Program pathways', 'Personalised options to explore before you enquire.'],
-            [count($programAreas) - 1, 'Care areas', 'Explore gut, metabolic, fertility, maternal, and lifestyle support.'],
+            [count($programAreas) - 1, 'Care areas', 'Gut health, metabolic health, fertility and maternal care, and lifestyle.'],
         ];
         require __DIR__ . '/../partials/home-figures.php';
         ?>
@@ -91,16 +110,18 @@ $consultationSteps = [
             </div>
         </div>
         <div class="editorial-rail" id="program-rail" data-editorial-rail tabindex="0" aria-label="Nebo wellness programs">
-            <?php foreach ($programs as $index => $program): ?>
-            <article class="program-slide" data-rail-area="<?= e($programSubjects[$index]) ?>">
-                <a class="program-slide__card-link" href="/contact?subject=<?= e($programSubjects[$index]) ?>#contact-form" aria-label="Enquire about <?= e($program[0]) ?>">
+            <?php foreach ($programs as $program):
+                [$image, $width, $height] = $program['image'];
+            ?>
+            <article class="program-slide" data-rail-area="<?= e($program['area']) ?>">
+                <a class="program-slide__card-link" href="/contact?subject=<?= e($program['area']) ?>#contact-form" aria-label="Enquire about <?= e($program['title']) ?>">
                     <div class="program-slide__media">
-                        <img src="/assets/images/<?= e($programImages[$index]) ?>" alt="" loading="lazy" decoding="async">
+                        <img src="<?= e($image) ?>" alt="" width="<?= $width ?>" height="<?= $height ?>" loading="lazy" decoding="async">
                     </div>
                     <div class="program-slide__body">
-                        <span class="program-slide__meta"><?= e($program[1]) ?></span>
-                        <h3><?= e($program[0]) ?></h3>
-                        <p><?= e($program[2]) ?></p>
+                        <span class="program-slide__meta"><?= e($program['duration']) ?></span>
+                        <h3><?= e($program['title']) ?></h3>
+                        <p><?= e($program['copy']) ?></p>
                         <span class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></span>
                     </div>
                 </a>
@@ -126,14 +147,24 @@ $consultationSteps = [
         <div class="team-showcase" data-team-showcase>
         <div class="team-rail" id="team-rail" aria-label="Nebo practitioner profiles">
             <?php foreach ($consultants as $teamIndex => $consultant):
-                $portrait = trim((string)($consultant['photo_url'] ?? '')) ?: '/assets/images/consultants/default-female.webp';
-                $placeholder = in_array($portrait, ['/assets/images/consultants/default-female.webp', '/assets/images/consultants/default-male.webp'], true);
+                $name = trim((string)($consultant['name'] ?? ''));
+                $portrait = trim((string)($consultant['photo_url'] ?? ''));
+                $placeholder = $portrait === '' || in_array(basename($portrait), ['default-female.webp', 'default-male.webp'], true);
+                $initials = '';
+                if ($placeholder) {
+                    $nameWithoutTitle = preg_replace('/^dr\.?\s+/iu', '', $name) ?? $name;
+                    preg_match_all('/(?:^|\s)(\p{L})/u', $nameWithoutTitle, $letters);
+                    $initials = implode('', array_slice($letters[1] ?? [], 0, 2));
+                }
             ?>
             <article class="team-slide">
-                <button type="button" class="team-slide__media" disabled aria-controls="team-detail" aria-label="View <?= e($consultant['name'] ?? 'practitioner') ?>" aria-pressed="<?= $teamIndex === 0 ? 'true' : 'false' ?>">
-                    <img src="<?= e($portrait) ?>" alt="" loading="lazy">
-                    <?php if ($placeholder): ?><span class="team-placeholder">Portrait placeholder</span><?php endif; ?>
-                    <span class="team-preview-name"><?= e($consultant['name'] ?? '') ?></span>
+                <button type="button" class="team-slide__media<?= $placeholder ? ' team-slide__media--initials' : '' ?>" disabled aria-controls="team-detail" aria-label="View <?= e($name ?: 'practitioner') ?>" aria-pressed="<?= $teamIndex === 0 ? 'true' : 'false' ?>">
+                    <?php if ($placeholder): ?>
+                        <span class="team-slide__initials" aria-hidden="true"><?= e($initials) ?></span>
+                    <?php else: ?>
+                        <img src="<?= e($portrait) ?>" alt="" loading="lazy" decoding="async">
+                    <?php endif; ?>
+                    <span class="team-preview-name"><?= e($name) ?></span>
                 </button>
                 <div class="team-slide__body">
                     <h3><?= e($consultant['name'] ?? '') ?></h3>
@@ -158,10 +189,11 @@ $consultationSteps = [
             <h2 class="section-title">Experiences shared by Nebo clients</h2>
         </div>
         <div class="nebo-testimonials" aria-label="Client testimonials">
-            <div class="nebo-testimonials__art">
+            <figure class="nebo-testimonials__art">
                 <img src="/assets/images/editorial/nebo-stories.webp" alt="" width="850" height="1275" loading="lazy" decoding="async">
-            </div>
-            <figure class="nebo-testimonial">
+                <figcaption class="nebo-editorial-art-label">Illustrative scene</figcaption>
+            </figure>
+            <figure class="nebo-testimonial nebo-testimonial--lead">
                 <blockquote>“After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again.”</blockquote>
                 <figcaption>Priya S. <span>Bengaluru</span></figcaption>
             </figure>
@@ -174,53 +206,76 @@ $consultationSteps = [
 </section>
 
 <section class="nebo-scroll-statement" data-nebo-chapter="statement" aria-labelledby="nebo-scroll-statement-title">
-    <h2 class="container nebo-scroll-statement__title" id="nebo-scroll-statement-title">Care for the <em>whole person.</em></h2>
-    <div class="nebo-scroll-statement__light" aria-hidden="true">
-        <p class="container nebo-scroll-statement__title">Care for the <em>whole person.</em></p>
-    </div>
+    <h2 class="container nebo-scroll-statement__title" id="nebo-scroll-statement-title">
+        <span>Care for the <em>whole person.</em></span>
+    </h2>
 </section>
 
 <!-- Focus Areas -->
-<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card data-nebo-chapter="focus">
+<section class="editorial-stack-card section" style="--stack-order:7" data-stack-card data-nebo-chapter="focus" aria-labelledby="home-care-title">
     <div class="container">
         <div class="section-header">
-            <h2 class="section-title">Care for everyday life</h2>
-            <p class="lede">Explore the care areas that shape a Nebo program.</p>
+            <h2 class="section-title" id="home-care-title">Care for everyday life</h2>
+            <p class="lede">Meals between meetings, long hours at a desk and changes at home all shape what practical care looks like.</p>
         </div>
         <div class="nebo-care-mosaic">
-            <article class="nebo-care-mosaic__card">
-                <div class="nebo-care-mosaic__media">
-                    <img src="/assets/images/blog/gut-health-food.webp" alt="" width="1599" height="900" loading="lazy" decoding="async">
+            <article class="nebo-care-mosaic__card nebo-care-mosaic__card--photo nebo-care-mosaic__card--lead">
+                <img src="/assets/images/editorial/nebo-daily-practice.webp" alt="" width="1280" height="854" loading="lazy" decoding="async">
+                <div class="nebo-care-mosaic__copy">
+                    <h3>Gut Health</h3>
+                    <p>Bring a picture of your meals, digestion and symptoms. A practitioner can help you decide what to track and which changes to try.</p>
+                    <a class="focus-program-link" href="#programs-gut">Explore gut health programs <span aria-hidden="true">↗</span></a>
                 </div>
-                <h3>Gut Health</h3>
-                <p>Explore practitioner-led nutrition and lifestyle support for digestion, bloating, IBS symptoms, and everyday gut wellbeing.</p>
-                <a class="focus-program-link" href="#programs-gut">Explore gut health programs <span aria-hidden="true">↗</span></a>
             </article>
             <article class="nebo-care-mosaic__card">
-                <div class="nebo-care-mosaic__media">
-                    <img src="/assets/images/nebo-programs.webp" alt="" width="1672" height="941" loading="lazy" decoding="async">
+                <div class="nebo-care-mosaic__copy">
+                    <h3>Metabolic Health</h3>
+                    <p>Shape a plan around meals, movement and sleep, with support for your weight goals or existing metabolic care.</p>
+                    <a class="focus-program-link" href="#programs-metabolic">Explore metabolic health programs <span aria-hidden="true">↗</span></a>
                 </div>
-                <h3>Metabolic Diseases</h3>
-                <p>Support insulin sensitivity, PCOS and thyroid care, and sustainable weight goals alongside appropriate medical treatment.</p>
-                <a class="focus-program-link" href="#programs-metabolic">Explore metabolic health programs <span aria-hidden="true">↗</span></a>
+            </article>
+            <article class="nebo-care-mosaic__card nebo-care-mosaic__card--photo">
+                <img src="/assets/images/nebo-garden.webp" alt="" width="1672" height="941" loading="lazy" decoding="async">
+                <span class="nebo-editorial-art-label">Illustrative scene</span>
+                <div class="nebo-care-mosaic__copy">
+                    <h3>Lifestyle Transformation</h3>
+                    <p>Find ways to make movement, stress care and regular routines fit the week you actually have.</p>
+                    <a class="focus-program-link" href="#programs-lifestyle">Explore lifestyle programs <span aria-hidden="true">↗</span></a>
+                </div>
             </article>
             <article class="nebo-care-mosaic__card">
-                <div class="nebo-care-mosaic__media">
-                    <img src="/assets/images/blog/wellness-habits.webp" alt="" width="1599" height="900" loading="lazy" decoding="async">
+                <div class="nebo-care-mosaic__copy">
+                    <h3>Fertility &amp; Maternal Wellness</h3>
+                    <p>Talk through nutrition and lifestyle needs as you prepare for pregnancy, during pregnancy or after delivery.</p>
+                    <a class="focus-program-link" href="#programs-fertility">Explore fertility and maternal programs <span aria-hidden="true">↗</span></a>
                 </div>
-                <h3>Lifestyle Transformation</h3>
-                <p>Build lasting habits with personalized nutrition, stress management, and movement plans designed for your unique biology and life stage.</p>
-                <a class="focus-program-link" href="#programs-lifestyle">Explore lifestyle programs <span aria-hidden="true">↗</span></a>
-            </article>
-            <article class="nebo-care-mosaic__card">
-                <div class="nebo-care-mosaic__media">
-                    <img src="/assets/images/nebo-garden.webp" alt="" width="1672" height="941" loading="lazy" decoding="async">
-                </div>
-                <h3>Maternal & Fertility Wellness</h3>
-                <p>Support preconception health, pregnancy vitality, and postpartum recovery with gentle, drug-free therapies that nurture both mother and baby.</p>
-                <a class="focus-program-link" href="#programs-fertility">Explore fertility and maternal programs <span aria-hidden="true">↗</span></a>
             </article>
         </div>
+        <section class="nebo-practice-gallery" id="movement-and-sound" aria-labelledby="nebo-practice-title">
+            <div class="nebo-practice-gallery__heading">
+                <h3 id="nebo-practice-title">Workplace wellness</h3>
+                <p>Bring guided yoga and sound sessions to your employee wellness plans.</p>
+            </div>
+            <div class="nebo-practice-gallery__images">
+                <figure>
+                    <img src="/assets/images/editorial/nebo-workplace-yoga.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
+                    <figcaption>Workplace yoga <span>Guided movement and breathing for desk-based teams.</span></figcaption>
+                </figure>
+                <figure>
+                    <img src="/assets/images/editorial/nebo-workplace-sound-healing.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
+                    <figcaption>Sound healing workshops <span>A guided introduction to singing bowls and sound.</span></figcaption>
+                </figure>
+                <figure>
+                    <img src="/assets/images/editorial/nebo-workplace-sound-bath.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
+                    <figcaption>Group sound baths <span>A shared listening session with time to pause.</span></figcaption>
+                </figure>
+            </div>
+            <p class="nebo-practice-gallery__credit">Images are illustrative.</p>
+            <div class="nebo-practice-gallery__actions">
+                <a class="btn btn-primary" href="/contact?subject=corporate#contact-form">Enquire about a team session</a>
+                <a class="focus-program-link" href="https://www.instagram.com/nebolifestyleclinic/">See Nebo’s campaigns <span aria-hidden="true">↗</span></a>
+            </div>
+        </section>
     </div>
 </section>
 
@@ -229,30 +284,30 @@ $consultationSteps = [
     <div class="container">
         <div class="section-header">
             <h2 class="section-title">What makes Nebo different</h2>
-            <p class="lede">Get to know the practitioners and care options available as you plan your next step.</p>
+            <p class="lede">Explore who provides care, how a consultation works, and what guides a Nebo care plan.</p>
         </div>
         <?php
         $homeFigures = [
-            [count($consultants), 'Practitioner profiles', 'Meet the team and explore their areas of practice.'],
+            [count($consultants), 'Practitioner profiles', 'Meet the team and see their specialities.'],
             [count($consultationSteps), 'Consultation steps', 'From sharing your goals to planning care.'],
         ];
         if (!empty($therapyProducts)) {
-            $homeFigures[] = [count($therapyProducts), 'Featured services', 'Browse the clinic-led options highlighted here.'];
+            $homeFigures[] = [count($therapyProducts), 'Featured services', 'Clinic-led options to explore.'];
         }
         require __DIR__ . '/../partials/home-figures.php';
         ?>
         <div class="value-strip">
             <article class="value-card">
-                <h3>Root-cause, personalized care</h3>
+                <h3>Personalised, root-cause care</h3>
                 <p>Nebo considers digestion, hormones, metabolism, stress, history, and goals when shaping a personalised care plan.</p>
             </article>
             <article class="value-card">
-                <h3>Safe, expert-led, measurable</h3>
+                <h3>Practitioner-led care with clear goals</h3>
                 <p>Practitioner-led, non-invasive wellbeing support with clear goals, review points, and coordination with existing medical care.</p>
             </article>
             <article class="value-card">
-                <h3>Integrative, maternal-first, sustainable</h3>
-                <p>Combines naturopathy, nutrition, lifestyle medicine, and evidence-based testing; offers specialized preconception/pregnancy/postpartum protocols; delivers practical, culturally relevant plans you can maintain long-term.</p>
+                <h3>Integrative care for maternal wellbeing</h3>
+                <p>Naturopathy, nutrition, lifestyle medicine and evidence-informed testing support plans for preconception, pregnancy and postpartum care.</p>
             </article>
         </div>
     </div>
@@ -273,8 +328,7 @@ $consultationSteps = [
         <?php endif; ?>
         <div class="consultation-invitation">
             <div class="consultation-invitation__copy">
-                <span class="eyebrow serif-accent">Your next chapter</span>
-                <h2>Begin your journey<br>to better wellbeing.</h2>
+                <h2>Plan your first consultation</h2>
                 <p>Share your health goals with Nebo. Our team will help you understand the programs, meet the right practitioner, and choose a practical next step.</p>
                 <a class="btn btn-primary" href="/contact#contact-form">Request a consultation <span aria-hidden="true">↗</span></a>
             </div>

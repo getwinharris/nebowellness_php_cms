@@ -612,7 +612,7 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
         '@media (prefers-reduced-motion: reduce)',
         '.stack-ready > .editorial-stack-card { position: relative; top: auto; }',
         '@media (max-width: 1128px) and (min-width: 744px)',
-        '.team-enhanced .team-slide:not(.is-rail-current) .team-placeholder',
+        '.team-showcase .team-slide__media--initials',
         'top: calc(var(--site-header-height, 114px) + 16px)',
     ] as $needle) {
         assertTrue(str_contains($css, $needle), "Editorial stack CSS should include {$needle}");
@@ -625,14 +625,14 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     preg_match_all('/data-nebo-chapter="([^"]+)"/', $home, $chapters);
     assertTrue($chapters[1] === ['arrival', 'foundation', 'programs', 'team', 'stories', 'statement', 'focus', 'confidence', 'resolve'],
         'The statement should bridge client stories and the media-led care areas after the Team rail');
+    assertSame(1, substr_count($home, 'Care for the <em>whole person.</em>'), 'The statement should use one heading for both sides of the sweep');
     assertTrue(str_contains($css, '--stack-viewport: 100dvh'), 'Mobile pinning should follow the available viewport as browser controls retract');
     assertTrue(str_contains($stack, "target.matches(':focus-visible')") && str_contains($css, '.stack-ready.stack-keyboard-flow > .editorial-stack-card'),
         'Keyboard focus should restore normal flow for the hero');
     assertTrue(substr_count($css, '.stack-ready > .editorial-stack-card { position: relative; top: auto; }') === 1, 'Only the reduced-motion rule should disable hero pinning for pointer and touch scrolling');
     assertTrue(!str_contains($contact, 'scroll-margin-top:110px'), 'Contact anchor should rely on the shared header scroll padding only');
-    foreach (['.consultation-invitation h2 { font-size: 4rem;', '.consultation-invitation h2 { font-size: 3rem;', '.consultation-invitation h2 { font-size: 2rem;'] as $needle) {
-        assertTrue(str_contains($css, $needle), "Consultation heading should use an explicit breakpoint size: {$needle}");
-    }
+    assertTrue(preg_match('/\.consultation-invitation h2\s*\{[^}]*font-size:\s*clamp\(2rem,\s*4\.2vw,\s*3\.6rem\)/s', $css) === 1,
+        'The consultation heading should stay between its mobile and desktop size limits');
     assertTrue(str_contains($css, '.editorial-stack-card.landing-footer-card { background: #2f3437; color: #fff; margin-top: 0; }'), 'The final footer card should meet the preceding card without an inherited gap');
 };
 

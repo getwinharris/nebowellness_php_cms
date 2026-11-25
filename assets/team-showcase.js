@@ -13,21 +13,20 @@
     const biographies = cards.map(card => card.querySelector('.team-slide__body'));
     const status = showcase.querySelector('[data-team-status]');
     let selected = 0;
-    let lastScrollEnd = 0;
 
     function select(index) {
         selected = Math.max(0, Math.min(index, cards.length - 1));
         cards.forEach((card, position) => {
             const active = selected === position;
             card.classList.toggle('is-rail-current', active);
-            card.style.order = String(active ? cards.length : (position - selected - 1 + cards.length) % cards.length);
+            // The reversed rail starts at the featured tile's edge at every width.
+            card.style.order = String(active ? 0 : (selected - position + cards.length) % cards.length);
             portraits[position].setAttribute('aria-pressed', String(active));
             portraits[position].tabIndex = active ? 0 : -1;
             biographies[position].classList.toggle('is-team-current', active);
         });
         status.textContent = portraits[selected].querySelector('.team-preview-name').textContent;
-        lastScrollEnd = rail.scrollWidth - rail.clientWidth;
-        rail.scrollLeft = lastScrollEnd;
+        rail.scrollLeft = 0;
         const focused = document.activeElement;
         previous.disabled = selected === 0;
         next.disabled = selected === cards.length - 1;
@@ -50,15 +49,8 @@
         portraits[selected].focus({ preventScroll: true });
     });
 
-    function keepFeaturedInView() {
-        const end = rail.scrollWidth - rail.clientWidth;
-        if (Math.abs(rail.scrollLeft - lastScrollEnd) <= 1) rail.scrollLeft = end;
-        lastScrollEnd = end;
-    }
     detail.append(...biographies);
     showcase.classList.add('team-enhanced');
     controls.hidden = cards.length < 2;
     select(0);
-    if ('ResizeObserver' in window) new ResizeObserver(keepFeaturedInView).observe(rail);
-    else window.addEventListener('resize', keepFeaturedInView);
 })();
