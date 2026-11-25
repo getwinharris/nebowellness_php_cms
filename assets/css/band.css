@@ -711,9 +711,6 @@ nav a:hover { color: var(--color-maroon); }
 }
 
 /* Nebo editorial home: photography, clear text overlay, and a compact second band. */
-.nebo-home-hero {
-    background: linear-gradient(90deg, rgba(22, 52, 93, .94) 0%, rgba(30, 69, 105, .82) 38%, rgba(30, 69, 105, .12) 74%), url('/assets/images/nebo-clinic-hero.webp') center center / cover no-repeat;
-}
 .nebo-home-hero .home-hero-inner { display: flex; min-height: 580px; align-items: center; }
 .nebo-home-hero .hero-copy { max-width: 670px; }
 .nebo-home-hero .eyebrow { color: #d6eac9; letter-spacing: .11em; }
@@ -729,15 +726,36 @@ nav a:hover { color: var(--color-maroon); }
 .nebo-intro-pillars { list-style: none; padding: 0; margin: var(--space-md) 0; }
 .nebo-intro-pillars li { padding-block: var(--space-xs); }
 .nebo-intro-pillars li::before { content: "✓ "; }
-.nebo-testimonials { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xl); max-width: 1000px; margin: 0 auto; }
+.nebo-testimonials {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(16px, 3vw, 40px);
+    max-width: 1120px;
+    margin-inline: auto;
+}
+.nebo-testimonials__art {
+    position: relative;
+    grid-row: span 2;
+    min-height: 360px;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+}
+.nebo-testimonials__art img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 60%;
+}
 @media (max-width: 744px) {
-    .nebo-home-hero { background-position: 62% center; }
     .nebo-home-hero .home-hero-inner { min-height: min(500px, calc(100svh - 68px)); padding-top: 24px; align-items: flex-end; }
     .nebo-home-hero .hero-copy { text-align: left; margin: 0; }
     .nebo-home-hero .hero-actions { justify-content: flex-start; }
     .nebo-intro-section .container { grid-template-columns: 1fr; }
     .nebo-intro-section .nebo-intro-image { grid-row: auto; min-height: 260px; }
     .nebo-testimonials { grid-template-columns: minmax(0, 1fr); }
+    .nebo-testimonials__art { grid-row: auto; min-height: 0; aspect-ratio: 3 / 2; }
 }
 
 .hero-deity { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2; }
@@ -4335,7 +4353,7 @@ body.navigation-drawer-open :is(.mobile-cart-tray, .support-fab, .support-panel)
 .brand-wordmark { display: flex; align-items: baseline; gap: .36rem; letter-spacing: .05em; white-space: nowrap; }
 .brand-wordmark strong { color: #4472c4; font-size: .95rem; font-weight: 900; }
 .brand-wordmark b { color: #70ad47; font-size: .61rem; font-weight: 700; }
-.nebo-testimonial { padding: var(--space-xl); }
+.nebo-testimonial { margin: 0; padding: var(--space-xl); text-align: start; }
 .nebo-testimonial blockquote { margin: 0; font-size: clamp(1.05rem, 1.7vw, 1.35rem); line-height: 1.6; color: var(--color-ink); }
 .nebo-testimonial figcaption { margin-top: 1.25rem; color: var(--color-primary); font-weight: 700; }
 .nebo-testimonial figcaption span { display: block; margin-top: .2rem; color: var(--color-text-muted); font-size: .82rem; font-weight: 500; }
@@ -4957,8 +4975,18 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, rgb(16 38 61 / 84%), transparent 28%),
-        linear-gradient(90deg, #10263d 0%, rgb(16 38 61 / 94%) 24%, rgb(16 38 61 / 61%) 48%, transparent 80%);
+    background: linear-gradient(0deg, rgb(16 38 61 / 68%), transparent 25%),
+        linear-gradient(90deg, rgb(16 38 61 / 80%) 0%, rgb(16 38 61 / 55%) 36%, transparent 76%);
+}
+.nebo-hero-art-label {
+    position: absolute;
+    z-index: 3;
+    inset: 20px 24px auto auto;
+    padding: 4px 8px;
+    background: #10263d;
+    color: #fff;
+    font-size: .75rem;
+    line-height: 1.35;
 }
 .nebo-home-hero .home-hero-inner {
     position: relative;
@@ -5039,7 +5067,8 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 
 @media (max-width: 743px) {
     .nebo-hero-media { height: clamp(190px, 40svh, 380px); }
-    .nebo-hero-media img { object-position: 88% 52%; }
+    .nebo-hero-media img { object-position: 83% 52%; }
+    .nebo-hero-art-label { inset: 12px 12px auto auto; }
     .nebo-hero-media::after { background: linear-gradient(180deg, transparent 40%, #10263d 100%); }
     .nebo-home-hero .home-hero-inner { align-items: flex-end; padding: clamp(156px, 29svh, 292px) 20px max(48px, calc(var(--mobile-controls-bottom) + 46px)); }
     .nebo-home-hero .hero-copy { max-width: 100%; }
