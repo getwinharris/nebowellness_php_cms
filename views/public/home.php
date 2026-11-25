@@ -252,22 +252,26 @@ $consultationSteps = [
         </div>
         <section class="nebo-practice-gallery" id="movement-and-sound" aria-labelledby="nebo-practice-title">
             <div class="nebo-practice-gallery__heading">
-                <h3 id="nebo-practice-title">Movement and sound</h3>
-                <p>Illustrations of yoga and sound practices for days spent at a desk.</p>
+                <h3 id="nebo-practice-title">Yoga and sound healing</h3>
+                <p>Make time for yoga and sound healing around a busy workweek. See Nebo’s workshops and group sessions, and ask about upcoming dates.</p>
             </div>
             <div class="nebo-practice-gallery__images">
                 <figure>
-                    <img src="/assets/images/editorial/nebo-yoga.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
-                    <figcaption>Yoga practice</figcaption>
+                    <img src="/assets/images/editorial/nebo-sound-workshop.webp" alt="Workshop participants seated on blue exercise mats" width="387" height="382" loading="lazy" decoding="async">
+                    <figcaption>Sound healing workshop at a Spottle Space</figcaption>
                 </figure>
                 <figure>
-                    <img src="/assets/images/editorial/nebo-sound-therapy.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
-                    <figcaption>Sound therapy</figcaption>
+                    <img src="/assets/images/editorial/nebo-sound-group.webp" alt="Workshop group standing behind singing bowls and chimes" width="387" height="421" loading="lazy" decoding="async">
+                    <figcaption>Participants and singing bowls at a Nebo session</figcaption>
                 </figure>
-                <figure>
-                    <img src="/assets/images/editorial/nebo-sound-bath.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
-                    <figcaption>Sound bath</figcaption>
+                <figure class="nebo-practice-gallery__poster">
+                    <img src="/assets/images/editorial/nebo-full-moon-reset.webp" alt="Nebo’s Full Moon Reset sound healing group session poster" width="395" height="522" loading="lazy" decoding="async">
+                    <figcaption>Full Moon Reset <span>Past group session · 25 October 2026 · Kilpauk, Chennai</span></figcaption>
                 </figure>
+            </div>
+            <div class="nebo-practice-gallery__actions">
+                <a class="btn btn-primary" href="/contact#contact-form">Ask about upcoming sessions</a>
+                <a class="focus-program-link" href="https://www.instagram.com/nebolifestyleclinic/">See Nebo’s campaigns <span aria-hidden="true">↗</span></a>
             </div>
         </section>
     </div>

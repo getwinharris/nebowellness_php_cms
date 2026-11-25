@@ -650,6 +650,19 @@ concepts:
     usage_count: 1
     used_in:
       - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-full-moon-reset.webp"
+    type: "image"
+    title: "nebo-full-moon-reset.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-full-moon-reset.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-full-moon-reset.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-maternal-care.webp"
     type: "image"
     title: "nebo-maternal-care.webp"
@@ -674,28 +687,28 @@ concepts:
     mime: "image/webp"
     usage_count: 0
     used_in: []
-  - id: "image:assets/images/editorial/nebo-sound-bath.webp"
+  - id: "image:assets/images/editorial/nebo-sound-group.webp"
     type: "image"
-    title: "nebo-sound-bath.webp"
+    title: "nebo-sound-group.webp"
     description: "Image referenced by 1 project resource(s)."
-    resource: "assets/images/editorial/nebo-sound-bath.webp"
+    resource: "assets/images/editorial/nebo-sound-group.webp"
     tags:
       - "image"
       - "used"
-    filename: "nebo-sound-bath.webp"
+    filename: "nebo-sound-group.webp"
     mime: "image/webp"
     usage_count: 1
     used_in:
       - "views/public/home.php"
-  - id: "image:assets/images/editorial/nebo-sound-therapy.webp"
+  - id: "image:assets/images/editorial/nebo-sound-workshop.webp"
     type: "image"
-    title: "nebo-sound-therapy.webp"
+    title: "nebo-sound-workshop.webp"
     description: "Image referenced by 1 project resource(s)."
-    resource: "assets/images/editorial/nebo-sound-therapy.webp"
+    resource: "assets/images/editorial/nebo-sound-workshop.webp"
     tags:
       - "image"
       - "used"
-    filename: "nebo-sound-therapy.webp"
+    filename: "nebo-sound-workshop.webp"
     mime: "image/webp"
     usage_count: 1
     used_in:
@@ -709,19 +722,6 @@ concepts:
       - "image"
       - "used"
     filename: "nebo-stories.webp"
-    mime: "image/webp"
-    usage_count: 1
-    used_in:
-      - "views/public/home.php"
-  - id: "image:assets/images/editorial/nebo-yoga.webp"
-    type: "image"
-    title: "nebo-yoga.webp"
-    description: "Image referenced by 1 project resource(s)."
-    resource: "assets/images/editorial/nebo-yoga.webp"
-    tags:
-      - "image"
-      - "used"
-    filename: "nebo-yoga.webp"
     mime: "image/webp"
     usage_count: 1
     used_in:

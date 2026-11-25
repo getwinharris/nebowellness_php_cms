@@ -5024,12 +5024,12 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     --home-inline-gutter: 24px;
     --home-measure: var(--container-max);
 }
-.editorial-stack :is(.hero-actions, .consultation-invitation) .btn-primary {
+.editorial-stack :is(.hero-actions, .consultation-invitation, .nebo-practice-gallery__actions) .btn-primary {
     background: var(--home-action);
     border-color: var(--home-action);
     color: #fff;
 }
-.editorial-stack :is(.hero-actions, .consultation-invitation) .btn-primary:hover {
+.editorial-stack :is(.hero-actions, .consultation-invitation, .nebo-practice-gallery__actions) .btn-primary:hover {
     background: var(--home-action-hover);
     border-color: var(--home-action-hover);
 }
@@ -6146,7 +6146,8 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 .nebo-practice-gallery__heading p { max-width: 48ch; margin: 0; color: var(--color-text-muted); }
 .nebo-practice-gallery__images {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, .755fr);
+    align-items: start;
     gap: 14px clamp(12px, 2vw, 24px);
 }
 .nebo-practice-gallery figure { min-width: 0; margin: 0; }
@@ -6154,16 +6155,27 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 1;
     object-fit: cover;
     border-radius: 6px;
     background: var(--brand-blue-paper);
 }
-.nebo-practice-gallery figcaption { margin-block-start: 7px; color: var(--brand-deep-blue); font-weight: 550; }
+.nebo-practice-gallery figure:nth-child(2) img { object-position: center 65%; }
+.nebo-practice-gallery__poster img { aspect-ratio: auto; }
+.nebo-practice-gallery figcaption { margin-block-start: 8px; color: var(--brand-deep-blue); font-weight: 550; }
+.nebo-practice-gallery figcaption span { display: block; color: var(--color-text-muted); font-size: .875rem; font-weight: 400; }
+.nebo-practice-gallery__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    margin-block-start: 22px;
+}
+.nebo-practice-gallery__actions .btn { min-height: 44px; text-align: center; white-space: normal; }
 @media (max-width: 743px) {
     .nebo-practice-gallery__images { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .nebo-practice-gallery figure:first-child { grid-column: 1 / -1; }
-    .nebo-practice-gallery figure:not(:first-child) img { aspect-ratio: 5 / 4; }
+    .nebo-practice-gallery figure:first-child img { aspect-ratio: 4 / 3; }
 }
 .nebo-resource-split__media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 68% center; }
 
