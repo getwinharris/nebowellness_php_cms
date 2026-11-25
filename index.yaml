@@ -41,13 +41,13 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 297
+  concepts: 300
   relationships: 279
   by_type:
     blog: 5
     controller: 13
     doc: 37
-    image: 30
+    image: 33
     route: 125
     schema: 24
     service: 54
@@ -613,6 +613,45 @@ concepts:
     used_in:
       - "app/Controllers/PublicController.php"
       - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-arrival-small.webp"
+    type: "image"
+    title: "nebo-arrival-small.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-arrival-small.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-arrival-small.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-arrival.webp"
+    type: "image"
+    title: "nebo-arrival.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-arrival.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-arrival.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-stories.webp"
+    type: "image"
+    title: "nebo-stories.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-stories.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-stories.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
   - id: "image:assets/images/logo-192.png"
     type: "image"
     title: "logo-192.png"
@@ -712,19 +751,17 @@ concepts:
   - id: "image:assets/images/nebo-clinic-hero.webp"
     type: "image"
     title: "nebo-clinic-hero.webp"
-    description: "Image referenced by 4 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/nebo-clinic-hero.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-clinic-hero.webp"
     mime: "image/webp"
-    usage_count: 4
+    usage_count: 2
     used_in:
       - "app/Services/SeoService.php"
-      - "assets/css/band.css"
       - "views/layouts/app.php"
-      - "views/public/home.php"
   - id: "image:assets/images/nebo-favicon.png"
     type: "image"
     title: "nebo-favicon.png"

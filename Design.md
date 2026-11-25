@@ -184,7 +184,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 ## Components
 
 - **Header:** soft white, pinned to the viewport top, with a hairline bottom border and the complete client-supplied Nebo logo centered. The drawer repeats this logo as a home link; account/cart actions remain right aligned.
-- **Home hero (editorial):** Use the full-width Nebo clinic image with a dark blue text scrim, a Playfair Display headline and an immediately available consultation action that opens the form. At 375px, crop toward the consultation and retain a readable text panel and full-width actions. The image is illustrative and must not be described as a photograph of Nebo staff. The image settles once, then supporting copy rises a short distance and the actions fade into full opacity in place. Reduced motion leaves the complete composition still.
+- **Home hero (editorial):** Use the full-width illustrative veranda scene with a dark blue text scrim, a Playfair Display headline and an immediately available consultation action that opens the form. At 375px, crop toward the sunlit veranda and retain a readable text panel and full-width actions. Label the scene as illustrative. Generated scenes depict neither the clinic premises nor its staff or clients. The image settles once, then supporting copy rises a short distance and the actions fade into full opacity in place. Reduced motion leaves the complete composition still.
 - **Program rail:** a horizontal, equal-height scroll-snap editorial rail with a partial next card
   visible on mobile. Each card leads with illustrative artwork, followed by duration,
   program name, a short factual description and an enquiry link. Each 44px or larger arrow target advances exactly one card plus its grid gap; keyboard and touch scrolling remain
@@ -400,8 +400,9 @@ visual system.
   updates beside it. This is the signature move: the practitioner's consultation link
   opens an enquiry with their name in the editable message. The same link works in
   each profile without JavaScript.
-- **Stories:** testimonials arrive as a calm evidence section with no simulated quote
-  motion or counter.
+- **Stories:** use one illustrative scene across the height of two attributed quotes
+  on desktop. On phones the image precedes the quotes. Keep imagery separate from
+  attribution and keep the quotes readable in normal document flow.
 - **Resolve:** the consultation card and charcoal footer close the sequence as complete
   end states; the footer is the final surface. On phones it stays in normal flow so the contact and legal links are fully visible.
 

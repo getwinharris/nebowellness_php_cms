@@ -1,8 +1,11 @@
 <div class="editorial-stack" data-editorial-stack>
 <section class="editorial-stack-card home-hero nebo-home-hero" style="--stack-order:1" data-stack-card data-nebo-chapter="arrival">
     <div class="nebo-hero-media" aria-hidden="true">
-        <img src="/assets/images/nebo-clinic-hero.webp" alt="" width="1774" height="887" fetchpriority="high">
+        <img src="/assets/images/editorial/nebo-arrival.webp"
+            srcset="/assets/images/editorial/nebo-arrival-small.webp 840w, /assets/images/editorial/nebo-arrival.webp 1672w"
+            sizes="(max-width: 743px) 720px, 100vw" alt="" width="1672" height="941" fetchpriority="high">
     </div>
+    <span class="nebo-hero-art-label">Illustrative scene</span>
     <div class="container home-hero-inner">
         <div class="hero-copy">
             <span class="eyebrow">Integrative care in Kanyakumari</span>
@@ -229,6 +232,9 @@
             <h2 class="section-title">Experiences shared by Nebo clients</h2>
         </div>
         <div class="nebo-testimonials" aria-label="Client testimonials">
+            <div class="nebo-testimonials__art">
+                <img src="/assets/images/editorial/nebo-stories.webp" alt="" width="850" height="1275" loading="lazy" decoding="async">
+            </div>
             <figure class="nebo-testimonial value-card">
                 <blockquote>“After years of struggling with PCOS and gut issues, Nebo's holistic approach finally gave me answers. My cycles are regular, energy is high, and I feel like myself again.”</blockquote>
                 <figcaption>Priya S. <span>Bengaluru</span></figcaption>
