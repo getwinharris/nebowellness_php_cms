@@ -1,3 +1,4 @@
+<?php require app_path('config/nebo-foundation-copy.php'); ?>
 <section class="section nebo-about-page">
     <div class="container">
         <header class="nebo-about-intro">
@@ -16,100 +17,36 @@
         <div class="about-story-grid">
             <div class="about-story-card reveal">
                 <h2>The Nebo Foundation</h2>
-                <p>Nebo was born from a vision to bridge the gap between modern medical science and ancient natural healing wisdom. Founded by a team of experienced naturopaths and functional medicine practitioners, we recognise that true wellness extends beyond symptom management to address root causes through personalised, evidence-based natural therapies.</p>
+                <p><?= e($foundationIntro) ?></p>
             </div>
             <div class="about-story-card reveal">
                 <h2>Our Vision</h2>
-                <p>To be a beacon of integrative health excellence, empowering individuals to reclaim vitality and achieve sustainable wellness through personalised naturopathic care, functional nutrition, and lifestyle medicine.</p>
+                <p><?= e($foundationVision) ?></p>
             </div>
         </div>
 
         <div class="section-header nebo-about-section-heading">
-            <span class="eyebrow serif-accent">The Three Pillars</span>
-            <h2 class="section-title">Roots of Our Practice</h2>
+            <h2 class="section-title">Our Pillars</h2>
         </div>
-
         <div class="about-feature-grid">
-            <article class="about-feature-card reveal">
-                <span class="about-feature-card__icon">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                </span>
-                <h3>Evidence-Based Naturopathy</h3>
-                <p>We blend traditional natural healing practices with modern clinical research, ensuring every therapy is grounded in both ancestral wisdom and contemporary scientific validation.</p>
-            </article>
-
-            <article class="about-feature-card reveal">
-                <span class="about-feature-card__icon">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
-                </span>
-                <h3>Personalised Care</h3>
-                <p>Every individual is unique. Our functional medicine approach analyses your bio-individuality—genetics, lifestyle, environment—to design truly personalised wellness protocols.</p>
-            </article>
-
-            <article class="about-feature-card reveal">
-                <span class="about-feature-card__icon">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                    </svg>
-                </span>
-                <h3>Sustainable Transformation</h3>
-                <p>Quick fixes don't last. We guide you toward lasting lifestyle changes through compassionate support, practical strategies, and continuous education.</p>
-            </article>
+            <?php foreach ($foundationPillars as [$title, $description]): ?>
+                <article class="about-feature-card reveal">
+                    <h3><?= e($title) ?></h3>
+                    <p><?= e($description) ?></p>
+                </article>
+            <?php endforeach; ?>
         </div>
 
         <div class="section-header nebo-about-section-heading">
-            <span class="eyebrow serif-accent">Why Choose Nebo</span>
-            <h2 class="section-title">Science · Nature · Care</h2>
-            <p class="lede">Committed to clinical excellence and compassionate healing—every consultation reflects our dedication to your wellness journey.</p>
+            <h2 class="section-title">Why Choose Nebo?</h2>
         </div>
-
         <div class="value-strip">
-            <article class="value-card reveal">
-                <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
-                        <polyline points="10 9 9 9 8 9"/>
-                    </svg>
-                </div>
-                <h3>Comprehensive Diagnostics</h3>
-                <p>Advanced functional assessments including metabolic panels, gut microbiome analysis, hormonal profiling, and nutritional deficiency screening reveal root causes, not just symptoms.</p>
-            </article>
-
-            <article class="value-card reveal">
-                <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                </div>
-                <h3>Integrative Approach</h3>
-                <p>Our protocols seamlessly integrate naturopathy, functional nutrition, yoga therapy, mental wellness, and lifestyle medicine for holistic, multi-dimensional healing.</p>
-            </article>
-
-            <article class="value-card reveal">
-                <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
-                        <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
-                    </svg>
-                </div>
-                <h3>Expert Practitioners</h3>
-                <p>Our team comprises certified naturopaths, functional medicine specialists, clinical nutritionists, and yoga therapists with decades of combined clinical experience.</p>
-            </article>
-
-            <article class="value-card reveal">
-                <div class="value-card__icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                </div>
-                <h3>Care tailored to you</h3>
-                <p>Discuss your health history, preferences and questions with the team before choosing a care plan.</p>
-            </article>
+            <?php foreach ($whyChooseNebo as [$title, $description]): ?>
+                <article class="value-card reveal">
+                    <h3><?= e($title) ?></h3>
+                    <p><?= e($description) ?></p>
+                </article>
+            <?php endforeach; ?>
         </div>
 
         <div class="section-header nebo-about-section-heading">

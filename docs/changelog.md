@@ -22,6 +22,7 @@ category: docs
 
 ### Changed
 
+- Aligned the homepage and About copy with the clinic brief, separated Focus Areas from Programs, displayed Team credentials, and replaced the public page finder with confirmed phone and WhatsApp shortcuts.
 - Refined the public menu, Contact, Services and campaign pages. Improved the About introduction and restored image and category hierarchy in the Wellness Journal.
 - Refined the home hero handoff, mobile Program filters, practitioner image fallbacks, and care layout. Added original Program artwork and a corporate wellness section for Nebo’s yoga and sound-healing sessions, with a preselected enquiry topic.
 - Reordered the homepage around the Foundation, Programs, Team, and client stories. Added scroll-triggered clinic figures, an image-led care grid, and clinic resources above the footer.
