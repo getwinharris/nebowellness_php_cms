@@ -16,6 +16,13 @@
     </div>
 </section>
 
+<section class="nebo-scroll-statement" aria-labelledby="nebo-scroll-statement-title">
+    <h2 class="container nebo-scroll-statement__title" id="nebo-scroll-statement-title">Care for the <em>whole person.</em></h2>
+    <div class="nebo-scroll-statement__light" aria-hidden="true">
+        <p class="container nebo-scroll-statement__title">Care for the <em>whole person.</em></p>
+    </div>
+</section>
+
 <!-- About Nebo Foundation -->
 <section class="editorial-stack-card section section--alt nebo-intro-section" style="--stack-order:2" data-stack-card data-nebo-chapter="foundation">
     <div class="container">

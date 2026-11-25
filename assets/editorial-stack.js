@@ -122,7 +122,7 @@
     for (const card of cards) {
         chapterObserver.observe(card.querySelector('h1, h2') || card);
         card.querySelectorAll(items).forEach((item, index) => {
-            item.style.setProperty('--chapter-delay', `${Math.min(index, 3) * 40}ms`);
+            item.style.setProperty('--chapter-delay', `${Math.min(index, 4) * 65}ms`);
             chapterObserver.observe(item);
         });
     }
