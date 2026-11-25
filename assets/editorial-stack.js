@@ -126,4 +126,53 @@
             chapterObserver.observe(item);
         });
     }
+
+    const counts = stack.querySelectorAll('[data-home-count][aria-hidden="true"]');
+    if (!counts.length) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const formatter = new Intl.NumberFormat(document.documentElement.lang || undefined);
+
+    function startCount(target) {
+        const value = Number(target.dataset.homeCount);
+        if (!Number.isSafeInteger(value) || value <= 0) return;
+
+        const finalText = target.textContent;
+        const start = performance.now();
+        let frame;
+
+        function finish() {
+            cancelAnimationFrame(frame);
+            target.textContent = finalText;
+            reducedMotion.removeEventListener?.('change', handlePreference);
+        }
+
+        function handlePreference(event) {
+            if (event.matches) finish();
+        }
+
+        function update(now) {
+            const progress = Math.max(0, Math.min((now - start) / 1100, 1));
+            if (reducedMotion.matches || progress === 1) {
+                finish();
+                return;
+            }
+            const eased = 1 - (1 - progress) ** 3;
+            target.textContent = formatter.format(Math.floor(value * eased));
+            frame = requestAnimationFrame(update);
+        }
+
+        target.textContent = formatter.format(0);
+        reducedMotion.addEventListener?.('change', handlePreference);
+        frame = requestAnimationFrame(update);
+    }
+
+    const countObserver = new IntersectionObserver(entries => {
+        for (const { target, isIntersecting } of entries) {
+            if (!isIntersecting) continue;
+            countObserver.unobserve(target);
+            if (!reducedMotion.matches) startCount(target);
+        }
+    }, { threshold: 0.15, rootMargin: `-${header.offsetHeight}px 0px 0px 0px` });
+    counts.forEach(count => countObserver.observe(count));
 })();

@@ -301,9 +301,14 @@ enhancement, every profile renders with its own readable biography.
 
 ## Editorial scroll and hero handoff
 
-Keep native scrolling. Hold the hero briefly under the header while the dark
-Foundation introduction arrives. Follow it with Programs and service discovery.
-Place the statement between client stories and Team. It uses one accessible heading and a decorative
+Keep native scrolling. Hold the hero briefly under the header while the charcoal
+Foundation introduction arrives. Use charcoal grey for the home hero and closing
+consultation actions. The homepage order is hero, Foundation, Programs, Team,
+client stories, scroll statement, care areas, clinic figures, and the closing chapter. End that chapter with
+the resources split directly above the footer. Show featured Services above the
+resource split when published campaigns are available.
+
+The statement uses one accessible heading and a decorative
 light treatment that sweeps upward with scroll, revealing the same letters in
 deep blue against pale paper. It reverses when the visitor scrolls back.
 Keyboard flow, reduced motion, and unsupported browsers keep the statement
@@ -388,25 +393,20 @@ visual system.
 
 ### Home motion score
 
-- **Arrival:** set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, ease the outgoing artwork dim and the incoming Foundation image settle on the same reversible timeline. The actions remain available throughout. The dark Foundation introduces the clinic immediately after the hero.
-- **Foundation:** the clinic story enters in document flow, using a
-  small upward copy-in to settle the image and copy together.
+- **Arrival.** Set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, dim the outgoing artwork as the Foundation enters. The actions remain available throughout.
+- **Foundation.** Pair the clinic introduction with figures drawn from the program rail and its care-area filters. Use one count-up per figure as it enters view. Vision and pillars follow these figures.
 - **Programs:** the program rail uses illustrative Nebo imagery above duration, title,
   description and a whole-card enquiry link. Align the first image with the heading.
   Give copy 16px desktop and 12px phone insets. Place filters and arrows on the same
   row where they fit. Each arrow advances one stable card. Use 32px desktop and
   16px phone gaps.
-- **Focus and Confidence:** let the cards enter in reading order. Keep related
-  Services before the story feature when the module is enabled.
-- **Stories:** place two attributed quotes on a dark surface beside one illustrative
-  scene at desktop widths. On phones the image precedes the quotes. Keep imagery
-  separate from attribution and follow the stories with the statement sweep.
 - **Team:** the selected portrait grows relative to named previews, then the biography
   updates beside it. This is the signature move: the practitioner's consultation link
   opens an enquiry with their name in the editable message. The same link works in
   each profile without JavaScript.
-- **Resolve:** the consultation card and charcoal footer close the sequence as complete
-  end states; the footer is the final surface. On phones it stays in normal flow so the contact and legal links are fully visible.
+- **Stories.** Place attributed quotes on a dark surface beside an illustrative scene. On phones, the image precedes the quotes. The scroll statement follows the stories.
+- **Care areas and clinic figures.** Use an asymmetric image grid on wide screens and preserve its reading order on mobile. Follow it with labelled counts for practitioner profiles, consultation steps, and featured services when present.
+- **Resolve.** Show the consultation invitation, then pair a short list of clinic resources with an illustrative image directly above the charcoal footer. On phones the footer stays in normal flow so contact and legal links are fully visible.
 
 ### Home motion quality gate
 
@@ -417,6 +417,9 @@ visual system.
 - Use one directional copy-in per act. Do not alternate card directions simply to
   create movement, and do not add decorative scroll counters, fake progress, or
   autoplaying rails.
+- Count up from zero once for labelled figures based on Nebo's own lists. Leave the
+  final values readable with JavaScript off or reduced motion on. Keep an identical
+  static number available to screen readers throughout the animation.
 - Keep every horizontal card's text in its own card with `min-width: 0`, wrapping and
   clipping of decorative art only. Copy, labels, controls, and touch targets must not
   be clipped.
@@ -460,8 +463,8 @@ until a verified payment and session workflow is available.
 At widths below 744px, use a shorter hero hold and allow the statement to wrap
 without reducing its readable area. Later chapters grow with their content.
 Without JavaScript, with reduced motion, or during keyboard navigation, the
-hero scrolls in normal flow. Programs uses a stationary anchor so the menu can jump there from below the chapter. Use a shallow Foundation image, compact therapy and testimonial cards, and a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.
+hero scrolls in normal flow. Programs uses a stationary anchor so the menu can jump there from below the chapter. Use a two-column grid for labelled figures, stack the care and resource imagery, and keep compact therapy and testimonial cards. Use a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.
 
 ### Homepage hero, services and footer
 
-Use the illustrative veranda as a wide backdrop on desktop and keep both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The Services chapter places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.
+Use the illustrative veranda as a wide backdrop on desktop and keep both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The optional Services block places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.
