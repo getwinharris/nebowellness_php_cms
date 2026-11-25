@@ -22,117 +22,108 @@ if (!array_key_exists('message', $contactValues) && ($consultant ?? '') !== '') 
 }
 $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 ?>
-<section class="section nebo-contact-page">
-    <div class="container container--narrow">
-        <div class="contact-intro">
-            <span class="eyebrow serif-accent">Contact</span>
-            <h1 class="section-title">Nebo Lifestyle Clinic</h1>
-            <p class="lede">Contact us for wellness consultations, program enquiries, or general support.</p>
-        </div>
-        <div class="contact-form-card reveal" id="contact-form">
-            <h2 class="contact-form-card__title">Contact Us</h2>
-            <p class="contact-form-card__lede contact-form-card__lede--general">Use this form for consultation bookings, program enquiries, or general wellness questions.</p>
-            <p class="contact-form-card__lede contact-form-card__lede--corporate">To plan a team session, tell us your organisation, approximate team size, preferred location and dates, and which session interests you.</p>
-            <?php if(!empty($success)): ?>
-                <script>document.addEventListener('DOMContentLoaded',function(){showToast('Thank you. Nebo Lifestyle Clinic will contact you soon.','success');});</script>
-            <?php endif; ?>
-            <?php if ($contactErrors !== []): ?>
-                <div class="flash flash--error" role="alert" style="max-width:720px; margin:0 auto var(--space-md);">
-                    <?php foreach ($contactErrors as $contactError): ?><p style="margin:0;"><?= e($contactError) ?></p><?php endforeach; ?>
+<section class="nebo-contact-page" aria-labelledby="contact-title">
+    <div class="container container--wide">
+        <header class="contact-intro">
+            <div class="contact-intro__copy">
+                <span class="eyebrow">Nebo Lifestyle Clinic</span>
+                <h1 id="contact-title">Contact the <em>clinic</em></h1>
+                <p class="lede">Talk to our team about consultations, wellness programs or a session for your workplace.</p>
+                <div class="contact-intro__actions">
+                    <a class="btn btn-primary" href="#contact-form">Send an enquiry <span aria-hidden="true">↓</span></a>
+                    <a class="contact-text-link" href="tel:+917200182025" aria-label="Call the clinic">Call</a>
+                    <a class="contact-text-link" href="mailto:nebolifestyleclinic@gmail.com" aria-label="Email the clinic">Email</a>
                 </div>
-            <?php endif; ?>
-            <form method="post" action="/contact" class="contact-form" style="max-width:720px; margin:0 auto;">
-                <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
-                <input type="hidden" name="_csrf" value="<?= $csrf ?>">
-                <input type="hidden" name="submission_token" value="<?= e($contactToken) ?>">
-                <div class="contact-form__row">
-                    <div class="form-group">
-                        <label for="contact-name">Name</label>
-                        <input id="contact-name" type="text" name="name" required placeholder="Your name" value="<?= e((string)($contactValues['name'] ?? '')) ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="contact-email">Email</label>
-                        <input id="contact-email" type="email" name="email" required placeholder="your@email.com" value="<?= e((string)($contactValues['email'] ?? '')) ?>">
-                    </div>
-                </div>
-                <div class="contact-form__row">
-                    <div class="form-group">
-                        <label for="contact-phone">Phone</label>
-                        <input id="contact-phone" type="tel" name="phone" placeholder="+91 XXXXX XXXXX" value="<?= e((string)($contactValues['phone'] ?? '')) ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="contact-subject">Subject</label>
-                        <select id="contact-subject" name="subject" required>
-                            <option value="">Select a subject</option>
-                            <?php foreach ($contactSubjects as $key => $label): ?>
-                                <option value="<?= e($key) ?>" <?= ($contactValues['subject'] ?? '') === $key ? 'selected' : '' ?>><?= e($label) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="contact-message">Message</label>
-                    <textarea id="contact-message" name="message" rows="5" required placeholder="Tell us what guidance or support you need"><?= e((string)($contactValues['message'] ?? '')) ?></textarea>
-                </div>
-                <?php if (!empty($otpAvailable)): ?>
-                <div class="form-group email-otp" data-otp-context="contact">
-                    <label for="contact-email-otp">Email verification code</label>
-                    <div class="contact-form__row">
-                        <input id="contact-email-otp" name="email_otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="6-digit code">
-                        <button class="btn btn-secondary otp-send" type="button">Send code</button>
-                    </div>
-                    <small class="otp-status" role="status">We will send the code to the email address above.</small>
-                </div>
-                <?php else: ?>
-                <div class="flash flash--info" role="status" style="margin:var(--space-md) 0;">
-                    <p style="margin:0;">Email verification is temporarily unavailable, so this form will send your message without a code. We still receive and reply to every enquiry.</p>
-                    <p style="margin:var(--space-xs) 0 0;">For an immediate reply, call <a href="tel:+917200182025">+91 72001 82025</a> or email <a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a>.</p>
-                </div>
+            </div>
+            <figure class="contact-intro__image">
+                <img src="/assets/images/nebo-clinic-hero.webp" alt="" width="1774" height="887" fetchpriority="high">
+                <figcaption>Illustrative scene</figcaption>
+            </figure>
+        </header>
+        <div class="contact-layout">
+            <section class="contact-form-card" id="contact-form" aria-labelledby="contact-form-title">
+                <h2 class="contact-form-card__title" id="contact-form-title">Send an enquiry</h2>
+                <p class="contact-form-card__lede contact-form-card__lede--general">Tell us what you’d like help with and our team will follow up.</p>
+                <p class="contact-form-card__lede contact-form-card__lede--corporate">To plan a team session, tell us your organisation, approximate team size, preferred location and dates, and which session interests you.</p>
+                <?php if (!empty($success)): ?>
+                    <p class="flash flash--success contact-form__notice" role="status">Enquiry received. Nebo Lifestyle Clinic will contact you using the details you shared.</p>
                 <?php endif; ?>
-                <button class="btn btn-primary btn-block" type="submit">Send Request</button>
-            </form>
-        </div>
-        <div class="contact-info-grid">
-            <div class="contact-card reveal">
-                <span class="contact-card__icon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
-                <div class="contact-card__body">
-                    <span class="contact-card__eyebrow">Hours</span>
-                    <h3>Clinic Hours</h3>
-                    <p>Monday – Saturday: 9:00 AM – 7:00 PM<br>Sunday: 10:00 AM – 5:00 PM</p>
-                </div>
-            </div>
-            <div class="contact-card reveal">
-                <span class="contact-card__icon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
-                <div class="contact-card__body">
-                    <span class="contact-card__eyebrow">Visit us</span>
-                    <h3>Clinic Location</h3>
-                    <p>Kaliyal, Kanyakumari, Tamil Nadu, India – 629101. Contact us for consultation bookings, program enquiries, or wellness guidance.</p>
-                </div>
-            </div>
-            <div class="contact-card contact-card--direct contact-direct-panel reveal">
-                <div class="contact-card__body">
-                    <span class="contact-card__eyebrow">phone</span>
-                    <div class="contact-direct-list">
-                        <a class="contact-direct-link" href="tel:+917200182025">
-                            <span class="contact-direct-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.1 19.1 0 0 1-5.9-5.9A19.7 19.7 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 5.9 5.9l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z"/></svg></span>
-                            <span>+91 72001 82025</span>
-                        </a>
-                        <a class="contact-direct-link" href="tel:+919585182025">
-                            <span class="contact-direct-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.7 19.7 0 0 1-8.6-3.1 19.1 19.1 0 0 1-5.9-5.9A19.7 19.7 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 5.9 5.9l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z"/></svg></span>
-                            <span>+91 95851 82025</span>
-                        </a>
+                <?php if ($contactErrors !== []): ?>
+                    <div class="flash flash--error contact-form__notice" role="alert">
+                        <?php foreach ($contactErrors as $contactError): ?><p><?= e($contactError) ?></p><?php endforeach; ?>
                     </div>
+                <?php endif; ?>
+                <form method="post" action="/contact#contact-form" class="contact-form">
+                    <?php $csrf = $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
+                    <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
+                    <input type="hidden" name="submission_token" value="<?= e($contactToken) ?>">
+                    <div class="contact-form__row">
+                        <div class="form-group">
+                            <label for="contact-name">Name</label>
+                            <input id="contact-name" type="text" name="name" autocomplete="name" required value="<?= e((string)($contactValues['name'] ?? '')) ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-email">Email</label>
+                            <input id="contact-email" type="email" name="email" autocomplete="email" required value="<?= e((string)($contactValues['email'] ?? '')) ?>">
+                        </div>
+                    </div>
+                    <div class="contact-form__row">
+                        <div class="form-group">
+                            <label for="contact-phone">Phone <span>(optional)</span></label>
+                            <input id="contact-phone" type="tel" name="phone" autocomplete="tel" value="<?= e((string)($contactValues['phone'] ?? '')) ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-subject">Subject</label>
+                            <select id="contact-subject" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <?php foreach ($contactSubjects as $key => $label): ?>
+                                    <option value="<?= e($key) ?>" <?= ($contactValues['subject'] ?? '') === $key ? 'selected' : '' ?>><?= e($label) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-message">Message</label>
+                        <textarea id="contact-message" name="message" rows="5" required><?= e((string)($contactValues['message'] ?? '')) ?></textarea>
+                    </div>
+                    <?php if (!empty($otpAvailable)): ?>
+                        <div class="form-group email-otp" data-otp-context="contact">
+                            <label for="contact-email-otp">Email verification code</label>
+                            <div class="contact-form__row contact-form__verification">
+                                <input id="contact-email-otp" name="email_otp" autocomplete="one-time-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required placeholder="6-digit code" aria-describedby="contact-otp-status">
+                                <button class="btn btn-secondary otp-send" type="button">Send code</button>
+                            </div>
+                            <small class="otp-status" id="contact-otp-status" role="status">Send a code to the email address you entered.</small>
+                        </div>
+                    <?php else: ?>
+                        <p class="flash flash--info contact-form__notice" role="status">Email verification is temporarily unavailable. You can send this enquiry without a code.</p>
+                    <?php endif; ?>
+                    <button class="btn btn-primary contact-form__submit" type="submit">Send enquiry <span aria-hidden="true">→</span></button>
+                </form>
+            </section>
+            <aside class="contact-details" aria-labelledby="contact-details-title">
+                <h2 id="contact-details-title">Clinic details</h2>
+                <div class="contact-details__group">
+                    <h3>Call or email</h3>
+                    <ul class="contact-details__links">
+                        <li><a class="contact-text-link" href="tel:+917200182025">+91 72001 82025</a></li>
+                        <li><a class="contact-text-link" href="tel:+919585182025">+91 95851 82025</a></li>
+                        <li><a class="contact-text-link" href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a></li>
+                    </ul>
                 </div>
-            </div>
-            <div class="contact-card contact-card--direct contact-direct-panel reveal">
-                <div class="contact-card__body">
-                    <span class="contact-card__eyebrow">email</span>
-                    <a class="contact-direct-link contact-direct-link--mail" href="mailto:nebolifestyleclinic@gmail.com">
-                        <span class="contact-direct-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m22 6-10 7L2 6"/></svg></span>
-                        <span>nebolifestyleclinic@gmail.com</span>
-                    </a>
+                <div class="contact-details__group">
+                    <h3>Clinic hours</h3>
+                    <dl class="contact-details__hours">
+                        <div><dt>Monday to Saturday</dt><dd>9:00 AM – 7:00 PM</dd></div>
+                        <div><dt>Sunday</dt><dd>10:00 AM – 5:00 PM</dd></div>
+                    </dl>
                 </div>
-            </div>
+                <div class="contact-details__group">
+                    <h3>Visit the clinic</h3>
+                    <address>Kaliyal, Kanyakumari<br>Tamil Nadu, India 629101</address>
+                    <a class="contact-text-link" href="https://www.google.com/maps/search/?api=1&amp;query=Nebo%20Lifestyle%20Clinic%2C%20Kaliyal%2C%20Kanyakumari%2C%20Tamil%20Nadu%20629101">Find us on Google Maps <span aria-hidden="true">↗</span></a>
+                </div>
+            </aside>
         </div>
     </div>
 </section>

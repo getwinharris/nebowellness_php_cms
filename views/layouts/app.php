@@ -113,46 +113,68 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
             <span>Menu</span>
         </summary>
         <nav id="primary-nav" aria-label="Main navigation">
-            <p class="nav-section-label">Explore Nebo</p>
-            <a href="/#programs" data-programs-nav>Programs</a>
-            <?php if ($__modules['campaigns']): ?><a href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Services</a><?php endif; ?>
-            <?php if ($__modules['shop']): ?>
-            <a href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
-            <?php endif; ?>
-            <?php if ($__modules['blog']): ?>
-            <div class="nav-dropdown">
-                <a href="/blog" class="nav-dropdown__trigger"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog <span class="nav-dropdown__arrow">▾</span></a>
-                <div class="nav-dropdown__menu">
-                    <?php foreach ($__blogCats as $__cat): ?>
-                    <a href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a>
-                    <?php endforeach; ?>
+            <div class="navigation-drawer__primary">
+                <p class="nav-section-label">Explore Nebo</p>
+                <details class="nav-branch">
+                    <summary class="nav-item">Programs <span aria-hidden="true">›</span></summary>
+                    <div class="nav-branch__links" id="menu-programs">
+                        <a class="nav-item" href="/#programs" data-programs-nav>All programs</a>
+                        <a class="nav-item" href="/#programs-gut" data-programs-nav>Gut health</a>
+                        <a class="nav-item" href="/#programs-metabolic" data-programs-nav>Metabolic health</a>
+                        <a class="nav-item" href="/#programs-fertility" data-programs-nav>Fertility &amp; maternal care</a>
+                        <a class="nav-item" href="/#programs-lifestyle" data-programs-nav>Lifestyle</a>
+                    </div>
+                </details>
+                <?php if ($__modules['campaigns']): ?><a class="nav-item" href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Services</a><?php endif; ?>
+                <a class="nav-item" href="/#movement-and-sound">Workplace wellness</a>
+                <a class="nav-item" href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
+                <?php if ($__modules['blog']): ?>
+                <?php if ($__blogCats !== []): ?>
+                <details class="nav-branch">
+                    <summary class="nav-item">Blog <span aria-hidden="true">›</span></summary>
+                    <div class="nav-branch__links" id="menu-blog">
+                        <a class="nav-item" href="/blog"<?= $currentPath === '/blog' ? ' aria-current="page"' : '' ?>>All blog articles</a>
+                        <?php foreach ($__blogCats as $__cat): ?>
+                        <a class="nav-item" href="/blog/category/<?= e($__cat['slug'] ?? '') ?>"><?= e($__cat['name'] ?? '') ?></a>
+                        <?php endforeach; ?>
+                    </div>
+                </details>
+                <?php else: ?>
+                <a class="nav-item" href="/blog"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog</a>
+                <?php endif; ?>
+                <?php endif; ?>
+                <?php if ($__modules['shop']): ?>
+                <a class="nav-item" href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
+                <?php endif; ?>
+                <div class="navigation-drawer__utility">
+                    <a class="nav-item" href="/contact"<?= $currentPath === '/contact' ? ' aria-current="page"' : '' ?>>Contact</a>
+                    <?php if(!empty($_SESSION['user'])): ?>
+                        <a class="nav-item" href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
+                        <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
+                            <a class="nav-item" href="/account/therapy"<?= $currentPath === '/account/therapy' ? ' aria-current="page"' : '' ?>>Therapy requests</a>
+                        <?php endif; ?>
+                        <a class="nav-item" href="/logout">Logout</a>
+                    <?php else: ?>
+                        <a class="nav-item" href="/login">Login</a>
+                    <?php endif; ?>
                 </div>
             </div>
-            <?php endif; ?>
-            <a href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
-            <a href="/contact"<?= str_starts_with($currentPath, '/contact') ? ' aria-current="page"' : '' ?>>Contact</a>
-            <p class="nav-section-label nav-section-label--account">Your account</p>
-            <?php if(!empty($_SESSION['user'])): ?>
-                <a href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
-                <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
-                    <a href="/account/therapy"<?= $currentPath === '/account/therapy' ? ' aria-current="page"' : '' ?>>Therapy requests</a>
-                <?php endif; ?>
-                <a href="/logout">Logout</a>
-            <?php else: ?>
-                <a href="/login">Login</a>
-            <?php endif; ?>
+            <div class="navigation-drawer__footer">
+                <a class="btn btn-primary" href="/contact#contact-form">Book a consultation <span aria-hidden="true">↗</span></a>
+            </div>
         </nav>
     </details>
     <dialog class="navigation-drawer" id="navigation-drawer" aria-label="Site menu">
         <div class="navigation-drawer__header">
+            <button class="nav-close" type="button" aria-label="Close menu" autofocus>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>
+                <span>Close</span>
+            </button>
             <a href="/" class="navigation-drawer__brand" aria-label="Nebo Lifestyle Clinic home">
-                <img src="<?= e($__logo) ?>" width="108" height="60" alt="">
+                <img src="<?= e($__logo) ?>" width="160" height="88" alt="">
             </a>
-            <button class="nav-close" type="button" aria-label="Close menu" autofocus>×</button>
         </div>
-        <div class="navigation-drawer__footer">
-            <a class="btn btn-primary" href="/contact#contact-form">Book a consultation <span aria-hidden="true">↗</span></a>
-        </div>
+        <div class="navigation-drawer__panel"></div>
     </dialog>
     <div class="header-actions">
         <button class="page-finder-trigger" type="button" data-page-finder="primary-nav" aria-haspopup="dialog" aria-label="Find a page" hidden>

@@ -540,19 +540,16 @@ $tests['contact page exposes general enquiry form and confirmation delivery'] = 
     foreach (['name="name"', 'name="email"', 'name="phone"', 'name="subject"', 'name="message"'] as $field) {
         assertTrue(str_contains($view, $field), "Contact form should include {$field}");
     }
-    foreach (['Gut Health Program', 'Metabolic Reset', 'Fertility & Maternal Wellness', 'General Question'] as $subject) {
+    foreach (['Gut Health Program', 'Metabolic Reset', 'Fertility & Maternal Wellness', 'Corporate Wellness', 'General Question'] as $subject) {
         assertTrue(str_contains($view, $subject), "Contact form should include the {$subject} subject");
     }
     assertTrue(!str_contains($view, 'Astrology Consultation'), 'Contact form should not offer a retired consultation subject');
-    foreach (['tel:+917200182025', 'tel:+919585182025', 'mailto:nebolifestyleclinic@gmail.com', 'contact-direct-link--mail'] as $needle) {
+    foreach (['tel:+917200182025', 'tel:+919585182025', 'mailto:nebolifestyleclinic@gmail.com', 'https://www.google.com/maps/search/'] as $needle) {
         assertTrue(str_contains($view, $needle), "Contact page should expose {$needle}");
     }
-    assertTrue(str_contains($view, 'Clinic Location'), 'Contact page should describe the clinic location');
-    foreach (['contact-info-grid', 'contact-card__icon', 'contact-card__eyebrow'] as $needle) {
-        assertTrue(str_contains($view, $needle), "Contact cards should use enhanced layout class {$needle}");
-    }
-    assertTrue(str_contains($view, 'contact-card--direct'), 'Phone and email cards should use simplified direct card styling');
-    assertTrue(!str_contains($view, '<h3>Call</h3>') && !str_contains($view, '<h3>Mail</h3>'), 'Phone and email cards should not repeat Call/Mail headings');
+    assertTrue(str_contains($view, 'Kaliyal, Kanyakumari') && str_contains($view, 'Tamil Nadu, India 629101'), 'Contact page should describe the clinic location');
+    assertTrue(str_contains($view, 'href="#contact-form"') && str_contains($view, 'action="/contact#contact-form"'), 'Contact navigation and confirmation return to the enquiry form');
+    assertTrue(str_contains($view, 'role="status">Enquiry received.'), 'Contact success is visible in the form without a toast');
     assertTrue(!str_contains($view, 'Visit Our Store'), 'Contact page should not invite general ecommerce customers to visit the store directly');
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
     $mail = file_get_contents(app_path('app/Services/MailQueueService.php'));
@@ -567,7 +564,7 @@ $tests['about page uses focused responsive cards'] = function (): void {
     foreach (['about-story-grid', 'about-feature-grid', 'about-feature-card', 'page-cta-card'] as $needle) {
         assertTrue(str_contains($view, $needle), "About page should use {$needle}");
     }
-    assertTrue(str_contains($view, 'href="/contact"'), 'About page CTA should link to the contact booking form');
+    assertTrue(str_contains($view, 'href="/contact#contact-form"'), 'About page CTA should link directly to the contact form');
     assertTrue(!str_contains($view, 'GST Registration'), 'About page CTA should replace the old GST/business detail block');
     assertTrue(str_contains($css, '.about-feature-grid') && str_contains($css, 'repeat(3, minmax(0, 1fr))'), 'About feature cards should align as three columns on desktop');
     assertTrue(str_contains($css, '.about-story-grid,') && str_contains($css, '.about-feature-grid { grid-template-columns: 1fr; }'), 'About cards should stack on smaller screens');
@@ -2450,6 +2447,23 @@ $tests['email OTP is scoped, expiring, one time and attempt limited'] = function
     assertSame(false, $service->isVerified('contact', 'guest@example.com'), 'Consumed code cannot be reused');
 };
 
+$tests['campaign image fallback replaces missing bundled artwork and keeps configured media'] = function (): void {
+    $service = \App\Services\CampaignPageService::class;
+    assertSame('/assets/images/editorial/nebo-maternal-care.webp', $service::editorialImage([
+        'slug' => 'maternal-vitality', 'image_url' => '/assets/images/blog/book-consultant.webp',
+    ]), 'A missing bundled image uses the matching maternal artwork');
+    assertSame('/assets/images/blog/gut-health-food.webp', $service::editorialImage([
+        'slug' => 'gut-restoration', 'image_url' => '/assets/images/nebo-programs.webp',
+    ]), 'The previous shared image uses the matching gut artwork');
+    assertSame('/assets/images/nebo-programs.webp', $service::editorialImage(['slug' => 'another-program']), 'An unknown program uses the shared fallback');
+    assertSame('/assets/images/nebo-garden.webp', $service::editorialImage([
+        'slug' => 'maternal-vitality', 'image_url' => '/assets/images/nebo-garden.webp',
+    ]), 'Existing curated bundled artwork is retained');
+    assertSame('/media/program.webp', $service::editorialImage([
+        'slug' => 'gut-restoration', 'image_url' => '/media/program.webp',
+    ]), 'Configured uploaded media is retained');
+};
+
 $tests['campaign field edits preserve saved keys and reject invalid definitions by row'] = function (): void {
     $service = \App\Services\CampaignPageService::class;
     $definitions = json_decode('[
@@ -2588,10 +2602,9 @@ $tests['admin agent suggestions follow the campaigns module'] = function (): voi
 };
 
 $tests['contact form carries the selected practitioner and preserves restored answers'] = function (): void {
-    $render = static function (array $values, string $consultant): string {
+    $render = static function (array $values, string $consultant, string $subject = ''): string {
         $formValues = $values;
         $formErrors = [];
-        $subject = '';
         $otpAvailable = false;
         $success = false;
         ob_start();
@@ -2601,7 +2614,9 @@ $tests['contact form carries the selected practitioner and preserves restored an
     $page = $render([], 'Dr Example & Co');
     assertTrue(str_contains($page, 'I would like to enquire about a consultation with Dr Example &amp; Co.'), 'The chosen practitioner is visible and HTML escaped');
     assertTrue(str_contains($page, 'value="general" selected'), 'Practitioner enquiries have a selected subject');
-    $restored = $render(['message' => 'My retained message', 'subject' => 'gut'], 'Dr Example');
+    $corporate = $render([], '', 'corporate');
+    assertTrue(str_contains($corporate, 'value="corporate" selected'), 'Team enquiries preselect Corporate Wellness');
+    $restored = $render(['message' => 'My retained message', 'subject' => 'gut'], 'Dr Example', 'corporate');
     assertTrue(str_contains($restored, 'My retained message') && !str_contains($restored, 'consultation with Dr Example'), 'A restored message takes precedence');
     assertTrue(str_contains($restored, 'value="gut" selected'), 'A restored subject takes precedence');
 };

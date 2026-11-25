@@ -21,6 +21,24 @@ final class CampaignPageService {
     public const MAX_LABEL_LENGTH = 80;
     public const MAX_OPTION_LENGTH = 80;
 
+    public static function editorialImage(array $campaign): string {
+        $default = '/assets/images/nebo-programs.webp';
+        $configured = trim((string)($campaign['image_url'] ?? ''));
+        $assetPath = parse_url($configured, PHP_URL_PATH) ?: '';
+        $missingBundledAsset = str_starts_with($configured, '/assets/images/')
+            && !is_file(app_path(rawurldecode($assetPath)));
+        if (!$missingBundledAsset && !in_array($configured, ['', $default, '/assets/images/nebo-programs.png'], true)) {
+            return $configured;
+        }
+
+        // These three campaigns used the former generic listing and detail artwork.
+        return match ($campaign['slug'] ?? '') {
+            'maternal-vitality' => '/assets/images/editorial/nebo-maternal-care.webp',
+            'gut-restoration' => '/assets/images/blog/gut-health-food.webp',
+            default => $default,
+        };
+    }
+
     /** Return normalized definitions and any validation errors indexed by editor row. */
     public static function validateFields(array $fields): array {
         $normalized = [];

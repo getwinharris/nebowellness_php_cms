@@ -41,13 +41,13 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 306
+  concepts: 307
   relationships: 279
   by_type:
     blog: 5
     controller: 13
     doc: 37
-    image: 39
+    image: 40
     route: 125
     schema: 24
     service: 54
@@ -79,7 +79,7 @@ concepts:
     tags:
       - "help"
     filename: "how-to-request-a-consultation.md"
-    header_image: "/assets/images/blog/contact-form-guide.webp"
+    header_image: "/assets/images/blog/how-to-request-a-consultation.webp"
   - id: "blog:sustainable-wellness-habits"
     type: "blog"
     title: "Building wellness habits that fit your life"
@@ -97,7 +97,7 @@ concepts:
     tags:
       - "wellness"
     filename: "your-first-nebo-consultation.md"
-    header_image: "/assets/images/blog/contact-form-guide.webp"
+    header_image: "/assets/images/blog/how-to-request-a-consultation.webp"
   - id: "controller:AccountController"
     type: "controller"
     title: "AccountController"
@@ -547,31 +547,44 @@ concepts:
   - id: "image:assets/images/blog/contact-form-guide.webp"
     type: "image"
     title: "contact-form-guide.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image with no static repository reference detected."
     resource: "assets/images/blog/contact-form-guide.webp"
     tags:
       - "image"
-      - "used"
+      - "unreferenced"
     filename: "contact-form-guide.webp"
     mime: "image/webp"
-    usage_count: 2
-    used_in:
-      - "content/blog/posts/how-to-request-a-consultation.md"
-      - "content/blog/posts/your-first-nebo-consultation.md"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/blog/gut-health-food.webp"
     type: "image"
     title: "gut-health-food.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 3 project resource(s)."
     resource: "assets/images/blog/gut-health-food.webp"
     tags:
       - "image"
       - "used"
     filename: "gut-health-food.webp"
     mime: "image/webp"
-    usage_count: 2
+    usage_count: 3
     used_in:
+      - "app/Services/CampaignPageService.php"
       - "content/blog/posts/gut-friendly-meals.md"
       - "views/public/home.php"
+  - id: "image:assets/images/blog/how-to-request-a-consultation.webp"
+    type: "image"
+    title: "how-to-request-a-consultation.webp"
+    description: "Image referenced by 2 project resource(s)."
+    resource: "assets/images/blog/how-to-request-a-consultation.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "how-to-request-a-consultation.webp"
+    mime: "image/webp"
+    usage_count: 2
+    used_in:
+      - "content/blog/posts/how-to-request-a-consultation.md"
+      - "content/blog/posts/your-first-nebo-consultation.md"
   - id: "image:assets/images/blog/wellness-habits.webp"
     type: "image"
     title: "wellness-habits.webp"
@@ -655,15 +668,16 @@ concepts:
   - id: "image:assets/images/editorial/nebo-maternal-care.webp"
     type: "image"
     title: "nebo-maternal-care.webp"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/editorial/nebo-maternal-care.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-maternal-care.webp"
     mime: "image/webp"
-    usage_count: 1
+    usage_count: 2
     used_in:
+      - "app/Services/CampaignPageService.php"
       - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-preconception.webp"
     type: "image"
@@ -829,17 +843,18 @@ concepts:
   - id: "image:assets/images/nebo-clinic-hero.webp"
     type: "image"
     title: "nebo-clinic-hero.webp"
-    description: "Image referenced by 3 project resource(s)."
+    description: "Image referenced by 4 project resource(s)."
     resource: "assets/images/nebo-clinic-hero.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-clinic-hero.webp"
     mime: "image/webp"
-    usage_count: 3
+    usage_count: 4
     used_in:
       - "app/Services/SeoService.php"
       - "views/layouts/app.php"
+      - "views/public/contact.php"
       - "views/public/home.php"
   - id: "image:assets/images/nebo-favicon.png"
     type: "image"
@@ -932,32 +947,32 @@ concepts:
   - id: "image:assets/images/nebo-programs.png"
     type: "image"
     title: "nebo-programs.png"
-    description: "Image with no static repository reference detected."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/nebo-programs.png"
     tags:
       - "image"
-      - "unreferenced"
+      - "used"
     filename: "nebo-programs.png"
     mime: "image/png"
-    usage_count: 0
-    used_in: []
+    usage_count: 1
+    used_in:
+      - "app/Services/CampaignPageService.php"
   - id: "image:assets/images/nebo-programs.webp"
     type: "image"
     title: "nebo-programs.webp"
-    description: "Image referenced by 6 project resource(s)."
+    description: "Image referenced by 5 project resource(s)."
     resource: "assets/images/nebo-programs.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-programs.webp"
     mime: "image/webp"
-    usage_count: 6
+    usage_count: 5
     used_in:
       - "app/Controllers/PublicController.php"
-      - "views/partials/therapy-products.php"
+      - "app/Services/CampaignPageService.php"
       - "views/public/blog-post.php"
       - "views/public/blog.php"
-      - "views/public/campaign.php"
       - "views/public/home.php"
   - id: "image:assets/images/nebo-symbol.png"
     type: "image"

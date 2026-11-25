@@ -1,17 +1,23 @@
 <?php
+use App\Services\CampaignPageService;
 $featuredProduct = $therapyProducts[0];
 $isCatalog = !empty($therapyCatalogPage);
 $productHeading = $isCatalog ? 'h2' : 'h3';
 $otherServices = array_slice($therapyProducts, 1);
+$featuredUrl = '/campaigns/' . rawurlencode($featuredProduct['slug']);
 ?>
 <div class="therapy-grid<?= count($therapyProducts) === 1 ? ' therapy-grid--single' : '' ?>">
     <article class="therapy-feature">
-        <img src="<?= e(trim((string)($featuredProduct['image_url'] ?? '')) ?: '/assets/images/nebo-programs.webp') ?>" alt="" loading="lazy" data-therapy-image width="1024" height="640">
+        <img src="<?= e(CampaignPageService::editorialImage($featuredProduct)) ?>" alt="" loading="<?= $isCatalog ? 'eager' : 'lazy' ?>"<?= $isCatalog ? ' fetchpriority="high"' : '' ?> data-therapy-image>
         <div class="therapy-feature__body">
             <span class="therapy-feature__label"><?= $isCatalog ? 'Featured therapy' : 'Featured service' ?></span>
-            <<?= $productHeading ?>><a href="/campaigns/<?= e(rawurlencode($featuredProduct['slug'])) ?>"><?= e($featuredProduct['title']) ?></a></<?= $productHeading ?>>
+            <<?= $productHeading ?>><a href="<?= e($featuredUrl) ?>"><?= e($featuredProduct['title']) ?></a></<?= $productHeading ?>>
             <p><?= e($featuredProduct['summary'] ?? '') ?></p>
-            <a class="therapy-product__link" href="/campaigns/<?= e(rawurlencode($featuredProduct['slug'])) ?>#campaign-enquiry" aria-label="Request a session for <?= e($featuredProduct['title']) ?>">Request a session <span aria-hidden="true">↗</span></a>
+            <?php if ($isCatalog): ?>
+                <a class="therapy-product__link" href="<?= e($featuredUrl) ?>" aria-label="View service: <?= e($featuredProduct['title']) ?>">View service <span aria-hidden="true">↗</span></a>
+            <?php else: ?>
+                <a class="therapy-product__link" href="<?= e($featuredUrl) ?>#campaign-enquiry" aria-label="Request a session for <?= e($featuredProduct['title']) ?>">Request a session <span aria-hidden="true">↗</span></a>
+            <?php endif; ?>
         </div>
     </article>
     <?php if ($otherServices): ?>
@@ -29,7 +35,7 @@ $otherServices = array_slice($therapyProducts, 1);
                 <?php foreach ($otherServices as $product): ?>
                     <article class="therapy-product">
                         <div class="therapy-product__media">
-                            <img src="<?= e(trim((string)($product['image_url'] ?? '')) ?: '/assets/images/nebo-programs.webp') ?>" alt="" loading="lazy" decoding="async" data-therapy-image>
+                            <img src="<?= e(CampaignPageService::editorialImage($product)) ?>" alt="" loading="lazy" decoding="async" data-therapy-image>
                         </div>
                         <div class="therapy-product__body">
                             <<?= $productHeading ?>><a href="/campaigns/<?= e(rawurlencode($product['slug'])) ?>"><?= e($product['title']) ?></a></<?= $productHeading ?>>
