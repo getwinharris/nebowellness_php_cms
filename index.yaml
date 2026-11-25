@@ -561,30 +561,32 @@ concepts:
   - id: "image:assets/images/blog/gut-health-food.webp"
     type: "image"
     title: "gut-health-food.webp"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/blog/gut-health-food.webp"
     tags:
       - "image"
       - "used"
     filename: "gut-health-food.webp"
     mime: "image/webp"
-    usage_count: 1
+    usage_count: 2
     used_in:
       - "content/blog/posts/gut-friendly-meals.md"
+      - "views/public/home.php"
   - id: "image:assets/images/blog/wellness-habits.webp"
     type: "image"
     title: "wellness-habits.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 3 project resource(s)."
     resource: "assets/images/blog/wellness-habits.webp"
     tags:
       - "image"
       - "used"
     filename: "wellness-habits.webp"
     mime: "image/webp"
-    usage_count: 2
+    usage_count: 3
     used_in:
       - "content/blog/posts/how-to-explore-nebo-programs.md"
       - "content/blog/posts/sustainable-wellness-habits.md"
+      - "views/public/home.php"
   - id: "image:assets/images/consultants/default-female.webp"
     type: "image"
     title: "default-female.webp"
@@ -666,27 +668,29 @@ concepts:
   - id: "image:assets/images/editorial/nebo-maternal-care.webp"
     type: "image"
     title: "nebo-maternal-care.webp"
-    description: "Image with no static repository reference detected."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/editorial/nebo-maternal-care.webp"
     tags:
       - "image"
-      - "unreferenced"
+      - "used"
     filename: "nebo-maternal-care.webp"
     mime: "image/webp"
-    usage_count: 0
-    used_in: []
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-preconception.webp"
     type: "image"
     title: "nebo-preconception.webp"
-    description: "Image with no static repository reference detected."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/editorial/nebo-preconception.webp"
     tags:
       - "image"
-      - "unreferenced"
+      - "used"
     filename: "nebo-preconception.webp"
     mime: "image/webp"
-    usage_count: 0
-    used_in: []
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-sound-group.webp"
     type: "image"
     title: "nebo-sound-group.webp"
@@ -940,20 +944,21 @@ concepts:
   - id: "image:assets/images/nebo-programs.webp"
     type: "image"
     title: "nebo-programs.webp"
-    description: "Image referenced by 5 project resource(s)."
+    description: "Image referenced by 6 project resource(s)."
     resource: "assets/images/nebo-programs.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-programs.webp"
     mime: "image/webp"
-    usage_count: 5
+    usage_count: 6
     used_in:
       - "app/Controllers/PublicController.php"
       - "views/partials/therapy-products.php"
       - "views/public/blog-post.php"
       - "views/public/blog.php"
       - "views/public/campaign.php"
+      - "views/public/home.php"
   - id: "image:assets/images/nebo-symbol.png"
     type: "image"
     title: "nebo-symbol.png"

@@ -5,27 +5,27 @@ $programs = [
     [
         'title' => 'Gut Restoration Program', 'duration' => '6–12 weeks', 'area' => 'gut',
         'copy' => 'Nutrition, microbiome support and daily habits shaped around your symptoms and clinical assessment.',
-        'image' => ['blog/gut-health-food.webp', 1599, 900],
+        'image' => ['/assets/images/blog/gut-health-food.webp', 1599, 900],
     ],
     [
         'title' => 'Metabolic Reset', 'duration' => 'Personalised duration', 'area' => 'metabolic',
         'copy' => 'A practical plan for insulin sensitivity, movement, sleep, stress and sustainable weight management.',
-        'image' => ['nebo-programs.webp', 1672, 941],
+        'image' => ['/assets/images/nebo-programs.webp', 1672, 941],
     ],
     [
         'title' => 'Fertility & Preconception Wellness', 'duration' => 'Personalised duration', 'area' => 'fertility',
         'copy' => 'Nutrition and lifestyle guidance that supports preconception preparation and reproductive wellbeing.',
-        'image' => ['editorial/nebo-preconception.webp', 760, 832],
+        'image' => ['/assets/images/editorial/nebo-preconception.webp', 760, 832],
     ],
     [
         'title' => 'Maternal Vitality', 'duration' => 'Stage based', 'area' => 'fertility',
         'copy' => 'Gentle wellbeing support through pregnancy and after delivery, coordinated around each mother’s needs.',
-        'image' => ['editorial/nebo-maternal-care.webp', 760, 868],
+        'image' => ['/assets/images/editorial/nebo-maternal-care.webp', 760, 868],
     ],
     [
         'title' => 'Lifestyle Transformation', 'duration' => '90 days', 'area' => 'lifestyle',
         'copy' => 'A guided pathway that brings nutrition, movement, stress care and habit coaching into daily life.',
-        'image' => ['blog/wellness-habits.webp', 1599, 900],
+        'image' => ['/assets/images/blog/wellness-habits.webp', 1599, 900],
     ],
 ];
 $consultationSteps = [
@@ -115,7 +115,7 @@ $consultationSteps = [
             <article class="program-slide" data-rail-area="<?= e($program['area']) ?>">
                 <a class="program-slide__card-link" href="/contact?subject=<?= e($program['area']) ?>#contact-form" aria-label="Enquire about <?= e($program['title']) ?>">
                     <div class="program-slide__media">
-                        <img src="/assets/images/<?= e($image) ?>" alt="" width="<?= $width ?>" height="<?= $height ?>" loading="lazy" decoding="async">
+                        <img src="<?= e($image) ?>" alt="" width="<?= $width ?>" height="<?= $height ?>" loading="lazy" decoding="async">
                     </div>
                     <div class="program-slide__body">
                         <span class="program-slide__meta"><?= e($program['duration']) ?></span>

@@ -70,11 +70,15 @@
             filters.scrollLeft += hiddenLeft || hiddenRight;
         }
 
-        function resize() {
-            sync();
+        function revealCurrentFilter() {
             const focused = filters?.querySelector('[data-rail-filter]:focus');
             const selectedFilter = focused || filters?.querySelector('[aria-pressed="true"]');
             if (selectedFilter) revealFilter(selectedFilter);
+        }
+
+        function resize() {
+            sync();
+            revealCurrentFilter();
         }
 
         function move(direction) {
@@ -98,7 +102,6 @@
             const status = filters.querySelector('[data-rail-filter-status]');
 
             function applyFilter(button) {
-                revealFilter(button);
                 if (button.getAttribute('aria-pressed') === 'true') return;
                 const area = button.dataset.railFilter;
                 const matching = allCards.filter(card => area === 'all' || card.dataset.railArea === area);
@@ -123,13 +126,16 @@
 
             function restoreFilter() {
                 const button = buttons.find(filter => filterFragment(filter) === location.hash);
-                if (button) applyFilter(button);
+                if (!button) return;
+                applyFilter(button);
+                revealCurrentFilter();
             }
 
             for (const button of buttons) {
                 button.addEventListener('focus', () => revealFilter(button));
                 button.addEventListener('click', () => {
                     applyFilter(button);
+                    revealFilter(button);
                     if (buttons.some(filter => filterFragment(filter) === location.hash)) {
                         history.replaceState(history.state, '', filterFragment(button));
                     }
