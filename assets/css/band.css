@@ -5034,7 +5034,7 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     border-color: var(--home-action-hover);
 }
 .nebo-home-hero .hero-actions .btn-primary { border: 1px solid rgb(255 255 255 / .44); box-shadow: none; }
-.nebo-hero-program-link {
+.nebo-hero-section-link {
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -5046,7 +5046,7 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     text-decoration-color: rgb(255 255 255 / .55);
     text-underline-offset: .34em;
 }
-.nebo-hero-program-link:hover { color: #fff; text-decoration-color: #fff; }
+.nebo-hero-section-link:hover { color: #fff; text-decoration-color: #fff; }
 .nebo-home-hero .hero-actions a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .nebo-intro-section .section-header::before { content: ""; display: block; width: 48px; height: 2px; margin-block-end: 18px; background: #a8b4bc; }
 @media (prefers-reduced-motion: no-preference) {
@@ -5116,7 +5116,7 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     .nebo-home-hero .lede { margin-block-end: 18px; }
     .nebo-home-hero .eyebrow { font-size: .74rem; }
     .nebo-home-hero .hero-actions { display: grid; justify-content: stretch; gap: 4px; }
-    .nebo-hero-program-link { justify-self: start; }
+    .nebo-hero-section-link { justify-self: start; }
 
     .editorial-stack [data-nebo-chapter="resolve"] .therapy-products .therapy-grid { grid-template-columns: minmax(0, 1fr); }
     .editorial-stack [data-nebo-chapter="resolve"] .therapy-products .therapy-feature > img { aspect-ratio: 2.5 / 1; }
@@ -5846,6 +5846,9 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     margin: 0 0 24px;
     color: var(--color-text-muted);
 }
+.nebo-contact-page .contact-form-card__lede--corporate { display: none; }
+.nebo-contact-page .contact-form-card:has(#contact-subject option[value="corporate"]:checked) .contact-form-card__lede--general { display: none; }
+.nebo-contact-page .contact-form-card:has(#contact-subject option[value="corporate"]:checked) .contact-form-card__lede--corporate { display: block; }
 
 .nebo-contact-page .contact-form :is(input:not([type="hidden"]), select, textarea) {
     min-height: 48px;
@@ -6146,7 +6149,7 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 .nebo-practice-gallery__heading p { max-width: 48ch; margin: 0; color: var(--color-text-muted); }
 .nebo-practice-gallery__images {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(0, .755fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: start;
     gap: 14px clamp(12px, 2vw, 24px);
 }
@@ -6155,15 +6158,14 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
     display: block;
     width: 100%;
     height: auto;
-    aspect-ratio: 1;
+    aspect-ratio: 3 / 2;
     object-fit: cover;
     border-radius: 6px;
     background: var(--brand-blue-paper);
 }
-.nebo-practice-gallery figure:nth-child(2) img { object-position: center 65%; }
-.nebo-practice-gallery__poster img { aspect-ratio: auto; }
 .nebo-practice-gallery figcaption { margin-block-start: 8px; color: var(--brand-deep-blue); font-weight: 550; }
 .nebo-practice-gallery figcaption span { display: block; color: var(--color-text-muted); font-size: .875rem; font-weight: 400; }
+.nebo-practice-gallery__credit { margin: 12px 0 0; font-size: .82rem; color: var(--color-text-muted); }
 .nebo-practice-gallery__actions {
     display: flex;
     align-items: center;
@@ -6175,7 +6177,7 @@ html { scroll-padding-top: calc(var(--site-header-height) + 16px); }
 @media (max-width: 743px) {
     .nebo-practice-gallery__images { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .nebo-practice-gallery figure:first-child { grid-column: 1 / -1; }
-    .nebo-practice-gallery figure:first-child img { aspect-ratio: 4 / 3; }
+    .nebo-practice-gallery figure:not(:first-child) img { aspect-ratio: 5 / 4; }
 }
 .nebo-resource-split__media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 68% center; }
 

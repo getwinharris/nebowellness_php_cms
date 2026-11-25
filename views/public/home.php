@@ -49,7 +49,8 @@ $consultationSteps = [
             <p class="lede">Personalised naturopathy, functional medicine and lifestyle care shaped around work and daily life.</p>
             <div class="hero-actions">
                 <a href="/contact#contact-form" class="btn btn-primary">Book Your Consultation</a>
-                <a href="#programs" class="nebo-hero-program-link">Explore Our Programs <span aria-hidden="true">↓</span></a>
+                <a href="#programs" class="nebo-hero-section-link">Explore Our Programs <span aria-hidden="true">↓</span></a>
+                <a href="#movement-and-sound" class="nebo-hero-section-link">Workplace Wellness <span aria-hidden="true">↓</span></a>
             </div>
         </div>
     </div>
@@ -252,25 +253,26 @@ $consultationSteps = [
         </div>
         <section class="nebo-practice-gallery" id="movement-and-sound" aria-labelledby="nebo-practice-title">
             <div class="nebo-practice-gallery__heading">
-                <h3 id="nebo-practice-title">Yoga and sound healing</h3>
-                <p>Make time for yoga and sound healing around a busy workweek. See Nebo’s workshops and group sessions, and ask about upcoming dates.</p>
+                <h3 id="nebo-practice-title">Workplace wellness</h3>
+                <p>Bring guided yoga and sound sessions to your employee wellness plans.</p>
             </div>
             <div class="nebo-practice-gallery__images">
                 <figure>
-                    <img src="/assets/images/editorial/nebo-sound-workshop.webp" alt="Workshop participants seated on blue exercise mats" width="387" height="382" loading="lazy" decoding="async">
-                    <figcaption>Sound healing workshop at a Spottle Space</figcaption>
+                    <img src="/assets/images/editorial/nebo-workplace-yoga.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
+                    <figcaption>Workplace yoga <span>Guided movement and breathing for desk-based teams.</span></figcaption>
                 </figure>
                 <figure>
-                    <img src="/assets/images/editorial/nebo-sound-group.webp" alt="Workshop group standing behind singing bowls and chimes" width="387" height="421" loading="lazy" decoding="async">
-                    <figcaption>Participants and singing bowls at a Nebo session</figcaption>
+                    <img src="/assets/images/editorial/nebo-workplace-sound-healing.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
+                    <figcaption>Sound healing workshops <span>A guided introduction to singing bowls and sound.</span></figcaption>
                 </figure>
-                <figure class="nebo-practice-gallery__poster">
-                    <img src="/assets/images/editorial/nebo-full-moon-reset.webp" alt="Nebo’s Full Moon Reset sound healing group session poster" width="395" height="522" loading="lazy" decoding="async">
-                    <figcaption>Full Moon Reset <span>Past group session · 25 October 2026 · Kilpauk, Chennai</span></figcaption>
+                <figure>
+                    <img src="/assets/images/editorial/nebo-workplace-sound-bath.webp" alt="" width="1020" height="680" loading="lazy" decoding="async">
+                    <figcaption>Group sound baths <span>A shared listening session with time to pause.</span></figcaption>
                 </figure>
             </div>
+            <p class="nebo-practice-gallery__credit">Images are illustrative.</p>
             <div class="nebo-practice-gallery__actions">
-                <a class="btn btn-primary" href="/contact#contact-form">Ask about upcoming sessions</a>
+                <a class="btn btn-primary" href="/contact?subject=corporate#contact-form">Enquire about a team session</a>
                 <a class="focus-program-link" href="https://www.instagram.com/nebolifestyleclinic/">See Nebo’s campaigns <span aria-hidden="true">↗</span></a>
             </div>
         </section>

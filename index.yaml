@@ -652,19 +652,6 @@ concepts:
     usage_count: 1
     used_in:
       - "views/public/home.php"
-  - id: "image:assets/images/editorial/nebo-full-moon-reset.webp"
-    type: "image"
-    title: "nebo-full-moon-reset.webp"
-    description: "Image referenced by 1 project resource(s)."
-    resource: "assets/images/editorial/nebo-full-moon-reset.webp"
-    tags:
-      - "image"
-      - "used"
-    filename: "nebo-full-moon-reset.webp"
-    mime: "image/webp"
-    usage_count: 1
-    used_in:
-      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-maternal-care.webp"
     type: "image"
     title: "nebo-maternal-care.webp"
@@ -691,32 +678,6 @@ concepts:
     usage_count: 1
     used_in:
       - "views/public/home.php"
-  - id: "image:assets/images/editorial/nebo-sound-group.webp"
-    type: "image"
-    title: "nebo-sound-group.webp"
-    description: "Image referenced by 1 project resource(s)."
-    resource: "assets/images/editorial/nebo-sound-group.webp"
-    tags:
-      - "image"
-      - "used"
-    filename: "nebo-sound-group.webp"
-    mime: "image/webp"
-    usage_count: 1
-    used_in:
-      - "views/public/home.php"
-  - id: "image:assets/images/editorial/nebo-sound-workshop.webp"
-    type: "image"
-    title: "nebo-sound-workshop.webp"
-    description: "Image referenced by 1 project resource(s)."
-    resource: "assets/images/editorial/nebo-sound-workshop.webp"
-    tags:
-      - "image"
-      - "used"
-    filename: "nebo-sound-workshop.webp"
-    mime: "image/webp"
-    usage_count: 1
-    used_in:
-      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-stories.webp"
     type: "image"
     title: "nebo-stories.webp"
@@ -726,6 +687,45 @@ concepts:
       - "image"
       - "used"
     filename: "nebo-stories.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-workplace-sound-bath.webp"
+    type: "image"
+    title: "nebo-workplace-sound-bath.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-workplace-sound-bath.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-workplace-sound-bath.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-workplace-sound-healing.webp"
+    type: "image"
+    title: "nebo-workplace-sound-healing.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-workplace-sound-healing.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-workplace-sound-healing.webp"
+    mime: "image/webp"
+    usage_count: 1
+    used_in:
+      - "views/public/home.php"
+  - id: "image:assets/images/editorial/nebo-workplace-yoga.webp"
+    type: "image"
+    title: "nebo-workplace-yoga.webp"
+    description: "Image referenced by 1 project resource(s)."
+    resource: "assets/images/editorial/nebo-workplace-yoga.webp"
+    tags:
+      - "image"
+      - "used"
+    filename: "nebo-workplace-yoga.webp"
     mime: "image/webp"
     usage_count: 1
     used_in:

@@ -5,7 +5,15 @@ $_SESSION['contact_tokens'] = array_slice($_SESSION['contact_tokens'], -20, null
 // Values retained by a failed email-verification POST, so the visitor never has to
 // retype the form. The controller clears the session entry after this render.
 $contactValues = is_array($formValues ?? null) ? $formValues : [];
-if (!array_key_exists('subject', $contactValues) && in_array($subject ?? '', ['gut', 'metabolic', 'fertility', 'lifestyle', 'general'], true)) {
+$contactSubjects = [
+    'gut' => 'Gut Health Program',
+    'metabolic' => 'Metabolic Reset',
+    'fertility' => 'Fertility & Maternal Wellness',
+    'lifestyle' => 'Lifestyle Transformation',
+    'corporate' => 'Corporate Wellness',
+    'general' => 'General Question',
+];
+if (!array_key_exists('subject', $contactValues) && is_string($subject ?? null) && isset($contactSubjects[$subject])) {
     $contactValues['subject'] = $subject;
 }
 if (!array_key_exists('message', $contactValues) && ($consultant ?? '') !== '') {
@@ -23,7 +31,8 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
         </div>
         <div class="contact-form-card reveal" id="contact-form">
             <h2 class="contact-form-card__title">Contact Us</h2>
-            <p class="contact-form-card__lede">Use this form for consultation bookings, program enquiries, or general wellness questions.</p>
+            <p class="contact-form-card__lede contact-form-card__lede--general">Use this form for consultation bookings, program enquiries, or general wellness questions.</p>
+            <p class="contact-form-card__lede contact-form-card__lede--corporate">To plan a team session, tell us your organisation, approximate team size, preferred location and dates, and which session interests you.</p>
             <?php if(!empty($success)): ?>
                 <script>document.addEventListener('DOMContentLoaded',function(){showToast('Thank you. Nebo Lifestyle Clinic will contact you soon.','success');});</script>
             <?php endif; ?>
@@ -55,11 +64,9 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
                         <label for="contact-subject">Subject</label>
                         <select id="contact-subject" name="subject" required>
                             <option value="">Select a subject</option>
-                            <option value="gut" <?= ($contactValues['subject'] ?? '') === 'gut' ? 'selected' : '' ?>>Gut Health Program</option>
-                            <option value="metabolic" <?= ($contactValues['subject'] ?? '') === 'metabolic' ? 'selected' : '' ?>>Metabolic Reset</option>
-                            <option value="fertility" <?= ($contactValues['subject'] ?? '') === 'fertility' ? 'selected' : '' ?>>Fertility & Maternal Wellness</option>
-                            <option value="lifestyle" <?= ($contactValues['subject'] ?? '') === 'lifestyle' ? 'selected' : '' ?>>Lifestyle Transformation</option>
-                            <option value="general" <?= ($contactValues['subject'] ?? '') === 'general' ? 'selected' : '' ?>>General Question</option>
+                            <?php foreach ($contactSubjects as $key => $label): ?>
+                                <option value="<?= e($key) ?>" <?= ($contactValues['subject'] ?? '') === $key ? 'selected' : '' ?>><?= e($label) ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                 </div>
