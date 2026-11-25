@@ -561,30 +561,32 @@ concepts:
   - id: "image:assets/images/blog/gut-health-food.webp"
     type: "image"
     title: "gut-health-food.webp"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/blog/gut-health-food.webp"
     tags:
       - "image"
       - "used"
     filename: "gut-health-food.webp"
     mime: "image/webp"
-    usage_count: 1
+    usage_count: 2
     used_in:
       - "content/blog/posts/gut-friendly-meals.md"
+      - "views/public/home.php"
   - id: "image:assets/images/blog/wellness-habits.webp"
     type: "image"
     title: "wellness-habits.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 3 project resource(s)."
     resource: "assets/images/blog/wellness-habits.webp"
     tags:
       - "image"
       - "used"
     filename: "wellness-habits.webp"
     mime: "image/webp"
-    usage_count: 2
+    usage_count: 3
     used_in:
       - "content/blog/posts/how-to-explore-nebo-programs.md"
       - "content/blog/posts/sustainable-wellness-habits.md"
+      - "views/public/home.php"
   - id: "image:assets/images/consultants/default-female.webp"
     type: "image"
     title: "default-female.webp"
@@ -751,17 +753,18 @@ concepts:
   - id: "image:assets/images/nebo-clinic-hero.webp"
     type: "image"
     title: "nebo-clinic-hero.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 3 project resource(s)."
     resource: "assets/images/nebo-clinic-hero.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-clinic-hero.webp"
     mime: "image/webp"
-    usage_count: 2
+    usage_count: 3
     used_in:
       - "app/Services/SeoService.php"
       - "views/layouts/app.php"
+      - "views/public/home.php"
   - id: "image:assets/images/nebo-favicon.png"
     type: "image"
     title: "nebo-favicon.png"
@@ -789,16 +792,17 @@ concepts:
   - id: "image:assets/images/nebo-garden.webp"
     type: "image"
     title: "nebo-garden.webp"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/nebo-garden.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-garden.webp"
     mime: "image/webp"
-    usage_count: 1
+    usage_count: 2
     used_in:
       - "views/public/about.php"
+      - "views/public/home.php"
   - id: "image:assets/images/nebo-logo-small.jpg"
     type: "image"
     title: "nebo-logo-small.jpg"

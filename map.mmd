@@ -7,11 +7,11 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 125 routes, 13 controllers, 54 services, 50 views, 0 data files, 19 tools"]
+  subgraph ARCH["Architecture Overview — 125 routes, 13 controllers, 54 services, 51 views, 0 data files, 19 tools"]
     arch_routes["> Routes: 125 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 13"]:::arch
     arch_svc["> Services: 54"]:::arch
-    arch_views["> Views: 50"]:::arch
+    arch_views["> Views: 51"]:::arch
     arch_data["> Collections: 24 schema | 0 files"]:::arch
     arch_tools["> Tools: 19"]:::arch
     arch_gaps["> Gaps: 5"]:::arch
@@ -268,6 +268,7 @@ flowchart LR
     view_admin_therapy["admin/therapy"]:::code
     view_layouts_admin["layouts/admin"]:::code
     view_layouts_app["layouts/app"]:::code
+    view_partials_home_figures["partials/home-figures"]:::code
     view_partials_therapy_products["partials/therapy-products"]:::code
     view_public_404["public/404"]:::code
     view_public_about["public/about"]:::code

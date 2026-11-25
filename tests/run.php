@@ -622,8 +622,9 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     assertTrue(str_contains($stack, "footer.classList.add('editorial-stack-card', 'landing-footer-card')"), 'The footer should become the final landing-page stack card');
     assertTrue(!str_contains($css, '.stack-ready > [data-nebo-chapter] { min-height:'), 'Homepage chapters after the hero should fit their own content');
     $home = file_get_contents(app_path('views/public/home.php'));
-    assertTrue(preg_match('/data-nebo-chapter="arrival".*data-nebo-chapter="foundation".*data-nebo-chapter="programs".*data-nebo-chapter="stories".*id="nebo-scroll-statement-title".*data-nebo-chapter="team"/s', $home) === 1,
-        'The introduction follows the hero, Programs follow the introduction, and the statement bridges Stories and Team');
+    preg_match_all('/data-nebo-chapter="([^"]+)"/', $home, $chapters);
+    assertTrue($chapters[1] === ['arrival', 'foundation', 'programs', 'team', 'stories', 'statement', 'focus', 'confidence', 'resolve'],
+        'The statement should bridge client stories and the media-led care areas after the Team rail');
     assertTrue(str_contains($css, '--stack-viewport: 100dvh'), 'Mobile pinning should follow the available viewport as browser controls retract');
     assertTrue(str_contains($stack, "target.matches(':focus-visible')") && str_contains($css, '.stack-ready.stack-keyboard-flow > .editorial-stack-card'),
         'Keyboard focus should restore normal flow for the hero');
@@ -1004,8 +1005,9 @@ $tests['home page rejects malformed remote categories and retains complete sales
     assertSame('pendant', $kept[0]['slug'], 'The first complete category should survive filtering');
     assertSame('ring', $kept[1]['slug'], 'A category is kept only when both slug and name are present');
     $view = file_get_contents(app_path('views/public/home.php'));
+    $headings = strip_tags(preg_replace('/<\?(?:php|=).*?\?>/s', '', $view));
     foreach (['Where Science Meets Nature for Lifelong Wellness', 'The Nebo Foundation', 'Our Vision', 'Gut Health'] as $heading) {
-        assertTrue(str_contains(strip_tags($view), $heading), "Home should retain the {$heading} section");
+        assertTrue(str_contains($headings, $heading), "Home should retain the {$heading} section");
     }
     assertTrue(!str_contains($view, 'Online Consultation'), 'Home should not retain the retired consultation section');
 };
@@ -1035,7 +1037,7 @@ $tests['home hero leads with wellness and working consultation and program links
 
 $tests['home temple guide uses admin driven dissolve carousel'] = function (): void {
     $view = file_get_contents(app_path('views/public/home.php'));
-    assertTrue(str_contains($view, 'Our Focus Areas'), 'Home should render the Nebo focus-areas section');
+    assertTrue(str_contains($view, 'class="nebo-care-mosaic"'), 'Home should render the Nebo care areas as an image grid');
     assertTrue(str_contains($view, 'id="programs"'), 'Home should render the programs section');
     assertTrue(str_contains($view, 'Meet Our Team'), 'Home should render the team section');
     assertTrue(!str_contains($view, 'Panchami Temples Guide'), 'Home should not use the old temple guide wording');
