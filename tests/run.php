@@ -607,7 +607,8 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     $stack = file_get_contents(app_path('assets/editorial-stack.js'));
     $contact = file_get_contents(app_path('views/public/contact.php'));
     foreach ([
-        '.stack-ready > .editorial-stack-card { position: sticky;',
+        '.stack-ready > .nebo-home-hero { position: sticky;',
+        'animation: nebo-statement-sweep linear both;',
         '@media (prefers-reduced-motion: reduce)',
         '.stack-ready > .editorial-stack-card { position: relative; top: auto; }',
         '@media (max-width: 1128px) and (min-width: 744px)',
@@ -622,8 +623,8 @@ $tests['editorial stack keeps navigation, fallbacks and reduced motion usable'] 
     assertTrue(str_contains($css, '.stack-ready > [data-nebo-chapter] { min-height: calc(var(--stack-viewport) - var(--site-header-height, 82px)); }'), 'Enhanced mobile chapters should fill the stage when their copy is short');
     assertTrue(str_contains($css, '--stack-viewport: 100dvh'), 'Mobile pinning should follow the available viewport as browser controls retract');
     assertTrue(str_contains($stack, "target.matches(':focus-visible')") && str_contains($css, '.stack-ready.stack-keyboard-flow > .editorial-stack-card'),
-        'Keyboard focus should uncover links behind pinned chapters');
-    assertTrue(substr_count($css, '.stack-ready > .editorial-stack-card { position: relative; top: auto; }') === 1, 'Mobile styles must not disable pinning for pointer and touch scrolling');
+        'Keyboard focus should restore normal flow for the hero');
+    assertTrue(substr_count($css, '.stack-ready > .editorial-stack-card { position: relative; top: auto; }') === 1, 'Only the reduced-motion rule should disable hero pinning for pointer and touch scrolling');
     assertTrue(!str_contains($contact, 'scroll-margin-top:110px'), 'Contact anchor should rely on the shared header scroll padding only');
     foreach (['.consultation-invitation h2 { font-size: 4rem;', '.consultation-invitation h2 { font-size: 3rem;', '.consultation-invitation h2 { font-size: 2rem;'] as $needle) {
         assertTrue(str_contains($css, $needle), "Consultation heading should use an explicit breakpoint size: {$needle}");

@@ -4448,14 +4448,58 @@ body { overflow-x: clip; }
 .editorial-stack-card { min-height: calc(100svh - var(--site-header-height, 114px)); position: relative; z-index: var(--stack-order, 1); }
 .editorial-stack-card:not(.home-hero) { background: var(--color-bg, #f7f9fa); }
 .editorial-stack-card.section--alt, .editorial-stack-card.section--warm { background: var(--color-bg-alt, #edf3f6); }
-.stack-ready > .editorial-stack-card { position: sticky; top: min(var(--site-header-height, 114px), calc(var(--stack-viewport) - var(--stack-height, var(--stack-viewport)))); }
+.stack-ready > .nebo-home-hero { position: sticky; top: min(var(--site-header-height, 114px), calc(var(--stack-viewport) - var(--stack-height, var(--stack-viewport)))); }
+.nebo-scroll-statement {
+    position: relative;
+    z-index: 2;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    min-block-size: clamp(230px, 49svh, 560px);
+    background: var(--color-bg-alt, #edf3f6);
+    color: #10263d;
+}
+.nebo-scroll-statement__title {
+    margin-block: 0;
+    padding-block: 42px;
+    font-size: clamp(2.5rem, 7vw, 7rem);
+    font-weight: 300;
+    line-height: 1.07;
+    text-wrap: balance;
+}
+.nebo-scroll-statement__title em { font-family: var(--font-accent, Georgia, serif); }
+.nebo-scroll-statement__light { display: none; }
+@supports (animation-timeline: view()) and (clip-path: inset(0)) {
+    @media (prefers-reduced-motion: no-preference) {
+        .stack-ready:not(.stack-keyboard-flow) > .nebo-scroll-statement {
+            background: #10263d;
+            color: #fff;
+        }
+        .stack-ready:not(.stack-keyboard-flow) .nebo-scroll-statement__light {
+            display: grid;
+            align-items: center;
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: var(--color-bg-alt, #edf3f6);
+            color: #10263d;
+            animation: nebo-statement-sweep linear both;
+            animation-timeline: view();
+            animation-range: cover 12% cover 82%;
+        }
+    }
+}
+@keyframes nebo-statement-sweep {
+    from { clip-path: inset(100% 0 0); }
+    to { clip-path: inset(0); }
+}
 .stack-ready.stack-keyboard-flow > .editorial-stack-card { position: relative; top: auto; }
 .stack-keyboard-flow .chapter-arrived *,
 .stack-keyboard-flow .chapter-item-arrived { animation: none !important; }
 
 @media (prefers-reduced-motion: no-preference) {
     /* The pinned surface covers this distance while the next chapter approaches. */
-    .stack-ready > [data-nebo-chapter]:not(:last-child) {
+    .stack-ready > .nebo-home-hero {
         margin-block-end: clamp(72px, 15svh, 144px);
     }
     .editorial-stack > .chapter-arrived > .container > :not(.hero-copy, .consultation-invitation, .value-strip, .therapy-grid, .editorial-rail, .team-showcase, .nebo-testimonials, .footer-grid),
@@ -4468,7 +4512,7 @@ body { overflow-x: clip; }
     .editorial-stack > .chapter-arrived .consultation-invitation__copy > :is(p, a) { animation-delay: 110ms; }
 
     .editorial-stack .chapter-item-arrived {
-        animation: nebo-card-arrival .56s cubic-bezier(.22,1,.36,1) var(--chapter-delay, 0ms) backwards;
+        animation: nebo-card-arrival .72s cubic-bezier(.22,1,.36,1) var(--chapter-delay, 0ms) backwards;
     }
     .editorial-stack .chapter-item-arrived:focus-within { animation: none; }
     .editorial-stack .program-slide.is-rail-current {
@@ -4477,12 +4521,12 @@ body { overflow-x: clip; }
     }
 }
 @media (max-width: 743px) and (prefers-reduced-motion: no-preference) {
-    .stack-ready > [data-nebo-chapter]:not(:last-child) {
+    .stack-ready > .nebo-home-hero {
         margin-block-end: clamp(40px, 7svh, 64px);
     }
 }
 @keyframes nebo-chapter-arrival { from { translate: 0 10px; } to { translate: 0 0; } }
-@keyframes nebo-card-arrival { from { translate: 0 14px; } to { translate: 0 0; } }
+@keyframes nebo-card-arrival { from { translate: 0 clamp(16px, 3vw, 40px); opacity: .78; } to { translate: 0 0; opacity: 1; } }
 
 .analytics-overview { display: grid; gap: var(--space-lg); }
 .analytics-summary { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2fr); gap: var(--space-lg); }

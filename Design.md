@@ -299,15 +299,15 @@ Arrows cycle one practitioner at a time; portrait buttons and left/right keys al
 select profiles. On mobile the detail column follows the portraits. Without script
 enhancement, every profile renders with its own readable biography.
 
-## Editorial sticky stack
+## Editorial scroll and hero handoff
 
-Home sections use opaque sticky sections in increasing stacking order. A short
-section sticks at the viewport top while the next section naturally scrolls over it.
-A tall section scrolls to its bottom before sticking so all text and actions remain
-reachable on mobile. Each chapter plays one short entrance as its heading comes into view,
-then stays still at its sticky position. The heading and content arrive in order,
-with up to 120ms between groups. No input is intercepted. Without observer support,
-copy stays in its final position. Reduced motion restores normal flow.
+Keep native scrolling. Hold the hero briefly under the header while the clinic
+statement arrives, then let Foundation and the following chapters scroll in
+document order. The statement uses one accessible heading and a decorative
+light treatment that sweeps upward with scroll, revealing the same letters in
+deep blue against pale paper. It reverses when the visitor scrolls back.
+Keyboard flow, reduced motion, and unsupported browsers keep the statement
+fully visible on pale paper. The visual treatment adds no focus target.
 
 ### Home motion vocabulary
 
@@ -315,8 +315,7 @@ Use these terms consistently in product copy, implementation notes, and code rev
 
 - **Arrival:** the hero at the start of the visit. It establishes the clinic and
   its primary action before the next chapter scrolls over it.
-- **Act:** one meaningful visitor state in the home sequence. Nebo uses opaque sticky
-  sections in increasing stack order, each of which cleanly covers the preceding act.
+- **Act:** one meaningful visitor state in the home sequence. Nebo stages the hero handoff and lets later chapters flow in document order.
 - **Copy-in:** a short upward entrance triggered once as a chapter enters view.
   Essential copy remains opaque and ends in a still composition.
 - **Content composition:** the complete group of heading, media, supporting copy, and
@@ -340,7 +339,7 @@ Use these terms consistently in product copy, implementation notes, and code rev
   appears on the site. Give each act a distinct emotion and on-screen cause; document
   any reason for repeating a feeling across adjacent acts.
 - **Grammar:** the reusable structural rule for a page, including navigation, sequence,
-  ending, and explicit bans. Nebo home uses its own editorial sticky-stack grammar
+  ending, and explicit bans. Nebo home uses its own editorial scroll rhythm
   because the product requires persistent navigation.
 - **Device:** one restrained scroll mechanism, such as a copy-in, media crop, selection
   rail, or sticky stack. Use only the devices needed by the story; the clinic brief
@@ -389,8 +388,8 @@ visual system.
 
 ### Home motion score
 
-- **Arrival:** set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, ease the outgoing artwork dim and the incoming Foundation image settle on the same reversible timeline. The actions remain available throughout. Foundation covers the hero through native scrolling and opens with a small rule reveal.
-- **Foundation:** the clinic story enters as the first opaque sticky act, using a
+- **Arrival:** set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, ease the outgoing artwork dim and the incoming Foundation image settle on the same reversible timeline. The actions remain available throughout. The clinic statement covers the hero through native scrolling and introduces Foundation.
+- **Foundation:** the clinic story enters in document flow, using a
   small upward copy-in to settle the image and copy together.
 - **Focus:** visible cards enter in reading order, then settle into a still grid.
 - **Confidence:** the proof cards enter individually within one centred composition.
@@ -410,8 +409,8 @@ visual system.
 
 - Start with semantic PHP content that is readable with JavaScript and CSS motion
   disabled. Enhancement may add classes, never remove information.
-- Use scroll-linked motion only for `opacity` and `transform`. Avoid scroll-linked
-  `height`, `width`, grid tracks, and layout shifts.
+- Use scroll-linked opacity and transforms for artwork. The statement may clip its
+  decorative layer. Keep layout dimensions and grid tracks steady during scroll.
 - Use one directional copy-in per act. Do not alternate card directions simply to
   create movement, and do not add decorative scroll counters, fake progress, or
   autoplaying rails.
@@ -420,8 +419,7 @@ visual system.
   be clipped.
 - Respect reduced motion by disabling the sticky stack and all entrance transforms.
   Keyboard, touch, arrows, and manual horizontal scrolling must continue to work.
-- Verify the whole sequence at desktop and 375px: header stays sticky, each incoming
-  layer covers the prior layer, one arrow click changes one rail item, the featured
+- Verify the whole sequence at desktop and 375px: header stays sticky, the statement sweeps in both directions, one arrow click changes one rail item, the featured
   portrait remains distinct, no text overflows, and the footer becomes the final layer.
 - Run the feel check after visual verification. Confirm that the selected portrait is
   the one engineered peak, the quieter programs act precedes it, and the resolve holds
@@ -431,11 +429,9 @@ visual system.
 ## Sticky navigation and portrait alignment
 
 The white main navigation bar stays at the viewport top during scrolling. The native modal menu uses a two-line trigger, spacious editorial links grouped by exploration and account, and a consultation action. It occupies roughly one-third of a wide desktop and the full phone width, with a restrained 300ms entrance only when reduced motion is not requested. Keep the native disclosure fallback, module gating, keyboard focus, and independently scrollable menu content. The
-hero and subsequent sections stay in native document flow. At the end of each
-chapter, a short scroll distance lets the pinned content settle before the next
-surface covers it. This distance is smaller on phones and absent with reduced
-motion. The measured header reserves space for anchors, and tall sections scroll
-fully before sticking. The opaque header sits above stacked content.
+hero holds for a short handoff. The hold is shorter on phones and absent with
+reduced motion. The measured header reserves space for anchors. Later sections
+remain in document flow and the opaque header stays above the content.
 Team preview portraits align around the featured portrait's vertical center, with
 centered image crops and visible names. Details move below the portrait rail at
 tablet widths as well as mobile, so the preview names retain useful space.
@@ -460,7 +456,10 @@ until a verified payment and session workflow is available.
 
 ### Mobile homepage reading order
 
-At widths below 744px, enhanced homepage chapters settle under the header and the next chapter scrolls over them. Short chapters fill the available stage. Tall chapters grow with their content and settle only after their lower edge comes into view. Without JavaScript or with reduced motion, chapters scroll in normal flow. Keyboard focus temporarily restores normal flow so earlier links remain visible. Programs uses a stationary anchor so the menu can jump there from below the chapter. Use a shallow Foundation image, compact therapy and testimonial cards, and a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.
+At widths below 744px, use a shorter hero hold and allow the statement to wrap
+without reducing its readable area. Later chapters grow with their content.
+Without JavaScript, with reduced motion, or during keyboard navigation, the
+hero scrolls in normal flow. Programs uses a stationary anchor so the menu can jump there from below the chapter. Use a shallow Foundation image, compact therapy and testimonial cards, and a two-column footer for Clinic and Explore. The menu keeps Programs and Blog reachable. Footer contact and legal links stay above the cart and Support controls.
 
 ### Homepage hero, services and footer
 
