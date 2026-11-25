@@ -95,6 +95,11 @@ the existing guidance as written. Regenerate affected indexes and maps with
    touch, module, and fallback states. Record the results and run `./bapXphp ci`
    before review. Use synthetic data and redact credentials and personal data
    before sharing evidence. Mark unrun checks explicitly.
+6. For a redesign across multiple sections, give each agent explicit ownership of
+   sections and selectors. After the section changes are integrated, run a
+   separate implementation review and a gap audit using the
+   [frontend PHP skill](.agents/skills/frontend-php/SKILL.md). Fix reproducible
+   regressions and give one agent ownership of tracking each remaining issue.
 
 ## Architecture
 

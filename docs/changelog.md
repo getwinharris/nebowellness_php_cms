@@ -22,6 +22,7 @@ category: docs
 
 ### Changed
 
+- Refined the home hero handoff, mobile Program filters, practitioner image fallbacks, and care layout. Added original program artwork and illustrations of yoga and sound practices for desk-heavy workdays.
 - Reordered the homepage around the Foundation, Programs, Team, and client stories. Added scroll-triggered clinic figures, an image-led care grid, and clinic resources above the footer.
 - Refined the public menu and image-led program, service and shop cards using the SHA component reference while retaining Nebo imagery, native navigation, and purchase/enquiry behavior.
 - Added a distinct Nebo hero entrance and direct consultation form link, increased mobile rail targets, and gave the customer Support panel a larger transcript and direct entry from the Support page.

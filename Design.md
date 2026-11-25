@@ -105,20 +105,13 @@ components:
 
 Nebo Wellness is a naturopathy and functional medicine clinic platform. The primary customer journey is discover programs -> learn about consultants -> book consultation -> manage wellness journey. Blog content and health resources support that journey. This file is the canonical visual contract for public and admin UI. `assets/css/band.css` is the stylesheet for shared tokens, layout, component states, and public art direction. Public and admin layouts share this file and serve their Inter and Playfair Display fonts locally.
 
-Design inspiration from SHA Wellness (shawellness.com) informs the use of:
-- Clean, spacious card layouts with clear separation
-- Professional medical team showcases with credentials
-- Prominent program/service cards with clear CTAs
-- Statistics and proof points displayed prominently
-- Testimonial sections with credibility markers
-- Section dividers and contained content blocks
-- Sophisticated use of whitespace and hierarchy
+SHA Wellness is the primary reference for the homepage's editorial hierarchy, section transitions, and horizontal program and practitioner layouts. Use secondary references to evaluate individual principles such as the placement of a primary action, a phone crop, or the spacing between a heading and its cards. Apply those principles to Nebo's services, media, content, and controls. The frontend skill defines how to compare and verify the result.
 
 Keep the existing PHP templates, routes, forms, and hosted MySQL-backed behavior. Design changes must not scaffold a second frontend.
 
 ## Colors
 
-- **Primary -- professional blue (`#4472C4`):** headers, primary buttons, active nav state, key actions. `on-primary` is white; `primary-container` (`#6b8dd6`) is the blue-active/pressed state. Inspired by medical/wellness trust colors.
+- **Primary blue (`#4472C4`)** is the shared action and navigation color. Use white on primary blue and the lighter blue container for its active state. The homepage hero and closing consultation actions use charcoal.
 - **Secondary -- wellness green (`#70AD47`):** supporting accent, success states, nature/health emphasis, secondary CTAs. Represents natural healing and vitality.
 - **Tertiary -- soft green (`#8cc069`):** tertiary accents, active underline, eyebrow labels, subtle dividers.
 - **Surface (`#f7f9fa`) / surface-container (`#edf3f6`):** cool gray canvas and alternate-section background. White is reserved for cards, form surfaces, and deliberate image breaks.
@@ -131,20 +124,20 @@ Keep the existing PHP templates, routes, forms, and hosted MySQL-backed behavior
 - Body: Inter (300-700) with system sans-serif fallbacks.
 - Display headings: Inter, weight 300-400, with tight tracking for large editorial
   headings and predictable breakpoint sizes. Operational page headings may use 600.
-- `accent-italic` (Playfair Display, 600 italic): decorative highlight only -- eyebrow labels and value-card titles. Never body text.
+- Use Playfair Display at 600 italic for short accents in editorial headings, eyebrows, and value-card titles. Use Inter for body text.
 - Body copy: `14px`-`16px`, weight 400, line-height `1.45`-`1.6`.
 - Labels/metadata: `12px`-`14px`, weight 500-600.
-- Letter-spacing is `0` everywhere except short operational labels (table headers, filter labels, badges), where uppercase + slight tracking is acceptable. Buttons and headings are never uppercase.
+- Keep default letter spacing in body copy and controls. Large editorial headings may use tighter tracking. Reserve tracked uppercase for short metadata and compact header labels.
 
 ## Layout
 
 - Spacing scale: `2, 4, 8, 16, 24, 32, 48, 64px`.
-- Container: centered, max `1300px` (`1440px` for wide layouts).
+- The standard centered container caps at `1300px`. Wide layouts can use `1440px`. Homepage chapter containers can expand to `1720px`, including their gutters. Use the same content edge across chapters, with `20px` gutters on phones.
 - `.section`: `64px` vertical padding by default. `.section--alt` uses `surface-container`; `.section--warm` uses the warmer `#edf3f6` for value sections.
 - Responsive breakpoints: mobile below `744px` (one column, compact header, navigation in Menu), tablet `744-1128px` (reduced grid columns, same card geometry), desktop above `1128px` (centered container, `64px` section spacing).
 - Text, buttons, images, and fixed controls must not overlap or reflow awkwardly as content length changes.
-- Do not scale typography with viewport width. Use explicit breakpoint sizes so headings remain predictable and do not dominate short mobile screens.
-- The first viewport must show the clinic's primary consultation action and a hint of the next section. Shop pages lead to products when enabled; account pages lead to the user's current task.
+- Use explicit breakpoint sizes for controls and body text. Editorial headings may scale within bounded sizes. Check their wrap and the primary action on short mobile screens.
+- On the homepage, keep the primary consultation action visible in the first viewport. Make the transition into the Foundation clear on the first scroll. Shop pages lead to products when enabled and account pages lead to the user's current task.
 - Page sections are unframed full-width bands. Cards are reserved for repeated entities, forms, summaries, and genuinely bounded tools. Never place a card inside another decorative card.
 - Desktop operational screens use compact density and stable columns. Mobile screens use one clear column with 16px page gutters and no horizontal scrolling.
 
@@ -184,19 +177,15 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 ## Components
 
 - **Header:** soft white, pinned to the viewport top, with a hairline bottom border and the complete client-supplied Nebo logo centered. The drawer repeats this logo as a home link; account/cart actions remain right aligned.
-- **Home hero (editorial):** Use the full-width illustrative veranda scene with a dark blue text scrim, a Playfair Display headline and an immediately available consultation action that opens the form. At 375px, crop toward the sunlit veranda and retain a readable text panel and full-width actions. Label the scene as illustrative. Generated scenes depict neither the clinic premises nor its staff or clients. The image settles once, then supporting copy rises a short distance and the actions fade into full opacity in place. Reduced motion leaves the complete composition still.
-- **Program rail:** a horizontal, equal-height scroll-snap editorial rail with a partial next card
-  visible on mobile. Each card leads with illustrative artwork, followed by duration,
-  program name, a short factual description and an enquiry link. Each 44px or larger arrow target advances exactly one card plus its grid gap; keyboard and touch scrolling remain
-  available. When the rail enters view, its cards use one short staggered rise; only the current card receives a subtle lift. Nebo offers programs only: never introduce destinations, accommodation,
-  room selection, stay length, or hotel booking concepts.
+- **Home hero (editorial)** uses the Nebo veranda illustration with an Inter headline and a short Playfair italic accent. Use a charcoal reading surface and keep the consultation action prominent. Present Programs as a quieter text link. On phones, carry the artwork behind the heading with a scrim and retain the focal point. Label the scene as illustrative. Keep the complete composition still and readable with reduced motion.
+- **Program rail** uses equal-height scroll-snap cards with subject-specific illustrations, duration, program name, factual description, and an enquiry link. Show four complete cards at 1440px when unfiltered and part of the next card on phones. Each arrow has a minimum 44px target and advances one card plus the gap. Keep keyboard and touch navigation available. Use one short staggered entrance and a subtle lift on the current card. Keep content specific to Nebo’s programs.
 - **Therapy products:** published campaign pages are the public Products catalogue. The homepage gives the newest record a large image and session-request action, followed by two quieter older entries. The catalogue uses the same hierarchy for all published offerings. On phones the featured therapy comes first in a single column. Preserve existing campaign URLs. Drafts never have a public route or sitemap entry. A request does not confirm a session.
 - **Proof points:** Display measured outcomes only when Nebo can substantiate the numbers and define the measurement period and source. Otherwise use concrete service details without invented percentages.
-- **Team/Consultant rail:** portrait-first, equal-height cards with name, credentials,
-  speciality, concise bio, and one consultation enquiry action. Until actual portraits
-  are supplied, use the approved male silhouette for male practitioners and approved
-  female silhouette for female practitioners, label them as portrait placeholders,
-  and keep `photo_url` editable through Admin → Consultants and the media picker. Use a large selected profile beside small portrait previews, with the same single-card arrow advance and scroll entrance as the program rail.
+- **Team/Consultant rail.** Use photographs when supplied and typographic initials for
+  homepage profiles with a missing or default photo. Keep names, credentials, a concise
+  biography, and one consultation action visible in the active profile. Manage photos
+  through Admin → Consultants and the media picker. Align the bottom of the selected
+  profile and smaller previews.
 - **Testimonial Cards:** Use the client-approved testimonial copy from the project source document. Present it as a quiet two-column quote grid with the supplied attribution; do not invent outcome claims or missing attribution details.
 - **Section Dividers:** Use generous whitespace (`64px` - `96px`) between major sections. Alternate between canvas and `surface-container` backgrounds for visual rhythm, inspired by SHA's clean sectioning.
 - **Content Cards:** More rounded (`12px-16px`) than the old design. Generous internal padding. Clear hierarchy with headings, body text, and CTAs.
@@ -213,7 +202,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Cart quantity:** provide `−` and `+` controls beside every product, update line totals and the cart count, and remove the line when decreased to zero. Repeated additions of the same product merge into one line. Distinguish selecting a quantity to add from editing the quantity already in the cart.
 - **Commerce responsiveness:** use `minmax(0, 1fr)` for purchase-button columns, wrap quantity labels when space is tight, and keep keyboard focus visible. Verify home, shop, product and cart at 375px and desktop in the built-in Browser. Do not shrink purchase controls to 30px to force them onto one row.
 - **Consultant cards (`card-consultant`):** white, `8px` radius, face-forward portrait, name, speciality, language/experience metadata, review summary when present, and one clear profile/booking action. Every card uses equal media and content tracks so rows align.
-- **Section rhythm:** Follow the image-led Foundation introduction with the five-card program rail, open focus-area entries in two columns, and a list of care principles with split title and copy. The [home motion score](#home-motion-score) specifies the later sections. Below 744px, stack focus entries and place each care principle's copy under its title. About uses a wide tropical-garden image before the story cards. Label generated scenes as illustrative. The primary action opens the contact form.
+- **Section rhythm** begins with the Foundation introduction, figures, vision, and pillars. Programs follow. Use the [home motion score](#home-motion-score) for the later chapters, including the image-led care areas. On phones, keep each care principle's copy below its title. About uses a wide tropical-garden image before the story cards. Label generated scenes as illustrative. The primary action opens the contact form.
 - **Authentication:** login and registration are task pages, not marketing pages. Use a centered form surface, suppress the public footer, and keep the complete form visible on common mobile heights.
 - **Product details:** keep the short introduction, feature bullets, detailed description, and labelled specification rows in separate readable sections. Admin-created products use the same fields and layout as existing products; never paste table markup into a plain-text description. Omit empty sections instead of fabricating claims.
 - **Account:** use a persistent internal menu and one unframed content region. Orders, addresses, and installation are tasks, not promotional cards.
@@ -246,9 +235,9 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 
 ### Nebo editorial treatment
 
-Use the Scroll Craft taste guidance by Nate Herk for composition and interaction states. The existing journey remains the brief: photographic arrival, orientation, reassurance, comparison, practitioner selection, and consultation. Let visitors compare programs through the duration, title, and copy at a glance. Reserve the larger visual change for the selected practitioner and their consultation link.
+Use the Scroll Craft guidance by Nate Herk for composition and interaction states. The homepage takes visitors from arrival and orientation through program comparison and practitioner selection to a consultation. Let visitors compare programs through duration, title, and copy at a glance. Reserve the strongest selection change for the featured practitioner and their consultation link.
 
-Use cool paper, deep blue ink, and one blue action color across these surfaces. The public art-direction rules derive paper and rules from the configured primary palette where `color-mix()` is supported. Ink, action, and focus colors use fixed contrast-safe blues. Hairlines and spacing group related content. Give program titles more scale than their duration and description, and remove decorative numbers and gradient panels. Maintain a visible offset focus outline on rail controls and form fields. Without JavaScript, show native scroll and consultation links without enhanced arrow controls. Preserve the reduced-motion rules in `band.css`.
+Use cool paper and deep blue ink across these surfaces. Blue remains the shared action color, with charcoal for the homepage hero and closing consultation actions. The public art-direction rules derive paper and rules from the configured primary palette where `color-mix()` is supported. Ink, action, and focus colors use fixed contrast-safe blues. Hairlines and spacing group related content. Give program titles more scale than their duration and description, and remove decorative numbers and gradient panels. Maintain a visible offset focus outline on rail controls and form fields. Without JavaScript, show native scroll and consultation links without enhanced arrow controls. Preserve the reduced-motion rules in `band.css`.
 
 ## Do's and Don'ts
 
@@ -256,7 +245,7 @@ Use cool paper, deep blue ink, and one blue action color across these surfaces. 
 - **Do** let a hover state move exactly one elevation step and/or lift by a few pixels -- nothing more theatrical.
 - **Do** use `accent-italic` (Playfair Display) sparingly, as a decorative highlight.
 - **Do** keep shape consistent per component family (see Shapes).
-- **Don't** use uppercase or letter-spacing on buttons or headings -- reserve it for short operational labels only.
+- **Do** use sentence case and default tracking for routine buttons and headings. Keep tracked uppercase for short metadata and compact header labels.
 - **Don't** add glow, colored blur, gradients-as-decoration, or stacked shadow tiers.
 - **Don't** introduce a second frontend, second routing scheme, or a component library that bypasses the existing PHP templates.
 - **Don't** copy reference-product navigation labels or routes that don't exist in this app -- keep the real routes.
@@ -268,7 +257,7 @@ Use cool paper, deep blue ink, and one blue action color across these surfaces. 
 ## Verification
 
 - Check the affected flow in the built-in Browser before and after editing. Use 1440×1000, 375px wide, and both sides of any affected breakpoint. Check public pages at 390×844 as well. Include `/`, `/shop`, a product, `/cart`, `/login`, and authenticated account pages when changes touch the shared public layout.
-- Confirm image crops, active navigation, focus states, card alignment, no hidden reveal content, no horizontal overflow, and that the next section is hinted in the first mobile viewport.
+- Confirm image crops, active navigation, focus states, card alignment, and visibility of essential content during reveals. Check that the page stays within the viewport, the primary action is visible on mobile, and the first scroll clearly leads to the next chapter.
 - Use the fixed development customer created by `bapXphp dev:user`; its password must come from `BAPX_TEST_USER_PASSWORD` and must never be committed.
 - Include applicable empty, populated, disabled-module, and error states. Check keyboard focus, touch targets, safe-area spacing, reduced motion, and core content and form fallbacks with JavaScript disabled. Use synthetic data. Redact credentials and personal data from evidence before attaching it to the issue. Identify any unrun checks. Run `./bapXphp ci` before review.
 
@@ -290,9 +279,10 @@ remain required. Enquiries retain campaign attribution in the existing inbox.
 
 ## Team selection composition
 
-The team module uses a clipped portrait track on the left and a selected biography
-column on the right. Portrait previews always show names. Exactly one portrait is
-large; its description and consultation action appear in the detail column. Size that
+The team module uses a clipped profile track on the left and a selected biography
+column on the right. Previews show practitioner names and their configured photographs.
+Use typographic initials for empty and default photo values. Exactly one profile is
+large, with its description and consultation action in the detail column. Size that
 column for the longest current biography at each width so profile selection keeps
 the section height steady.
 Arrows cycle one practitioner at a time; portrait buttons and left/right keys also
@@ -301,18 +291,18 @@ enhancement, every profile renders with its own readable biography.
 
 ## Editorial scroll and hero handoff
 
-Keep native scrolling. Hold the hero briefly under the header while the charcoal
-Foundation introduction arrives. Use charcoal grey for the home hero and closing
-consultation actions. The homepage order is hero, Foundation, Programs, Team,
-client stories, scroll statement, care areas, clinic figures, and the closing chapter. End that chapter with
-the resources split directly above the footer. Show featured Services above the
-resource split when published campaigns are available.
+Keep native scrolling and a short hero hold under the header so the charcoal
+Foundation introduction arrives on the first scroll. The homepage order is hero,
+Foundation, Programs, Team, client stories, scroll statement, care areas, clinic figures,
+and the closing chapter. End that chapter with the resources split directly above
+the footer. Show featured Services above the resource split when published campaigns
+are available.
 
-The statement uses one accessible heading and a decorative
-light treatment that sweeps upward with scroll, revealing the same letters in
-deep blue against pale paper. It reverses when the visitor scrolls back.
-Keyboard flow, reduced motion, and unsupported browsers keep the statement
-fully visible on pale paper. The visual treatment adds no focus target.
+Set the statement as two deliberate lines in one accessible heading. The scroll
+effect moves a shared boundary through the background and the ink while the text
+stays in place. It reverses on upward scroll. Keyboard flow, reduced motion, forced
+colours and unsupported browsers show the complete heading in normal ink on pale
+paper. The statement adds no focus target.
 
 ### Home motion vocabulary
 
@@ -328,8 +318,8 @@ Use these terms consistently in product copy, implementation notes, and code rev
   compositions follow the content and reading order.
 - **Selection rail:** the horizontal program or practitioner control. Arrow actions
   advance exactly one item. The rail never auto-advances.
-- **Featured portrait:** the one selected practitioner portrait. It is larger than the
-  preview portraits; previews always retain the practitioner name while biography and
+- **Featured profile.** The selected practitioner card is larger than the previews.
+  Previews retain the practitioner name while the biography and
   action live in the separate detail column.
 - **Handoff:** a useful, explicit movement from a selected program or practitioner to
   a consultation action. It must arise from a user selection, not an automatic prompt
@@ -394,26 +384,25 @@ visual system.
 ### Home motion score
 
 - **Arrival.** Set the hero in Inter 300 with a short Playfair italic accent. The image settles behind the headline, the headline and supporting copy rise in sequence, and the actions fade in place. In browsers with scroll-driven animation support, dim the outgoing artwork as the Foundation enters. The actions remain available throughout.
-- **Foundation.** Pair the clinic introduction with figures drawn from the program rail and its care-area filters. Use one count-up per figure as it enters view. Vision and pillars follow these figures.
-- **Programs:** the program rail uses illustrative Nebo imagery above duration, title,
-  description and a whole-card enquiry link. Align the first image with the heading.
-  Give copy 16px desktop and 12px phone insets. Place filters and arrows on the same
-  row where they fit. Each arrow advances one stable card. Use 32px desktop and
-  16px phone gaps.
-- **Team:** the selected portrait grows relative to named previews, then the biography
+- **Foundation.** Pair the clinic introduction with figures drawn from the program rail and its care-area filters. Count fertility and maternal care together as one area, as the filter does. Use one count-up per figure as it enters view. Vision and pillars follow these figures.
+- **Programs.** Align the first image with the heading and use distinct artwork for each program.
+  Give copy 16px desktop and 12px phone insets. Keep filters and arrows on one row.
+  On phones, let the filters scroll independently while the arrow controls remain visible
+  and at least 44px. Use 32px desktop and 16px phone gaps.
+- **Team.** The selected profile grows relative to named previews, then the biography
   updates beside it. This is the signature move: the practitioner's consultation link
   opens an enquiry with their name in the editable message. The same link works in
   each profile without JavaScript.
 - **Stories.** Place attributed quotes on a dark surface beside an illustrative scene. On phones, the image precedes the quotes. The scroll statement follows the stories.
-- **Care areas and clinic figures.** Use an asymmetric image grid on wide screens and preserve its reading order on mobile. Follow it with labelled counts for practitioner profiles, consultation steps, and featured services when present.
+- **Care areas and clinic figures.** Use a large photographic lead and three supporting entries on wide screens. Keep each heading, description, and filtered program link together. Stack them in the same reading order on phones. Follow the care entries with a three-image gallery of yoga, sound therapy, and sound baths. Keep gallery captions descriptive and use copy relevant to a working day. Verify availability separately before treating an illustrated practice as a clinic service. Follow with labelled counts for practitioner profiles, consultation steps, and featured services when present.
 - **Resolve.** Show the consultation invitation, then pair a short list of clinic resources with an illustrative image directly above the charcoal footer. On phones the footer stays in normal flow so contact and legal links are fully visible.
 
 ### Home motion quality gate
 
 - Start with semantic PHP content that is readable with JavaScript and CSS motion
   disabled. Enhancement may add classes, never remove information.
-- Use scroll-linked opacity and transforms for artwork. The statement may clip its
-  decorative layer. Keep layout dimensions and grid tracks steady during scroll.
+- Use scroll-linked opacity and transforms for artwork. The statement clips its
+  ink gradient to one heading. Keep layout dimensions and grid tracks steady during scroll.
 - Use one directional copy-in per act. Do not alternate card directions simply to
   create movement, and do not add decorative scroll counters, fake progress, or
   autoplaying rails.
@@ -467,4 +456,4 @@ hero scrolls in normal flow. Programs uses a stationary anchor so the menu can j
 
 ### Homepage hero, services and footer
 
-Use the illustrative veranda as a wide backdrop on desktop and keep both people in the shallower mobile crop. Put the heading and consultation and program links on a dark surface with readable contrast. The optional Services block places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.
+Use the illustrative veranda as a wide backdrop on desktop and carry it behind the heading on phones. Frame the crop around the people and keep the headline and actions readable over the charcoal scrim. The optional Services block places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.
