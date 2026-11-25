@@ -603,29 +603,27 @@ concepts:
   - id: "image:assets/images/consultants/default-female.webp"
     type: "image"
     title: "default-female.webp"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image with no static repository reference detected."
     resource: "assets/images/consultants/default-female.webp"
     tags:
       - "image"
-      - "used"
+      - "unreferenced"
     filename: "default-female.webp"
     mime: "image/webp"
-    usage_count: 1
-    used_in:
-      - "app/Controllers/PublicController.php"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/consultants/default-male.webp"
     type: "image"
     title: "default-male.webp"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image with no static repository reference detected."
     resource: "assets/images/consultants/default-male.webp"
     tags:
       - "image"
-      - "used"
+      - "unreferenced"
     filename: "default-male.webp"
     mime: "image/webp"
-    usage_count: 1
-    used_in:
-      - "app/Controllers/PublicController.php"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/editorial/nebo-arrival-small.webp"
     type: "image"
     title: "nebo-arrival-small.webp"

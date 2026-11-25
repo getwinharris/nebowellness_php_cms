@@ -15,7 +15,7 @@ final class PublicController extends BaseController {
         $consultants = [];
         try { $consultants = (new ConsultantService())->all(); }
         catch (\Throwable $error) { error_log('Home consultant profiles unavailable: ' . $error->getMessage()); }
-        if ($consultants === []) $consultants = $this->defaultConsultants();
+        $consultants = $this->withPublicTeamCredentials($consultants);
         $therapyProducts = [];
         if (module_on('campaigns')) {
             try { $therapyProducts = array_slice((new CampaignPageService())->newestPublished(), 0, 3); }
@@ -24,20 +24,42 @@ final class PublicController extends BaseController {
         $this->render('public/home', ['consultants' => $consultants, 'therapyProducts' => $therapyProducts]);
     }
 
-    /**
-     * Honest temporary cards for the launch. The silhouettes make it clear that these
-     * are placeholders; saving a consultant in Admin replaces the fallback list and
-     * its photo_url can be changed from the media picker.
-     */
+    private function withPublicTeamCredentials(array $consultants): array {
+        $approvedProfiles = $this->defaultConsultants();
+        if ($consultants === []) return $approvedProfiles;
+
+        $profilesBySlug = array_column($approvedProfiles, null, 'slug');
+        $profilesByName = array_column($approvedProfiles, null, 'name');
+        foreach ($consultants as &$profile) {
+            $approved = $profilesBySlug[$profile['slug'] ?? ''] ?? $profilesByName[$profile['name'] ?? ''] ?? null;
+            $credentials = trim((string)($profile['credentials'] ?? ''));
+            $role = trim((string)($profile['speciality'] ?? ''));
+            if ($approved !== null) {
+                $credentials = $credentials === '' ? $approved['credentials'] : $credentials;
+                $role = $role === '' ? $approved['speciality'] : $role;
+            }
+            if ($credentials !== '') {
+                // Older entries combined the qualification and role in one field.
+                $role = preg_replace('/^' . preg_quote($credentials, '/') . '(?:\s*[·–—-]\s*|\s+|$)/iu', '', $role) ?? $role;
+            }
+            if (($approved['slug'] ?? '') === 'dr-padmashree' && strcasecmp($role, 'Maternity Wellness Consultant') === 0) {
+                $role = $approved['speciality'];
+            }
+            $profile['credentials'] = $credentials;
+            $profile['speciality'] = $role;
+        }
+        unset($profile);
+
+        return $consultants;
+    }
+
     private function defaultConsultants(): array {
-        $female = '/assets/images/consultants/default-female.webp';
-        $male = '/assets/images/consultants/default-male.webp';
         return [
-            ['id'=>'dr-bablin-torah','slug'=>'dr-bablin-torah','name'=>'Dr Bablin Torah','speciality'=>'MD Naturopathic Consultant','photo_url'=>$male,'description'=>'Integrative naturopathy and personalised lifestyle guidance.','languages'=>['English','Tamil']],
-            ['id'=>'dr-sathyajothi','slug'=>'dr-sathyajothi','name'=>'Dr Sathyajothi','speciality'=>'BNYS · Yoga Mentor & Guide','photo_url'=>$male,'description'=>'Therapeutic yoga and practical movement guidance for sustainable wellbeing.','languages'=>['English','Tamil']],
-            ['id'=>'dr-berslin-fency','slug'=>'dr-berslin-fency','name'=>'Dr Berslin Fency','speciality'=>'BNYS · Consultant Physician','photo_url'=>$female,'description'=>'Root-cause assessment and evidence-informed naturopathic care.','languages'=>['English','Tamil']],
-            ['id'=>'dr-karthik-raj','slug'=>'dr-karthik-raj','name'=>'Dr Karthik Raj','speciality'=>'BNYS · Lifestyle Physician','photo_url'=>$male,'description'=>'Personalised nutrition, movement, sleep and metabolic health planning.','languages'=>['English','Tamil']],
-            ['id'=>'dr-padmashree','slug'=>'dr-padmashree','name'=>'Dr Padmashree','speciality'=>'BNYS, FFAC, CCBE · Maternity Wellness Consultant','photo_url'=>$female,'description'=>'Preconception, pregnancy and postpartum wellness support.','languages'=>['English','Tamil']],
+            ['slug' => 'dr-bablin-torah', 'name' => 'Dr Bablin Torah', 'credentials' => 'MD', 'speciality' => 'Naturopathic Consultant', 'description' => 'Integrative naturopathy and personalised lifestyle guidance.'],
+            ['slug' => 'dr-sathyajothi', 'name' => 'Dr Sathyajothi', 'credentials' => 'BNYS', 'speciality' => 'Yoga Mentor & Guide', 'description' => 'Therapeutic yoga and practical movement guidance for sustainable wellbeing.'],
+            ['slug' => 'dr-berslin-fency', 'name' => 'Dr Berslin Fency', 'credentials' => 'BNYS', 'speciality' => 'Consultant Physician', 'description' => 'Root-cause assessment and evidence-informed naturopathic care.'],
+            ['slug' => 'dr-karthik-raj', 'name' => 'Dr Karthik Raj', 'credentials' => 'BNYS', 'speciality' => 'Lifestyle Physician', 'description' => 'Personalised nutrition, movement, sleep and metabolic health planning.'],
+            ['slug' => 'dr-padmashree', 'name' => 'Dr Padmashree', 'credentials' => 'BNYS, FFAC, CCBE', 'speciality' => 'Childbirth Educator & Maternity Wellness Consultant', 'description' => 'Preconception, pregnancy and postpartum wellness support.'],
         ];
     }
     

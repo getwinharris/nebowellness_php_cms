@@ -56,7 +56,7 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <?php if (in_array(basename($viewFile ?? ''), ['shop.php', 'product.php'], true)): ?>
 <script src="/assets/product-cart.js?v=<?= filemtime(app_path('assets/product-cart.js')) ?>" defer></script>
 <?php endif; ?>
-<script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
+<script src="/assets/header-contact.js?v=<?= filemtime(__DIR__ . '/../../assets/header-contact.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-status.js') ?>" defer></script>
 <script src="/assets/agent-conversation.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-conversation.js') ?>" defer></script>
 <script src="/assets/support-chat.js?v=<?= filemtime(__DIR__ . '/../../assets/support-chat.js') ?>" defer></script>
@@ -118,13 +118,14 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
                 <details class="nav-branch">
                     <summary class="nav-item">Programs <span aria-hidden="true">›</span></summary>
                     <div class="nav-branch__links" id="menu-programs">
-                        <a class="nav-item" href="/#programs" data-programs-nav>All programs</a>
+                        <a class="nav-item" href="/#programs" data-programs-nav>Our Programs</a>
                         <a class="nav-item" href="/#programs-gut" data-programs-nav>Gut health</a>
                         <a class="nav-item" href="/#programs-metabolic" data-programs-nav>Metabolic health</a>
                         <a class="nav-item" href="/#programs-fertility" data-programs-nav>Fertility &amp; maternal care</a>
                         <a class="nav-item" href="/#programs-lifestyle" data-programs-nav>Lifestyle</a>
                     </div>
                 </details>
+                <a class="nav-item" href="/#focus-areas">Our Focus Areas</a>
                 <?php if ($__modules['campaigns']): ?><a class="nav-item" href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Services</a><?php endif; ?>
                 <a class="nav-item" href="/#movement-and-sound">Workplace wellness</a>
                 <a class="nav-item" href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
@@ -177,10 +178,20 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
         <div class="navigation-drawer__panel"></div>
     </dialog>
     <div class="header-actions">
-        <button class="page-finder-trigger" type="button" data-page-finder="primary-nav" aria-haspopup="dialog" aria-label="Find a page" hidden>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg>
-            <span>Find a page</span>
-        </button>
+        <details class="header-contact-details">
+            <summary aria-label="Phone and WhatsApp">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16.5v3a2 2 0 0 1-2.2 2 18.7 18.7 0 0 1-8.1-2.9 18.4 18.4 0 0 1-5.7-5.7A18.7 18.7 0 0 1 2.1 4.8 2 2 0 0 1 4.1 2.6h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 2.1L7.8 10.6a15 15 0 0 0 5.7 5.7l1.2-1.2a2 2 0 0 1 2.1-.6l2.5.4a2 2 0 0 1 1.7 1.6Z"/></svg>
+                <span aria-hidden="true">⌄</span>
+            </summary>
+            <div class="header-contact-details__links">
+                <p>Phone</p>
+                <a href="tel:+917200182025" aria-label="Call +91 72001 82025">+91 72001 82025</a>
+                <a href="tel:+919585182025" aria-label="Call +91 95851 82025">+91 95851 82025</a>
+                <p>WhatsApp</p>
+                <a href="https://wa.me/917200182025" aria-label="WhatsApp +91 72001 82025">+91 72001 82025</a>
+                <a href="https://wa.me/919585182025" aria-label="WhatsApp +91 95851 82025">+91 95851 82025</a>
+            </div>
+        </details>
         <a href="/contact" class="header-contact">Contact</a>
         <a href="/contact#contact-form" class="header-book">Book a consultation</a>
         <?php if ($__modules['shop']): ?><a href="/cart" class="cart-btn" aria-label="Cart">

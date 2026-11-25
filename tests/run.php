@@ -583,8 +583,25 @@ $tests['public pages expose general enquiry ctas'] = function (): void {
     }
     assertTrue(str_contains($css, '.consultation-invitation'), 'Home consultation invitation should have its editorial layout styling');
     assertTrue(str_contains($css, '.page-cta-card:hover') && str_contains($css, 'translateY(-6px)'), 'Shared CTA should use the same lift animation language as home cards');
-    assertTrue(str_contains($css, '.about-feature-card:hover') && str_contains($css, 'scale(1.04)'), 'About feature cards should animate their icons on hover');
     assertTrue(str_contains($css, '.page-cta-card.reveal.revealed:hover'), 'Shared CTA hover animation should win after scroll reveal');
+};
+
+$tests['homepage team presents approved credentials without overwriting CMS profiles'] = function (): void {
+    $controller = new \App\Controllers\PublicController();
+    $resolve = new ReflectionMethod($controller, 'withPublicTeamCredentials');
+    $fallback = $resolve->invoke($controller, []);
+    assertSame(['MD', 'BNYS', 'BNYS', 'BNYS', 'BNYS, FFAC, CCBE'], array_column($fallback, 'credentials'), 'The fallback shows all client-supplied qualifications');
+
+    $profiles = $resolve->invoke($controller, [
+        ['slug' => 'dr-bablin-torah', 'speciality' => 'MD Naturopathic Consultant', 'photo_url' => '/media/bablin.webp'],
+        ['slug' => 'dr-padmashree', 'speciality' => 'Maternity Wellness Consultant'],
+        ['slug' => 'another-practitioner', 'speciality' => 'Clinic Practitioner', 'credentials' => 'Existing qualification'],
+    ]);
+    assertSame('MD', $profiles[0]['credentials'], 'A missing credential is filled from the client brief');
+    assertSame('Naturopathic Consultant', $profiles[0]['speciality'], 'The legacy role does not repeat its qualification');
+    assertSame('/media/bablin.webp', $profiles[0]['photo_url'], 'The configured portrait is retained');
+    assertSame('Childbirth Educator & Maternity Wellness Consultant', $profiles[1]['speciality'], 'The legacy shortened role uses the supplied correction');
+    assertSame('Existing qualification', $profiles[2]['credentials'], 'Unrelated CMS credentials pass through');
 };
 
 $tests['public anchor scrolling respects reduced motion before and after styles load'] = function (): void {
