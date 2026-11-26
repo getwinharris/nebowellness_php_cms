@@ -28,6 +28,7 @@ final class AgentToolRegistry implements ModelToolSet
     public const SUPPORT_INBOX_PROMPT = 'How many support enquiries are open?';
 
     private array $modules;
+    private NativeAbilityRegistry $nativeAbilities;
     private array $modelResults = [];
 
     public function beginInferenceAttempt(): void { $this->modelResults=[]; }
@@ -94,6 +95,7 @@ final class AgentToolRegistry implements ModelToolSet
         $this->products ??= new ProductService($this->store);
         $this->orders ??= new OrderService($this->store);
         $this->modules = $modules ?? (new SettingsService($this->store))->strictModules();
+        $this->nativeAbilities=new NativeAbilityRegistry($this->store,$this->scope,$this->modules);
     }
 
     /**
@@ -104,7 +106,6 @@ final class AgentToolRegistry implements ModelToolSet
     public function declarations(): array
     {
         $tools = [
-            ['name'=>'published_consultation_fees','description'=>'Read current published online consultation fees, currency, duration and included services. Display prices only, not programme package prices, payment offers or confirmed bookings.','parameters'=>['type'=>'object']],
             ['name'=>'search_clinic_knowledge','description'=>'Search current public practitioner profiles, published programme body passages and published articles by a specific query. Return ranked excerpts and real source URLs, never private records.','parameters'=>['type'=>'object','properties'=>['query'=>['type'=>'string']],'required'=>['query']]],
             ['name'=>'clinic_context','description'=>'Retrieve the current permitted clinic and account information for this session. No other customer records are available.','parameters'=>['type'=>'object']],
             ['name'=>'owner_dashboard_summary','description'=>'Retrieve the current owner-only operational summary.','parameters'=>['type'=>'object']],
@@ -208,6 +209,7 @@ final class AgentToolRegistry implements ModelToolSet
                 ],
             ],
         ];
+        $tools = array_merge($this->nativeAbilities->declarations(),$tools);
         $tools = array_values(array_filter($tools, fn(array $tool): bool => $this->scope === 'support'
             ? in_array($tool['name'], ['clinic_context','published_consultation_fees','search_clinic_knowledge','published_practitioners','published_programmes','published_programme_detail','search_articles'], true)
             : $tool['name'] !== 'clinic_context'));
@@ -302,7 +304,8 @@ final class AgentToolRegistry implements ModelToolSet
     /** Bound tool output without converting truncation into a false empty result. */
     public function executeModelCall(string $name,array $args,?AgentRunTrace $trace,string $callId=''): array {
         $started=microtime(true);
-        $validated=$this->validateArguments($name,$args);
+        $isNative=$this->nativeAbilities->registered($name);
+        $validated=$isNative?$args:$this->validateArguments($name,$args);
         if ($validated===null) {
             $trace?->tool($this->has($name)?$name:'rejected','error',$started,'model',$callId);
             return ['error'=>'Unknown or invalid tool call. Use the declared function schema.'];
@@ -350,12 +353,12 @@ final class AgentToolRegistry implements ModelToolSet
      */
     public function run(string $name, array $args): array
     {
+        if ($this->nativeAbilities->registered($name)) return $this->nativeAbilities->invoke($name,$args);
         if (!$this->has($name)) return ['error' => 'That feature is currently disabled.'];
         $args=$this->validateArguments($name,$args);
         if ($args===null) return ['error'=>'Invalid lookup arguments.'];
         try {
             return match ($name) {
-                'published_consultation_fees'=>(new ConsultationFeeService($this->store))->published(),
                 'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
                 'clinic_context' => $this->contextLoader !== null ? ($this->contextLoader)() : ['error'=>'Context unavailable.'],
                 'owner_dashboard_summary'=>['summary'=>(new AgentContextService($this->store))->forAdmin(!empty($this->modules['shop']))],

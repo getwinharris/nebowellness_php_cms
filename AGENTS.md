@@ -22,6 +22,30 @@ Repository instructions for coding agents.
 
 ## Work order
 
+### Continuous verified delivery
+
+- Own the complete issue loop: diagnose from current source/REA and real
+  evidence → scope an issue → implement → test and review exact head →
+  merge → verify deployed source and affected live behavior → update the
+  issue and REA register. Do not stop at prompt completion, a local patch,
+  an opened PR, a passing fixture or a progress narration.
+- After each completed loop, identify the next dependency-backed open
+  issue from current evidence. When it is clear and within the authorized
+  scope, begin the next loop without asking the owner to repeat or approve
+  an obvious instruction. Complete several coherent loops when practical;
+  keep changes issue-scoped instead of bundling unrelated fixes.
+- At a reporting boundary, give both the actual verified outcomes and the
+  next concrete steps, their order and acceptance gates. If the direction
+  is materially uncertain, explain the uncertainty and present actionable
+  choices or a recommendation instead of guessing. External outages or
+  unavailable permissions block only the affected acceptance; continue
+  independent safe work when possible. Do not call incomplete work complete.
+- Never bypass a required test/review/authorization to increase throughput.
+  Recheck canonical main and pending changes between loops; preserve unique
+  work and stop only at an actual blocker, a decision requiring the owner,
+  or a bounded execution/reporting boundary. Record unfinished work and
+  the exact resume point.
+
 ### Verification depth
 
 For repository questions and changes, use at least three evidence hops before answering

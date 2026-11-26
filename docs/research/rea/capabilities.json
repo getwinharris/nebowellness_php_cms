@@ -983,10 +983,11 @@
       "title": "Native ability catalogue",
       "status": "partial",
       "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
-      "finding": "Internal registry validates input and scope; output/capability catalogue incomplete.",
+      "finding": "First native published_consultation_fees v1 capability uses strict typed input/output, stable error codes and trusted scope; remaining legacy catalogue and external permissions/transport incomplete.",
       "issues": [
+        121,
         128,
-        121
+        148
       ],
       "references": [
         {
@@ -1006,9 +1007,26 @@
         {
           "path": "app/Services/AgentToolRegistry.php",
           "anchor": "function validateArguments("
+        },
+        {
+          "path": "app/Services/NativeAbilityRegistry.php",
+          "anchor": "function invoke("
+        },
+        {
+          "path": "app/Services/AbilitySchema.php",
+          "anchor": "function valid("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "missing canonical fee settings are unavailable"
+        },
+        {
+          "path": "tests/consultation-fee-integration.php",
+          "anchor": "Real seeded output conforms"
+        }
+      ],
       "production": null
     },
     {
@@ -1096,9 +1114,10 @@
       "title": "Execution and output validation",
       "status": "partial",
       "acceptance": "Recheck permission and schema on invocation, bound results and structured errors.",
-      "finding": "Internal validated calls exist; external typed output incomplete.",
+      "finding": "First native published_consultation_fees v1 capability uses strict typed input/output, stable error codes and trusted scope; remaining legacy catalogue and external permissions/transport incomplete.",
       "issues": [
-        128
+        128,
+        148
       ],
       "references": [
         {
@@ -1114,9 +1133,26 @@
         {
           "path": "app/Services/AgentToolRegistry.php",
           "anchor": "function executeModelCall("
+        },
+        {
+          "path": "app/Services/NativeAbilityRegistry.php",
+          "anchor": "function invoke("
+        },
+        {
+          "path": "app/Services/AbilitySchema.php",
+          "anchor": "function valid("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "missing canonical fee settings are unavailable"
+        },
+        {
+          "path": "tests/consultation-fee-integration.php",
+          "anchor": "Real seeded output conforms"
+        }
+      ],
       "production": null
     },
     {
@@ -2097,6 +2133,19 @@
       ],
       "components": [],
       "summary": "Pinned both official skill collections and added one native reconstruction guide per original, 22 adaptations total. Preserved GPL notices and inert exact reference bytes; supplementary REA graph covers nine previously missing archive members. Catalog validation, native skill routing and private developer-only access. No product capability promoted or scope changed; implementation progress remains independent of research."
+    },
+    {
+      "id": "148-first-native-ability",
+      "date": "2026-11-26",
+      "issues": [
+        148,
+        128
+      ],
+      "components": [
+        "mcp-01",
+        "mcp-05"
+      ],
+      "summary": "Selected native REA audit/design/implementation/verification skills and verified pinned ability source hashes. Migrated first existing read capability to typed native catalogue with strict bounded output and explicit missing-settings failure; no new external tool exposure. Both rows remain partial pending broader migration and external execution acceptance. Added continuous verified delivery and next-step reporting policy."
     }
   ]
 }

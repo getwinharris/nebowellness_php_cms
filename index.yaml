@@ -41,16 +41,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 329
-  relationships: 311
+  concepts: 332
+  relationships: 316
   by_type:
     blog: 5
     controller: 13
-    doc: 44
+    doc: 45
     image: 40
     route: 130
     schema: 25
-    service: 62
+    service: 64
     skill: 10
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -451,6 +451,15 @@ concepts:
     tags:
       - "docs"
     filename: "json-storage.md"
+    header_image: ""
+  - id: "doc:native-abilities-audit"
+    type: "doc"
+    title: "Native abilities audit and first reference implementation"
+    description: "Source-backed migration from existing agent tools into a typed shared capability contract."
+    resource: "docs/research/rea/contracts/native-abilities-audit.md"
+    tags:
+      - "docs"
+    filename: "native-abilities-audit.md"
     header_image: ""
   - id: "doc:orders"
     type: "doc"
@@ -2291,6 +2300,8 @@ concepts:
       - "AgentAttachmentService"
       - "AgentDraftService"
       - "AgentToolRegistry"
+      - "NativeAbilityRegistry"
+      - "AbilitySchema"
       - "AgentRunTrace"
       - "AiReplyCleaner"
       - "AiClient"
@@ -3090,6 +3101,9 @@ concepts:
       - "ClinicContactService"
       - "AgentConversation"
       - "SupportBotService"
+      - "AgentToolRegistry"
+      - "NativeAbilityRegistry"
+      - "AbilitySchema"
       - "AgentContextService"
       - "SupportTicketService"
       - "AuditLogService"
@@ -3366,6 +3380,14 @@ concepts:
     data_source: "remotedb"
     collection: "wallet_transactions"
     schema_file: "storage/schema/collections.php"
+  - id: "service:AbilitySchema"
+    type: "service"
+    title: "AbilitySchema"
+    description: "Service: AbilitySchema"
+    resource: "app/Services/AbilitySchema.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:AddressService"
     type: "service"
     title: "AddressService"
@@ -3686,6 +3708,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:NativeAbilityRegistry"
+    type: "service"
+    title: "NativeAbilityRegistry"
+    description: "Service: NativeAbilityRegistry"
+    resource: "app/Services/NativeAbilityRegistry.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:OrderService"
     type: "service"
     title: "OrderService"
@@ -3949,6 +3979,9 @@ relationships:
     to: "service:TaxService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:AbilitySchema"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:AgentAttachmentService"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4043,6 +4076,9 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:MediaService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:NativeAbilityRegistry"
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:OrderService"
@@ -4210,6 +4246,9 @@ relationships:
     to: "service:ReviewService"
     relation: "uses"
   - from: "controller:SupportController"
+    to: "service:AbilitySchema"
+    relation: "uses"
+  - from: "controller:SupportController"
     to: "service:AgentContextService"
     relation: "uses"
   - from: "controller:SupportController"
@@ -4220,6 +4259,9 @@ relationships:
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AgentSessionService"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:AgentToolRegistry"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AiClient"
@@ -4241,6 +4283,9 @@ relationships:
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:ConsultationFeeService"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:NativeAbilityRegistry"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:SeoService"

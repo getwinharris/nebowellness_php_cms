@@ -61,6 +61,12 @@ commands are recovery and diagnosis tools only.
 
 ## Pull request review and merge
 
+After a verified issue loop, inspect the remaining dependency-ordered issues
+and continue into the next clear authorized loop. When reporting, include
+completed evidence, unresolved acceptance, and the next concrete actions.
+Recommend options only when a material product or architecture decision is
+uncertain. Follow AGENTS.md continuous verified delivery.
+
 - **The implementing agent owns the entire delivery: development, code and security
   self-review, testing, merging, deployment, live verification and issue updates.**
   Do not stop after opening a PR or hand the review to the owner. An authorized
