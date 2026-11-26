@@ -7,13 +7,13 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 66 services, 55 views, 0 data files, 23 tools"]
-    arch_routes["> Routes: 130 (Public + Auth + Payment + Admin + Support)"]:::arch
-    arch_ctrl["> Controllers: 13"]:::arch
-    arch_svc["> Services: 66"]:::arch
+  subgraph ARCH["Architecture Overview — 137 routes, 14 controllers, 68 services, 55 views, 0 data files, 24 tools"]
+    arch_routes["> Routes: 137 (Public + Auth + Payment + Admin + Support)"]:::arch
+    arch_ctrl["> Controllers: 14"]:::arch
+    arch_svc["> Services: 68"]:::arch
     arch_views["> Views: 55"]:::arch
-    arch_data["> Collections: 25 schema | 0 files"]:::arch
-    arch_tools["> Tools: 23"]:::arch
+    arch_data["> Collections: 26 schema | 0 files"]:::arch
+    arch_tools["> Tools: 24"]:::arch
     arch_gaps["> Gaps: 6"]:::arch
     arch_routes -.-> arch_ctrl -.-> arch_svc -.-> arch_data
     arch_ctrl -.-> arch_views
@@ -36,6 +36,13 @@ flowchart LR
     route_get_shop["GET /shop — Product shop — grid with pill actions"]:::route
     route_get_categories["GET /categories — Products filtered by category"]:::route
     route_get_product_slug["GET /product/{slug} — Product detail — gallery, add-to-cart, buy-now"]:::route
+    route_post_mcp["POST /mcp"]:::route
+    route_get_mcp["GET /mcp"]:::route
+    route_delete_mcp["DELETE /mcp"]:::route
+    route_put_mcp["PUT /mcp"]:::route
+    route_patch_mcp["PATCH /mcp"]:::route
+    route_options_mcp["OPTIONS /mcp"]:::route
+    route_head_mcp["HEAD /mcp"]:::route
     route_get_is_sha_valid["GET /is-sha-valid"]:::route
     route_get_api["GET /api"]:::route
     route_get_api_shop["GET /api/shop"]:::route
@@ -181,6 +188,7 @@ flowchart LR
     controller_blogcontroller["BlogController"]:::code
     controller_commercecontroller["CommerceController"]:::code
     controller_consultationcontroller["ConsultationController"]:::code
+    controller_mcpcontroller["McpController"]:::code
     controller_publiccontroller["PublicController"]:::code
     controller_remotedbcontroller["RemoteDbController"]:::code
     controller_reviewcontroller["ReviewController"]:::code
@@ -229,6 +237,8 @@ flowchart LR
     service_mailqueueservice["MailQueueService"]:::code
     service_mailstorageservice["MailStorageService"]:::code
     service_markdownrenderer["MarkdownRenderer"]:::code
+    service_mcpgrantservice["McpGrantService"]:::code
+    service_mcpreadservice["McpReadService"]:::code
     service_mediaservice["MediaService"]:::code
     service_modeltoolset["ModelToolSet"]:::code
     service_nativeabilityregistry["NativeAbilityRegistry"]:::code
@@ -335,6 +345,7 @@ flowchart LR
     collection_consultation_signals["consultation_signals"]:::data
     collection_wallet_transactions["wallet_transactions"]:::data
     collection_support_tickets["support_tickets"]:::data
+    collection_mcp_grants["mcp_grants"]:::data
     collection_agent_sessions["agent_sessions"]:::data
     collection_categories["categories"]:::data
     collection_coupons["coupons"]:::data
@@ -364,6 +375,7 @@ flowchart LR
     tool_generate_project_index["generate-project-index"]:::tool
     tool_generate_project_map["generate-project-map"]:::tool
     tool_import_product_images["import-product-images"]:::tool
+    tool_mcp_grants["mcp-grants"]:::tool
     tool_optimize_images["optimize-images"]:::tool
     tool_product_read["product-read"]:::tool
     tool_product_write["product-write"]:::tool
@@ -435,6 +447,62 @@ flowchart LR
   route_get_product_slug --> controller_publiccontroller
   controller_publiccontroller --> service_productservice
   controller_publiccontroller -. renders .-> view_public_product
+  route_post_mcp --> controller_mcpcontroller
+  controller_mcpcontroller --> service_mcpreadservice
+  controller_mcpcontroller --> service_mcpgrantservice
+  controller_mcpcontroller --> service_nativeabilityregistry
+  controller_mcpcontroller --> service_settingsservice
+  controller_mcpcontroller --> service_ratelimiter
+  controller_mcpcontroller --> service_databaseservice
+  controller_mcpcontroller -. renders .-> view_public_404
+  route_get_mcp --> controller_mcpcontroller
+  controller_mcpcontroller --> service_mcpreadservice
+  controller_mcpcontroller --> service_mcpgrantservice
+  controller_mcpcontroller --> service_nativeabilityregistry
+  controller_mcpcontroller --> service_settingsservice
+  controller_mcpcontroller --> service_ratelimiter
+  controller_mcpcontroller --> service_databaseservice
+  controller_mcpcontroller -. renders .-> view_public_404
+  route_delete_mcp --> controller_mcpcontroller
+  controller_mcpcontroller --> service_mcpreadservice
+  controller_mcpcontroller --> service_mcpgrantservice
+  controller_mcpcontroller --> service_nativeabilityregistry
+  controller_mcpcontroller --> service_settingsservice
+  controller_mcpcontroller --> service_ratelimiter
+  controller_mcpcontroller --> service_databaseservice
+  controller_mcpcontroller -. renders .-> view_public_404
+  route_put_mcp --> controller_mcpcontroller
+  controller_mcpcontroller --> service_mcpreadservice
+  controller_mcpcontroller --> service_mcpgrantservice
+  controller_mcpcontroller --> service_nativeabilityregistry
+  controller_mcpcontroller --> service_settingsservice
+  controller_mcpcontroller --> service_ratelimiter
+  controller_mcpcontroller --> service_databaseservice
+  controller_mcpcontroller -. renders .-> view_public_404
+  route_patch_mcp --> controller_mcpcontroller
+  controller_mcpcontroller --> service_mcpreadservice
+  controller_mcpcontroller --> service_mcpgrantservice
+  controller_mcpcontroller --> service_nativeabilityregistry
+  controller_mcpcontroller --> service_settingsservice
+  controller_mcpcontroller --> service_ratelimiter
+  controller_mcpcontroller --> service_databaseservice
+  controller_mcpcontroller -. renders .-> view_public_404
+  route_options_mcp --> controller_mcpcontroller
+  controller_mcpcontroller --> service_mcpreadservice
+  controller_mcpcontroller --> service_mcpgrantservice
+  controller_mcpcontroller --> service_nativeabilityregistry
+  controller_mcpcontroller --> service_settingsservice
+  controller_mcpcontroller --> service_ratelimiter
+  controller_mcpcontroller --> service_databaseservice
+  controller_mcpcontroller -. renders .-> view_public_404
+  route_head_mcp --> controller_mcpcontroller
+  controller_mcpcontroller --> service_mcpreadservice
+  controller_mcpcontroller --> service_mcpgrantservice
+  controller_mcpcontroller --> service_nativeabilityregistry
+  controller_mcpcontroller --> service_settingsservice
+  controller_mcpcontroller --> service_ratelimiter
+  controller_mcpcontroller --> service_databaseservice
+  controller_mcpcontroller -. renders .-> view_public_404
   route_get_is_sha_valid --> controller_apicontroller
   controller_apicontroller --> service_releaseidentityservice
   controller_apicontroller -. renders .-> view_public_404
@@ -989,6 +1057,7 @@ flowchart LR
   controller_blogcontroller --> controller_basecontroller
   controller_commercecontroller --> controller_basecontroller
   controller_consultationcontroller --> controller_basecontroller
+  controller_mcpcontroller --> controller_basecontroller
   controller_publiccontroller --> controller_basecontroller
   controller_remotedbcontroller --> controller_basecontroller
   controller_reviewcontroller --> controller_basecontroller
@@ -1023,6 +1092,7 @@ flowchart LR
   service_mailqueueservice --> collection_mail_queue
   service_mailstorageservice --> collection_mail_inbox
   service_mailstorageservice --> collection_mail_outbox
+  service_mcpgrantservice --> collection_mcp_grants
   service_mediaservice --> collection_media_files
   service_orderservice --> collection_orders
   service_ownerabilityservice --> collection_users

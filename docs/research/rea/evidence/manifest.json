@@ -229,6 +229,13 @@
       "url": "https://github.com/woocommerce/agent-skills/tree/89cc969d2273ac9eb668c48b7284f77e0862bb21",
       "revision": "89cc969d2273ac9eb668c48b7284f77e0862bb21",
       "scope": "GPL reference skills and companion documentation; original-byte inventory in .agents/REA/catalog.json. Inert helper source only; not runtime evidence."
+    },
+    {
+      "id": "mcp-protocol-2026-07-28",
+      "label": "Model Context Protocol 2026-07-28",
+      "url": "https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/streamable-http",
+      "revision": "2026-07-28",
+      "scope": "POST-only Streamable HTTP, per-request metadata and authorization, server/discover and tools/list/call. Reviewed 2026-11-26; native implementation is limited to authorized published reads."
     }
   ],
   "policy": "Only sanitized historical findings, hashes, selected static source graphs and public documentation pointers. No vendor runtime, archives, secret values, raw customer traces or production exports. Originals retained in local research folders; artifact digest refers to normalized repository copy."

@@ -34,6 +34,7 @@ set -euo pipefail
 #   bapXphp rea skills|skills-check  — list or verify pinned native REA skill library
 #   bapXphp rea skill <native-id>    — read native reconstruction guidance
 #   bapXphp release:identity        — observe local deployed-source scope and Git revision
+#   bapXphp mcp:grants list|issue LABEL DAYS|revoke ID — delegate published read access
 #   bapXphp release:verify <origin> — compare deployed source bytes and revision
 #   bapXphp serve                   — start dev server on 127.0.0.1:6020
 #   bapXphp smoke                   — run local smoke tests
@@ -2020,6 +2021,8 @@ main() {
         skills-check) shift; php "$ROOT/cli/rea-skills.php" check "$@" ;;
         *) php "$ROOT/cli/rea-progress.php" "$@" ;;
       esac ;;
+    mcp:grants)
+      shift; require_php; php "$ROOT/cli/mcp-grants.php" "$@" ;;
     release:identity)
       require_php; php "$ROOT/cli/release-identity.php" status ;;
     release:verify)
