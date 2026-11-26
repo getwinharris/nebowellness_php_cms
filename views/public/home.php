@@ -136,7 +136,7 @@ $consultationSteps = [
 <?php if (!empty($teamUnavailable)): ?>
 <section class="section section--alt"><div class="container"><h2 class="section-title">Meet Our Team</h2><p>Practitioner profiles are temporarily unavailable. <a href="/contact#contact-form">Contact our team</a> for assistance.</p></div></section>
 <?php elseif ($consultants !== []): ?>
-<section class="editorial-stack-card section section--alt" style="--stack-order:4" data-stack-card data-nebo-chapter="team">
+<section class="editorial-stack-card section section--alt" style="--stack-order:4" data-stack-card data-nebo-chapter="team" id="team">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
             <div>
@@ -349,8 +349,7 @@ $consultationSteps = [
                 <a class="btn btn-primary" href="/contact#contact-form">Request a consultation <span aria-hidden="true">↗</span></a>
                 <address class="consultation-invitation__contact">
                     <span>Kaliyal, Kanyakumari, Tamil Nadu, India 629101</span>
-                    <a href="tel:+917200182025">+91 72001 82025</a>
-                    <a href="tel:+919585182025">+91 95851 82025</a>
+                    <?php foreach ((new \App\Services\ClinicContactService())->channels()['phones'] as $number): ?><a href="tel:<?= e($number) ?>"><?= e($number) ?></a><?php endforeach; ?>
                     <a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a>
                 </address>
             </div>

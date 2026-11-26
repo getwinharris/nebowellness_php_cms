@@ -26,6 +26,17 @@
 </div>
 <?php $__settingsModules = (new \App\Services\SettingsService())->modules(); ?>
 <div class="admin-card">
+    <h2>Public contact channels</h2>
+    <p>Enter confirmed clinic telephone and WhatsApp numbers separately, one international number per line. The first WhatsApp number is used for the assistant’s optional handoff. Leave a channel blank to hide it.</p>
+    <form class="admin-form" method="post" action="/admin/settings/save">
+        <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
+        <input type="hidden" name="contact_revision" value="<?= e(\App\Services\ResourceService::revision($settings)) ?>">
+        <label for="clinic-phones">Telephone numbers</label><textarea id="clinic-phones" name="clinic_phones" rows="3"><?= e(implode("\n",is_array($settings['clinic_phones']??null)?$settings['clinic_phones']:[])) ?></textarea>
+        <label for="clinic-whatsapp">WhatsApp numbers</label><textarea id="clinic-whatsapp" name="clinic_whatsapp" rows="3"><?= e(implode("\n",is_array($settings['clinic_whatsapp']??null)?$settings['clinic_whatsapp']:[])) ?></textarea>
+        <button class="btn btn-primary" type="submit">Save contact channels</button>
+    </form>
+</div>
+<div class="admin-card">
     <h2>Homepage Foundation</h2>
     <p>Publish a clinic-confirmed minimum historical customer count. This is not the number of website accounts, orders or enquiries. Leave blank to hide the figure. Programmes and practitioner totals are calculated from published records.</p>
     <form class="admin-form" method="post" action="/admin/settings/save">

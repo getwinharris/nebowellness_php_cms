@@ -7,12 +7,12 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 125 routes, 13 controllers, 54 services, 52 views, 0 data files, 19 tools"]
-    arch_routes["> Routes: 125 (Public + Auth + Payment + Admin + Support)"]:::arch
+  subgraph ARCH["Architecture Overview — 129 routes, 13 controllers, 58 services, 55 views, 0 data files, 19 tools"]
+    arch_routes["> Routes: 129 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 13"]:::arch
-    arch_svc["> Services: 54"]:::arch
-    arch_views["> Views: 52"]:::arch
-    arch_data["> Collections: 24 schema | 0 files"]:::arch
+    arch_svc["> Services: 58"]:::arch
+    arch_views["> Views: 55"]:::arch
+    arch_data["> Collections: 25 schema | 0 files"]:::arch
     arch_tools["> Tools: 19"]:::arch
     arch_gaps["> Gaps: 5"]:::arch
     arch_routes -.-> arch_ctrl -.-> arch_svc -.-> arch_data
@@ -129,6 +129,10 @@ flowchart LR
     route_post_admin_contact_submissions_delete["POST /admin/contact_submissions/delete — Admin — delete contact submission"]:::route
     route_get_admin_email_inbox["GET /admin/email-inbox"]:::route
     route_get_admin_email_outbox["GET /admin/email-outbox"]:::route
+    route_get_admin_customers["GET /admin/customers"]:::route
+    route_get_admin_agent_sessions["GET /admin/agent-sessions"]:::route
+    route_get_admin_agent_sessions_id_json["GET /admin/agent-sessions/{id}/json"]:::route
+    route_post_admin_agent_sessions_purge["POST /admin/agent-sessions/purge"]:::route
     route_get_admin_support_tickets["GET /admin/support-tickets — Admin — support tickets"]:::route
     route_post_admin_support_tickets_save["POST /admin/support-tickets/save"]:::route
     route_get_admin_appearance["GET /admin/appearance — Admin — logo & favicon"]:::route
@@ -190,6 +194,7 @@ flowchart LR
     service_agentconversation["AgentConversation"]:::code
     service_agentdraftservice["AgentDraftService"]:::code
     service_agentruntrace["AgentRunTrace"]:::code
+    service_agentsessionservice["AgentSessionService"]:::code
     service_agenttoolregistry["AgentToolRegistry"]:::code
     service_aiclient["AiClient"]:::code
     service_aimodelrouter["AiModelRouter"]:::code
@@ -202,11 +207,14 @@ flowchart LR
     service_campaignpageservice["CampaignPageService"]:::code
     service_cartservice["CartService"]:::code
     service_categoryservice["CategoryService"]:::code
+    service_cliniccontactservice["ClinicContactService"]:::code
+    service_clinicknowledgeservice["ClinicKnowledgeService"]:::code
     service_consultantservice["ConsultantService"]:::code
     service_consultationservice["ConsultationService"]:::code
     service_contactservice["ContactService"]:::code
     service_couponservice["CouponService"]:::code
     service_courierservice["CourierService"]:::code
+    service_customercrmservice["CustomerCrmService"]:::code
     service_databaseservice["DatabaseService"]:::code
     service_docsmapservice["DocsMapService"]:::code
     service_emailotpservice["EmailOtpService"]:::code
@@ -250,10 +258,12 @@ flowchart LR
     view_account_therapy_checkout["account/therapy-checkout"]:::code
     view_admin_campaign_fields["admin/_campaign-fields"]:::code
     view_admin_agent["admin/agent"]:::code
+    view_admin_agent_sessions["admin/agent-sessions"]:::code
     view_admin_appearance["admin/appearance"]:::code
     view_admin_blog["admin/blog"]:::code
     view_admin_consultant_form["admin/consultant-form"]:::code
     view_admin_consultation_analytics["admin/consultation-analytics"]:::code
+    view_admin_customers["admin/customers"]:::code
     view_admin_dashboard["admin/dashboard"]:::code
     view_admin_detail["admin/detail"]:::code
     view_admin_integrations["admin/integrations"]:::code
@@ -264,6 +274,7 @@ flowchart LR
     view_admin_resource["admin/resource"]:::code
     view_admin_search_performance["admin/search-performance"]:::code
     view_admin_settings["admin/settings"]:::code
+    view_admin_support_inbox["admin/support-inbox"]:::code
     view_admin_tax_report["admin/tax-report"]:::code
     view_admin_therapy["admin/therapy"]:::code
     view_layouts_admin["layouts/admin"]:::code
@@ -315,6 +326,7 @@ flowchart LR
     collection_consultation_signals["consultation_signals"]:::data
     collection_wallet_transactions["wallet_transactions"]:::data
     collection_support_tickets["support_tickets"]:::data
+    collection_agent_sessions["agent_sessions"]:::data
     collection_categories["categories"]:::data
     collection_coupons["coupons"]:::data
     collection_audit_events["audit_events"]:::data
@@ -361,6 +373,7 @@ flowchart LR
   end
 
   route_get --> controller_publiccontroller
+  controller_publiccontroller --> service_cliniccontactservice
   controller_publiccontroller --> service_campaignpageservice
   controller_publiccontroller --> service_consultantservice
   controller_publiccontroller --> service_publicdiscoveryservice
@@ -443,6 +456,7 @@ flowchart LR
   controller_publiccontroller --> service_seoservice
   controller_publiccontroller -. renders .-> view_public_sitemap
   route_get_contact --> controller_publiccontroller
+  controller_publiccontroller --> service_cliniccontactservice
   controller_publiccontroller -. renders .-> view_public_contact
   route_post_contact --> controller_publiccontroller
   controller_publiccontroller --> service_contactservice
@@ -617,6 +631,7 @@ flowchart LR
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_settings
   route_post_admin_settings_save --> controller_admincontroller
+  controller_admincontroller --> service_cliniccontactservice
   controller_admincontroller --> service_settingsservice
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
@@ -646,6 +661,8 @@ flowchart LR
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_agent
   route_post_admin_agent_ask --> controller_admincontroller
+  controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_clinicknowledgeservice
   controller_admincontroller --> service_agentconversation
   controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_agentcontextservice
@@ -681,16 +698,36 @@ flowchart LR
   controller_admincontroller --> service_mailstorageservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_mailbox
+  route_get_admin_customers --> controller_admincontroller
+  controller_admincontroller --> service_customercrmservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_customers
+  route_get_admin_agent_sessions --> controller_admincontroller
+  controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_agent_sessions
+  route_get_admin_agent_sessions_id_json --> controller_admincontroller
+  controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_auditlogservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_agent_sessions
+  route_post_admin_agent_sessions_purge --> controller_admincontroller
+  controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_auditlogservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_agent_sessions
   route_get_admin_support_tickets --> controller_admincontroller
   controller_admincontroller --> service_databaseservice
   controller_admincontroller --> service_supportticketservice
+  controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_customercrmservice
   controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_list
+  controller_admincontroller -. renders .-> view_admin_support_inbox
   route_post_admin_support_tickets_save --> controller_admincontroller
-  controller_admincontroller --> service_resourceservice
+  controller_admincontroller --> service_supportticketservice
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_list
+  controller_admincontroller -. renders .-> view_admin_support_inbox
   route_get_admin_appearance --> controller_admincontroller
   controller_admincontroller --> service_settingsservice
   controller_admincontroller --> service_authservice
@@ -833,6 +870,9 @@ flowchart LR
   controller_supportcontroller --> service_seoservice
   controller_supportcontroller -. renders .-> view_public_support
   route_post_support_ask --> controller_supportcontroller
+  controller_supportcontroller --> service_agentsessionservice
+  controller_supportcontroller --> service_clinicknowledgeservice
+  controller_supportcontroller --> service_cliniccontactservice
   controller_supportcontroller --> service_agentconversation
   controller_supportcontroller --> service_supportbotservice
   controller_supportcontroller --> service_agentcontextservice
@@ -930,6 +970,7 @@ flowchart LR
   service_agentcontextservice --> collection_appointments
   service_agentcontextservice --> collection_support_tickets
   service_agentcontextservice --> collection_settings
+  service_agentsessionservice --> collection_agent_sessions
   service_agenttoolregistry --> collection_appointments
   service_agenttoolregistry --> collection_categories
   service_agenttoolregistry --> collection_contact_submissions
@@ -965,6 +1006,14 @@ flowchart LR
   service_resourceservice --> collection_categories
   service_resourceservice --> collection_consultants
   service_resourceservice --> collection_campaign_pages
+  service_customercrmservice --> collection_users
+  service_customercrmservice --> collection_contact_submissions
+  service_customercrmservice --> collection_support_tickets
+  service_customercrmservice --> collection_therapy_sessions
+  service_customercrmservice --> collection_orders
+  service_clinicknowledgeservice --> collection_consultants
+  service_clinicknowledgeservice --> collection_campaign_pages
+  service_cliniccontactservice --> collection_settings
   service_databaseservice --> collection_users
   service_databaseservice --> collection_addresses
   service_databaseservice --> collection_products

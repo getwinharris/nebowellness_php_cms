@@ -11,10 +11,10 @@ $trace = new AgentRunTrace();
 $started = microtime(true);
 $client = new AiClient(routingScope: $surface, trace: $trace);
 $prompt = 'Synthetic confidential question';
-$answer = $surface === 'admin'
-    ? $client->completeWithTools($prompt, new AgentToolRegistry(), maxRounds: $argv[2] === 'last-round' ? 1 : 4)
-    : $client->complete($prompt);
-$outcome = AiClient::isError($answer) || $answer === '' ? 'fallback' : 'model';
+$tools=new AgentToolRegistry(modules:['shop'=>false,'blog'=>true,'campaigns'=>true],scope:$surface,
+    contextLoader:static fn()=>['fixture'=>'Public synthetic data']);
+$answer=$client->completeWithTools($prompt,$tools,maxRounds:$argv[2]==='last-round'?1:4);
+$outcome=AiClient::isError($answer)||$answer===''||!$trace->hasNativeToolAnswer()?'error':'model';
 $event = ['event' => 'agent.run', 'created_at' => date('c'), 'meta' => $trace->metadata() + [
     'surface' => $surface, 'outcome' => $outcome, 'duration_ms' => (int)((microtime(true) - $started) * 1000),
 ]];

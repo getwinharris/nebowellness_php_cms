@@ -11,6 +11,7 @@
 <?php
 $__settings = (new \App\Services\SettingsService())->public();
 $__modules = (new \App\Services\SettingsService())->modules();
+$__clinicChannels = (new \App\Services\ClinicContactService())->channels();
 $__logo = (string)($__settings['logo_url'] ?? '');
 if ($__logo === '' || str_contains(strtolower($__logo), 'logo-small.jpeg') || str_contains(strtolower($__logo), 'sripanchami') || str_contains($__logo, 'nebo-symbol.')) {
     $__logo = '/assets/images/nebo-official-logo.jpg';
@@ -185,20 +186,22 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
         <div class="navigation-drawer__panel"></div>
     </dialog>
     <div class="header-actions">
-        <details class="header-contact-details">
-            <summary aria-label="Phone and WhatsApp">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 16.5v3a2 2 0 0 1-2.2 2 18.7 18.7 0 0 1-8.1-2.9 18.4 18.4 0 0 1-5.7-5.7A18.7 18.7 0 0 1 2.1 4.8 2 2 0 0 1 4.1 2.6h3a2 2 0 0 1 2 1.7l.5 3a2 2 0 0 1-.6 2.1L7.8 10.6a15 15 0 0 0 5.7 5.7l1.2-1.2a2 2 0 0 1 2.1-.6l2.5.4a2 2 0 0 1 1.7 1.6Z"/></svg>
-                <span aria-hidden="true">⌄</span>
-            </summary>
-            <div class="header-contact-details__links">
-                <p>Phone</p>
-                <a href="tel:+917200182025" aria-label="Call +91 72001 82025">+91 72001 82025</a>
-                <a href="tel:+919585182025" aria-label="Call +91 95851 82025">+91 95851 82025</a>
-                <p>WhatsApp</p>
-                <a href="https://wa.me/917200182025" aria-label="WhatsApp +91 72001 82025">+91 72001 82025</a>
-                <a href="https://wa.me/919585182025" aria-label="WhatsApp +91 95851 82025">+91 95851 82025</a>
+        <?php if ($__clinicChannels['phones']): ?>
+        <details class="header-contact-details header-call-details">
+            <summary aria-label="Call the clinic"><?php $careIcon='phone'; require __DIR__.'/../partials/care-icon.php'; ?><span aria-hidden="true">⌄</span></summary>
+            <div class="header-contact-details__links"><p>Call the clinic</p>
+                <?php foreach ($__clinicChannels['phones'] as $number): ?><a href="tel:<?= e($number) ?>"><?= e($number) ?></a><?php endforeach; ?>
             </div>
         </details>
+        <?php endif; ?>
+        <?php if ($__clinicChannels['whatsapp']): ?>
+        <details class="header-contact-details header-whatsapp-details">
+            <summary aria-label="Contact via WhatsApp"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a9 9 0 0 1-13 8L3 21l1.5-5a9 9 0 1 1 16.5-4.5Z"/><path d="M8.5 7.5c-.8.3-1.2 1.2-.8 2.4 1 2.7 3.2 4.9 5.9 5.8 1.2.4 2.2 0 2.5-.9l.4-1.2-2.6-1.2-1 1c-1.5-.6-2.8-1.9-3.3-3.3l1-1-1.1-2.1Z"/></svg><span aria-hidden="true">⌄</span></summary>
+            <div class="header-contact-details__links"><p>Message on WhatsApp</p>
+                <?php foreach ($__clinicChannels['whatsapp'] as $number): ?><a href="<?= e(\App\Services\ClinicContactService::whatsappUrl($number)) ?>"><?= e($number) ?></a><?php endforeach; ?>
+            </div>
+        </details>
+        <?php endif; ?>
         <a href="/contact" class="header-contact">Contact</a>
         <a href="/contact#contact-form" class="header-book">Book a consultation</a>
         <?php if ($__modules['shop']): ?><a href="/cart" class="cart-btn" aria-label="Cart">
@@ -245,7 +248,7 @@ if ($__flash):
         <button type="button" class="support-panel__close" aria-label="Close support">×</button>
     </div>
     <div class="support-panel__body" id="support-log" role="log" aria-label="Conversation" tabindex="0">
-        <p class="support-panel__intro">Ask about programs, consultations, or the clinic. Please leave medical details out of chat.</p>
+        <p class="support-panel__intro">Hello! How can we help? Ask about programmes or consultations. This is an automated assistant. Please do not share medical records or passwords.</p>
     </div>
     <form class="support-panel__form" id="support-form">
         <input type="hidden" name="_csrf" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
@@ -264,10 +267,13 @@ if ($__flash):
             <textarea id="support-message" name="message" rows="2" maxlength="2000" required></textarea>
             <button class="btn btn-primary" type="submit">Send</button>
         </div>
+        <label class="support-archive-consent"><input type="checkbox" name="archive_session" value="1"> Save this conversation for clinic follow-up</label>
+        <small class="support-archive-hint">Sending a ticket shares this chat and tool activity with clinic staff. <a href="/privacy#support-privacy">Privacy</a>.</small>
         <div class="support-panel__links">
             <a href="/contact#contact-form">Contact the clinic</a>
+            <?php if ($__clinicChannels['whatsapp']): ?><a href="<?= e(\App\Services\ClinicContactService::whatsappUrl($__clinicChannels['whatsapp'][0])) ?>">WhatsApp</a><?php endif; ?>
             <?php if (!empty($_SESSION['user']['email'])): ?>
-                <button class="support-panel__handoff" type="submit" value="ticket" title="Share this message with clinic staff">Send to clinic</button>
+                <button class="support-panel__handoff" type="submit" value="ticket" title="Share this conversation and request with clinic staff">Send to clinic</button>
             <?php else: ?>
                 <a href="/login">Sign in to track tickets</a>
             <?php endif; ?>
@@ -318,8 +324,7 @@ if ($__flash):
             <div class="footer-details">
                 <h3 class="footer-heading">Visit or call</h3>
                 <ul class="footer-links">
-                    <li><a href="tel:+917200182025">+91 72001 82025</a></li>
-                    <li><a href="tel:+919585182025">+91 95851 82025</a></li>
+                    <?php foreach (($__clinicChannels['phones']??[]) as $number): ?><li><a href="tel:<?= e($number) ?>"><?= e($number) ?></a></li><?php endforeach; ?>
                     <li><a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a></li>
                     <li>Kaliyal, Kanyakumari, Tamil Nadu 629101</li>
                 </ul>

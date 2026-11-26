@@ -14,8 +14,7 @@ final class SeoService {
             ? $configuredOgImage
             : self::publicUrl('/assets/images/nebo-clinic-hero.webp');
         $this->twitterHandle = $secrets['seo_twitter_handle'] ?? '';
-        $phone = $secrets['phone'] ?? getenv('CONTACT_PHONE') ?: '';
-        $this->telephone = $phone !== '' ? [$phone] : ['+917200182025', '+919585182025'];
+        $this->telephone = (new ClinicContactService())->channels()['phones'];
     }
 
     public function page(string $key, array $overrides = []): array {

@@ -15,8 +15,18 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     const provider = http.createServer(async (req, res) => {
         let raw = '';
         for await (const chunk of req) raw += chunk;
-        providerPrompts.push(JSON.parse(raw).messages[0].content);
-        res.end(JSON.stringify({ choices: [{ message: { content: 'The fixture clinic offers programmes.' } }] }));
+        const payload = JSON.parse(raw);
+        providerPrompts.push(payload.messages[0].content);
+        assert.ok(payload.tools.length > 0);
+        const toolName = payload.tools.some(t => t.function.name === 'clinic_context') ? 'clinic_context' : 'owner_dashboard_summary';
+        if (!payload.messages.some(m => m.role === 'tool')) {
+            res.end(JSON.stringify({ choices: [{ finish_reason: 'tool_calls', message: { tool_calls: [{ id: 'call_fixture', type: 'function', function: { name: toolName, arguments: '{}' } }] } }] }));
+        } else {
+            assert.equal(payload.messages.at(-1).tool_call_id, 'call_fixture');
+            assert.equal(payload.messages.at(-2).tool_calls[0].id,'call_fixture');
+            assert.ok(!JSON.parse(payload.messages.at(-1).content).error);
+            res.end(JSON.stringify({ choices: [{ finish_reason: 'stop', message: { content: 'The fixture clinic offers programmes.' } }] }));
+        }
     });
     await new Promise(resolve => provider.listen(0, '127.0.0.1', resolve));
     t.after(() => new Promise(resolve => provider.close(resolve)));
@@ -52,6 +62,7 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
         assert.equal(first.status, 200);
         const key = surface === 'admin' ? 'answer' : 'reply';
         assert.equal(first.body[key], 'The fixture clinic offers programmes.');
+        assert.equal(first.body.response_mode, 'model_with_retrieval');
         const calls = providerPrompts.length;
         const replay = await request(surface, turn);
         assert.equal(replay.body[key], first.body[key]);

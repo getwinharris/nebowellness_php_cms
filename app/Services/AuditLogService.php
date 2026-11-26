@@ -37,6 +37,7 @@ final class AuditLogService {
     public function agentRun(string $surface, string $outcome, float $startedAt, ?AgentRunTrace $trace = null): void {
         if (!in_array($surface, ['support', 'admin'], true)) return;
         if (!in_array($outcome, self::OUTCOMES, true)) return;
+        $trace?->recordOutcome($outcome);
         $this->record('run', 'agent', $surface, [
             'surface' => $surface,
             'outcome' => $outcome,

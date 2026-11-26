@@ -218,6 +218,15 @@ final class AdminController extends BaseController {
         // apply the fields actually submitted. Defaulting absent keys would blank out
         // every field belonging to the other forms (notably the GST configuration).
         $service = new SettingsService();
+        if (array_key_exists('clinic_phones', $_POST) || array_key_exists('clinic_whatsapp', $_POST)) {
+            try {
+                $service->saveClinicChannels($_POST['clinic_phones']??null,$_POST['clinic_whatsapp']??null,is_string($_POST['contact_revision']??null)?$_POST['contact_revision']:'');
+                (new AuditLogService())->record('save','settings','public',['fields'=>['clinic_phones','clinic_whatsapp']]);
+                $this->flash('Contact channels saved.','success');
+            } catch (\InvalidArgumentException | \DomainException $error) { $this->flash($error->getMessage(),'error'); }
+            catch (\Throwable) { $this->flash('Could not save contact channels.','error'); }
+            $this->redirect('/admin/settings');
+        }
         if (array_key_exists('foundation_customers_min', $_POST)) {
             try {
                 $revision = is_string($_POST['foundation_revision'] ?? null) ? $_POST['foundation_revision'] : '';
@@ -302,41 +311,8 @@ final class AdminController extends BaseController {
         $startedAt = microtime(true);
         $trace = new \App\Services\AgentRunTrace();
         header('X-Agent-Trace: ' . $trace->id);
+        $this->journalResponse($chat, $turnId, $message, $trace, true);
         try {
-            if ($message === \App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT) {
-                $summary = (new \App\Services\AgentToolRegistry())->run('appointment_summary', []);
-                $failed = isset($summary['error']);
-                $trace->tool('appointment_summary', $failed ? 'error' : 'ok', $startedAt);
-                (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'fallback', $startedAt, $trace);
-                if ($failed) {
-                    $this->jsonResponse(['error' => $summary['error']], 503);
-                    return;
-                }
-                $answer = 'Historical appointments: ' . $summary['total'] . '. These are archived records, separate from current campaign enquiries.';
-                foreach ($summary['by_status'] as $status => $count) $answer .= "\n- " . ucfirst($status) . ': ' . $count;
-                if ($turnId !== null) $chat->remember($turnId, $message, ['answer' => $answer], $trace->id);
-                $this->jsonResponse(['answer' => $answer]);
-                return;
-            }
-            if ($message === \App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT) {
-                $summary = (new \App\Services\AgentToolRegistry())->run('therapy_enquiry_summary', ['days' => 30]);
-                $trace->tool('therapy_enquiry_summary', isset($summary['error']) ? 'error' : 'ok', $startedAt);
-                if (isset($summary['error'])) {
-                    (new AuditLogService())->agentRun('admin', 'error', $startedAt, $trace);
-                    $this->jsonResponse(['error' => $summary['error']], 503);
-                    return;
-                }
-                $status = $summary['inbox_status'];
-                $answer = sprintf(
-                    'The Contacts inbox recorded %d therapy campaign enquiries in the last %d days: %d new, %d read, %d closed and %d with another status.',
-                    $summary['request_count'], $summary['days'], $status['new'], $status['read'], $status['closed'], $status['other']
-                );
-                (new AuditLogService())->agentRun('admin', 'fallback', $startedAt, $trace);
-                if ($turnId !== null) $chat->remember($turnId, $message, ['answer' => $answer], $trace->id);
-                $this->jsonResponse(['answer' => $answer, 'missing' => []]);
-                return;
-            }
-
             // @terms, @privacy, @some-article and @filename.jpg pull that document into
             // the prompt. Resolved here so both a draft command and an ordinary question
             // can refer to one.
@@ -368,7 +344,19 @@ final class AdminController extends BaseController {
             }
             $secrets = new SecretService();
             $modelConfig = $secrets->getModelConfig();
-            $context = (new \App\Services\AgentContextService())->forAdmin(module_on('shop'));
+            $tools=new \App\Services\AgentToolRegistry(question:$message);
+            $retrieved=$tools->retrieve('owner_dashboard_summary',[],$trace);
+            if (isset($retrieved['error'])) {
+                (new AuditLogService())->agentRun('admin','error',$startedAt,$trace);
+                $this->jsonResponse(['error'=>'Owner records are unavailable.'],503);
+            }
+            $context=(string)$retrieved['summary'];
+            $lookups=[];
+            if (preg_match('/\b(support|tickets?|enquiries)\b/i',$message)) $lookups['support_enquiries']=$tools->retrieve('support_enquiries',[],$trace);
+            if ($message===\App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT) $lookups['appointment_summary']=$tools->retrieve('appointment_summary',[],$trace);
+            if ($message===\App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT && $tools->has('therapy_enquiry_summary')) $lookups['therapy_enquiry_summary']=$tools->retrieve('therapy_enquiry_summary',['days'=>30],$trace);
+            $context.="\nRetrieved tool evidence: ".json_encode($lookups,JSON_INVALID_UTF8_SUBSTITUTE|JSON_UNESCAPED_UNICODE);
+
             if ($attachments['context'] !== '') {
                 $context .= "\n\nDocuments the owner attached with @:" . $attachments['context'];
             }
@@ -378,13 +366,14 @@ final class AdminController extends BaseController {
             } else {
                 $answer = "AI model not configured. Go to Admin → Integrations and set api_endpoint, ai_api_key, and agent_model.";
             }
-            $failed = empty($modelConfig['apiKey']) || trim($answer) === '' || \App\Services\AiClient::isError($answer);
+            $requiredTool = $message===\App\Services\AgentToolRegistry::SUPPORT_INBOX_PROMPT ? 'support_enquiries' : ($message===\App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT ? 'therapy_enquiry_summary' : ($message===\App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT ? 'appointment_summary' : null));
+            $failed = ($requiredTool!==null&&!$trace->usedNativeTool([$requiredTool])) || empty($modelConfig['apiKey']) || \App\Services\AiClient::isError($answer) || !(new \App\Services\AiReplyCleaner())->usableAnswer($answer,$message) || !$trace->hasNativeToolAnswer();
             (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'model', $startedAt, $trace);
             if ($failed) {
                 $this->jsonResponse(['error'=>'The model could not answer. Try again or use a clinic workflow from the sidebar.', 'missing'=>$attachments['missing']],502);
                 return;
             }
-            $response = ['answer' => $answer, 'missing' => $attachments['missing']];
+            $response = ['answer' => $answer, 'missing' => $attachments['missing'],'response_mode'=>'model_with_retrieval','sources'=>$trace->sources()];
             if ($turnId !== null) $chat->remember($turnId, $message, $response, $trace->id);
             $this->jsonResponse($response);
         } catch (\Throwable $e) {
@@ -424,7 +413,8 @@ final class AdminController extends BaseController {
         // the statistics blob, not enquiries, of which there are none. A number with no
         // stated source is unverifiable, so the persona now asks for the figure, how it
         // was arrived at, and what was checked.
-        $prompt = "You are the admin analyst for Nebo Lifestyle Clinic, talking to its owner. "
+         $tools = new \App\Services\AgentToolRegistry(question:$message);
+        $prompt = $tools->instructions($message) . "\nYou are the admin analyst for Nebo Lifestyle Clinic, talking to its owner. "
             . "Be brief and concrete: two to five sentences, or a short Markdown list.\n"
             . "When you give a number, say what it counts, where it came from, and any judgement you made "
             . "to arrive at it. If a word in the question is open to interpretation, say how you read it.\n"
@@ -441,20 +431,14 @@ final class AdminController extends BaseController {
         // With tools the agent can answer "where is order 9426" — the data was always
         // there, but nothing let the model ask for it.
         $client = new \App\Services\AiClient(trace: $trace);
-        $tools = new \App\Services\AgentToolRegistry();
         $answer = $client->completeWithTools($prompt, $tools);
         if (\App\Services\AiClient::isError($answer)) return $answer;
 
-        // A bare figure is the failure this persona exists to prevent, so it is caught
-        // rather than trusted. One retry, then whatever comes back is shown — an
-        // unadorned number the owner can see is better than a loop they wait through.
+        // A bare unsupported figure is unusable; don't launch a second full loop
+        // outside the shared execution budget.
         if (self::isBareFigure($answer) && !self::wantsNumberOnly($message)) {
-            $retry = $client->completeWithTools(
-                $prompt . "\n\nYour previous reply was just \"" . trim($answer) . "\". "
-                . "Say what that number counts, which data you checked to get it, and how you interpreted the question.",
-                $tools
-            );
-            if (!\App\Services\AiClient::isError($retry) && trim($retry) !== '') $answer = $retry;
+            $trace?->markProviderResponseUnusable();
+            return '';
         }
         return $this->cleanAnswer($answer);
     }
@@ -538,19 +522,83 @@ final class AdminController extends BaseController {
     }
     public function saveContactSubmission(): void{$this->save('contact_submissions');}
     public function deleteContactSubmission(): void{$this->delete('contact_submissions');}
-    public function supportTickets(): void{$this->render('admin/list',['pageTitle'=>'Support Tickets','title'=>'Support Tickets','collection'=>'support_tickets','items'=>(new \App\Services\SupportTicketService())->all()]);}
-    public function saveSupportTicket(): void{
-        $id=(string)($_POST['id']??'');
-        $reply=trim((string)($_POST['reply']??''));
-        if ($id !== '' && $reply !== '') {
-            try {
-                (new \App\Services\SupportTicketService())->reply($id, $reply);
-                $this->flash('Reply saved.','success');
-            } catch (\Throwable $e) {
-                $this->flash('Unable to save reply.','error');
+    public function supportTickets(): void {
+        header('Cache-Control: private, no-store');
+        $service = new \App\Services\SupportTicketService();
+        $tickets = array_values(array_filter($service->all(), static fn(array $row): bool => trim((string)($row['message'] ?? '')) !== '' && preg_match('/^(?:[a-f0-9]{16}|[a-f0-9]{32})$/D',(string)($row['id'] ?? ''))));
+        usort($tickets,static fn(array $a,array $b): int => strcmp((string)($b['updated_at'] ?? $b['created_at'] ?? ''),(string)($a['updated_at'] ?? $a['created_at'] ?? '')));
+        $filter = is_string($_GET['status'] ?? null) && in_array($_GET['status'],['open','answered','closed'],true) ? $_GET['status'] : 'all';
+        $search = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']),0,120) : '';
+        $selected = is_string($_GET['ticket'] ?? null) ? $service->find($_GET['ticket']) : null;
+        $counts = ['all'=>count($tickets),'open'=>0,'answered'=>0,'closed'=>0];
+        foreach ($tickets as $row) if (in_array($row['status'] ?? 'open',['open','answered','closed'],true)) $counts[$row['status'] ?? 'open']++;
+        $tickets = array_values(array_filter($tickets,static fn(array $row): bool => ($filter==='all'||($row['status']??'open')===$filter) && ($search===''||str_contains(mb_strtolower(($row['customer_email']??'').' '.($row['message']??'').' '.($row['id']??'')),mb_strtolower($search)))));
+        $selected ??= $tickets[0] ?? null;
+        $timeline = []; $session = null; $archiveError = false;
+        if ($selected) {
+            try { $timeline = (new \App\Services\CustomerCrmService())->timeline((string)($selected['customer_email']??'')); } catch (\Throwable) {}
+            if (!empty($selected['session_id'])) {
+                try { $session = (new \App\Services\AgentSessionService())->get((string)$selected['session_id']); } catch (\Throwable) { $archiveError=true; }
             }
         }
-        $this->redirect('/admin/support-tickets');
+        $this->render('admin/support-inbox',['pageTitle'=>'Support inbox','tickets'=>array_slice($tickets,0,100),'selected'=>$selected,'counts'=>$counts,'filter'=>$filter,'search'=>$search,'timeline'=>$timeline,'session'=>$session,'archiveError'=>$archiveError]);
+    }
+    public function saveSupportTicket(): void {
+        $id = is_string($_POST['id'] ?? null) ? $_POST['id'] : '';
+        $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : 'reply';
+        $value = $_POST['value'] ?? $_POST['reply'] ?? '';
+        try {
+            if (!is_string($value) || !is_string($_POST['revision'] ?? null)) throw new \InvalidArgumentException('Reload the ticket before saving.');
+            (new \App\Services\SupportTicketService())->update($id,$_POST['revision'],$action,$value);
+            (new AuditLogService())->record('save','support_tickets',$id,['action'=>$action]);
+            $this->flash($action==='reply'?'Reply saved for the customer to track.':($action==='note'?'Internal note added.':'Status updated.'),'success');
+        } catch (\InvalidArgumentException | \DomainException $error) { $this->flash($error->getMessage(),'error'); }
+        catch (\Throwable) { $this->flash('Unable to save ticket.','error'); }
+        $this->redirect('/admin/support-tickets?ticket='.rawurlencode($id));
+    }
+
+    public function agentSessions(): void {
+        header('Cache-Control: private, no-store');
+        $service = new \App\Services\AgentSessionService();
+        $items = []; $selected = null; $unavailable = false;
+        try {
+            $items = $service->recent();
+            if (is_string($_GET['session'] ?? null)) $selected=$service->get($_GET['session']);
+        } catch (\Throwable) { $unavailable=true; }
+        $this->render('admin/agent-sessions',['pageTitle'=>'Agent sessions','items'=>$items,'selected'=>$selected,'unavailable'=>$unavailable]);
+    }
+
+    public function agentSessionJson(string $id): void {
+        header('Cache-Control: private, no-store');
+        header('X-Robots-Tag: noindex, nofollow');
+        try { $record=(new \App\Services\AgentSessionService())->get($id); }
+        catch (\Throwable) { $this->jsonResponse(['error'=>'Archive unavailable.'],503); }
+        if (!$record) $this->jsonResponse(['error'=>'Session not found or expired.'],404);
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="nebo-agent-'.$id.'.json"');
+        (new AuditLogService())->record('export','agent_sessions',$id);
+        echo json_encode($record, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE|JSON_THROW_ON_ERROR);
+        exit;
+    }
+
+    public function purgeAgentSessions(): void {
+        try {
+            $count=(new \App\Services\AgentSessionService())->purgeExpired();
+            (new AuditLogService())->record('purge','agent_sessions','expired',['count'=>$count]);
+            $this->flash($count.' expired session records removed.','success');
+        } catch (\Throwable) { $this->flash('Could not remove expired sessions.','error'); }
+        $this->redirect('/admin/agent-sessions');
+    }
+
+    public function customers(): void {
+        header('Cache-Control: private, no-store');
+        $service = new \App\Services\CustomerCrmService();
+        $search = is_string($_GET['q'] ?? null) ? mb_substr(trim($_GET['q']),0,120) : '';
+        $email = is_string($_GET['email'] ?? null) && filter_var($_GET['email'],FILTER_VALIDATE_EMAIL) ? strtolower($_GET['email']) : '';
+        $items = []; $timeline=[]; $unavailable=false;
+        try { $items=$service->directory($search); if ($email!=='') $timeline=$service->timeline($email); }
+        catch (\Throwable) { $unavailable=true; }
+        $this->render('admin/customers',['pageTitle'=>'Customers','items'=>$items,'search'=>$search,'email'=>$email,'timeline'=>$timeline,'unavailable'=>$unavailable]);
     }
     public function emailInbox(): void{$this->render('admin/mailbox',['pageTitle'=>'Email Inbox','title'=>'Email Inbox','box'=>'inbox','items'=>(new MailStorageService())->inbox()]);}
     public function emailOutbox(): void{$this->render('admin/mailbox',['pageTitle'=>'Email Outbox','title'=>'Email Outbox','box'=>'outbox','items'=>(new MailStorageService())->outbox()]);}

@@ -53,6 +53,16 @@ final class SettingsService {
         return $modules;
     }
 
+    /** Runtime retrieval must not mistake a failed settings read for enabled modules. */
+    public function strictModules(): array {
+        $rows=$this->store->read('settings');
+        $settings=$rows[0]??[];
+        foreach ($rows as $row) if (($row['id']??'')===self::SETTINGS_ID) { $settings=$row; break; }
+        $modules=[];
+        foreach (array_keys(self::MODULES) as $key) $modules[$key]=(string)($settings['module_'.$key]??'1')!=='0';
+        return $modules;
+    }
+
     public function moduleEnabled(string $key): bool {
         return $this->modules()[$key] ?? true;
     }
@@ -80,6 +90,12 @@ final class SettingsService {
         self::flushCache();
     }
 
+    public function saveClinicChannels(mixed $phones, mixed $whatsapp, string $revision): void {
+        $numbers=ClinicContactService::normalize($phones);
+        $messages=ClinicContactService::normalize($whatsapp);
+        $this->store->upsertIfRevision('settings',['id'=>self::SETTINGS_ID,'clinic_phones'=>$numbers,'clinic_whatsapp'=>$messages],$revision);
+        self::flushCache();
+    }
     public function savePublic(array $settings): void {
         $settings['id'] = self::SETTINGS_ID;
         $this->store->upsert('settings', $settings, 'id');

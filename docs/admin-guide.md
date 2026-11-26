@@ -44,3 +44,9 @@ In Campaign pages, use the existing title, summary, body, image and enquiry sett
 ### Homepage Foundation figure
 
 Admin → Settings → Homepage Foundation accepts the clinic-confirmed minimum historical customer count. A positive integer renders with a plus sign; blank hides it. It does not count accounts, orders, or enquiries. The programme and visible practitioner counts are derived from published records, and the focus-area count reflects the four displayed care areas. Editing the figure uses the settings revision to reject stale writes.
+
+## Customer relationship workspace
+
+**Enquiries → Support inbox** provides ticket status filters, conversation requests, server-generated handoff notes, private staff notes, customer-visible replies and revision-guarded status changes. Saving a reply does not send email or WhatsApp automatically. **Customers** groups bounded recent records by reported email; a reported address is not verified identity. **Agent sessions** provides owner-only JSON downloads of visible conversation and actual execution metadata. Public chat is durably saved only when opted in or submitted as a ticket; owner chat is archived automatically. Expired 30-day records are hidden and eligible for owner cleanup. Never enter passwords, verification codes or medical records. This is not a clinical record system.
+
+**Settings → Public contact channels** manages telephone and WhatsApp separately. Blank hides a channel; the first WhatsApp number is the optional user-controlled handoff destination. Only a general problem category is prefilled, not sensitive conversation text. See [the native harness contract](agent-harness.md).

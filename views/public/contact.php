@@ -21,6 +21,7 @@ if (!array_key_exists('message', $contactValues) && ($consultant ?? '') !== '') 
     $contactValues['subject'] ??= 'general';
 }
 $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
+$clinicChannels = (new \App\Services\ClinicContactService())->channels();
 ?>
 <section class="nebo-contact-page" aria-labelledby="contact-title">
     <div class="container container--wide">
@@ -32,8 +33,8 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
                 <div class="contact-intro__actions">
                     <a class="btn btn-primary" href="#contact-form">Send an enquiry <span aria-hidden="true">↓</span></a>
                     <div class="contact-intro__channels" aria-label="Direct contact">
-                        <a class="contact-text-link" href="tel:+917200182025" aria-label="Call the clinic"><?php $careIcon='phone'; require __DIR__.'/../partials/care-icon.php'; ?> Call</a>
-                        <a class="contact-text-link" href="https://wa.me/917200182025" aria-label="Message the clinic on WhatsApp"><?php $careIcon='message'; require __DIR__.'/../partials/care-icon.php'; ?> WhatsApp</a>
+                        <?php if ($clinicChannels['phones']): ?><a class="contact-text-link" href="tel:<?= e($clinicChannels['phones'][0]) ?>" aria-label="Call the clinic"><?php $careIcon='phone'; require __DIR__.'/../partials/care-icon.php'; ?> Call</a><?php endif; ?>
+                        <?php if ($clinicChannels['whatsapp']): ?><a class="contact-text-link" href="<?= e(\App\Services\ClinicContactService::whatsappUrl($clinicChannels['whatsapp'][0])) ?>" aria-label="Message the clinic on WhatsApp"><?php $careIcon='message'; require __DIR__.'/../partials/care-icon.php'; ?> WhatsApp</a><?php endif; ?>
                         <a class="contact-text-link" href="mailto:nebolifestyleclinic@gmail.com" aria-label="Email the clinic"><?php $careIcon='mail'; require __DIR__.'/../partials/care-icon.php'; ?> Email</a>
                     </div>
                 </div>
@@ -109,18 +110,16 @@ $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
                 <div class="contact-details__group">
                     <h3>Call or email the clinic</h3>
                     <ul class="contact-details__links">
-                        <li><a class="contact-text-link" href="tel:+917200182025">+91 72001 82025</a></li>
-                        <li><a class="contact-text-link" href="tel:+919585182025">+91 95851 82025</a></li>
+                        <?php foreach ($clinicChannels['phones'] as $number): ?><li><a class="contact-text-link" href="tel:<?= e($number) ?>"><?= e($number) ?></a></li><?php endforeach; ?>
                         <li><a class="contact-text-link" href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a></li>
                     </ul>
                 </div>
-                <div class="contact-details__group">
+                <?php if ($clinicChannels['whatsapp']): ?><div class="contact-details__group">
                     <h3>Message us on WhatsApp</h3>
                     <ul class="contact-details__links">
-                        <li><a class="contact-text-link" href="https://wa.me/917200182025">+91 72001 82025 <span aria-hidden="true">↗</span></a></li>
-                        <li><a class="contact-text-link" href="https://wa.me/919585182025">+91 95851 82025 <span aria-hidden="true">↗</span></a></li>
+                        <?php foreach ($clinicChannels['whatsapp'] as $number): ?><li><a class="contact-text-link" href="<?= e(\App\Services\ClinicContactService::whatsappUrl($number)) ?>"><?= e($number) ?> <span aria-hidden="true">↗</span></a></li><?php endforeach; ?>
                     </ul>
-                </div>
+                </div><?php endif; ?>
                 <div class="contact-details__group">
                     <h3>Clinic hours</h3>
                     <dl class="contact-details__hours">

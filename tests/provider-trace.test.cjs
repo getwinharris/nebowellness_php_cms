@@ -8,7 +8,7 @@ const { promisify } = require('node:util');
 const run = promisify(execFile);
 const fixture = path.join(__dirname, 'fixtures/provider-trace.php');
 
-test('a tool round, plain fallback model and support outage keep distinct provider measurements', async t => {
+test('native tool rounds for both Google models and support outage keep distinct provider measurements', async t => {
     const received = [];
     const server = http.createServer(async (req, res) => {
         let raw = '';
@@ -22,8 +22,8 @@ test('a tool round, plain fallback model and support outage keep distinct provid
         let part = {text: '<final_answer>Synthetic confidential answer</final_answer>'};
         if (req.url.includes('thought-only')) {
             part = {thought: true, text: 'Synthetic confidential reasoning'};
-        } else if (received.length === 1 || (req.url.includes('last-round') && payload.tools)) {
-            part = {functionCall: {name: 'appointment_summary', args: {}}};
+        } else if (payload.tools && !payload.contents.some(turn => turn.parts.some(part => part.functionResponse))) {
+            part = {functionCall: {id: 'gemma-call-fixture', name: payload.tools[0].functionDeclarations.some(f=>f.name==='clinic_context')?'clinic_context':'appointment_summary', args: {}}, thoughtSignature: 'opaque-fixture-signature'};
         }
         res.end(JSON.stringify({candidates: [{content: {parts: [part]}}]}));
     });
@@ -45,6 +45,13 @@ test('a tool round, plain fallback model and support outage keep distinct provid
     const owner = await exercise('admin', 'fixture-primary');
     assert.ok(received[0].tools[0].functionDeclarations.length > 0);
     assert.equal(received[1].contents.at(-1).parts[0].functionResponse.name, 'appointment_summary');
+    assert.equal(received[1].contents.at(-1).parts[0].functionResponse.id,'gemma-call-fixture');
+    assert.deepEqual(received[1].contents.at(-2).parts[0],{functionCall:{id:'gemma-call-fixture',name:'appointment_summary',args:{}},thoughtSignature:'opaque-fixture-signature'});
+    assert.ok(received[0].systemInstruction.parts[0].text);
+    assert.ok(!received[0].tools[0].functionDeclarations.find(f=>f.name==='appointment_summary').parameters);
+    assert.equal(received[0].tools[0].functionDeclarations.find(f=>f.name==='search_clinic_knowledge').parameters.properties.query.type,'STRING');
+    assert.equal(received[0].tools[0].functionDeclarations.find(f=>f.name==='search_clinic_knowledge').parameters.type,'OBJECT');
+    assert.ok(!received[0].tools[0].functionDeclarations.some(f=>f.strict));
     assert.deepEqual(owner.trace.steps.map(step => step.kind), ['provider', 'tool', 'provider']);
     const tool = owner.report.provider_details[0];
     assert.equal(tool.mode, 'tools');
@@ -54,23 +61,28 @@ test('a tool round, plain fallback model and support outage keep distinct provid
     assert.ok(Number.isInteger(tool.p95_ms));
 
     const fallback = await exercise('admin', 'gemma-4-26b-a4b-it');
-    assert.equal(received.at(-1).tools, undefined);
-    assert.equal(fallback.report.provider_details[0].mode, 'plain');
+    assert.ok(received.at(-1).tools);
+    assert.equal(fallback.report.provider_details[0].mode, 'tools');
+    assert.deepEqual(fallback.trace.steps.map(step => step.kind), ['provider','tool','provider']);
 
+    const publicGemma=await exercise('support','gemma-4-31b-it');
+    assert.equal(received.at(-1).contents.at(-1).parts[0].functionResponse.name,'clinic_context');
+    assert.deepEqual(publicGemma.trace.steps.map(step=>step.kind),['provider','tool','provider']);
+    assert.ok(!received.at(-1).tools[0].functionDeclarations.some(f=>f.name==='owner_dashboard_summary'));
     const support = await exercise('support', 'fixture-unavailable');
     const failed = support.report.provider_details[0];
     assert.equal(failed.model, 'fixture-unavailable');
     assert.equal(failed.surface, 'support');
-    assert.equal(failed.mode, 'plain');
+    assert.equal(failed.mode, 'tools');
     assert.deepEqual(failed.failure_types, {'HTTP 503': 1});
-    assert.equal(support.report.surfaces.support.fallback, 1);
-    assert.equal(support.report.surfaces.support.error, 0);
+    assert.equal(support.report.surfaces.support.fallback, 0);
+    assert.equal(support.report.surfaces.support.error, 1);
     const onlyThoughts = await exercise('support', 'fixture-thought-only');
     assert.equal(onlyThoughts.trace.steps[0].outcome, 'unusable_response');
-    assert.equal(onlyThoughts.report.surfaces.support.fallback, 1);
+    assert.equal(onlyThoughts.report.surfaces.support.error, 1);
 
     const finalRound = await exercise('admin', 'fixture-last-round', 'last-round');
-    assert.deepEqual(finalRound.trace.steps.map(step => step.mode || step.kind), ['tools', 'tool', 'plain']);
-    assert.match(received.at(-1).contents[0].parts[0].text, /"functionResponse":\{"name":"appointment_summary","response":\{/);
+    assert.deepEqual(finalRound.trace.steps.map(step => step.mode || step.kind), ['tools']);
+    assert.equal(finalRound.trace.steps[0].outcome,'unusable_response');
 
 });

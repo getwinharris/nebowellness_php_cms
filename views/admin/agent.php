@@ -33,7 +33,7 @@ $ownerChat = new \App\Services\AgentConversation('admin');
 <div class="agent-workspace">
 <div class="admin-card agent-shell">
     <div class="agent-conversation-tools">
-        <h3>Conversation</h3>
+        <h3>Conversation</h3><a class="btn btn-outline btn-sm" href="/admin/agent-sessions">Saved sessions</a>
         <button type="button" class="btn btn-outline btn-sm" id="agent-clear" hidden>New chat</button>
     </div>
     <div id="agent-messages" class="agent-messages" role="log" aria-live="polite" aria-label="Conversation">
@@ -49,6 +49,7 @@ $ownerChat = new \App\Services\AgentConversation('admin');
         </div>
     </div>
 
+    <p class="crm-muted">Owner chat is saved privately with visible messages and observed tool activity. Do not enter passwords or sensitive clinical records.</p>
     <noscript><p>Enable JavaScript to use chat. The operations links below open the corresponding admin pages.</p></noscript>
     <div class="agent-composer-wrap" id="agent-composer-wrap" hidden>
         <form data-conversation="<?= e($ownerChat->id()) ?>" data-has-turns="<?= $ownerChat->hasTurns() ? '1' : '0' ?>" id="agent-form" class="agent-composer" action="/admin/agent/ask" method="post">
@@ -76,7 +77,7 @@ $ownerChat = new \App\Services\AgentConversation('admin');
         <?php $__suggestions = !empty($shopEnabled)
             ? ['Which products sell best?', 'What is the revenue this month?', '/create-blog benefits of gut health', '/add-product wellness guide']
             : array_values(array_filter([
-                'How many support enquiries are open?',
+                \App\Services\AgentToolRegistry::SUPPORT_INBOX_PROMPT,
                 $__campaignsEnabled ? 'Summarise current campaigns' : null,
                 '/create-blog benefits of gut health',
             ])); ?>
