@@ -30,3 +30,5 @@ instructions or executable helpers.
 - Record the selected skills and outcome in the issue/contract and append-only
   register review. Run ./bapXphp rea skills-check, ./bapXphp update and
   ./bapXphp ci, then verify exact-head CI and deployed source when applicable.
+
+- After a verified issue loop, use the current register and open issues to select and start the next clear authorized loop. Report actual completed work, remaining gates and concrete next steps; ask for a product decision only when evidence cannot resolve the direction. Do not inflate coverage for partial migration.

@@ -107,6 +107,17 @@ additional reference paths only when the archived evidence is insufficient.
    The update command regenerates the progress report before maps/indexes. The check validates reference digests, exact source/test anchors, stable IDs and report drift. PR CI also checks the base-to-head runtime change against a new register review. The tooling verifies record integrity, not semantic correctness of every acceptance claim: the implementing agent still owns evidence and release review.
 6. Push one PR, verify exact-head checks, merge, deploy and repeat the affected live flow. If deployment/provider/client approval remains unverified, keep the corresponding issue open. When live evidence is acquired, record it in a follow-up registry update without inflating implementation coverage. If a previously accepted behavior regresses, demote it immediately and record the regression; percentages may decrease.
 
+## Continuous delivery and reporting
+
+Follow AGENTS.md continuous verified delivery. Finish each scoped issue through
+tests, exact-head review, merge, live source and behavior verification, and
+register evidence. Then use the updated capability register and issue
+dependencies to select and start the next clear authorized loop. At reporting
+boundaries include both what was completed and what remains, with precise
+acceptance gates; explain material uncertainty rather than stopping at a generic
+status. Provider/client blockers remain visible and do not justify fake success
+or prevent independent safe implementation.
+
 ## Next implementation sequence
 
 Restore the real article drafting and provider diagnostics (#140, #82, #128) and verify release identity (#138). Build canonical site profile and reusable page/form/FAQ editor (#121, #125), including revision-safe publishing. Finish owner CRM and service payment acceptance (#134, #63). Implement typed abilities first, then native MCP discovery/auth/transport and A2UI catalog/renderer/actions. Improve durable journal/recovery and golden evaluation using DeepSeek evidence. Finish native Google reporting, PageSpeed and consent-aware attribution (#65, #58). Use independent issue-scoped PRs; do not batch unrelated runtime changes merely to raise a percentage.

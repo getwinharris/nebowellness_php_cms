@@ -7,6 +7,7 @@ final class ConsultationFeeService {
     public const CURRENCIES=['INR'=>'₹','USD'=>'USD ','EUR'=>'€','GBP'=>'£','SGD'=>'SGD ','AED'=>'AED ','AUD'=>'AUD ','CAD'=>'CAD '];
     public const LIMIT=20;
     public const SOURCE='/contact#consultation-fees';
+    public const PUBLIC_SCOPE='Published consultation display fees only. An enquiry does not confirm an appointment or initiate payment.';
     public function __construct(private DatabaseService $store=new DatabaseService()) {}
 
     private static function text(mixed $value,int $limit,bool $required=false): string {
@@ -94,11 +95,10 @@ final class ConsultationFeeService {
         return $settings;
     }
     public function published(): array {
-        $settings=$this->store->find('settings',SettingsService::SETTINGS_ID)??[];
-        $catalog=self::fromSettings($settings);
+        $catalog=self::fromSettings($this->settings());
         $catalog['fees']=array_map(static fn(array $row):array=>array_diff_key($row,['status'=>true,'display_order'=>true])+['display_price'=>self::price($row),'duration'=>self::duration($row)],$catalog['fees']);
         if (!$catalog['fees']) $catalog['inclusions']=[];
-        return $catalog+['source'=>self::SOURCE,'scope'=>'Published consultation display fees only. An enquiry does not confirm an appointment or initiate payment.'];
+        return $catalog+['source'=>self::SOURCE,'scope'=>self::PUBLIC_SCOPE];
     }
     public function save(array $input,string $revision): void {
         $settings=$this->settings();

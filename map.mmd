@@ -7,10 +7,10 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 62 services, 55 views, 0 data files, 23 tools"]
+  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 64 services, 55 views, 0 data files, 23 tools"]
     arch_routes["> Routes: 130 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 13"]:::arch
-    arch_svc["> Services: 62"]:::arch
+    arch_svc["> Services: 64"]:::arch
     arch_views["> Views: 55"]:::arch
     arch_data["> Collections: 25 schema | 0 files"]:::arch
     arch_tools["> Tools: 23"]:::arch
@@ -189,6 +189,7 @@ flowchart LR
   end
 
   subgraph SERVICES["Services"]
+    service_abilityschema["AbilitySchema"]:::code
     service_addressservice["AddressService"]:::code
     service_agentattachmentservice["AgentAttachmentService"]:::code
     service_agentcontextservice["AgentContextService"]:::code
@@ -229,6 +230,7 @@ flowchart LR
     service_markdownrenderer["MarkdownRenderer"]:::code
     service_mediaservice["MediaService"]:::code
     service_modeltoolset["ModelToolSet"]:::code
+    service_nativeabilityregistry["NativeAbilityRegistry"]:::code
     service_orderservice["OrderService"]:::code
     service_passwordresetservice["PasswordResetService"]:::code
     service_paymentservice["PaymentService"]:::code
@@ -689,6 +691,8 @@ flowchart LR
   controller_admincontroller --> service_agentattachmentservice
   controller_admincontroller --> service_agentdraftservice
   controller_admincontroller --> service_agenttoolregistry
+  controller_admincontroller --> service_nativeabilityregistry
+  controller_admincontroller --> service_abilityschema
   controller_admincontroller --> service_agentruntrace
   controller_admincontroller --> service_aireplycleaner
   controller_admincontroller --> service_aiclient
@@ -895,6 +899,9 @@ flowchart LR
   controller_supportcontroller --> service_cliniccontactservice
   controller_supportcontroller --> service_agentconversation
   controller_supportcontroller --> service_supportbotservice
+  controller_supportcontroller --> service_agenttoolregistry
+  controller_supportcontroller --> service_nativeabilityregistry
+  controller_supportcontroller --> service_abilityschema
   controller_supportcontroller --> service_agentcontextservice
   controller_supportcontroller --> service_supportticketservice
   controller_supportcontroller --> service_auditlogservice

@@ -5,7 +5,7 @@
     "summary": {
         "routes": 130,
         "controllers": 13,
-        "services": 62,
+        "services": 64,
         "views": 55,
         "collections": 25
     },
@@ -234,6 +234,8 @@
                 "AgentAttachmentService",
                 "AgentDraftService",
                 "AgentToolRegistry",
+                "NativeAbilityRegistry",
+                "AbilitySchema",
                 "AgentRunTrace",
                 "AiReplyCleaner",
                 "AiClient",
@@ -1442,6 +1444,9 @@
                 "ClinicContactService",
                 "AgentConversation",
                 "SupportBotService",
+                "AgentToolRegistry",
+                "NativeAbilityRegistry",
+                "AbilitySchema",
                 "AgentContextService",
                 "SupportTicketService",
                 "AuditLogService",
@@ -1506,6 +1511,7 @@
         "TherapyController"
     ],
     "services": [
+        "AbilitySchema",
         "AddressService",
         "AgentAttachmentService",
         "AgentContextService",
@@ -1546,6 +1552,7 @@
         "MarkdownRenderer",
         "MediaService",
         "ModelToolSet",
+        "NativeAbilityRegistry",
         "OrderService",
         "PasswordResetService",
         "PaymentService",
