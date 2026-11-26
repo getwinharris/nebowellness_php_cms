@@ -20,7 +20,8 @@ const write=value=>php('$db->upsert("settings",["id"=>$id]+json_decode($argv[1],
                 const payload=JSON.parse(raw),prompt=payload.messages[0].content;
                 assert.ok(payload.tools.some(t=>t.function.name==='published_site_identity'));
                 requests.push({prompt,tools:payload.tools.map(t=>t.function.name)});
-                if(prompt.includes('without a lookup')){
+                // Match the fixture question, not the shared instruction mentioning a lookup.
+                if(prompt.includes('question: What is the public email address without a lookup?')||prompt.includes('Question: What is the public email address without a lookup?')){
                     res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'wrong@example.test'}}]}));return;
                 }
                 if(!payload.messages.some(m=>m.role==='tool')){
@@ -51,7 +52,7 @@ const write=value=>php('$db->upsert("settings",["id"=>$id]+json_decode($argv[1],
         for(const surface of ['support','admin']){
             const key=surface==='support'?'reply':'answer';
             const result=await ask(surface,'What is the public email address?');
-            assert.equal(result.status,200,JSON.stringify(result));
+            assert.equal(result.status,200,JSON.stringify({surface,result,observed:requests.at(-1)?.observed,providerRequests:requests.length}));
             assert.equal(result.body.response_mode,'model_with_retrieval');
             assert.ok(result.body[key].includes(alpha.public_email));
             assert.deepEqual(result.body.sources,['/contact']);
@@ -70,7 +71,7 @@ const write=value=>php('$db->upsert("settings",["id"=>$id]+json_decode($argv[1],
         for(const surface of ['support','admin']){
             const key=surface==='support'?'reply':'answer';
             const result=await ask(surface,'What is the public email address?');
-            assert.equal(result.status,200,JSON.stringify(result));
+            assert.equal(result.status,200,JSON.stringify({surface,result,observed:requests.at(-1)?.observed,providerRequests:requests.length}));
             assert.ok(result.body[key].includes(beta.public_email));
             assert.doesNotMatch(JSON.stringify(result.body.a2ui),/Orchid Studio|orchid@example\.test/);
         }
