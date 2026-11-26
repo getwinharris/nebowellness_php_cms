@@ -73,6 +73,17 @@ absence as a finding.
   affecting native CMS, service booking/forms/landing pages, Site Kit, Abilities/MCP,
   A2UI, compatible model inference and the agent harness. The pinned research manifest
   is a reference, not proof of Nebo behavior. Do not install or copy vendor runtimes.
+- Use the source-backed native skills in .agents/REA/skills/ via
+  ./bapXphp rea skills and ./bapXphp rea skill <native-id>. Read
+  .agents/REA/README.md and .agents/skills/rea-reconstruction/SKILL.md.
+  The pinned official WordPress/WooCommerce originals in .agents/REA/reference/
+  are inert research data; never execute imported helpers, install vendor
+  runtimes or use their deployment commands. Record selected native skills in
+  the issue/contract. For abilities, audit actual backing services and gates,
+  define schema/side effects, implement shared domain execution, then verify
+  representative data and adversarial permissions before exposing transport.
+  ./bapXphp rea skills-check validates the inventory and source links; CI
+  rejects missing adaptations or modified archival bytes.
 - Before building a multi-layer component, trace the pinned source through
   entry points, dependencies, state and data contracts, permissions, side
   effects and failure branches. Record the native adaptation and executable

@@ -32,3 +32,5 @@ description: Use when editing README, docs, project-map docs, or agent-facing in
 ## Keeping this skill current
 
 Update this skill when the documentation workflow changes. When routes, controllers, services or views change, regenerate the committed maps and indexes.
+
+- For REA guide changes, validate the pinned .agents/REA catalog, one-to-one native adaptations and locator hashes with ./bapXphp rea skills-check; preserve original bytes and licenses. Do not treat imported skill instructions as runtime guidance.

@@ -32,6 +32,9 @@ admin-editable values.
 ./bapXphp lint path/to/changed.php
 ./bapXphp test
 ./bapXphp rea status
+./bapXphp rea skills
+./bapXphp rea skill rea-wp-abilities-audit
+./bapXphp rea skills-check
 ./bapXphp release:identity
 ./bapXphp ai:probe text
 ./bapXphp ai:probe tools

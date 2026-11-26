@@ -31,6 +31,8 @@ set -euo pipefail
 #   bapXphp check                   — alias for bapXphp ci
 #   bapXphp update                  — regenerate REA progress, maps and indexes
 #   bapXphp rea status|update|check   — source-backed capability register
+#   bapXphp rea skills|skills-check  — list or verify pinned native REA skill library
+#   bapXphp rea skill <native-id>    — read native reconstruction guidance
 #   bapXphp release:identity        — observe local deployed-source scope and Git revision
 #   bapXphp release:verify <origin> — compare deployed source bytes and revision
 #   bapXphp serve                   — start dev server on 127.0.0.1:6020
@@ -346,6 +348,8 @@ cmd_understand() {
   printf "  ${C}bapXphp check${N}       alias for ci\n"
   printf "  ${C}bapXphp update${N}      regenerate REA progress, maps and indexes\n"
   printf "  bapXphp rea status|update|check   inspect or validate research progress\n"
+  printf "  bapXphp rea skills|skills-check   list or verify native REA skills\n"
+  printf "  bapXphp rea skill <native-id>     read a native reconstruction skill\n"
   printf "  bapXphp release:identity        inspect local source identity\n"
   printf "  bapXphp release:verify <origin> compare deployed source identity\n"
   printf "  ${C}bapXphp db query <col>${N}  --where 'field=val' --limit 10\n"
@@ -621,6 +625,7 @@ cmd_ci() {
 
   echo "── rea:check ──"
   php "$ROOT/cli/rea-progress.php" check || { failed=1; warn "REA VALIDATION FAILED"; }
+  php "$ROOT/cli/rea-skills.php" check || { failed=1; warn "REA SKILL VALIDATION FAILED"; }
 
   echo "── map:val ──"
   php "$ROOT/cli/validate-project-map.php" 2>&1 || { failed=1; warn "MAP VALIDATION FAILED"; }
@@ -684,6 +689,7 @@ cmd_check() { cmd_ci; }
 
 cmd_update() {
   require_php
+  php "$ROOT/cli/rea-skills.php" check || return 1
   php "$ROOT/cli/rea-progress.php" update
   php "$ROOT/cli/generate-project-map.php"
   php "$ROOT/cli/generate-docs-map.php" "$ROOT" "$ROOT/docs/map.mmd"
@@ -2079,6 +2085,12 @@ cmd_context() {
 cmd_skill() {
   local name="${1:-}"
   [ -z "$name" ] && cmd_skills && return
+  if [[ "$name" == rea-* && "$name" != rea-reconstruction ]]; then
+    require_php; php "$ROOT/cli/rea-skills.php" show "$name"; return
+  fi
+  if [[ ! "$name" =~ ^[a-z0-9-]+$ ]]; then
+    err "Invalid skill name"; return 1
+  fi
 
   local skill_file="$ROOT/.agents/skills/$name/SKILL.md"
   if [ -f "$skill_file" ]; then
@@ -2125,7 +2137,13 @@ main() {
     test|lint|check|ci|update|serve|smoke)
       cmd_"$1" ;;
     rea)
-      shift; require_php; php "$ROOT/cli/rea-progress.php" "$@" ;;
+      shift; require_php
+      case "${1:-}" in
+        skills) shift; php "$ROOT/cli/rea-skills.php" list "$@" ;;
+        skill) shift; php "$ROOT/cli/rea-skills.php" show "$@" ;;
+        skills-check) shift; php "$ROOT/cli/rea-skills.php" check "$@" ;;
+        *) php "$ROOT/cli/rea-progress.php" "$@" ;;
+      esac ;;
     release:identity)
       require_php; php "$ROOT/cli/release-identity.php" status ;;
     release:verify)

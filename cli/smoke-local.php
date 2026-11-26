@@ -61,6 +61,9 @@ try {
         '/recharge' => 404,
         '/admin' => 302,
         '/admin/settings' => 302,
+        '/.agents/REA/catalog.json' => 403,
+        '/.agents/REA/reference/wordpress/LICENSE' => 403,
+        '/.agents/skills/docs/SKILL.md' => 403,
     ] as $path => $expected) {
         $response = httpRequest($base . $path);
         if ($response['status'] === 0) {

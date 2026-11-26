@@ -45,6 +45,8 @@ for tagging and production verification.
 
 ## REA capability research and delivery
 
+- [Native REA skill library](../.agents/REA/README.md): pinned reference guides and native engineering workflows.
+
 - [Research workflow and engineering contract](research/rea/README.md)
 - [Generated implementation and production-observation progress](research/rea/progress.md)
 - [Canonical register](research/rea/capabilities.json) and [evidence manifest](research/rea/evidence/manifest.json)

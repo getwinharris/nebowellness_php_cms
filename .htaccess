@@ -1,6 +1,9 @@
 Options -Indexes
 RewriteEngine On
 
+# Developer-only skills and archived reference materials.
+RewriteRule ^\.agents(?:/|$) - [F,L,NC]
+
 # Block access to .env, .git, and other sensitive dotfiles
 RedirectMatch 403 \.env(\.|$)
 RedirectMatch 403 \.git$
