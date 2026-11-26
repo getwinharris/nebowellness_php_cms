@@ -87,7 +87,7 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/admin/search-performance','name'=>'admin.search-performance','page'=>'admin/search-performance','controller'=>'AdminController@searchPerformance','services'=>['SecretService']],
             ['method'=>'GET','path'=>'/admin/integrations','name'=>'admin.integrations','page'=>'admin/integrations','controller'=>'AdminController@integrations','services'=>['SettingsService','PaymentService','SecretService','GoogleCustomerAuthService']],
             ['method'=>'GET','path'=>'/admin/agent','name'=>'admin.agent','page'=>'admin/agent','controller'=>'AdminController@agent','services'=>['AgentConversation','SecretService','AgentAttachmentService','AuditLogService','DatabaseService']],
-            ['method'=>'POST','path'=>'/admin/agent/ask','name'=>'admin.agent.ask','page'=>'admin/agent','controller'=>'AdminController@agentAsk','services'=>['AgentSessionService','ConsultationFeeService','ClinicKnowledgeService','AgentConversation','SecretService','AgentContextService','AuditLogService','AgentAttachmentService','AgentDraftService','AgentToolRegistry','NativeAbilityRegistry','AbilitySchema','OwnerAbilityService','AgentRunTrace','AiReplyCleaner','AiClient','AiModelRouter']],
+            ['method'=>'POST','path'=>'/admin/agent/ask','name'=>'admin.agent.ask','page'=>'admin/agent','controller'=>'AdminController@agentAsk','services'=>['AgentSessionService','ConsultationFeeService','ClinicKnowledgeService','AgentConversation','SecretService','AgentContextService','AuditLogService','AgentAttachmentService','AgentDraftService','AgentToolRegistry','NativeAbilityRegistry','AbilitySchema','OwnerAbilityService','CommerceAbilityService','AgentRunTrace','AiReplyCleaner','AiClient','AiModelRouter']],
             ['method'=>'GET','path'=>'/admin/contact-submissions','name'=>'admin.contact-submissions','page'=>'admin/resource','controller'=>'AdminController@contactSubmissions','services'=>['ContactService']],
             ['method'=>'POST','path'=>'/admin/contact_submissions/save','name'=>'admin.contact-submissions.save','page'=>'admin/resource','controller'=>'AdminController@saveContactSubmission','services'=>['ResourceService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/contact_submissions/delete','name'=>'admin.contact-submissions.delete','page'=>'admin/resource','controller'=>'AdminController@deleteContactSubmission','services'=>['ResourceService','AuditLogService']],
@@ -613,6 +613,7 @@ final class ProjectMapService {
             'ClinicKnowledgeService'=>['consultants','campaign_pages','settings'],
             'ConsultationFeeService'=>['settings'],
             'OwnerAbilityService'=>['users','consultants','appointments','support_tickets','orders','products','campaign_pages','contact_submissions'],
+            'CommerceAbilityService'=>['orders','products','categories','coupons'],
             'ClinicContactService'=>['settings'],
             'DatabaseService' => ['users', 'addresses', 'products', 'orders', 'appointments', 'consultation_messages', 'consultation_signals', 'secrets', 'mail_inbox', 'mail_outbox', 'contact_submissions'],
         ];

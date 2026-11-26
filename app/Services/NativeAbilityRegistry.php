@@ -70,6 +70,13 @@ final class NativeAbilityRegistry
         $topicWords=self::object(array_fill_keys($topicKeys,self::listOf(self::string(40,1),20)));
         $slug=self::string(120,1)+['pattern'=>'^[a-z0-9]+(?:-[a-z0-9]+)*$'];
         $campaignUrl=self::string(131,1)+['pattern'=>'^/campaigns/[a-z0-9]+(?:-[a-z0-9]+)*$'];
+        $money=['type'=>'integer','minimum'=>0];
+        $currency=self::string(3,3)+['const'=>'INR'];
+        $order=['id'=>self::string(120,1),'status'=>self::string(30,1)+['enum'=>OwnerAbilityService::ORDER_STATES],
+            'total_minor'=>$money,'currency'=>$currency,'created_at'=>array_replace(self::string(80,1),['type'=>['string','null']])];
+        $orderDetails=self::object($order+['courier'=>self::string(160),'tracking_id'=>self::string(160),
+            'items'=>self::listOf(self::object(['name'=>self::string(200,1),'qty'=>['type'=>'integer','minimum'=>1],
+                'line_total_minor'=>array_replace($money,['type'=>['integer','null']])]),50),'item_count'=>$count]);
         $dashboard=['registered_users'=>$count,'consultants'=>$count,'historical_appointments'=>$count,
             'support_tickets'=>$count,'shop_enabled'=>['type'=>'boolean'],'scope'=>self::string(120,1),
             'commerce'=>self::object(['orders'=>$count,'products'=>$count,'by_status'=>self::counts(OwnerAbilityService::ORDER_STATES),
@@ -145,6 +152,33 @@ final class NativeAbilityRegistry
                 ['days'=>['type'=>'integer','minimum'=>1,'maximum'=>90,'description'=>'Rolling days, defaults to 30.'],
                     'slug'=>$slug+['description'=>'Optional exact campaign slug.']],'campaigns',[]
             ),
+            'recent_orders'=>self::owner('List up to 10 recent stored orders, status, INR minor units and creation date; no customer identity.',
+                self::object(['orders'=>self::listOf(self::object($order),10)]),[],'shop'),
+            'catalog_categories'=>self::owner('List up to 15 existing shop categories by name and slug.',
+                self::object(['categories'=>self::listOf(self::object(['name'=>self::string(200,1),'slug'=>$slug]),15)]),[],'shop'),
+            'find_order'=>self::owner('Look up stored order references by ID prefix or customer email; no customer identity or address in output. Totals are INR minor units.',
+                self::object(['found'=>$count,'orders'=>self::listOf($orderDetails,10)]),
+                ['order_id'=>self::string(120,3)+['pattern'=>'^[A-Za-z0-9_-]+$','description'=>'Optional full or partial order reference, minimum three characters.'],
+                    'customer_email'=>self::string(254,3)+['pattern'=>'\S','description'=>'Optional exact customer email filter.']],'shop',[]),
+            'product_status'=>self::owner('Read current product stock, INR minor-unit price and active offer, including hidden products for owner only.',
+                self::object(['found'=>$count,'products'=>self::listOf(self::object(['slug'=>$slug,'name'=>self::string(200,1),'price_minor'=>$money,
+                    'offer_price_minor'=>array_replace($money,['type'=>['integer','null']]),'currency'=>$currency,
+                    'stock_status'=>self::string(80),'hidden_from_shop'=>['type'=>'boolean']]),10)]),
+                ['slug'=>self::string(120,1)+['pattern'=>'\S','description'=>'Optional slug or part of the product name.']],'shop',[]),
+            'sales_summary'=>self::owner('Summarize last 1–366 rolling days of stored order totals, confirmed/pending status and confirmed units. Not captured-payment revenue.',
+                self::object(['days'=>['type'=>'integer','minimum'=>1,'maximum'=>366],'orders'=>$count,
+                    'orders_by_status'=>self::counts(OwnerAbilityService::ORDER_STATES),'confirmed_order_total_minor'=>$money,
+                    'pending_order_total_minor'=>$money,'currency'=>$currency,
+                    'best_sellers'=>self::listOf(self::object(['name'=>self::string(200,1),'units'=>$count]),5),'scope'=>self::string(140,1)]),
+                ['days'=>['type'=>'integer','minimum'=>1,'maximum'=>366,'description'=>'Rolling days, defaults to 30.']],'shop',[]),
+            'coupon_status'=>self::owner('Read coupon rules and actual eligibility under supplied cart total and customer usage. Null usable_now means insufficient context.',
+                self::object(['found'=>['type'=>'boolean'],'code'=>self::string(120),'discount_type'=>self::string(40),
+                    'discount_value'=>['type'=>['number','null'],'minimum'=>0],'starts_at'=>self::string(80),'ends_at'=>self::string(80),
+                    'times_used'=>$count,'usable_now'=>['type'=>['boolean','null']],'why_not'=>self::string(400),
+                    'cart_total_minor'=>array_replace($money,['type'=>['integer','null']]),'customer_usage_checked'=>['type'=>'boolean']]),
+                ['code'=>self::string(120,1)+['pattern'=>'\S','description'=>'Coupon code.'],
+                    'cart_total_minor'=>$money+['maximum'=>999999999999,'description'=>'Actual pre-discount cart total in INR paise, optional.'],
+                    'customer_email'=>self::string(254,3)+['pattern'=>'\S','description'=>'Optional exact customer email for usage-limit check.']],'shop',['code']),
         ];
     }
 
@@ -190,6 +224,10 @@ final class NativeAbilityRegistry
             if ($value===null&&isset(((array)$definition['input_schema']['properties'])[$key])&&!in_array($key,$definition['input_schema']['required'],true)) unset($args[$key]);
         }
         if (!AbilitySchema::valid($args,$definition['input_schema'])) return self::error('ability_invalid_input','Invalid ability input.');
+        if ($name==='find_order'&&empty($args['order_id'])&&empty($args['customer_email'])) return self::error('ability_invalid_input','A reference or customer email is required.');
+        if (in_array($name,['find_order','coupon_status'],true)&&isset($args['customer_email'])&&!filter_var(trim($args['customer_email']),FILTER_VALIDATE_EMAIL)) {
+            return self::error('ability_invalid_input','Invalid customer email.');
+        }
         try {
             // Recheck the native module at execution; discovery alone is not authority.
             if ($definition['module']!==null&&!((new SettingsService($this->store))->strictModules()[$definition['module']]??false)) {
@@ -207,6 +245,12 @@ final class NativeAbilityRegistry
                 'support_enquiries'=>(new OwnerAbilityService($this->store))->supportEnquiries($args),
                 'campaign_pages'=>(new OwnerAbilityService($this->store))->campaigns($args),
                 'therapy_enquiry_summary'=>(new OwnerAbilityService($this->store))->therapyEnquiries($args),
+                'recent_orders'=>(new CommerceAbilityService($this->store))->recentOrders(),
+                'catalog_categories'=>(new CommerceAbilityService($this->store))->categories(),
+                'find_order'=>(new CommerceAbilityService($this->store))->findOrder($args),
+                'product_status'=>(new CommerceAbilityService($this->store))->products($args),
+                'sales_summary'=>(new CommerceAbilityService($this->store))->sales($args),
+                'coupon_status'=>(new CommerceAbilityService($this->store))->coupon($args),
                 default=>throw new \LogicException('Unmapped native ability.'),
             };
             if ($result===null) return self::error('ability_not_found','Published programme not found.');

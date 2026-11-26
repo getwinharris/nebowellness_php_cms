@@ -42,8 +42,8 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 355
-  relationships: 322
+  concepts: 356
+  relationships: 326
   by_type:
     blog: 5
     controller: 13
@@ -51,7 +51,7 @@ summary:
     image: 40
     route: 130
     schema: 25
-    service: 65
+    service: 66
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -2304,6 +2304,7 @@ concepts:
       - "NativeAbilityRegistry"
       - "AbilitySchema"
       - "OwnerAbilityService"
+      - "CommerceAbilityService"
       - "AgentRunTrace"
       - "AiReplyCleaner"
       - "AiClient"
@@ -3558,6 +3559,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:CommerceAbilityService"
+    type: "service"
+    title: "CommerceAbilityService"
+    description: "Service: CommerceAbilityService"
+    resource: "app/Services/CommerceAbilityService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:ConsultantService"
     type: "service"
     title: "ConsultantService"
@@ -4201,6 +4210,9 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:ClinicKnowledgeService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:CommerceAbilityService"
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:ConsultantService"
@@ -4907,9 +4919,6 @@ relationships:
   - from: "service:AgentSessionService"
     to: "schema:agent_sessions"
     relation: "stores"
-  - from: "service:AgentToolRegistry"
-    to: "schema:categories"
-    relation: "stores"
   - from: "service:AiModelRouter"
     to: "schema:ai_model_state"
     relation: "stores"
@@ -4936,6 +4945,18 @@ relationships:
     relation: "stores"
   - from: "service:ClinicKnowledgeService"
     to: "schema:settings"
+    relation: "stores"
+  - from: "service:CommerceAbilityService"
+    to: "schema:categories"
+    relation: "stores"
+  - from: "service:CommerceAbilityService"
+    to: "schema:coupons"
+    relation: "stores"
+  - from: "service:CommerceAbilityService"
+    to: "schema:orders"
+    relation: "stores"
+  - from: "service:CommerceAbilityService"
+    to: "schema:products"
     relation: "stores"
   - from: "service:ConsultantService"
     to: "schema:consultants"

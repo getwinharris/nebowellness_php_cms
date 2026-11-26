@@ -983,14 +983,15 @@
       "title": "Native ability catalogue",
       "status": "partial",
       "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
-      "finding": "Eleven of 18 internal tools migrated: six public reads and five owner-only operational abilities, with structured status/period aggregates, strict role/module/input/output and no private ticket text. Remaining shop and session context tools, external execution incomplete.",
+      "finding": "Seventeen of 18 internal tools migrated: six public reads, five owner operational reads and six existing owner-only shop reads. Strict role/module/input/output, bounded projections and actual coupon context; stored INR order totals are not captured revenue. Session context and external execution remain incomplete.",
       "issues": [
         121,
         128,
         148,
         150,
         154,
-        156
+        156,
+        158
       ],
       "references": [
         {
@@ -1038,6 +1039,14 @@
         {
           "path": "app/Services/OwnerAbilityService.php",
           "anchor": "function supportEnquiries("
+        },
+        {
+          "path": "app/Services/CommerceAbilityService.php",
+          "anchor": "function sales("
+        },
+        {
+          "path": "app/Services/CouponService.php",
+          "anchor": "function diagnosticEligibility("
         }
       ],
       "tests": [
@@ -1072,6 +1081,14 @@
         {
           "path": "tests/native-owner-ability-integration.php",
           "anchor": "All five owner reads leave durable fixture state unchanged"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "existing commerce read abilities are typed"
+        },
+        {
+          "path": "tests/native-commerce-ability-integration.php",
+          "anchor": "Commerce abilities leave business state unchanged"
         }
       ],
       "production": null
@@ -1161,13 +1178,14 @@
       "title": "Execution and output validation",
       "status": "partial",
       "acceptance": "Recheck permission and schema on invocation, bound results and structured errors.",
-      "finding": "Eleven of 18 internal tools migrated: six public reads and five owner-only operational abilities, with structured status/period aggregates, strict role/module/input/output and no private ticket text. Remaining shop and session context tools, external execution incomplete.",
+      "finding": "Seventeen of 18 internal tools migrated: six public reads, five owner operational reads and six existing owner-only shop reads. Strict role/module/input/output, bounded projections and actual coupon context; stored INR order totals are not captured revenue. Session context and external execution remain incomplete.",
       "issues": [
         128,
         148,
         150,
         154,
-        156
+        156,
+        158
       ],
       "references": [
         {
@@ -1211,6 +1229,14 @@
         {
           "path": "app/Services/OwnerAbilityService.php",
           "anchor": "function supportEnquiries("
+        },
+        {
+          "path": "app/Services/CommerceAbilityService.php",
+          "anchor": "function sales("
+        },
+        {
+          "path": "app/Services/CouponService.php",
+          "anchor": "function diagnosticEligibility("
         }
       ],
       "tests": [
@@ -1245,6 +1271,14 @@
         {
           "path": "tests/native-owner-ability-integration.php",
           "anchor": "All five owner reads leave durable fixture state unchanged"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "existing commerce read abilities are typed"
+        },
+        {
+          "path": "tests/native-commerce-ability-integration.php",
+          "anchor": "Commerce abilities leave business state unchanged"
         }
       ],
       "production": null
@@ -2309,6 +2343,19 @@
         "mcp-05"
       ],
       "summary": "Continued source-derived ability migration with five owner-only reads and domain projections. Stable aggregate outputs and explicit rolling period, no private ticket identity or content; INR minor-unit stored order totals not captured revenue. Scope/module validation, optional input and seeded MariaDB tests. Eleven of 18 migrated, wider catalogue and external acceptance still partial."
+    },
+    {
+      "id": "158-typed-existing-commerce",
+      "date": "2026-11-26",
+      "issues": [
+        158,
+        128
+      ],
+      "components": [
+        "mcp-01",
+        "mcp-05"
+      ],
+      "summary": "Migrated six existing commerce reads with strict owner/module gates and bounded schemas. Exact stored INR totals and actual coupon diagnostic inputs, no invented cart or new commerce scope. Seventeen of 18 migrated; external execution and session context remain incomplete."
     }
   ]
 }

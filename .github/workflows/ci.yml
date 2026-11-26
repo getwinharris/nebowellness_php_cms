@@ -69,3 +69,4 @@ jobs:
           php tests/consultation-fee-integration.php
           php tests/native-public-ability-integration.php
           php tests/native-owner-ability-integration.php
+          php tests/native-commerce-ability-integration.php

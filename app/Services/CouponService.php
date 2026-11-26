@@ -83,6 +83,33 @@ final class CouponService
     }
 
     /**
+     * Owner diagnostic reuses checkout rules; missing actual cart or customer
+     * usage never becomes a positive eligibility assertion.
+     */
+    public function diagnosticEligibility(array $coupon,?float $cartTotal,int $used,?int $owned): array {
+        foreach (['starts_at','ends_at'] as $key) {
+            $raw=$coupon[$key]??'';
+            if (!is_string($raw)||($raw!==''&&$this->date($raw)===null)) throw new \DomainException('Invalid coupon dates.');
+        }
+        foreach (['min_spend','max_spend','usage_limit','usage_limit_per_customer'] as $key) {
+            $value=$coupon[$key]??0;
+            if (!is_numeric($value)||!is_finite((float)$value)||(float)$value<0) throw new \DomainException('Invalid coupon rule.');
+        }
+        try {
+            if (!$this->isActive($coupon)) throw new \InvalidArgumentException('That coupon is no longer available.');
+            $this->assertWithinDates($coupon,new \DateTimeImmutable());
+            $this->assertWithinLimits($coupon,$used,$owned??0);
+            if ($cartTotal!==null) $this->assertWithinSpend($coupon,$cartTotal);
+            if ($cartTotal===null) return ['usable_now'=>null,'why_not'=>'Provide the actual cart total to verify spend eligibility.'];
+            if ($owned===null&&(int)($coupon['usage_limit_per_customer']??0)>0) return ['usable_now'=>null,'why_not'=>'Customer usage must be checked for this coupon.'];
+            $this->assertUsable($coupon,$cartTotal,$used,$owned??0);
+            return ['usable_now'=>true,'why_not'=>''];
+        } catch (\InvalidArgumentException $error) {
+            return ['usable_now'=>false,'why_not'=>$error->getMessage()];
+        }
+    }
+
+    /**
      * The discount in rupees, never more than the cart itself.
      *
      * A percentage coupon may carry max_discount as a rupee ceiling — "20% off, up to

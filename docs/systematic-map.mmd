@@ -7,10 +7,10 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 65 services, 55 views, 0 data files, 23 tools"]
+  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 66 services, 55 views, 0 data files, 23 tools"]
     arch_routes["> Routes: 130 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 13"]:::arch
-    arch_svc["> Services: 65"]:::arch
+    arch_svc["> Services: 66"]:::arch
     arch_views["> Views: 55"]:::arch
     arch_data["> Collections: 25 schema | 0 files"]:::arch
     arch_tools["> Tools: 23"]:::arch
@@ -211,6 +211,7 @@ flowchart LR
     service_categoryservice["CategoryService"]:::code
     service_cliniccontactservice["ClinicContactService"]:::code
     service_clinicknowledgeservice["ClinicKnowledgeService"]:::code
+    service_commerceabilityservice["CommerceAbilityService"]:::code
     service_consultantservice["ConsultantService"]:::code
     service_consultationfeeservice["ConsultationFeeService"]:::code
     service_consultationservice["ConsultationService"]:::code
@@ -695,6 +696,7 @@ flowchart LR
   controller_admincontroller --> service_nativeabilityregistry
   controller_admincontroller --> service_abilityschema
   controller_admincontroller --> service_ownerabilityservice
+  controller_admincontroller --> service_commerceabilityservice
   controller_admincontroller --> service_agentruntrace
   controller_admincontroller --> service_aireplycleaner
   controller_admincontroller --> service_aiclient
@@ -1005,7 +1007,6 @@ flowchart LR
   service_agentcontextservice --> collection_support_tickets
   service_agentcontextservice --> collection_settings
   service_agentsessionservice --> collection_agent_sessions
-  service_agenttoolregistry --> collection_categories
   service_aimodelrouter --> collection_ai_model_state
   service_appointmentservice --> collection_appointments
   service_auditlogservice --> collection_audit_events
@@ -1054,6 +1055,10 @@ flowchart LR
   service_clinicknowledgeservice --> collection_consultants
   service_clinicknowledgeservice --> collection_campaign_pages
   service_clinicknowledgeservice --> collection_settings
+  service_commerceabilityservice --> collection_orders
+  service_commerceabilityservice --> collection_products
+  service_commerceabilityservice --> collection_categories
+  service_commerceabilityservice --> collection_coupons
   service_cliniccontactservice --> collection_settings
   service_databaseservice --> collection_users
   service_databaseservice --> collection_addresses

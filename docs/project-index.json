@@ -5,7 +5,7 @@
     "summary": {
         "routes": 130,
         "controllers": 13,
-        "services": 65,
+        "services": 66,
         "views": 55,
         "collections": 25
     },
@@ -237,6 +237,7 @@
                 "NativeAbilityRegistry",
                 "AbilitySchema",
                 "OwnerAbilityService",
+                "CommerceAbilityService",
                 "AgentRunTrace",
                 "AiReplyCleaner",
                 "AiClient",
@@ -1534,6 +1535,7 @@
         "CategoryService",
         "ClinicContactService",
         "ClinicKnowledgeService",
+        "CommerceAbilityService",
         "ConsultantService",
         "ConsultationFeeService",
         "ConsultationService",
