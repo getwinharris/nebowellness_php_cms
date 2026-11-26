@@ -136,3 +136,22 @@ test('owner operational abilities are typed, role-isolated and stable for empty 
  assert.equal(data.bad_topic.code,'ability_invalid_input');
  assert.equal(data.null_optional.total,0);
 });
+test('existing commerce read abilities are typed and never available to support or disabled shops',()=>{
+ const data=php(String.raw`
+ $db=new App\Services\DatabaseService();
+ $owner=new App\Services\NativeAbilityRegistry($db,'admin',['shop'=>true,'campaigns'=>false,'blog'=>false]);
+ $support=new App\Services\NativeAbilityRegistry($db,'support',['shop'=>true,'campaigns'=>false,'blog'=>false]);
+ $disabled=new App\Services\NativeAbilityRegistry($db,'admin',['shop'=>false,'campaigns'=>false,'blog'=>false]);
+ $names=['recent_orders','catalog_categories','find_order','product_status','sales_summary','coupon_status'];$rows=[];
+ foreach($names as $name){$rows[$name]=['definition'=>$owner->inspect($name),'support'=>$support->invoke($name,[]),'disabled'=>$disabled->invoke($name,[])];}
+ echo json_encode(['rows'=>$rows,'empty'=>$owner->invoke('find_order',['order_id'=>'fixture']), 'bad'=>$owner->invoke('find_order',[]),'period'=>$owner->invoke('sales_summary',['days'=>367]),'coupon'=>$owner->invoke('coupon_status',['code'=>'fixture-code']), 'sales'=>$owner->invoke('sales_summary',[])]);
+ `);
+ for(const [name,item] of Object.entries(data.rows)){
+  assert.equal(item.definition.name,name);
+  assert.equal(item.support.code,'ability_not_available');assert.equal(item.disabled.code,'ability_not_available');
+ }
+ assert.deepEqual(data.empty,{found:0,orders:[]});
+ assert.equal(data.bad.code,'ability_invalid_input');assert.equal(data.period.code,'ability_invalid_input');
+ assert.equal(data.coupon.found,false);assert.equal(data.coupon.usable_now,null);
+ assert.equal(data.sales.orders,0);assert.equal(data.sales.confirmed_order_total_minor,0);assert.ok(!('revenue' in data.sales));
+});

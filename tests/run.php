@@ -200,8 +200,7 @@ $tests['admin context contains aggregates without customer identities'] = functi
     $renamed = [['status' => 'confirmed', 'items' => [['slug' => 'same', 'name' => 'Old', 'qty' => 1], ['slug' => 'same', 'name' => str_repeat('x', 200), 'qty' => 2]]]];
     $bounded = \App\Services\AgentContextService::adminSummary(true, [], $renamed, [], 0, 0, 0);
     assertTrue(str_contains($bounded, str_repeat('x', 120) . ': 3 sold') && !str_contains($bounded, str_repeat('x', 121)), 'Sales group by slug and product names remain bounded');
-    $method = new ReflectionMethod(\App\Services\AgentToolRegistry::class, 'summariseOrder');
-    $orderSummary = $method->invoke(new \App\Services\AgentToolRegistry(modules: ['shop' => true]), $orders[0]);
+    $orderSummary = \App\Services\CommerceAbilityService::orderSummary($orders[0]+['id'=>'fixture-order']);
     assertTrue(!array_key_exists('customer_email', $orderSummary), 'Order tool responses must omit customer email');
     $disabled = \App\Services\AgentContextService::adminSummary(false, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
     assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product') && !str_contains($disabled, 'Total orders:') && !str_contains($disabled, 'revenue:'), 'Disabled commerce must exclude sales details');
@@ -1623,7 +1622,7 @@ $tests['the admin agent can look things up instead of guessing'] = function (): 
     }
     // A coupon must be judged by the same service checkout uses, or the agent could
     // tell the owner a coupon works while checkout refuses it.
-    assertTrue(str_contains($source, 'assertUsable'), 'Coupon status should use CouponService');
+    assertTrue(str_contains(fileRead('app/Services/CommerceAbilityService.php'),'->diagnosticEligibility(')&&str_contains(fileRead('app/Services/CouponService.php'),'$this->assertUsable('), 'Coupon diagnostics reuse the canonical checkout eligibility rules');
 
     $client = file_get_contents(app_path('app/Services/AiClient.php'));
     assertTrue(str_contains($client, 'functionDeclarations'), 'Tools should be declared to the provider');

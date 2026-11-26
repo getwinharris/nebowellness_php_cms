@@ -50,15 +50,15 @@ a tool. Verify each migration against the actual backing path and data.
 | clinic_context | support only | SupportBotService::toolContext → scoped AgentContextService and current session cart | Mixed public and owned data; split scopes and prove field/record ownership before typed exposure |
 | owner_dashboard_summary | admin only | OwnerAbilityService::dashboard | Native v1; current structured counts, optional shop totals clearly not captured revenue |
 | appointment_summary | admin only | OwnerAbilityService::summariseAppointments | Native v1; historical only, stable count/status map and scope |
-| recent_orders | admin; shop | OrderService::all | Bounded projection; preserve shop, not an expansion |
-| catalog_categories | admin; shop | DatabaseService categories read | Bounded typed list; preserve existing shop |
-| find_order | admin; shop | AgentToolRegistry::findOrder / summariseOrder | Customer email input and shipping city/tracking output; privacy/ownership review, stable empty shape |
-| product_status | admin; shop | ProductService::all | Offer window, stock, hidden records; stable bounded result |
-| sales_summary | admin; shop | AgentToolRegistry::salesSummary | Existing period/date and currency assumptions need correction before typed exposure |
+| recent_orders | admin; shop | CommerceAbilityService::recentOrders → OrderService::all | Native v1; bounded owner-only order summaries |
+| catalog_categories | admin; shop | CommerceAbilityService::categories → CategoryService::all | Native v1; bounded typed list |
+| find_order | admin; shop | CommerceAbilityService::findOrder / orderSummary | Native v1; explicit owner lookup, no customer identity or address, stable empty list |
+| product_status | admin; shop | CommerceAbilityService::products → ProductService::all | Native v1; offer window, stock, owner visibility and bounded results |
+| sales_summary | admin; shop | CommerceAbilityService::sales | Native v1; explicit INR minor units, rolling period, confirmed/pending stored totals, confirmed units; not captured revenue |
 | support_enquiries | admin only | OwnerAbilityService::supportEnquiries → SupportTicketService::all | Native v1; stable counts, explicit overlapping topic inference, no ticket identities or text |
 | campaign_pages | admin; campaigns | OwnerAbilityService::campaigns → DatabaseService campaign_pages | Native v1; bounded draft/published owner projection, strict slug/status/URL |
 | therapy_enquiry_summary | admin; campaigns | OwnerAbilityService::summariseTherapyEnquiries | Native v1; aggregate only, bounded rolling days, valid slug, malformed dates unavailable |
-| coupon_status | admin; shop | AgentToolRegistry::couponStatus | Preserve existing business rules and bounded result; not new commerce |
+| coupon_status | admin; shop | CommerceAbilityService::coupon → CouponService::diagnosticEligibility | Native v1; actual cart and usage context, unknown eligibility where missing |
 
 All legacy tool names stay unchanged until migrated, and no legacy tool
 is presented as a completed typed native ability. ProbeTools remains an
@@ -202,3 +202,10 @@ Actual configured read-only results were checked separately. Eleven of
 18 internal tools are migrated; shop-specific and session context remain
 legacy. External MCP, A2UI and authenticated live owner acceptance remain
 separate gates.
+
+
+## Fifth implementation: existing commerce reads (issue #158)
+
+The six existing shop abilities are typed and stay owner-only and shop-module-gated. No shop activation or new commerce capability is introduced. Native dispatch rechecks actual module state; it does not trust a stale discovery. Stored order totals are integer INR minor units, with confirmed and pending totals separated, not evidence of captured payment revenue. Sales uses a bounded rolling period and rejects unavailable dates rather than silently counting them. Order details exclude customer identity and address and bound item lists. Coupon diagnostics reuse the canonical eligibility rules, without an invented cart; missing actual cart or required customer usage context produces unknown eligibility, not a positive claim.
+
+The focused contract test and disposable MariaDB integration cover permission denial, bounded results, exact money, offer windows, period filtering, coupon context and unchanged business state. Seventeen of eighteen legacy names are migrated; session-specific clinic context remains and external transport is not yet enabled.
