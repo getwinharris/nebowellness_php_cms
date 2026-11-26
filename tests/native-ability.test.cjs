@@ -37,3 +37,36 @@ test('native ability catalogue exposes strict typed metadata and denies unknown 
  assert.equal(data.scopeDenied,true);
  assert.equal(data.rejectExtra,true);assert.equal(data.validEmpty,true);assert.equal(data.invalidSchema,true);
 });
+test('published clinic abilities use the native catalogue and recheck scoped invocation',()=>{
+ const data=php(String.raw`
+ $db=new App\Services\DatabaseService();
+ $registry=new App\Services\NativeAbilityRegistry($db,'support',['campaigns'=>true]);
+ $disabled=new App\Services\NativeAbilityRegistry($db,'support',['campaigns'=>false]);
+ $tools=new App\Services\AgentToolRegistry($db,modules:['shop'=>false,'blog'=>false,'campaigns'=>true],scope:'support');
+ $trace=new App\Services\AgentRunTrace();
+ $bad=$tools->executeModelCall('published_programme_detail',['slug'=>'../private'],$trace,'bad-slug');
+ echo json_encode([
+   'names'=>array_column($registry->discover(),'name'),
+   'disabled'=>array_column($disabled->discover(),'name'),
+   'invalid'=>$bad,'trace'=>$trace->metadata(),
+   'missing'=>$registry->invoke('published_programme_detail',['slug'=>'missing']),
+   'empty'=>$registry->invoke('published_practitioners',[]),
+   'deny'=>$disabled->invoke('published_programmes',[]),
+   'google'=>$tools->googleDeclarations(),
+   'compatible'=>$tools->completionDeclarations(),
+ ]);
+ `);
+ assert.deepEqual(data.names,['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail']);
+ assert.deepEqual(data.disabled,['published_consultation_fees','published_practitioners']);
+ assert.equal(data.invalid.code,'ability_invalid_input');
+ assert.equal(data.trace.steps[0].outcome,'error');
+ assert.equal(data.missing.code,'ability_not_found');
+ assert.deepEqual(data.empty,{practitioners:[]});
+ assert.equal(data.deny.code,'ability_not_available');
+ const google=data.google.find(t=>t.name==='published_programme_detail');
+ assert.equal(google.parameters.properties.slug.type,'STRING');
+ assert.deepEqual(google.parameters.required,['slug']);
+ const compatible=data.compatible.find(t=>t.function.name==='published_programme_detail');
+ assert.equal(compatible.function.parameters.additionalProperties,false);
+ assert.deepEqual(compatible.function.parameters.required,['slug']);
+});

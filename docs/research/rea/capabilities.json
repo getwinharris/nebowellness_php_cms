@@ -983,11 +983,12 @@
       "title": "Native ability catalogue",
       "status": "partial",
       "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
-      "finding": "First native published_consultation_fees v1 capability uses strict typed input/output, stable error codes and trusted scope; remaining legacy catalogue and external permissions/transport incomplete.",
+      "finding": "Four of 18 existing internal tools migrated to typed native catalogue: published fees, practitioners, programmes and exact detail. Validated output, safe missing/unavailable, read-only state and module recheck; remaining legacy catalogue and external execution incomplete.",
       "issues": [
         121,
         128,
-        148
+        148,
+        150
       ],
       "references": [
         {
@@ -1015,6 +1016,10 @@
         {
           "path": "app/Services/AbilitySchema.php",
           "anchor": "function valid("
+        },
+        {
+          "path": "app/Services/ClinicKnowledgeService.php",
+          "anchor": "function programmeDetail("
         }
       ],
       "tests": [
@@ -1025,6 +1030,14 @@
         {
           "path": "tests/consultation-fee-integration.php",
           "anchor": "Real seeded output conforms"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "published clinic abilities use the native catalogue"
+        },
+        {
+          "path": "tests/native-public-ability-integration.php",
+          "anchor": "Stale discovered ability rechecks actual module"
         }
       ],
       "production": null
@@ -1114,10 +1127,11 @@
       "title": "Execution and output validation",
       "status": "partial",
       "acceptance": "Recheck permission and schema on invocation, bound results and structured errors.",
-      "finding": "First native published_consultation_fees v1 capability uses strict typed input/output, stable error codes and trusted scope; remaining legacy catalogue and external permissions/transport incomplete.",
+      "finding": "Four of 18 existing internal tools migrated to typed native catalogue: published fees, practitioners, programmes and exact detail. Validated output, safe missing/unavailable, read-only state and module recheck; remaining legacy catalogue and external execution incomplete.",
       "issues": [
         128,
-        148
+        148,
+        150
       ],
       "references": [
         {
@@ -1141,6 +1155,10 @@
         {
           "path": "app/Services/AbilitySchema.php",
           "anchor": "function valid("
+        },
+        {
+          "path": "app/Services/ClinicKnowledgeService.php",
+          "anchor": "function programmeDetail("
         }
       ],
       "tests": [
@@ -1151,6 +1169,14 @@
         {
           "path": "tests/consultation-fee-integration.php",
           "anchor": "Real seeded output conforms"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "published clinic abilities use the native catalogue"
+        },
+        {
+          "path": "tests/native-public-ability-integration.php",
+          "anchor": "Stale discovered ability rechecks actual module"
         }
       ],
       "production": null
@@ -2146,6 +2172,20 @@
         "mcp-05"
       ],
       "summary": "Selected native REA audit/design/implementation/verification skills and verified pinned ability source hashes. Migrated first existing read capability to typed native catalogue with strict bounded output and explicit missing-settings failure; no new external tool exposure. Both rows remain partial pending broader migration and external execution acceptance. Added continuous verified delivery and next-step reporting policy."
+    },
+    {
+      "id": "150-public-clinic-abilities",
+      "date": "2026-11-26",
+      "issues": [
+        150,
+        148,
+        128
+      ],
+      "components": [
+        "mcp-01",
+        "mcp-05"
+      ],
+      "summary": "Continued next clear issue loop using native REA audit and shared-domain skills. Migrated published practitioner/programme lists and exact detail to typed catalogue with strict input/output, source checks, publication and module recheck. Representative MariaDB and loopback tests; external transport and remaining legacy tools still partial."
     }
   ]
 }

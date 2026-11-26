@@ -43,6 +43,16 @@ final class NativeAbilityRegistry
             'inclusions'=>self::listOf(self::string(200,1),20),
             'display_price'=>self::string(40,1),'duration'=>self::string(40,1),
         ]);
+        $practitioner=self::object([
+            'name'=>self::string(200,1),'credentials'=>self::string(1000),
+            'speciality'=>self::string(300),'registration_number'=>self::string(80),
+            'url'=>self::string(50,1)+['const'=>'/#team'],
+        ]);
+        $programme=[
+            'title'=>self::string(200,1),'summary'=>self::string(6000),
+            'duration'=>self::string(80),
+            'url'=>self::string(131,1)+['pattern'=>'^/campaigns/[a-z0-9]+(?:-[a-z0-9]+)*$'],
+        ];
         return [
             'published_consultation_fees'=>self::definition(
                 'Read current published online consultation fees, currency, duration and included services. Display prices only, not programme package prices, payment offers or confirmed bookings.',
@@ -52,6 +62,19 @@ final class NativeAbilityRegistry
                     'source'=>self::string(100,1)+['const'=>ConsultationFeeService::SOURCE],
                     'scope'=>self::string(200,1)+['const'=>ConsultationFeeService::PUBLIC_SCOPE],
                 ])
+            ),
+            'published_practitioners'=>self::definition(
+                'Read visible clinic practitioner profiles, professional credentials and published registration numbers.',
+                self::object(['practitioners'=>self::listOf($practitioner,40)])
+            ),
+            'published_programmes'=>self::definition(
+                'Read published homepage programmes and their durations and detail links.',
+                self::object(['programmes'=>self::listOf(self::object($programme),30)]),[],'campaigns'
+            ),
+            'published_programme_detail'=>self::definition(
+                'Retrieve one published programme detail by its exact slug.',
+                self::object($programme+['body'=>self::string(12000)]),
+                ['slug'=>self::string(120,1)+['pattern'=>'^[a-z0-9]+(?:-[a-z0-9]+)*$']],'campaigns'
             ),
         ];
     }
@@ -78,7 +101,9 @@ final class NativeAbilityRegistry
     public function declarations(): array {
         return array_map(static function(array $definition):array {
             $input=$definition['input_schema'];
-            $input['properties']=(array)$input['properties'];
+            // The transport projection keeps the supported provider schema vocabulary.
+            // The full native constraints are enforced again before domain invocation.
+            $input['properties']=array_map(static fn(array $field):array=>array_intersect_key($field,['type'=>true,'description'=>true]),(array)$input['properties']);
             return ['name'=>$definition['name'],'description'=>$definition['description'],'parameters'=>$input];
         },$this->discover());
     }
@@ -98,8 +123,12 @@ final class NativeAbilityRegistry
             }
             $result=match($name) {
                 'published_consultation_fees'=>(new ConsultationFeeService($this->store))->published(),
+                'published_practitioners'=>['practitioners'=>(new ClinicKnowledgeService($this->store))->practitioners()],
+                'published_programmes'=>['programmes'=>(new ClinicKnowledgeService($this->store))->programmes()],
+                'published_programme_detail'=>(new ClinicKnowledgeService($this->store))->programmeDetail($args['slug']),
                 default=>throw new \LogicException('Unmapped native ability.'),
             };
+            if ($result===null) return self::error('ability_not_found','Published programme not found.');
             $encoded=json_encode($result,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
             if (strlen($encoded)>48000||!AbilitySchema::valid($result,$definition['output_schema'])) {
                 return self::error('ability_invalid_output','The lookup did not return a valid bounded result.');

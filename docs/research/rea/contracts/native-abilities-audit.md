@@ -42,9 +42,9 @@ a tool. Verify each migration against the actual backing path and data.
 | Existing model tool | Scope / module gate | Backing service or operation | Output / risk to resolve |
 |---|---|---|---|
 | published_consultation_fees | support and admin; independent | ConsultationFeeService::published, canonical settings | Native v1; exact monetary units and duration, published-only; missing settings unavailable |
-| published_practitioners | support and admin; independent | ClinicKnowledgeService::practitioners → ConsultantService::all | Visible-only projection; typed text bounds and source URL pending |
-| published_programmes | support and admin; campaigns | ClinicKnowledgeService::programmes → CampaignPageService::published / homepagePrograms | Published and eligible homepage cards; typed projection and module recheck pending |
-| published_programme_detail | support and admin; campaigns | AgentToolRegistry::programmeDetail → CampaignPageService::findPublished | Exact slug, draft/ambiguous miss; move into shared domain service, bounded body and typed errors |
+| published_practitioners | support and admin; independent | ClinicKnowledgeService::practitioners → ConsultantService::all | Native v1; visible-only typed fields, explicit malformed-source error and fixed source URL |
+| published_programmes | support and admin; campaigns | ClinicKnowledgeService::programmes → CampaignPageService::published / homepagePrograms | Native v1; published and eligible homepage cards, bounded typed projection and module recheck |
+| published_programme_detail | support and admin; campaigns | ClinicKnowledgeService::programmeDetail → CampaignPageService::findPublished | Native v1; exact slug, draft/ambiguous miss, bounded body and typed errors |
 | search_clinic_knowledge | support and admin; source-specific module gates | ClinicKnowledgeService::search/rank | Lexical public-only result, source mix and per-source failure handling; bounded typed excerpts pending |
 | search_articles | support and admin; blog | AgentToolRegistry::searchArticles → BlogService::all(false) | Stable list shape for empty/nonempty, Unicode search, URL validation pending |
 | clinic_context | support only | SupportBotService::toolContext → scoped AgentContextService and current session cart | Mixed public and owned data; split scopes and prove field/record ownership before typed exposure |
@@ -103,7 +103,37 @@ MCP remain future issues.
   exact deployed-source verification. A provider outage is not a tool
   contract failure or proof of successful final inference.
 
-This first reference ability establishes the migration pattern. mcp-01 and
-mcp-05 remain partial; external discovery/transport and full catalogue
-migration are separate obligations. Next migrate the three published
-practitioner/programme read capabilities through their existing services.
+This first reference ability established the migration pattern. Issue #150
+migrates three further public read capabilities with the same contract.
+mcp-01 and mcp-05 remain partial; external discovery/transport and full
+catalogue migration are separate obligations.
+
+## Second implementation: published clinic reads (issue #150)
+
+- Use existing ClinicKnowledgeService and CampaignPageService for the
+  practitioner list, homepage programme list and exact published detail.
+  Move the old detail implementation out of the agent registry; preserve
+  the provider function names and existing success keys.
+- Public field types and bounds are checked before conversion; missing
+  optional text is empty, malformed source is unavailable. Hidden
+  practitioners and draft programmes stay excluded. Unknown/draft/ambiguous
+  exact detail returns ability_not_found, without guessing a record.
+- Campaign availability is checked on discovery and again at invocation
+  against canonical settings. The published list uses the existing homepage
+  eligibility and ordering rules. The body remains the existing bounded
+  text projection (up to 12,000 characters), not an unbounded raw document.
+- Native input constraints are authoritative. The provider declaration
+  adapter projects only the established supported input vocabulary;
+  server validation rejects malformed slug/extra fields regardless of
+  the provider's schema support.
+- RED/GREEN: tests/native-ability.test.cjs verifies catalog membership,
+  disabled discovery and execution, invalid slug, no record, empty
+  list, Google and compatible declarations. CI executes seeded MariaDB
+  tests/native-public-ability-integration.php for both surfaces, publication,
+  visibility, exact schema, missing/draft/ambiguous record, malformed source,
+  stale module gate and unchanged durable state.
+
+Next migrate public lexical search and blog lookup, then separate public
+clinic context from owned account data and type the owner aggregate
+capabilities. External MCP remains gated on verified catalogue/actor
+contracts. Do not expose legacy untyped functions to external clients.

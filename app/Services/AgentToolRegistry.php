@@ -109,9 +109,6 @@ final class AgentToolRegistry implements ModelToolSet
             ['name'=>'search_clinic_knowledge','description'=>'Search current public practitioner profiles, published programme body passages and published articles by a specific query. Return ranked excerpts and real source URLs, never private records.','parameters'=>['type'=>'object','properties'=>['query'=>['type'=>'string']],'required'=>['query']]],
             ['name'=>'clinic_context','description'=>'Retrieve the current permitted clinic and account information for this session. No other customer records are available.','parameters'=>['type'=>'object']],
             ['name'=>'owner_dashboard_summary','description'=>'Retrieve the current owner-only operational summary.','parameters'=>['type'=>'object']],
-            ['name'=>'published_programme_detail','description'=>'Retrieve one published programme detail by its exact slug.','parameters'=>['type'=>'object','properties'=>['slug'=>['type'=>'string']],'required'=>['slug']]],
-            ['name'=>'published_practitioners','description'=>'Read visible clinic practitioner profiles, professional credentials and published registration numbers.','parameters'=>['type'=>'object']],
-            ['name'=>'published_programmes','description'=>'Read published homepage programmes and their durations and detail links.','parameters'=>['type'=>'object']],
             ['name' => 'appointment_summary', 'description' => 'Count historical appointment records by status. These are not current bookings or therapy campaign requests.', 'parameters' => ['type' => 'object']],
             ['name' => 'recent_orders', 'description' => 'List up to 10 recent orders: reference, date, status and total. No customer details.', 'parameters' => ['type' => 'object']],
             ['name' => 'catalog_categories', 'description' => 'List up to 15 ecommerce categories by name and slug.', 'parameters' => ['type' => 'object']],
@@ -362,9 +359,6 @@ final class AgentToolRegistry implements ModelToolSet
                 'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
                 'clinic_context' => $this->contextLoader !== null ? ($this->contextLoader)() : ['error'=>'Context unavailable.'],
                 'owner_dashboard_summary'=>['summary'=>(new AgentContextService($this->store))->forAdmin(!empty($this->modules['shop']))],
-                'published_programme_detail'=>$this->programmeDetail($args),
-                'published_practitioners'=>['practitioners'=>(new ClinicKnowledgeService($this->store))->practitioners()],
-                'published_programmes'=>['programmes'=>(new ClinicKnowledgeService($this->store))->programmes()],
                 'appointment_summary' => self::summariseAppointments($this->store->read('appointments')),
                 'recent_orders' => $this->recentOrders(),
                 'catalog_categories' => ['categories' => array_map(static fn(array $row): array => array_intersect_key($row, ['name' => true, 'slug' => true]), array_slice($this->store->read('categories'), 0, 15))],
@@ -389,14 +383,6 @@ final class AgentToolRegistry implements ModelToolSet
         $result=$this->run($name,$args);
         $trace->tool($name,isset($result['error'])?'error':'ok',$started);
         return $result;
-    }
-
-    private function programmeDetail(array $args): array {
-        $slug=$args['slug']??'';
-        if (!is_string($slug)||!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$slug)||strlen($slug)>120) return ['error'=>'Invalid programme slug.'];
-        $page=(new CampaignPageService($this->store))->findPublished($slug);
-        if (!$page) return ['error'=>'Published programme not found.'];
-        return ['title'=>(string)$page['title'],'summary'=>(string)($page['summary']??''),'duration'=>(string)($page['program_duration']??''),'body'=>mb_substr(strip_tags((string)($page['body']??'')),0,12000),'url'=>'/campaigns/'.$slug];
     }
 
     public static function summariseAppointments(array $rows): array

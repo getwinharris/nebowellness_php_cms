@@ -5,21 +5,55 @@ namespace App\Services;
 /** Read-only, public records only; no owner operations or customer identities. */
 final class ClinicKnowledgeService {
     public function __construct(private DatabaseService $store = new DatabaseService()) {}
+    private static function publicText(mixed $value,int $max,bool $required=false): string {
+        if ($value===null&&!$required) return '';
+        if (!is_string($value)||!mb_check_encoding($value,'UTF-8')||mb_strlen($value)>$max||
+            ($required&&trim($value)==='')||preg_match('/[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]/u',$value)) {
+            throw new \DomainException('Invalid published clinic field.');
+        }
+        return $value;
+    }
+
     public function practitioners(): array {
         return array_map(static fn(array $row): array=>[
-            'name'=>(string)($row['name']??''),
-            'credentials'=>(string)($row['credentials']??''),
-            'speciality'=>(string)($row['speciality']??''),
-            'registration_number'=>(string)($row['registration_number']??''),
+            'name'=>self::publicText($row['name']??null,200,true),
+            'credentials'=>self::publicText($row['credentials']??null,1000),
+            'speciality'=>self::publicText($row['speciality']??null,300),
+            'registration_number'=>self::publicText($row['registration_number']??null,80),
             'url'=>'/#team',
         ],array_slice((new ConsultantService($this->store))->all(),0,40));
     }
     public function programmes(): array {
         if (empty((new SettingsService($this->store))->strictModules()['campaigns'])) return [];
+        $pages=(new CampaignPageService($this->store))->published();
+        // Validate source values before homepage projection can coerce malformed arrays.
+        foreach ($pages as $page) {
+            if (!in_array($page['homepage_program']??false,[true,1,'1'],true)) continue;
+            self::publicText($page['title']??null,200,true);
+            self::publicText($page['summary']??null,6000);
+            $slug=self::publicText($page['slug']??null,120,true);
+            if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$slug)) throw new \DomainException('Invalid published programme slug.');
+        }
         return array_map(static fn(array $row):array=>[
-            'title'=>(string)$row['title'],'summary'=>(string)($row['copy']??''),
-            'duration'=>(string)($row['duration']??''),'url'=>'/campaigns/'.$row['slug'],
-        ],array_slice(CampaignPageService::homepagePrograms((new CampaignPageService($this->store))->published()),0,30));
+            'title'=>self::publicText($row['title']??null,200,true),
+            'summary'=>self::publicText($row['copy']??null,6000),
+            'duration'=>self::publicText($row['duration']??null,80),
+            'url'=>'/campaigns/'.$row['slug'],
+        ],array_slice(CampaignPageService::homepagePrograms($pages),0,30));
+    }
+    /** Resolve exactly one published record. An absent, draft or ambiguous slug is not found. */
+    public function programmeDetail(string $slug): ?array {
+        if (strlen($slug)>120||!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$slug)) throw new \InvalidArgumentException('Invalid programme slug.');
+        if (empty((new SettingsService($this->store))->strictModules()['campaigns'])) throw new \DomainException('Campaigns are unavailable.');
+        $page=(new CampaignPageService($this->store))->findPublished($slug);
+        if ($page===null) return null;
+        $body=$page['body']??'';
+        if (!is_string($body)||!mb_check_encoding($body,'UTF-8')) throw new \DomainException('Invalid programme body.');
+        return ['title'=>self::publicText($page['title']??null,200,true),
+            'summary'=>self::publicText($page['summary']??null,6000),
+            'duration'=>self::publicText($page['program_duration']??null,80),
+            'url'=>'/campaigns/'.$slug,
+            'body'=>self::publicText(mb_substr(strip_tags($body),0,12000),12000)];
     }
     /** Local lexical knowledge RAG. Published records remain the source of truth. */
     public function search(string $query): array {
