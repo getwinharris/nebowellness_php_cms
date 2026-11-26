@@ -1589,7 +1589,7 @@ $tests['the model answer is separated from the model thinking out loud'] = funct
 
     // The request must ask for the reasoning to stop, in the shape the API accepts.
     $client = file_get_contents(app_path('app/Services/AiClient.php'));
-    assertTrue(str_contains($client, "'thinkingConfig' => ['thinkingLevel' => 'MINIMAL']"),
+    assertTrue(str_contains($client, "['thinkingConfig']=['thinkingLevel'=>'minimal']"),
         'thinkingLevel must be nested inside thinkingConfig; at the top of generationConfig the API returns HTTP 400');
     assertTrue(!str_contains($client, "parts'][0]['text']"),
         'The client must never read parts[0] as the answer');

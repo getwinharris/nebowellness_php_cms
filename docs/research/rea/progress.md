@@ -15,14 +15,14 @@ Implementation coverage counts only complete scoped components with source and t
 
 | Track | Implemented | Coverage | Partial | Missing | Live observed | Observation coverage |
 |---|---:|---:|---:|---:|---:|---:|
-| WordPress CMS | 3 / 15 | 20.0% | 10 | 2 | 0 / 15 | 0.0% |
+| WordPress CMS | 4 / 15 | 26.7% | 9 | 2 | 0 / 15 | 0.0% |
 | Service booking and landing pages | 6 / 8 | 75.0% | 2 | 0 | 2 / 8 | 25.0% |
 | Google Site Kit | 3 / 7 | 42.9% | 2 | 2 | 0 / 7 | 0.0% |
 | WordPress Abilities and MCP | 0 / 6 | 0.0% | 3 | 3 | 0 / 6 | 0.0% |
 | A2UI v1.0 | 0 / 6 | 0.0% | 2 | 4 | 0 / 6 | 0.0% |
-| OpenAI-compatible Chat Completions | 4 / 9 | 44.4% | 4 | 1 | 0 / 9 | 0.0% |
+| OpenAI-compatible Chat Completions | 5 / 9 | 55.6% | 3 | 1 | 0 / 9 | 0.0% |
 | DeepSeek Harness | 4 / 10 | 40.0% | 6 | 0 | 1 / 10 | 10.0% |
-| **Total** | 20 / 61 | 32.8% | 29 | 12 | 3 / 61 | 4.9% |
+| **Total** | 22 / 61 | 36.1% | 27 | 12 | 3 / 61 | 4.9% |
 
 ## Explicit exclusions
 
@@ -52,7 +52,7 @@ Native owner-managed content and administration.
 | cms-12 | Staff roles and data lifecycle | partial | Granular staff access, owner-approved export/erasure and retention. — Admin/customer distinction exists; full lifecycle pending. | [#19](https://github.com/getwinharris/nebowellness_php_cms/issues/19), [#121](https://github.com/getwinharris/nebowellness_php_cms/issues/121) |
 | cms-13 | Scheduler and system health | partial | Runtime health, deployed revision and durable scheduled jobs. — Mail queue/CLI exist; general scheduler and release identity pending. | [#138](https://github.com/getwinharris/nebowellness_php_cms/issues/138), [#121](https://github.com/getwinharris/nebowellness_php_cms/issues/121) |
 | cms-14 | Admin lists and bulk actions | partial | Accessible lists, server pagination/filtering and bounded actions. — Admin tables and media bulk exist; complete pagination pending. | [#85](https://github.com/getwinharris/nebowellness_php_cms/issues/85), [#121](https://github.com/getwinharris/nebowellness_php_cms/issues/121) |
-| cms-15 | AI blog drafting and enhancement | partial | Real reviewable model draft, preserve original on failure and preserve images. — AgentDraftService uses inference; editor static draft route tracked separately. | [#140](https://github.com/getwinharris/nebowellness_php_cms/issues/140) |
+| cms-15 | AI blog drafting and enhancement | implemented | Real reviewable model draft, preserve original on failure and preserve images. — Real provider-backed blog editor draft/title/body suggestions and Enterprise draft forms; explicit Apply review, stale-response protection, preserved links/images and owner-only fields, stop-reason validation on Google and compatible endpoints. Synthetic route and isolated Chrome fixtures pass; live authenticated acceptance remains open. | [#140](https://github.com/getwinharris/nebowellness_php_cms/issues/140) |
 
 ## Service booking and landing pages
 
@@ -121,7 +121,7 @@ Genuine model inference and protocol-correct tool loop.
 | completion-04 | Schema and call validation | implemented | Reject unknown/malformed/duplicate calls and bound loop. — Existing strict declarations and negative fixtures. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 | completion-05 | Provider capability profiles | partial | Configure model-supported parameters, refusal/finish states and verified transport. — Native Google REST and compatible loop; profile routing incomplete. | [#82](https://github.com/getwinharris/nebowellness_php_cms/issues/82), [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 | completion-06 | Retry, deadline and provider health | partial | Bounded retries, quota-aware routing and truthful failures. — PR #137 transient retry; generalized provider health pending. | [#82](https://github.com/getwinharris/nebowellness_php_cms/issues/82) |
-| completion-07 | Validated editorial generation | partial | Real draft/rewrite with review, original preserved on invalid/truncated result. — Draft inference exists; editor regression tracked. | [#140](https://github.com/getwinharris/nebowellness_php_cms/issues/140) |
+| completion-07 | Validated editorial generation | implemented | Real draft/rewrite with review, original preserved on invalid/truncated result. — Real provider-backed blog editor draft/title/body suggestions and Enterprise draft forms; explicit Apply review, stale-response protection, preserved links/images and owner-only fields, stop-reason validation on Google and compatible endpoints. Synthetic route and isolated Chrome fixtures pass; live authenticated acceptance remains open. | [#140](https://github.com/getwinharris/nebowellness_php_cms/issues/140) |
 | completion-08 | Real provider diagnostics | partial | Independent genuine text and tool round-trip probes for configured compatible models. — Existing integration test/probe, real compatible model acceptance pending. | [#82](https://github.com/getwinharris/nebowellness_php_cms/issues/82), [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 | completion-09 | Streaming and cancellation | missing | Visible deltas, bounded incremental arguments, terminal states and usage. — Current web agent is non-streaming. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 
@@ -175,4 +175,5 @@ Native retrieval, execution, sessions, observability and recovery.
 
 ## Scope reviews and updates
 
+- 2026-11-26 · `140-editorial` — Reproduced static draft endpoint with zero provider calls, replaced it with actual completed model responses and reviewed proposals. Loopback route tests cover compatible and Google finish states, auth/CSRF, outage, links/images, Enterprise fields; Chrome synthetic UI at 1440/375/390 verifies apply/discard and stale edit protection. Live owner acceptance remains separate.
 - 2026-11-26 · `141-baseline` — Initial source-backed baseline after PR #139; archived REA evidence and read-only bapX reference. Partial/missing count zero. General commerce parity excluded.

@@ -51,6 +51,7 @@
                 <button type="button" class="be-tab is-active" data-mode="document" role="tab">Edit as document</button>
                 <button type="button" class="be-tab" data-mode="markdown" role="tab">Edit Markdown</button>
                 <button type="button" class="be-tab" data-mode="preview" role="tab">Preview</button>
+                <button type="button" class="btn btn-sm btn-outline" id="generate-draft">AI draft</button>
                 <button type="button" class="btn btn-sm btn-outline be-enhance" id="enhance-content">Enhance content</button>
             </div>
 
@@ -83,6 +84,13 @@
             <!-- Preview mode. Same renderer and article styles as the public page. -->
             <div id="be-preview" class="be-surface be-preview blog-post__body" hidden></div>
 
+            <p id="blog-ai-status" class="be-hint" role="status" aria-live="polite"></p>
+            <div id="blog-ai-review" hidden>
+                <label for="blog-ai-suggestion">Review AI suggestion (not saved)</label>
+                <textarea id="blog-ai-suggestion" class="be-surface be-code" rows="8" readonly></textarea>
+                <button type="button" class="btn btn-sm btn-primary" id="blog-ai-apply">Apply suggestion</button>
+                <button type="button" class="btn btn-sm btn-outline" id="blog-ai-discard">Discard</button>
+            </div>
             <p class="be-hint">Saved as Markdown in <code>content/blog/posts/</code>. Switching modes keeps your content.</p>
         </div>
 
@@ -152,11 +160,11 @@
 </div>
 
 <script>
-function toggleForm(){var f=document.getElementById('blog-form');f.hidden=!f.hidden;if(f.hidden)f.reset();}
+function toggleForm(){var f=document.getElementById('blog-form');f.hidden=!f.hidden;if(f.hidden){f.reset();if(window.beLoadMarkdown)window.beLoadMarkdown('');}}
 function editPost(post){document.getElementById('edit-slug').value=post.slug||'';document.getElementById('edit-slug-display').value=post.slug||'';document.getElementById('edit-type').value=post.type||'blog';document.getElementById('edit-title').value=post.title||'';document.getElementById('edit-category').value=post.category||'';document.getElementById('edit-template').value=post.template||'editorial';document.getElementById('edit-image').value=post.og_image||post.image||'';document.getElementById('edit-image-alt').value=post.image_alt||'';document.getElementById('edit-source-url').value=post.source_url||'';document.getElementById('edit-summary').value=post.summary||post.excerpt||'';document.getElementById('edit-order').value=post.order||'';document.getElementById('edit-excerpt').value=post.excerpt||'';document.getElementById('edit-date').value=post.published_at||'';document.getElementById('edit-author').value=post.author||'Admin';document.getElementById('edit-content').value=post.content||'';if(window.beLoadMarkdown)window.beLoadMarkdown(post.content||'');document.getElementById('blog-form').hidden=false;document.getElementById('blog-form').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('edit-title').focus();}
 document.getElementById('edit-title').addEventListener('input',function(){var slug=this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');document.getElementById('edit-slug').value=slug;document.getElementById('edit-slug-display').value=slug;});
 function previewArticle(){var f=document.getElementById('blog-form');var fd=new FormData(f);fetch('/admin/blog/preview',{method:'POST',body:fd}).then(function(r){return r.text();}).then(function(html){var w=window.open('','_blank');w.document.write(html);w.document.close();});}
-function generateDraft(){var f=document.getElementById('blog-form');var fd=new FormData(f);fd.set('content','');fetch('/admin/blog/ai-draft',{method:'POST',body:fd}).then(function(r){return r.json();}).then(function(d){if(d.content)document.getElementById('edit-content').value=d.content;});}
+
 </script>
 
 <style>
@@ -208,19 +216,26 @@ function generateDraft(){var f=document.getElementById('blog-form');var fd=new F
     var toolbar = document.getElementById('be-toolbar');
     if (!doc || !md) return;
     var mode = 'document';
+    var editorialEpoch=0;
 
     // ---- Markdown <-> HTML -------------------------------------------------
     // Markdown is the source of truth: it is what gets saved. Document mode is a
     // view over it, so every switch converts rather than keeping a second copy.
-    function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+    function safeUrl(url,image){
+        if(!url || url.length>2048 || /[\x00-\x20\x7f\\<>"']/.test(url)||url.startsWith('//'))return false;
+        if(/^https?:\/\//i.test(url)){try{var u=new URL(url);return !!u.hostname&&!u.username&&!u.password;}catch(e){return false;}}
+        if(!image && /^(?:mailto:[^@\s?]+@[^@\s?]+|tel:\+?[0-9]{3,15})$/i.test(url))return true;
+        return !url.includes(':')&&!(image&&url.startsWith('#'));
+    }
 
     function mdToHtml(src) {
         var lines = String(src).replace(/\r\n/g,'\n').split('\n');
         var out = [], i = 0;
         function inline(t){
             return esc(t)
-                .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,'<img src="$2" alt="$1">')
-                .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'<a href="$2">$1</a>')
+                 .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,function(_,alt,url){return safeUrl(url,true)?'<img src="'+url+'" alt="'+alt+'">':alt;})
+                .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,function(_,label,url){return safeUrl(url,false)?'<a href="'+url+'">'+label+'</a>':label;})
                 .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
                 .replace(/(^|[^*])\*([^*\n]+)\*/g,'$1<em>$2</em>')
                 .replace(/`([^`]+)`/g,'<code>$1</code>');
@@ -349,7 +364,7 @@ function generateDraft(){var f=document.getElementById('blog-form');var fd=new F
         doc.focus(); document.execCommand('formatBlock', false, this.value);
     });
     document.getElementById('be-link').addEventListener('click', function(){
-        var u = prompt('Link URL'); if (u) { doc.focus(); document.execCommand('createLink', false, u); }
+        var u = prompt('Link URL'); if (safeUrl(u,false)) { doc.focus(); document.execCommand('createLink', false, u); }
     });
     document.getElementById('be-table').addEventListener('click', function(){
         doc.focus();
@@ -357,8 +372,9 @@ function generateDraft(){var f=document.getElementById('blog-form');var fd=new F
           '<table><thead><tr><th>Heading</th><th>Heading</th></tr></thead><tbody><tr><td>Cell</td><td>Cell</td></tr></tbody></table><p><br></p>');
     });
     function insertImage(path) {
+        if(!safeUrl(path,true))return;
         if (mode === 'markdown') { md.value += '\n\n![](' + path + ')\n'; }
-        else { setMode('document'); doc.focus(); document.execCommand('insertHTML', false, '<img src="'+path+'" alt="">'); }
+        else { setMode('document'); doc.focus(); document.execCommand('insertHTML', false, '<img src="'+esc(path)+'" alt="">'); }
         var f = document.getElementById('edit-image');
         if (f && !f.value) f.value = path;
     }
@@ -388,34 +404,28 @@ function generateDraft(){var f=document.getElementById('blog-form');var fd=new F
         } catch (err) { showToast && showToast('Upload failed.','error'); }
     });
 
-    // ---- enhance (separate per field) --------------------------------------
-    async function enhance(url, payload, btn) {
-        var label = btn.textContent; btn.disabled = true; btn.textContent = 'Working…';
-        try {
-            payload._csrf = document.querySelector('input[name="_csrf"]').value;
-            var r = await fetch(url, {method:'POST', body:new URLSearchParams(payload), credentials:'same-origin'});
-            var d = await r.json().catch(function(){return {error:'Unreadable response.'};});
-            if (d.error) { showToast && showToast(d.error,'error'); return null; }
-            return d;
-        } finally { btn.disabled = false; btn.textContent = label; }
-    }
-    document.getElementById('enhance-title').addEventListener('click', async function(){
-        var t = document.getElementById('edit-title');
-        var d = await enhance('/admin/blog/enhance-title', {title: t.value}, this);
-        if (d && d.title) t.value = d.title;
-    });
-    document.getElementById('enhance-content').addEventListener('click', async function(){
-        sync(mode);
-        var d = await enhance('/admin/blog/enhance-content', {content: md.value}, this);
-        if (d && d.content) {
-            md.value = d.content;
-            if (mode === 'document') doc.innerHTML = mdToHtml(md.value);
-            if (mode === 'preview') pv.innerHTML = mdToHtml(md.value);
+    window.beEditorial={
+        snapshot:function(){
+            if(document.getElementById('blog-form').hidden)return null;
+            sync(mode);
+            return {epoch:editorialEpoch,slug:document.getElementById('edit-slug').value,
+                title:document.getElementById('edit-title').value,content:md.value,
+                template:document.getElementById('edit-template').value,sourceUrl:document.getElementById('edit-source-url').value};
+        },
+        apply:function(field,value){
+            if(field==='title')document.getElementById('edit-title').value=value;
+            else {
+                md.value=value;
+                doc.innerHTML=mdToHtml(value);
+                if(mode==='preview')pv.innerHTML=mdToHtml(value);
+            }
         }
-    });
+    };
 
     // Seed document mode when an existing post is loaded into the form.
     window.beLoadMarkdown = function (markdown) {
+        editorialEpoch++;
+        if(window.beEditorial.onReset)window.beEditorial.onReset();
         md.value = markdown || '';
         doc.innerHTML = mdToHtml(md.value);
         if (mode === 'preview') pv.innerHTML = doc.innerHTML;
@@ -423,3 +433,5 @@ function generateDraft(){var f=document.getElementById('blog-form');var fd=new F
     doc.innerHTML = mdToHtml(md.value);
 })();
 </script>
+
+<script src="/assets/blog-editorial.js?v=<?= filemtime(app_path('assets/blog-editorial.js')) ?>" defer></script>

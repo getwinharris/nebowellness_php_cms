@@ -40,9 +40,9 @@ final class AiClient
     }
 
     /** Model text, or null when the provider could not be reached. */
-    public function completeOrNull(string $prompt, int $maxTokens = 1024, float $temperature = 0.3): ?string
+    public function completeOrNull(string $prompt, int $maxTokens = 1024, float $temperature = 0.3, bool $requireComplete = false): ?string
     {
-        $answer = $this->complete($prompt, $maxTokens, $temperature);
+        $answer = $this->complete($prompt, $maxTokens, $temperature, $requireComplete);
         if (self::isError($answer)) return null;
         return trim($answer) !== '' ? $answer : null;
     }
@@ -248,7 +248,7 @@ final class AiClient
     }
 
     /** Model text, or a sentence explaining why there is none. */
-    public function complete(string $prompt, int $maxTokens = 1024, float $temperature = 0.3): string
+    public function complete(string $prompt, int $maxTokens = 1024, float $temperature = 0.3, bool $requireComplete = false): string
     {
         $config = $this->secrets->getModelConfig();
         $endpoint = rtrim((string)($config['endpoint'] ?? 'https://api.openai.com/v1'), '/');
@@ -278,22 +278,23 @@ final class AiClient
             catch (\Throwable) { return 'AI request failed: model routing state is unavailable. Run the database schema initializer and try again.'; }
             $this->lastModel = $model;
             $startedAt = microtime(true);
-            $answer = $this->completeGooglePlain($config, $model, $prompt, $maxTokens, $temperature);
+            $answer = $this->completeGooglePlain($config, $model, $prompt, $maxTokens, $temperature, 20, $requireComplete);
             return $this->routeGoogleResult(
                 $configuredModel,
                 $model,
                 $answer,
-                fn(string $next, int $timeout): string => $this->completeGooglePlain($config, $next, $prompt, $maxTokens, $temperature, $timeout),
+                fn(string $next, int $timeout): string => $this->completeGooglePlain($config, $next, $prompt, $maxTokens, $temperature, $timeout, $requireComplete),
                 $startedAt
             );
         }
 
+        $this->lastModel = $model;
         $url = $endpoint . '/chat/completions';
         $payload = (string)json_encode([
             'model' => $model,
             'messages' => [['role' => 'user', 'content' => $prompt]],
-            'max_tokens' => $maxTokens,
-        ], JSON_UNESCAPED_SLASHES);
+            (str_contains($endpoint,'api.openai.com')?'max_completion_tokens':'max_tokens') => $maxTokens,
+        ], JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         $headers = ['Content-Type: application/json'];
         if ($provider === 'anthropic') {
             $headers[] = 'x-api-key: ' . $key;
@@ -304,29 +305,44 @@ final class AiClient
         $body = $this->post($url, $payload, $headers, $status, 20, $provider, $model);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
-        $answer = $result['choices'][0]['message']['content'] ?? '';
-        return $this->traceProviderAnswer(is_string($answer) ? $answer : '');
+        if (is_array($result)) $this->trace?->usage($result);
+        $choice=$result['choices'][0]??[];
+        $message=$choice['message']??[];
+        $finish=$choice['finish_reason']??null;
+        if (($requireComplete && $finish!=='stop') || ($finish!==null && $finish!=='stop') || !empty($message['refusal']) || !empty($message['tool_calls'])) {
+            return $this->traceProviderAnswer('AI request failed: incomplete visible response.');
+        }
+        $answer=$message['content']??'';
+        return $this->traceProviderAnswer(is_string($answer)?(self::fencedAnswer($answer)??trim($answer)):'');
     }
 
-    private function completeGooglePlain(array $config, string $model, string $prompt, int $maxTokens, float $temperature, int $timeout = 20): string
+    private function completeGooglePlain(array $config, string $model, string $prompt, int $maxTokens, float $temperature, int $timeout = 20, bool $requireComplete = false): string
     {
         $endpoint = rtrim((string)($config['endpoint'] ?? ''), '/');
         $url = $endpoint . '/' . rawurlencode($model) . ':generateContent';
+        $generation=['temperature'=>$temperature,'maxOutputTokens'=>$maxTokens];
+        // Gemma 4's documented REST configuration differs from Gemini's.
+        if (str_starts_with($model,'gemma-4-')) $generation['thinkingConfig']=['thinkingLevel'=>'minimal'];
         $payload = json_encode([
             'contents' => [['parts' => [['text' => $prompt]]]],
-            'generationConfig' => [
-                'temperature' => $temperature,
-                'maxOutputTokens' => $maxTokens,
-                'thinkingConfig' => ['thinkingLevel' => 'MINIMAL'],
-            ],
+            'generationConfig' => $generation,
         ], JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
         $headers = ['Content-Type: application/json', 'x-goog-api-key: ' . trim((string)($config['apiKey'] ?? ''))];
         $status = 0;
         $body = $this->post($url, $payload, $headers, $status, $timeout, 'google', $model);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
-        $parts = $result['candidates'][0]['content']['parts'] ?? [];
-        return $this->traceProviderAnswer(self::answerFromParts(is_array($parts) ? $parts : []));
+        if (is_array($result)) $this->trace?->usage($result);
+        $candidate=$result['candidates'][0]??[];
+        $finish=$candidate['finishReason']??null;
+        if (($requireComplete && $finish!=='STOP') || ($finish!==null && $finish!=='STOP')) {
+            return $this->traceProviderAnswer('AI request failed: incomplete visible response.');
+        }
+        $parts=$candidate['content']['parts']??[];
+        if ($requireComplete && is_array($parts)) foreach ($parts as $part) {
+            if (isset($part['functionCall'])) return $this->traceProviderAnswer('AI request failed: incomplete visible response.');
+        }
+        return $this->traceProviderAnswer(self::answerFromParts(is_array($parts)?$parts:[]));
     }
 
     private function traceProviderAnswer(string $answer): string

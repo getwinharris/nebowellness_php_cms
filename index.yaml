@@ -2309,8 +2309,9 @@ concepts:
     path: "/admin/blog/ai-draft"
     controller: "AdminController@aiDraftBlog"
     services:
-      - "BlogService"
       - "BlogDraftService"
+      - "AiClient"
+      - "SecretService"
       - "AuthService"
     view: "admin/blog"
   - id: "route:post__admin_blog_delete"
@@ -2341,6 +2342,8 @@ concepts:
     path: "/admin/blog/enhance-content"
     controller: "AdminController@enhanceBlogContent"
     services:
+      - "BlogDraftService"
+      - "AiClient"
       - "SecretService"
       - "AuthService"
     view: "admin/blog"
@@ -2356,6 +2359,8 @@ concepts:
     path: "/admin/blog/enhance-title"
     controller: "AdminController@enhanceBlogTitle"
     services:
+      - "BlogDraftService"
+      - "AiClient"
       - "SecretService"
       - "AuthService"
     view: "admin/blog"
