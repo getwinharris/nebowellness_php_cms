@@ -67,6 +67,24 @@ absence as a finding.
 7. Inspect existing implementations before creating any file, route, service, view,
    collection or navigation item.
 
+### REA capability delivery (mandatory)
+
+- Read docs/research/rea/README.md and the generated progress report for work
+  affecting native CMS, service booking/forms/landing pages, Site Kit, Abilities/MCP,
+  A2UI, compatible model inference and the agent harness. The pinned research manifest
+  is a reference, not proof of Nebo behavior. Do not install or copy vendor runtimes.
+- Maintain docs/research/rea/capabilities.json in the same PR as each relevant
+  runtime change. Record exact source/test evidence, truthful status and remaining
+  acceptance; append a unique review entry even when coverage does not change.
+  Scope changes require a new scope revision and rationale. Do not count partial work
+  as complete or use historical bapX progress as Nebo evidence.
+- General WooCommerce parity is excluded: service booking, custom forms, landing pages
+  and necessary payment/receipt lifecycle only. Preserve the existing shop.
+- Run ./bapXphp rea status, ./bapXphp update and ./bapXphp ci; PR CI also
+  verifies the capability impact review. Record actual live evidence separately
+  after deployment. A successful fixture or merge alone does not establish production
+  acceptance. Follow the full workflow in the REA directory.
+
 ### Improve the guidance with the change
 
 When improving a feature or workflow, review the project skills and canonical

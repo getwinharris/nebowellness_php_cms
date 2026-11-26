@@ -1,0 +1,1969 @@
+{
+  "schema_version": 1,
+  "scope_revision": 1,
+  "baseline_commit": "6265683cede0ba665a0a6e414b4e2a6504512bc1",
+  "baseline_date": "2026-11-26",
+  "reference_backend": "c460fe574f8a1c435fd8d7faa3f500200e79c78a",
+  "tracks": [
+    {
+      "id": "cms",
+      "label": "WordPress CMS",
+      "scope": "Native owner-managed content and administration."
+    },
+    {
+      "id": "service",
+      "label": "Service booking and landing pages",
+      "scope": "Service workflows only; general WooCommerce parity excluded."
+    },
+    {
+      "id": "sitekit",
+      "label": "Google Site Kit",
+      "scope": "Native measurement, reporting and performance."
+    },
+    {
+      "id": "mcp",
+      "label": "WordPress Abilities and MCP",
+      "scope": "Shared typed capability contract, authorization and native MCP."
+    },
+    {
+      "id": "a2ui",
+      "label": "A2UI v1.0",
+      "scope": "Catalog-constrained generative UI, native PHP/JS."
+    },
+    {
+      "id": "completion",
+      "label": "OpenAI-compatible Chat Completions",
+      "scope": "Genuine model inference and protocol-correct tool loop."
+    },
+    {
+      "id": "harness",
+      "label": "DeepSeek Harness",
+      "scope": "Native retrieval, execution, sessions, observability and recovery."
+    }
+  ],
+  "excluded": [
+    "WordPress/WooCommerce installation, plugin/theme compatibility and arbitrary code editor",
+    "General WooCommerce parity: variants, inventory, shipping, downloads, imports/exports and marketing; retain existing shop, no expansion as REA scope",
+    "Paid runtime dependencies, vector database, continuous autonomous agents or background server processes",
+    "Installer and multi-tenant provisioning until native core accepted",
+    "Copying other customer branding, content or configuration"
+  ],
+  "components": [
+    {
+      "id": "cms-01",
+      "track": "cms",
+      "title": "Blog drafts and publication",
+      "status": "implemented",
+      "acceptance": "Owner creates, previews and publishes/hides Markdown; public listing excludes unpublished.",
+      "finding": "Editor, service and visibility filter present. Scheduling separate.",
+      "issues": [
+        140,
+        125
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "function all("
+        },
+        {
+          "path": "app/Controllers/AdminController.php",
+          "anchor": "function previewBlog("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "the blog editor keeps images and fills in the date and author itself"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "blog uses an editorial index and readable markdown article surface"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "cms-02",
+      "track": "cms",
+      "title": "Safe rich text rendering",
+      "status": "implemented",
+      "acceptance": "Render headings/tables/images/code with allowlisted attributes and links.",
+      "finding": "PR #136 renderer and fixture.",
+      "issues": [
+        125
+      ],
+      "references": [
+        {
+          "source": "archive-addendum",
+          "locator": "wp-includes/post.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/MarkdownRenderer.php",
+          "anchor": "function render("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "markdown render reconstructs safe content without executable attributes"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "cms-03",
+      "track": "cms",
+      "title": "Content revisions and restore",
+      "status": "partial",
+      "acceptance": "Revision history, restore and stale-edit rejection for blog/pages.",
+      "finding": "Selected resources have revision guards; blog revision history absent.",
+      "issues": [
+        125,
+        140
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/revision.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "function save("
+        },
+        {
+          "path": "app/Services/ResourceService.php",
+          "anchor": "function revision("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-04",
+      "track": "cms",
+      "title": "Autosave and edit locking",
+      "status": "missing",
+      "acceptance": "Recover draft and protect concurrent editing.",
+      "finding": "No verified general autosave or edit lease.",
+      "issues": [
+        125,
+        140
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/revision.php"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-05",
+      "track": "cms",
+      "title": "Scheduled publication",
+      "status": "missing",
+      "acceptance": "Future publication stays hidden until due; scheduler reports outcomes.",
+      "finding": "Blog published flag does not enforce future date.",
+      "issues": [
+        125
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/cron.php"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-06",
+      "track": "cms",
+      "title": "General page/section builder",
+      "status": "partial",
+      "acceptance": "Reusable sections, reorder/hide, draft preview/publish without source edits.",
+      "finding": "Campaigns exist; general page editor absent.",
+      "issues": [
+        125,
+        123
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/CampaignPageService.php",
+          "anchor": "function homepagePrograms("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-07",
+      "track": "cms",
+      "title": "Site profile and appearance",
+      "status": "partial",
+      "acceptance": "Single owner-managed identity, contacts, branding, policies and navigation.",
+      "finding": "Settings and appearance exist; fixed content remains.",
+      "issues": [
+        121,
+        125
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/options-general.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/SettingsService.php",
+          "anchor": "SETTINGS_ID"
+        },
+        {
+          "path": "app/Controllers/AdminController.php",
+          "anchor": "function saveAppearance("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-08",
+      "track": "cms",
+      "title": "Managed media archive/restore",
+      "status": "implemented",
+      "acceptance": "Protect referenced/bundled files; reversible archive of eligible upload.",
+      "finding": "PR #100 local DB/browser evidence.",
+      "issues": [
+        85
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/includes/class-wp-list-table.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/MediaService.php",
+          "anchor": "function setArchived("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "Media bulk actions require explicit upload provenance"
+        },
+        {
+          "path": "tests/identity-media-integration.php",
+          "anchor": "verifyIdentityMedia"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "cms-09",
+      "track": "cms",
+      "title": "Media reclamation and metadata",
+      "status": "partial",
+      "acceptance": "Reference-safe deletion and paged searchable library with alt/caption.",
+      "finding": "Reversible archive exists; permanent reclamation missing.",
+      "issues": [
+        85
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/includes/class-wp-list-table.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/MediaService.php",
+          "anchor": "function library("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-10",
+      "track": "cms",
+      "title": "Content taxonomy and moderation",
+      "status": "partial",
+      "acceptance": "Reusable categories/tags and optional moderated discussion.",
+      "finding": "Blog categories exist; broader taxonomy/moderation absent.",
+      "issues": [
+        125
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/menu.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "function saveCategory("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-11",
+      "track": "cms",
+      "title": "Editable navigation and templates",
+      "status": "partial",
+      "acceptance": "Editable hierarchy, labels, preview and rollback.",
+      "finding": "Existing fixed menu and sidebar.",
+      "issues": [
+        121,
+        125
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/nav-menus.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "views/layouts/admin.php",
+          "anchor": "admin-sidebar__nav"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-12",
+      "track": "cms",
+      "title": "Staff roles and data lifecycle",
+      "status": "partial",
+      "acceptance": "Granular staff access, owner-approved export/erasure and retention.",
+      "finding": "Admin/customer distinction exists; full lifecycle pending.",
+      "issues": [
+        19,
+        121
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/capabilities.php"
+        },
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/includes/privacy-tools.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AuthService.php",
+          "anchor": "class AuthService"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-13",
+      "track": "cms",
+      "title": "Scheduler and system health",
+      "status": "partial",
+      "acceptance": "Runtime health, deployed revision and durable scheduled jobs.",
+      "finding": "Mail queue/CLI exist; general scheduler and release identity pending.",
+      "issues": [
+        138,
+        121
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/cron.php"
+        },
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/includes/class-wp-site-health.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/MailQueueService.php",
+          "anchor": "class MailQueueService"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-14",
+      "track": "cms",
+      "title": "Admin lists and bulk actions",
+      "status": "partial",
+      "acceptance": "Accessible lists, server pagination/filtering and bounded actions.",
+      "finding": "Admin tables and media bulk exist; complete pagination pending.",
+      "issues": [
+        85,
+        121
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-admin/includes/class-wp-list-table.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "assets/admin-tables.js",
+          "anchor": "document"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "cms-15",
+      "track": "cms",
+      "title": "AI blog drafting and enhancement",
+      "status": "partial",
+      "acceptance": "Real reviewable model draft, preserve original on failure and preserve images.",
+      "finding": "AgentDraftService uses inference; editor static draft route tracked separately.",
+      "issues": [
+        140
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentDraftService.php",
+          "anchor": "function draft("
+        },
+        {
+          "path": "app/Controllers/AdminController.php",
+          "anchor": "function aiDraftBlog("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "service-01",
+      "track": "service",
+      "title": "Published custom landing pages",
+      "status": "implemented",
+      "acceptance": "Owner-managed programme body/duration/cards and published detail pages.",
+      "finding": "PR #127, five public routes observed; editor tested in fixture.",
+      "issues": [
+        123,
+        125
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/CampaignPageService.php",
+          "anchor": "function homepagePrograms("
+        },
+        {
+          "path": "app/Services/CampaignPageService.php",
+          "anchor": "function findPublished("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "campaign custom forms and module controls are wired through schema and UI"
+        }
+      ],
+      "production": {
+        "observed_at": "2026-11-26",
+        "release": "c64163c",
+        "evidence": "https://github.com/getwinharris/nebowellness_php_cms/issues/123#issuecomment-7189461431",
+        "scenario": "Five homepage cards and detail routes verified on desktop/mobile; owner editing isolated."
+      }
+    },
+    {
+      "id": "service-02",
+      "track": "service",
+      "title": "Typed intake fields",
+      "status": "implemented",
+      "acceptance": "Stable editable field keys, validated definitions and submitted values.",
+      "finding": "Existing campaign builder and tests.",
+      "issues": [
+        123,
+        125
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/CampaignPageService.php",
+          "anchor": "function validateFields("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "campaign field edits preserve saved keys and reject invalid definitions by row"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "campaign custom answers are length checked instead of silently truncated"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "service-03",
+      "track": "service",
+      "title": "Enquiry and email verification",
+      "status": "implemented",
+      "acceptance": "Capture answers, preserve form on failure, scoped expiring OTP; enquiry not booking.",
+      "finding": "Contact/campaign fixtures; actual receipt separate.",
+      "issues": [
+        123,
+        63
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Controllers/PublicController.php",
+          "anchor": "function campaignEnquire("
+        },
+        {
+          "path": "app/Services/EmailOtpService.php",
+          "anchor": "class EmailOtpService"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "email OTP is scoped, expiring, one time and attempt limited"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "custom campaign answers reach the owner through the admin contact surface"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "service-04",
+      "track": "service",
+      "title": "Consultation fee catalogue",
+      "status": "implemented",
+      "acceptance": "Published-only fees, exact currency, duration, inclusions and revision guard.",
+      "finding": "PR #136, local DB and live Contact cards.",
+      "issues": [
+        124,
+        123
+      ],
+      "references": [
+        {
+          "source": "woo-source",
+          "locator": "includes/class-wc-order.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/ConsultationFeeService.php",
+          "anchor": "function save("
+        },
+        {
+          "path": "app/Services/ConsultationFeeService.php",
+          "anchor": "function published("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/consultation-fee-integration.php",
+          "anchor": "Same public tool output"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "consultation fees are exact, scoped, and independently owner editable"
+        }
+      ],
+      "production": {
+        "observed_at": "2026-11-26",
+        "release": "88185be",
+        "evidence": "https://github.com/getwinharris/nebowellness_php_cms/issues/124#issuecomment-7193560436",
+        "scenario": "Published fees, durations and inclusions observed; draft/unpublish isolated."
+      }
+    },
+    {
+      "id": "service-05",
+      "track": "service",
+      "title": "Booking triage and slot confirmation",
+      "status": "implemented",
+      "acceptance": "Owner approval, assignment and overlap-safe confirmation; own-account records.",
+      "finding": "Therapy state machine and concurrency fixture.",
+      "issues": [
+        63
+      ],
+      "references": [
+        {
+          "source": "woo-source",
+          "locator": "includes/class-wc-order.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/TherapySessionService.php",
+          "anchor": "function update("
+        },
+        {
+          "path": "app/Controllers/TherapyController.php",
+          "anchor": "function triage("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/therapy-integration.php",
+          "anchor": "Exactly one concurrent clinic session must win the slot"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "service-06",
+      "track": "service",
+      "title": "Verified payment and repeat-safe callbacks",
+      "status": "implemented",
+      "acceptance": "Match captured amount/order/currency, verify signature, recover paid session without another charge.",
+      "finding": "DB fixtures; live authorized merchant pending.",
+      "issues": [
+        63
+      ],
+      "references": [
+        {
+          "source": "woo-source",
+          "locator": "includes/class-wc-order.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/TherapySessionService.php",
+          "anchor": "function matchesCapture("
+        },
+        {
+          "path": "app/Controllers/TherapyController.php",
+          "anchor": "function webhook("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/therapy-integration.php",
+          "anchor": "Duplicate capture mutated the session"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "payment signature verification matches Razorpay format"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "service-07",
+      "track": "service",
+      "title": "Live receipt and booking lifecycle",
+      "status": "partial",
+      "acceptance": "Provider test checkout, receipt delivery and verified customer confirmation.",
+      "finding": "Synthetic capture/recovery exists; real merchant and inbox pending.",
+      "issues": [
+        63
+      ],
+      "references": [
+        {
+          "source": "woo-source",
+          "locator": "includes/admin/settings/class-wc-settings-emails.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/TherapySessionService.php",
+          "anchor": "function change("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "service-08",
+      "track": "service",
+      "title": "Reusable service form/FAQ templates",
+      "status": "partial",
+      "acceptance": "Reusable intake/form/FAQ and CTA definitions with draft preview.",
+      "finding": "Campaign-specific forms exist; general reusable builder missing.",
+      "issues": [
+        125,
+        121,
+        123
+      ],
+      "references": [
+        {
+          "source": "wp-source",
+          "locator": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/CampaignPageService.php",
+          "anchor": "function validateFields("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "sitekit-01",
+      "track": "sitekit",
+      "title": "Measurement settings and verification",
+      "status": "implemented",
+      "acceptance": "Validate IDs, preserve saved credentials and restrict measurement scope.",
+      "finding": "Native settings/measurement fixture.",
+      "issues": [
+        65,
+        58
+      ],
+      "references": [
+        {
+          "source": "sitekit-files",
+          "locator": "includes/Core/Authentication/Verification.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "integrations/google-site-kit/GoogleSiteKitClient.php",
+          "anchor": "function settings("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/google-reports.php",
+          "anchor": "Google configuration preserves saved keys"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "sitekit-02",
+      "track": "sitekit",
+      "title": "GA4 reporting",
+      "status": "implemented",
+      "acceptance": "Parse scoped metrics/landing pages with explicit freshness/error states.",
+      "finding": "Synthetic signed-token/report fixture; real property pending.",
+      "issues": [
+        65
+      ],
+      "references": [
+        {
+          "source": "archive-addendum",
+          "locator": "includes/Modules/Analytics_4.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "integrations/google-site-kit/GoogleSiteKitClient.php",
+          "anchor": "function analytics("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/google-reports.php",
+          "anchor": "Parse GA4 metrics"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "sitekit-03",
+      "track": "sitekit",
+      "title": "Search Console reporting",
+      "status": "implemented",
+      "acceptance": "Read scoped property metrics, pages and queries with explicit error states.",
+      "finding": "Synthetic report fixture; live property pending.",
+      "issues": [
+        65
+      ],
+      "references": [
+        {
+          "source": "archive-addendum",
+          "locator": "includes/Modules/Search_Console.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "integrations/google-site-kit/GoogleSiteKitClient.php",
+          "anchor": "function search("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/google-reports.php",
+          "anchor": "Keep ranked search query clicks"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "sitekit-04",
+      "track": "sitekit",
+      "title": "Owner connection and property discovery",
+      "status": "partial",
+      "acceptance": "Owner connects/selects/revokes correct authorized properties independently.",
+      "finding": "Service-account reporting exists; discovery/owner OAuth incomplete.",
+      "issues": [
+        65,
+        64
+      ],
+      "references": [
+        {
+          "source": "sitekit-files",
+          "locator": "includes/Core/Authentication/Authentication.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "integrations/google-site-kit/GoogleSiteKitClient.php",
+          "anchor": "function token("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "sitekit-05",
+      "track": "sitekit",
+      "title": "PageSpeed Insights",
+      "status": "missing",
+      "acceptance": "Explicit mobile/desktop analysis; actual Lighthouse and CrUX availability.",
+      "finding": "No mapped native PageSpeed route/client.",
+      "issues": [
+        65
+      ],
+      "references": [
+        {
+          "source": "archive-addendum",
+          "locator": "includes/Modules/PageSpeed_Insights.php"
+        },
+        {
+          "source": "sitekit-js",
+          "locator": "PageSpeed JS static analysis"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "sitekit-06",
+      "track": "sitekit",
+      "title": "Consent and attribution",
+      "status": "partial",
+      "acceptance": "Consent before tags, exclude private visits, deduplicate attributed funnel.",
+      "finding": "Measurement restrictions exist; full attribution pending.",
+      "issues": [
+        58,
+        65
+      ],
+      "references": [
+        {
+          "source": "archive-addendum",
+          "locator": "includes/Modules/Analytics_4.php"
+        }
+      ],
+      "source": [
+        {
+          "path": "assets/measurement-consent.js",
+          "anchor": "document"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "sitekit-07",
+      "track": "sitekit",
+      "title": "Reporting schedules and health",
+      "status": "missing",
+      "acceptance": "Configurable report schedule and connection/delivery diagnostics.",
+      "finding": "No general scheduled reporting workflow.",
+      "issues": [
+        65
+      ],
+      "references": [
+        {
+          "source": "sitekit-files",
+          "locator": "includes/Core/Email_Reporting/Cron_Health_Check.php"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "mcp-01",
+      "track": "mcp",
+      "title": "Native ability catalogue",
+      "status": "partial",
+      "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
+      "finding": "Internal registry validates input and scope; output/capability catalogue incomplete.",
+      "issues": [
+        128,
+        121
+      ],
+      "references": [
+        {
+          "source": "wp-mcp",
+          "locator": "Abilities/GetAbilityInfoAbility.php"
+        },
+        {
+          "source": "wp-abilities",
+          "locator": "Input/output schemas and permission callbacks"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function declarations("
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function validateArguments("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "mcp-02",
+      "track": "mcp",
+      "title": "Capability discovery and inspection",
+      "status": "missing",
+      "acceptance": "List and inspect authorized abilities and exact schemas.",
+      "finding": "Internal model declarations are not external MCP.",
+      "issues": [
+        121,
+        128
+      ],
+      "references": [
+        {
+          "source": "wp-mcp",
+          "locator": "Abilities/DiscoverAbilitiesAbility.php"
+        },
+        {
+          "source": "wp-abilities",
+          "locator": "Input/output schemas and permission callbacks"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "mcp-03",
+      "track": "mcp",
+      "title": "MCP protocol transport",
+      "status": "missing",
+      "acceptance": "Version negotiation, initialize, JSON-RPC IDs, tools/list and tools/call.",
+      "finding": "No mapped native MCP endpoint.",
+      "issues": [
+        121,
+        128
+      ],
+      "references": [
+        {
+          "source": "wp-mcp",
+          "locator": "Transport/HttpTransport.php"
+        },
+        {
+          "source": "wp-abilities",
+          "locator": "Input/output schemas and permission callbacks"
+        },
+        {
+          "source": "mcp-protocol",
+          "locator": "Streamable HTTP lifecycle"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "mcp-04",
+      "track": "mcp",
+      "title": "Delegated access and session lifecycle",
+      "status": "missing",
+      "acceptance": "Revocable scoped client identity, session/actor binding and negative tests.",
+      "finding": "Website sessions are not MCP delegation.",
+      "issues": [
+        19,
+        128
+      ],
+      "references": [
+        {
+          "source": "wp-mcp",
+          "locator": "Transport/Infrastructure/HttpSessionValidator.php"
+        },
+        {
+          "source": "wp-abilities",
+          "locator": "Input/output schemas and permission callbacks"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "mcp-05",
+      "track": "mcp",
+      "title": "Execution and output validation",
+      "status": "partial",
+      "acceptance": "Recheck permission and schema on invocation, bound results and structured errors.",
+      "finding": "Internal validated calls exist; external typed output incomplete.",
+      "issues": [
+        128
+      ],
+      "references": [
+        {
+          "source": "wp-mcp",
+          "locator": "Abilities/ExecuteAbilityAbility.php"
+        },
+        {
+          "source": "wp-abilities",
+          "locator": "Input/output schemas and permission callbacks"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function executeModelCall("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "mcp-06",
+      "track": "mcp",
+      "title": "Action proposals and explicit approval",
+      "status": "partial",
+      "acceptance": "Consequential writes require user-approved typed operation and repeat-safe receipt.",
+      "finding": "Existing draft forms/ticket actions; unified contract missing.",
+      "issues": [
+        128,
+        134
+      ],
+      "references": [
+        {
+          "source": "wp-mcp",
+          "locator": "Domain/Tools/McpTool.php"
+        },
+        {
+          "source": "wp-abilities",
+          "locator": "Input/output schemas and permission callbacks"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentDraftService.php",
+          "anchor": "function draft("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "a2ui-01",
+      "track": "a2ui",
+      "title": "Native structured UI baseline",
+      "status": "partial",
+      "acceptance": "Approved cards/forms/navigation, safe rendering and text fallback.",
+      "finding": "Existing draft forms and navigation; not A2UI protocol.",
+      "issues": [
+        128,
+        125
+      ],
+      "references": [
+        {
+          "source": "a2ui",
+          "locator": "docs/a2ui_protocol.md"
+        }
+      ],
+      "source": [
+        {
+          "path": "assets/admin-agent.js",
+          "anchor": "buildDraftForm"
+        },
+        {
+          "path": "assets/support-chat.js",
+          "anchor": "validActions"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "a2ui-02",
+      "track": "a2ui",
+      "title": "Versioned component and function catalog",
+      "status": "missing",
+      "acceptance": "Advertise approved components, schemas and authorized functions.",
+      "finding": "No v1.0 catalog.",
+      "issues": [
+        128,
+        125
+      ],
+      "references": [
+        {
+          "source": "a2ui",
+          "locator": "docs/a2ui_custom_functions.md"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "a2ui-03",
+      "track": "a2ui",
+      "title": "Surface lifecycle and bound data",
+      "status": "missing",
+      "acceptance": "Create/update/delete surfaces and data models with schema validation.",
+      "finding": "No A2UI lifecycle transport.",
+      "issues": [
+        128
+      ],
+      "references": [
+        {
+          "source": "a2ui",
+          "locator": "docs/a2ui_protocol.md"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "a2ui-04",
+      "track": "a2ui",
+      "title": "Typed user events and function RPC",
+      "status": "missing",
+      "acceptance": "Correlated agent/renderer function calls, authorized callers and explicit actions.",
+      "finding": "Existing action links are not A2UI RPC.",
+      "issues": [
+        128,
+        134
+      ],
+      "references": [
+        {
+          "source": "a2ui",
+          "locator": "docs/a2ui_custom_functions.md"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "a2ui-05",
+      "track": "a2ui",
+      "title": "Validation and recovery",
+      "status": "partial",
+      "acceptance": "Reject unknown components/unsafe values/duplicate actions; fallback on invalid message.",
+      "finding": "Existing JS link allowlists; protocol validation absent.",
+      "issues": [
+        128
+      ],
+      "references": [
+        {
+          "source": "a2ui",
+          "locator": "docs/a2ui_protocol.md"
+        }
+      ],
+      "source": [
+        {
+          "path": "assets/support-chat.js",
+          "anchor": "isActionPath"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "a2ui-06",
+      "track": "a2ui",
+      "title": "Responsive renderer acceptance",
+      "status": "missing",
+      "acceptance": "Golden component/action fixtures and desktop/mobile both agent surfaces.",
+      "finding": "Current UI tests do not prove A2UI.",
+      "issues": [
+        128,
+        125
+      ],
+      "references": [
+        {
+          "source": "a2ui",
+          "locator": "docs/sdks_spec.md"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "completion-01",
+      "track": "completion",
+      "title": "Shared configured connection",
+      "status": "implemented",
+      "acceptance": "Both agents share admin-configured AiClient and model configuration.",
+      "finding": "Shared client verified by existing tests.",
+      "issues": [
+        82,
+        128
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "Configured model and endpoint"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/SecretService.php",
+          "anchor": "function getModelConfig("
+        },
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "function completeWithTools("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "support assistant widget uses scoped session memory and shared provider configuration"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "completion-02",
+      "track": "completion",
+      "title": "Chat Completions wire contract",
+      "status": "implemented",
+      "acceptance": "Native tool_calls, correlated tool_call_id and visible final response.",
+      "finding": "Loopback protocol fixture; no live compatible endpoint claimed.",
+      "issues": [
+        128,
+        82
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "messages, tools and tool_call_id"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "function completeChatWithTools("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/agent-harness.test.cjs",
+          "anchor": "completion harness correlates native calls"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "completion-03",
+      "track": "completion",
+      "title": "Optional model-led tools",
+      "status": "implemented",
+      "acceptance": "Direct real inference for conversation/writing; required evidence for live facts; no fake response.",
+      "finding": "PR #139 actual route regression fixture; live compatible endpoint pending.",
+      "issues": [
+        128,
+        82
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "tool_choice auto"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function acceptsEvidence("
+        },
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "requireTool"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "model_direct"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "agents reject persona echoes and require observed tools and inference"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "completion-04",
+      "track": "completion",
+      "title": "Schema and call validation",
+      "status": "implemented",
+      "acceptance": "Reject unknown/malformed/duplicate calls and bound loop.",
+      "finding": "Existing strict declarations and negative fixtures.",
+      "issues": [
+        128
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "strict function schema"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function completionDeclarations("
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function validateArguments("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/agent-harness.test.cjs",
+          "anchor": "bad-json"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "completion-05",
+      "track": "completion",
+      "title": "Provider capability profiles",
+      "status": "partial",
+      "acceptance": "Configure model-supported parameters, refusal/finish states and verified transport.",
+      "finding": "Native Google REST and compatible loop; profile routing incomplete.",
+      "issues": [
+        82,
+        128
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "Create completion"
+        },
+        {
+          "source": "gemma",
+          "locator": "Provider-specific protocol"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "function completeGoogleWithTools("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "completion-06",
+      "track": "completion",
+      "title": "Retry, deadline and provider health",
+      "status": "partial",
+      "acceptance": "Bounded retries, quota-aware routing and truthful failures.",
+      "finding": "PR #137 transient retry; generalized provider health pending.",
+      "issues": [
+        82
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "Provider status and finish reason"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AiModelRouter.php",
+          "anchor": "function recordFailure("
+        },
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "function post("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/provider-trace.test.cjs",
+          "anchor": "transient"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "completion-07",
+      "track": "completion",
+      "title": "Validated editorial generation",
+      "status": "partial",
+      "acceptance": "Real draft/rewrite with review, original preserved on invalid/truncated result.",
+      "finding": "Draft inference exists; editor regression tracked.",
+      "issues": [
+        140
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "Visible completion content"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentDraftService.php",
+          "anchor": "function draft("
+        },
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "function completeOrNull("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "completion-08",
+      "track": "completion",
+      "title": "Real provider diagnostics",
+      "status": "partial",
+      "acceptance": "Independent genuine text and tool round-trip probes for configured compatible models.",
+      "finding": "Existing integration test/probe, real compatible model acceptance pending.",
+      "issues": [
+        82,
+        128
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "Create chat completion"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Controllers/AdminController.php",
+          "anchor": "function testAi("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "completion-09",
+      "track": "completion",
+      "title": "Streaming and cancellation",
+      "status": "missing",
+      "acceptance": "Visible deltas, bounded incremental arguments, terminal states and usage.",
+      "finding": "Current web agent is non-streaming.",
+      "issues": [
+        128
+      ],
+      "references": [
+        {
+          "source": "openai-chat",
+          "locator": "stream and stream_options"
+        },
+        {
+          "source": "openai-tools",
+          "locator": "Function calling"
+        }
+      ],
+      "source": [],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "harness-01",
+      "track": "harness",
+      "title": "Instruction retrieval",
+      "status": "implemented",
+      "acceptance": "Versioned role/topic rules and scoped request instructions.",
+      "finding": "Native config and instructions; no vector dependency.",
+      "issues": [
+        128
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "docs/subsystems/core.md"
+        }
+      ],
+      "source": [
+        {
+          "path": "config/agent-instructions.php",
+          "anchor": "shared"
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function instructions("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "support assistant answers signed-out visitors instead of printing a menu"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "harness-02",
+      "track": "harness",
+      "title": "Business knowledge retrieval",
+      "status": "partial",
+      "acceptance": "Current published/actor-scoped records, provenance and fresh follow-ups.",
+      "finding": "Lexical search and scoped tools; multilingual/relevance coverage incomplete.",
+      "issues": [
+        128,
+        123
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "packages/core/agent-loop/src/agent.ts"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/ClinicKnowledgeService.php",
+          "anchor": "function rank("
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function modelResults("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "harness-03",
+      "track": "harness",
+      "title": "Tool retrieval and discovery",
+      "status": "partial",
+      "acceptance": "Model-led discovery and role-filtered schemas/skills.",
+      "finding": "Bounded schema ranking; no deferred discovery.",
+      "issues": [
+        128
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "docs/subsystems/core.md"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function declarations("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "harness-04",
+      "track": "harness",
+      "title": "Session ownership, replay and history",
+      "status": "implemented",
+      "acceptance": "Authorize actor before tools, reject conflicting turn IDs, replay accepted turn and clear context.",
+      "finding": "Both real PHP handlers tested with loopback model.",
+      "issues": [
+        128,
+        134
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "packages/core/session/src/tool-history.ts"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentConversation.php",
+          "anchor": "function replay("
+        },
+        {
+          "path": "app/Services/AgentConversation.php",
+          "anchor": "function promptContext("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "both chat routes resume their own JSON session"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "harness-05",
+      "track": "harness",
+      "title": "Durable execution journal",
+      "status": "partial",
+      "acceptance": "Append start/step/call/result/end milestones and recover interrupted turns.",
+      "finding": "Private final-event archive exists; full incremental journal absent.",
+      "issues": [
+        134,
+        128
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "packages/core/session/src/repair.ts"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentConversation.php",
+          "anchor": "function recordEvent("
+        },
+        {
+          "path": "app/Services/AgentSessionService.php",
+          "anchor": "function persist("
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "harness-06",
+      "track": "harness",
+      "title": "Ticket action idempotency",
+      "status": "implemented",
+      "acceptance": "Same explicit ticket request returns same receipt; no duplicate or cross-account access.",
+      "finding": "Local DB and UI retry fixture.",
+      "issues": [
+        134
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "packages/core/session/src/tool-history.ts"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/SupportTicketService.php",
+          "anchor": "function create("
+        },
+        {
+          "path": "app/Services/AgentConversation.php",
+          "anchor": "function recordEvent("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/crm-integration.php",
+          "anchor": "Duplicate request returns same ticket"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "implementing agent owns the release and successful ticket archive is idempotent"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "harness-07",
+      "track": "harness",
+      "title": "Observed inference and tool trace",
+      "status": "implemented",
+      "acceptance": "Record actual model, tool origin, timing, usage, status and failed outcomes.",
+      "finding": "Existing trace; one real Support round trip recorded, not sustained health.",
+      "issues": [
+        82,
+        128,
+        134
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "packages/session/session-telemetry/src/coordinator.ts"
+        },
+        {
+          "source": "deepseek-telemetry",
+          "locator": "Static telemetry evidence"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentRunTrace.php",
+          "anchor": "function provider("
+        },
+        {
+          "path": "app/Services/AgentRunTrace.php",
+          "anchor": "function usage("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/provider-trace.test.cjs",
+          "anchor": "native tool rounds"
+        },
+        {
+          "path": "tests/run.php",
+          "anchor": "agent monitoring counts bounded outcomes without treating fallbacks as model success"
+        }
+      ],
+      "production": {
+        "observed_at": "2026-11-26",
+        "release": "88185be",
+        "evidence": "https://github.com/getwinharris/nebowellness_php_cms/issues/128#issuecomment-7195209644",
+        "scenario": "Actual Support fee lookup trace 45af97ef00fca6c9; no authenticated Enterprise or sustained provider acceptance."
+      }
+    },
+    {
+      "id": "harness-08",
+      "track": "harness",
+      "title": "Private history and CRM projections",
+      "status": "partial",
+      "acceptance": "Owner-only bounded history, export, notes, retention and owner live acceptance.",
+      "finding": "Session archive and CRM exist; authenticated acceptance pending.",
+      "issues": [
+        134
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "docs/subsystems/session-telemetry.md"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AgentSessionService.php",
+          "anchor": "function recent("
+        },
+        {
+          "path": "app/Services/AgentSessionService.php",
+          "anchor": "function get("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/crm-integration.php",
+          "anchor": "Durable session readback"
+        }
+      ],
+      "production": null
+    },
+    {
+      "id": "harness-09",
+      "track": "harness",
+      "title": "Golden evaluations and regression gates",
+      "status": "partial",
+      "acceptance": "Versioned questions/expected evidence, multi-turn, failure, security and real surface comparisons.",
+      "finding": "Transport fixtures present; broader golden matrix and production acceptance missing.",
+      "issues": [
+        128,
+        82,
+        140
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "packages/core/agent-loop/src/agent.ts"
+        }
+      ],
+      "source": [
+        {
+          "path": "tests/agent-harness.test.cjs",
+          "anchor": "completion harness correlates native calls"
+        },
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "both chat routes"
+        }
+      ],
+      "tests": [],
+      "production": null
+    },
+    {
+      "id": "harness-10",
+      "track": "harness",
+      "title": "Task budget and interrupted recovery",
+      "status": "partial",
+      "acceptance": "Bounded loop, durable cancellation/checkpoints and safe resume.",
+      "finding": "Round/deadline bounds exist; persistent task recovery missing.",
+      "issues": [
+        82,
+        134,
+        128
+      ],
+      "references": [
+        {
+          "source": "deepseek",
+          "locator": "packages/core/agent-loop/src/inbox.ts"
+        }
+      ],
+      "source": [
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "tool execution budget exhausted"
+        }
+      ],
+      "tests": [],
+      "production": null
+    }
+  ],
+  "updates": [
+    {
+      "id": "141-baseline",
+      "date": "2026-11-26",
+      "issues": [
+        141
+      ],
+      "components": [
+        "cms-01",
+        "cms-02",
+        "cms-03",
+        "cms-04",
+        "cms-05",
+        "cms-06",
+        "cms-07",
+        "cms-08",
+        "cms-09",
+        "cms-10",
+        "cms-11",
+        "cms-12",
+        "cms-13",
+        "cms-14",
+        "cms-15",
+        "service-01",
+        "service-02",
+        "service-03",
+        "service-04",
+        "service-05",
+        "service-06",
+        "service-07",
+        "service-08",
+        "sitekit-01",
+        "sitekit-02",
+        "sitekit-03",
+        "sitekit-04",
+        "sitekit-05",
+        "sitekit-06",
+        "sitekit-07",
+        "mcp-01",
+        "mcp-02",
+        "mcp-03",
+        "mcp-04",
+        "mcp-05",
+        "mcp-06",
+        "a2ui-01",
+        "a2ui-02",
+        "a2ui-03",
+        "a2ui-04",
+        "a2ui-05",
+        "a2ui-06",
+        "completion-01",
+        "completion-02",
+        "completion-03",
+        "completion-04",
+        "completion-05",
+        "completion-06",
+        "completion-07",
+        "completion-08",
+        "completion-09",
+        "harness-01",
+        "harness-02",
+        "harness-03",
+        "harness-04",
+        "harness-05",
+        "harness-06",
+        "harness-07",
+        "harness-08",
+        "harness-09",
+        "harness-10"
+      ],
+      "summary": "Initial source-backed baseline after PR #139; archived REA evidence and read-only bapX reference. Partial/missing count zero. General commerce parity excluded."
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "evidence_id": "ev_b18dfa099ad76e6d6bce7b94094afa63752a662156a8dcab56e18e5a32dd9fda",
+  "parent_evidence_id": "ev_77ff57f9b298ac73dfde97e0e49949c4c5b0461d734710b0ba8063c8702b47c5",
+  "operation": "inspect_analysis_view",
+  "parent_operation": "analyze_javascript_application",
+  "subject": {
+    "name": "sitekit-ui-selected",
+    "digest": {
+      "sha256": "b72d9a0fd5dbcd7ac901a83c62a000a2b997e3b4390dfa3e1fca1ae7854106d7"
+    },
+    "local_path": "$HOME/Documents/rea-research/wp-woo-20261116/sitekit-ui-selected",
+    "format": "directory",
+    "architecture": null
+  },
+  "coverage": {
+    "status": "complete-within-view",
+    "examined": 14,
+    "total": 14,
+    "next_offset": null,
+    "exhausted": true
+  },
+  "limitations": [
+    "Boundary extraction covers unshadowed JSON/global coercions plus parse and validation method candidates.",
+    "Caller-selected source analysis leaves 5 inventoried files outside analysis scope. Inventory identity covers the complete artifact; relationships through unselected sources remain unknown.",
+    "Child-process extraction covers asynchronous node:child_process creation, literal argv/env/stdio options, exit/error listeners, and kill signals.",
+    "CommonJS and ESM binding relationships were recovered from inert syntax and resolved only within the inventoried artifact container.",
+    "Configuration extraction covers process.env, process.argv, node:fs reads, and direct logical defaults.",
+    "Event extraction covers EventEmitter-style literal registrations, removals, and dispatch candidates; dynamic names remain unknown.",
+    "Function fingerprints are static candidates; equal digests can remain ambiguous and do not prove behavioral equivalence.",
+    "Graph coverage is incomplete; unavailable facts remain explicit and must not be read as absence.",
+    "JavaScript and HTML were parsed as inert text; bundle bootstrap code was never executed.",
+    "Local data flow does not claim control-flow-sensitive reaching definitions or arbitrary dynamic property resolution.",
+    "Promise ownership covers explicit unshadowed Promise construction, static factories, aggregation, chaining, and await syntax only.",
+    "Request extraction covers fetch, WebSocket, node:http/node:https construction, direct option fields, and exact local response consumers.",
+    "Resource extraction covers built-in filesystem/network acquisition and exact local close/destroy/end handles.",
+    "Semantic node retention reached max_semantic_nodes is 2000 (default 100000; an integer from 1 to 1000000) and max_semantic_nodes_per_file is 2000 (default 20000; an integer from 1 to 1000000). Set max_semantic_nodes and max_semantic_nodes_per_file on the next analyze_javascript_application call (CLI: --max-semantic-nodes and --max-semantic-nodes-per-file). The change applies to that next analysis and does not restart the worker or the REA server. Raising them does not raise max_semantic_unknowns, max_heap_mb, transfer ceilings, or the parent result budget. Coverage reports the same effective values as semantic_graph_node_ceiling and semantic_graph_file_node_ceiling.",
+    "Semantic unknown retention reached max_semantic_unknowns is 2000 (default 100000; an integer from 1 to 1000000) and max_semantic_unknowns_per_file is 2000 (default 20000; an integer from 1 to 1000000). Set max_semantic_unknowns and max_semantic_unknowns_per_file on the next analyze_javascript_application call (CLI: --max-semantic-unknowns and --max-semantic-unknowns-per-file). The change applies to that next analysis and does not restart the worker or the REA server. Raising them does not raise max_semantic_nodes, max_heap_mb, transfer ceilings, or the parent result budget. Coverage reports the same effective values as semantic_graph_unknown_ceiling and semantic_graph_file_unknown_ceiling. Omission coverage counts examined emission occurrences by family and reason, including repeats; it does not count unexamined source frontiers or distinct discarded identities.",
+    "Static imports, entrypoints, workers, endpoints, and storage relationships do not prove runtime execution.",
+    "Static paths and relationships may remain unresolved when expressions are dynamic or obfuscated.",
+    "The semantic graph contains static syntax observations and conservative relationship candidates; it does not claim runtime execution.",
+    "Timer extraction covers global or node:timers scheduling and exact local-handle cancellation.",
+    "Webpack/Rspack factories were recovered from AST literals; REA did not invoke push handlers or bundle bootstrap code."
+  ]
+}

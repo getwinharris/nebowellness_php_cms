@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-11-26",
+  "sources": [
+    {
+      "id": "wp-source",
+      "label": "WordPress 7.1.4 selected source graph",
+      "url": "https://developer.wordpress.org/apis/",
+      "revision": "sha256:a147146c159362778ecbbbfb07bb20ddf4e85b130f971c824e656a8f938c5f87",
+      "scope": "REA 6.8.0 historical-reference; selected source; static only",
+      "artifact": "docs/research/rea/evidence/wp-source.json",
+      "artifact_sha256": "a96fb73ba81f83bb86060bfa395bf6c15fcb1ef95c621a78271c44465e9c74b8",
+      "original_sha256": "5b402b5603d7beb30e5848f141008dae4b4875f5ab6d24780e8e58b37dd13f51"
+    },
+    {
+      "id": "woo-source",
+      "label": "WooCommerce 11.3.0 selected source graph",
+      "url": "https://developer.woocommerce.com/",
+      "revision": "sha256:d9eb1e46df8309eb37b6f7f3fba51480f2a9a00e7feb10b1487592fde39accc6",
+      "scope": "REA 6.8.0 historical-reference; only service workflow patterns are in current scope",
+      "artifact": "docs/research/rea/evidence/woo-source.json",
+      "artifact_sha256": "9c4051d8f180afc7afdb9b98ec2a9b91f1ee5a2bb63d164d44eeb0aaedcdd8c6",
+      "original_sha256": "a4a3f9b3922f6f336a6b7ce2b07f435a35cc4a067610d0fe8566b3e0946a82d4"
+    },
+    {
+      "id": "sitekit-files",
+      "label": "Google Site Kit 1.192.0 selected file digests",
+      "url": "https://sitekit.withgoogle.com/documentation/",
+      "revision": "sha256:da9c8424b90fc700b09484c20a13aaa3e4ea75edd05a175bf100c6484daee064",
+      "scope": "90 selected PHP file hashes; no executable source",
+      "artifact": "docs/research/rea/evidence/sitekit-files.json",
+      "artifact_sha256": "afe7deb8f9446151cd0dffd965f3fa11ac224365eef2150a62a664e168076f26",
+      "original_sha256": "68ef121b0917c4693368550f2bf4685f73a26c4758a089325f8a7c5a9812c069"
+    },
+    {
+      "id": "sitekit-summary",
+      "label": "Google Site Kit selected source summary",
+      "url": "https://sitekit.withgoogle.com/documentation/",
+      "revision": "sha256:da9c8424b90fc700b09484c20a13aaa3e4ea75edd05a175bf100c6484daee064",
+      "scope": "Partial historical source inventory; no runtime proof",
+      "artifact": "docs/research/rea/evidence/sitekit-summary.json",
+      "artifact_sha256": "cfd552a6714991b0cafd99145c43ffcca71636ac9e344add0cba3e3968b019fd",
+      "original_sha256": "747c0cbde61a1a0db670011edc3abba4b81be75d3c071e70bf402a8062933c06"
+    },
+    {
+      "id": "sitekit-js",
+      "label": "Site Kit PageSpeed JS REA projection",
+      "url": "https://sitekit.withgoogle.com/documentation/supported-services/pagespeed-insights/",
+      "revision": "sha256:da9c8424b90fc700b09484c20a13aaa3e4ea75edd05a175bf100c6484daee064",
+      "scope": "Bounded static JS analysis; selected evidence metadata only",
+      "artifact": "docs/research/rea/evidence/sitekit-js.json",
+      "artifact_sha256": "42b09108a33f92f9b875a0053ecdbcd1ee07d5011e5206c3bf3ea00a2e9202d5",
+      "original_sha256": "7e6f952ec7f351b68203623f4e409ac4be1ae61d61e18f1ce5bfb9e3a5fd69a7"
+    },
+    {
+      "id": "archive-inventory",
+      "label": "WordPress and WooCommerce archive provenance",
+      "url": "https://developer.wordpress.org/",
+      "revision": "sha256:a147146c159362778ecbbbfb07bb20ddf4e85b130f971c824e656a8f938c5f87",
+      "scope": "Archive inventory only; both archive hashes inside",
+      "artifact": "docs/research/rea/evidence/archive-inventory.json",
+      "artifact_sha256": "b19c9797e579422771bb9b034ca7349ec725198bb7430d71d86c9a48fbe78525",
+      "original_sha256": "873a6b128d868095d17cdb334d7e3681ebfd3c365f4ab385c67ea618b24ce729"
+    },
+    {
+      "id": "historical-platform-matrix",
+      "label": "Historical bapX CMS/commerce findings",
+      "url": "https://github.com/bapxmediahub/bapXphpAiBackend",
+      "revision": "c1a873f3895bed246529c31c096119278847cb34",
+      "scope": "Historical 39-row comparison to another repository; not current Nebo progress; broad commerce excluded",
+      "artifact": "docs/research/rea/evidence/historical-platform-matrix.json",
+      "artifact_sha256": "76a810e05206913a5cd5ef96814ca0002dd28958ecf2349b02fa66e1b5055e53",
+      "original_sha256": "5840de40c8b27581d5f59d58792dc535b729e4cadf5c0a8f1194e19603e2f0eb"
+    },
+    {
+      "id": "historical-agent-matrix",
+      "label": "Historical REA agent/support/commerce findings",
+      "url": "https://github.com/bapxmediahub/bapXphpAiBackend",
+      "revision": "08a988729c90c63d2bc9676829a82baf1850fbc4",
+      "scope": "Historical 28-row comparison; not current Nebo progress",
+      "artifact": "docs/research/rea/evidence/historical-agent-matrix.json",
+      "artifact_sha256": "894dc05b9d799c191f989ed81cd37c4e4a0354bc4ef2dd6ffa9efcf3f2fd25d9",
+      "original_sha256": "894dc05b9d799c191f989ed81cd37c4e4a0354bc4ef2dd6ffa9efcf3f2fd25d9"
+    },
+    {
+      "id": "wp-mcp",
+      "label": "WordPress MCP Adapter selected includes graph",
+      "url": "https://github.com/WordPress/mcp-adapter/tree/f778ba25c166ddfbb17dba2a349f7e23e9008614",
+      "revision": "f778ba25c166ddfbb17dba2a349f7e23e9008614",
+      "scope": "66 selected PHP/source files; partial static inventory; native design reference, not plugin dependency",
+      "artifact": "docs/research/rea/evidence/wp-mcp.json",
+      "artifact_sha256": "85f54b22c4cf97f72b348d952fcf25f073b3d5f441a73e4dc0ef5a53152ff249",
+      "original_sha256": "2534d92649e2244f58410710e58c7dccaedf6033b5c604cb64e0ff163ccc8081"
+    },
+    {
+      "id": "a2ui",
+      "label": "A2UI v1.0 specification graph",
+      "url": "https://github.com/a2ui-project/a2ui/tree/36725eee042da90c526f469f94246f96e16fdc35/specification/v1_0",
+      "revision": "36725eee042da90c526f469f94246f96e16fdc35",
+      "scope": "40 selected spec/schema/example files; partial static inventory; v1.0 is current in pinned source",
+      "artifact": "docs/research/rea/evidence/a2ui.json",
+      "artifact_sha256": "3b6cbc6b98ea5ee662fd3c1c6fd5c01a39f0107a1bb85ad0b31cdd4a7e819dd0",
+      "original_sha256": "a25c58d76e470cc238c44c2c090c3d7994fbdbc8a2bd68cc96f96d5ce461ba60"
+    },
+    {
+      "id": "deepseek",
+      "label": "DeepSeek Harness selected graph",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/tree/39163dd30f703a79079e2d2446545cff3c453738",
+      "revision": "39163dd30f703a79079e2d2446545cff3c453738",
+      "scope": "10 selected files; every selected file independently matched this exact Git tree; REA 6.8.0 historical-reference; partial",
+      "artifact": "docs/research/rea/evidence/deepseek.json",
+      "artifact_sha256": "c469c2675d2679df21bfff0e257a14eeb56ac3ec81d771316306854e97b27783",
+      "original_sha256": "faf60e203fc3c0fcb382b84da758352be39511034cc94321ef06c9995bde6f76"
+    },
+    {
+      "id": "deepseek-telemetry",
+      "label": "DeepSeek telemetry static REA projection",
+      "url": "https://github.com/deepseek-ai/deepseek-harness/tree/39163dd30f703a79079e2d2446545cff3c453738/packages/session/session-telemetry",
+      "revision": "39163dd30f703a79079e2d2446545cff3c453738",
+      "scope": "Earlier bounded JavaScript/TypeScript graph analysis; metadata only, not observed runtime",
+      "artifact": "docs/research/rea/evidence/deepseek-telemetry.json",
+      "artifact_sha256": "bdaf43477c0a16c96252642826129af215a945bdf805ae3674efddc2b9ff1a5a",
+      "original_sha256": "ffeda2be4eab6a6993eb6751e4565e9cb2c3da1fa5c3d40a1ba8e0e44f736ae5"
+    },
+    {
+      "id": "historical-agent-audit",
+      "label": "Historical REA audit narrative",
+      "url": "https://github.com/bapxmediahub/bapXphpAiBackend",
+      "revision": "08a988729c90c63d2bc9676829a82baf1850fbc4",
+      "scope": "Prior static research narrative; scope superseded by living register; never count as delivered Nebo features",
+      "artifact": "docs/research/rea/evidence/historical-agent-audit.md",
+      "artifact_sha256": "557dbca4d7a25c29ae4bf3c4c792cf6f18b98a86b26070a4276dd4a72a05fdb7",
+      "original_sha256": "5851f545fde43c5c0956cffe22192e05086c3ef938a2e9ae86fe8f876a359632"
+    },
+    {
+      "id": "wp-abilities",
+      "label": "WordPress Abilities API handbook",
+      "url": "https://developer.wordpress.org/apis/abilities-api/",
+      "revision": "reviewed-2026-11-26",
+      "scope": "Typed input/output schemas and permission callbacks"
+    },
+    {
+      "id": "wp-mcp-doc",
+      "label": "WordPress MCP Adapter introduction",
+      "url": "https://developer.wordpress.org/news/2026/02/from-abilities-to-ai-agents-introducing-the-wordpress-mcp-adapter/",
+      "revision": "reviewed-2026-11-26",
+      "scope": "Discovery, ability metadata and permission-checked execution"
+    },
+    {
+      "id": "mcp-protocol",
+      "label": "Model Context Protocol specification",
+      "url": "https://modelcontextprotocol.io/specification/",
+      "revision": "reviewed-2026-11-26",
+      "scope": "Version negotiation, tools/list and tools/call, transport and authorization; pin a protocol version before implementation"
+    },
+    {
+      "id": "openai-chat",
+      "label": "OpenAI Chat Completions reference",
+      "url": "https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create",
+      "revision": "reviewed-2026-11-26",
+      "scope": "Chat Completions wire contract and optional tool choice; documentation reference, not REA binary analysis"
+    },
+    {
+      "id": "openai-tools",
+      "label": "OpenAI Function calling guide",
+      "url": "https://developers.openai.com/api/docs/guides/function-calling",
+      "revision": "reviewed-2026-11-26",
+      "scope": "Typed tools, correlated tool results, auto versus required tool choice"
+    },
+    {
+      "id": "gemma",
+      "label": "Gemma on Gemini API documentation",
+      "url": "https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api",
+      "revision": "reviewed-2026-11-26",
+      "scope": "Provider-specific tool envelope, thought parts and model capability differences"
+    },
+    {
+      "id": "sitekit-doc",
+      "label": "Site Kit supported services",
+      "url": "https://sitekit.withgoogle.com/documentation/supported-services/",
+      "revision": "reviewed-2026-11-26",
+      "scope": "Native analytics, reporting and measurement patterns"
+    },
+    {
+      "id": "bapx-reference",
+      "label": "bapXphpAiBackend read-only reference",
+      "url": "https://github.com/bapxmediahub/bapXphpAiBackend/tree/c460fe574f8a1c435fd8d7faa3f500200e79c78a",
+      "revision": "c460fe574f8a1c435fd8d7faa3f500200e79c78a",
+      "scope": "Reference product, not an upstream remote or evidence of Nebo implementation"
+    },
+    {
+      "id": "archive-addendum",
+      "label": "Exact archive source addendum",
+      "url": "https://developer.wordpress.org/",
+      "revision": "2026-11-26",
+      "scope": "Supplemental static member hashes for original source locators missing from selected REA graphs.",
+      "artifact": "docs/research/rea/evidence/archive-source-addendum.json",
+      "artifact_sha256": "35cad05a283a912e412db5177701fef41f56b944c570f69c2fbcd8557b35a017"
+    }
+  ],
+  "policy": "Only sanitized historical findings, hashes, selected static source graphs and public documentation pointers. No vendor runtime, archives, secret values, raw customer traces or production exports. Originals retained in local research folders; artifact digest refers to normalized repository copy."
+}

@@ -1,0 +1,617 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-11-15",
+  "scope": "Selected source-backed capabilities; not an exhaustive feature inventory of whole upstream products",
+  "production_reference": "08a988729c90c63d2bc9676829a82baf1850fbc4",
+  "local_uncommitted_head": "a5c3418072ad3ab8b01f643b866c4132e51c43cd",
+  "gaps": [
+    {
+      "id": "A01",
+      "area": "Agent execution",
+      "priority": "P0",
+      "title": "Record execution when it happens, not after the answer",
+      "observed_state": "Partial in uncommitted #241 work: AgentTraceService explicitly groups stages after execution; all spans are root-linked, without real start/end timing.",
+      "project_sources": [
+        "app/Services/AgentTraceService.php::build",
+        "app/Services/AiClient.php",
+        "app/Services/AgentToolRegistry.php::run"
+      ],
+      "reference_sources": [
+        {
+          "id": "D1",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/packages/session/session-telemetry/src/coordinator.ts#L58-L212"
+        },
+        {
+          "id": "L1",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/src/server/otel/OtelIngestionProcessor.ts#L437-L689"
+        }
+      ],
+      "php_implementation": "Instrument actual PHP boundaries with begin/end span IDs, parent IDs, monotonic durations and observed wall times. Keep trace/event records inside the same conversation JSON; do not invent causal order.",
+      "acceptance_test": "A two-tool, two-provider-attempt fixture reconstructs actual ordering and nesting; a timed-out tool has an ended error span."
+    },
+    {
+      "id": "A02",
+      "area": "Agent execution",
+      "priority": "P0",
+      "title": "Recover incomplete turns and distinguish committed from delivered work",
+      "observed_state": "Current file writes are atomic, but a full turn is appended only after answer construction. There is no canonical per-step sequence or crash-resume contract.",
+      "project_sources": [
+        "app/Services/AgentConversationService.php::record/append",
+        "app/Controllers/SupportController.php::ask"
+      ],
+      "reference_sources": [
+        {
+          "id": "D1",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/packages/session/session-telemetry/src/coordinator.ts#L58-L212"
+        },
+        {
+          "id": "D2",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/docs/subsystems/session-telemetry.md"
+        }
+      ],
+      "php_implementation": "Store request ID, turn state, monotonic event sequence and terminal outcome in the same JSON. Persist started/failed/completed milestones so an interrupted turn is not silently absent.",
+      "acceptance_test": "Kill a disposable worker between retrieval and response; recovery shows an interrupted turn, never a falsely completed one."
+    },
+    {
+      "id": "A03",
+      "area": "Agent execution",
+      "priority": "P0",
+      "title": "Prevent duplicate tickets and actions when a chat request is retried",
+      "observed_state": "SupportTicketService::create uses a new random ID for every creation. Transcript persistence happens after potential escalation; a subsequent save error returns a retry message.",
+      "project_sources": [
+        "app/Services/SupportTicketService.php::create",
+        "app/Services/SupportBotService.php::answer",
+        "app/Controllers/SupportController.php::ask"
+      ],
+      "reference_sources": [
+        {
+          "id": "D1",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/packages/session/session-telemetry/src/coordinator.ts#L58-L212"
+        },
+        {
+          "id": "C1",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/listeners/reporting_event_listener.rb#L1-L163"
+        }
+      ],
+      "php_implementation": "Introduce a client request/idempotency key tied to actor and conversation, record the action receipt, and return the existing ticket on replay. Do not confuse failure to save an audit with failure to create a ticket.",
+      "acceptance_test": "Repeat one HTTP request after a simulated post-ticket disk failure: exactly one ticket exists and the returned receipt matches it."
+    },
+    {
+      "id": "A04",
+      "area": "Agent execution",
+      "priority": "P0",
+      "title": "Validate conversation ownership before model/tool execution",
+      "observed_state": "Support derives user data safely, but the supplied conversation ID is checked at append time, after answer/tool work. This can waste paid calls or cause side effects before rejecting the chat ID.",
+      "project_sources": [
+        "app/Controllers/SupportController.php::ask",
+        "app/Services/AgentConversationService.php::append"
+      ],
+      "reference_sources": [
+        {
+          "id": "D1",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/packages/session/session-telemetry/src/coordinator.ts#L58-L212"
+        },
+        {
+          "id": "C3",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/models/conversation.rb#L71-L139"
+        }
+      ],
+      "php_implementation": "Resolve and authorize the actor-owned chat at request ingress before provider calls or ticket actions; retain the append-time check for races.",
+      "acceptance_test": "A different guest/customer/admin conversation ID is rejected with zero model calls and zero new tickets."
+    },
+    {
+      "id": "A05",
+      "area": "Agent execution",
+      "priority": "P1",
+      "title": "Make multi-turn understanding match the History interface",
+      "observed_state": "Draft History reopens messages, but Support modelReply builds its prompt from the current question/context; Enterprise mainly retains one verified report period.",
+      "project_sources": [
+        "app/Services/SupportBotService.php::modelReply",
+        "app/Controllers/AdminController.php::agentAsk",
+        "app/Services/AgentConversationService.php::getForActor"
+      ],
+      "reference_sources": [
+        {
+          "id": "D1",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/packages/session/session-telemetry/src/coordinator.ts#L58-L212"
+        },
+        {
+          "id": "L1",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/src/server/otel/OtelIngestionProcessor.ts#L437-L689"
+        }
+      ],
+      "php_implementation": "Load a bounded, actor-owned sequence of prior turns and verified tool facts into the model request. Use explicit token/byte budgets and preserve source scope across ambiguous pronouns.",
+      "acceptance_test": "After “show Ayyappa products”, “what is the second one made of?” refers to the verified second item; a new chat has no inherited context."
+    },
+    {
+      "id": "A06",
+      "area": "Agent evidence",
+      "priority": "P1",
+      "title": "Capture replayable source and instruction provenance",
+      "observed_state": "Uncommitted traces include selected filters, source name and result count; they do not fully bind response claims to source revisions, result digests, prompt hash and tool-code revision.",
+      "project_sources": [
+        "app/Services/AgentTraceService.php::toolEvidence",
+        "app/Services/AgentInstructionService.php",
+        "app/Services/AgentToolRegistry.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "L1",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/src/server/otel/OtelIngestionProcessor.ts#L437-L689"
+        },
+        {
+          "id": "L2",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/prisma/schema.prisma#L745-L831"
+        }
+      ],
+      "php_implementation": "Record sanitized source identifiers/version or fetch time, approved aggregate facts, prompt/tool version hashes and evidence references used by the answer. Exclude private raw rows and hidden reasoning.",
+      "acceptance_test": "Change catalogue/report data after a reply: the recorded evidence still explains the original answer and marks stale context."
+    },
+    {
+      "id": "A07",
+      "area": "Agent evidence",
+      "priority": "P1",
+      "title": "Measure provider usage and enforce a turn budget",
+      "observed_state": "AiClient records HTTP/transport timing and bounds calls, but no response token-usage extraction was found; a max-token request parameter is not observed usage.",
+      "project_sources": [
+        "app/Services/AiClient.php",
+        "app/Services/AgentTraceService.php::build"
+      ],
+      "reference_sources": [
+        {
+          "id": "L1",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/src/server/otel/OtelIngestionProcessor.ts#L437-L689"
+        }
+      ],
+      "php_implementation": "Extract supported input/output/cache usage with explicit unavailable values when absent; aggregate once per model call, cap retries/latency/tokens, and avoid counting root and child usage twice.",
+      "acceptance_test": "Fixtures for provider usage present, absent, retry and fallback return correct totals without converting unknown usage to zero."
+    },
+    {
+      "id": "A08",
+      "area": "Agent evaluation",
+      "priority": "P1",
+      "title": "Expand deterministic fixtures into comparable answer-quality experiments",
+      "observed_state": "The local unfinished suite has 10 deterministic helper cases and a baseline; it does not measure arbitrary answer faithfulness, full orchestration, multilingual cases or repeated model variability.",
+      "project_sources": [
+        "cli/agent-eval.php (uncommitted)",
+        "tests/fixtures/agent-golden.json (uncommitted)",
+        "app/Services/AgentEvaluationService.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "L2",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/prisma/schema.prisma#L745-L831"
+        }
+      ],
+      "php_implementation": "Keep free deterministic gates; add sanitized expected source IDs/amounts/actions, end-to-end transcript fixtures, adversarial and Tamil cases, code/prompt/model/fixture versions and per-case before/after comparisons.",
+      "acceptance_test": "An unrelated-product answer and a plausible but wrong GST total fail their exact evidence checks even when the answer is nonempty and secret-free."
+    },
+    {
+      "id": "A09",
+      "area": "Agent operations",
+      "priority": "P1",
+      "title": "Separate audit failure, customer action success and telemetry delivery",
+      "observed_state": "AuditLogService already catches DB write failures, which is good; it still returns an event labeled recorded, and the chat controller can report a generic failure after a ticket was created.",
+      "project_sources": [
+        "app/Services/AuditLogService.php::record",
+        "app/Controllers/SupportController.php::ask",
+        "app/Services/SiteTelemetryService.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "D2",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/docs/subsystems/session-telemetry.md"
+        },
+        {
+          "id": "D3",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/docs/subsystems/product-telemetry.md"
+        },
+        {
+          "id": "C1",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/listeners/reporting_event_listener.rb#L1-L163"
+        }
+      ],
+      "php_implementation": "Represent delivery/commit states explicitly and preserve action receipts. For optional analytics, use safe local buffering/retry only if needed; never let derived metrics retry business actions.",
+      "acceptance_test": "Reject audit DB writes: successful business operations remain successful, the audit loss is visible, and reprocessing cannot duplicate events/actions."
+    },
+    {
+      "id": "A10",
+      "area": "Agent operations",
+      "priority": "P1",
+      "title": "Scale and govern private JSON history without changing its storage contract",
+      "observed_state": "One JSON file per chat, private paths and locking exist in draft; listings scan files, all writes share one lock, and transcript retention/export-access lifecycle is not implemented.",
+      "project_sources": [
+        "app/Services/AgentConversationService.php::recent/recentForActor/append",
+        "app/Controllers/AdminController.php::agentConversation"
+      ],
+      "reference_sources": [
+        {
+          "id": "D1",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/packages/session/session-telemetry/src/coordinator.ts#L58-L212"
+        },
+        {
+          "id": "L1",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/src/server/otel/OtelIngestionProcessor.ts#L437-L689"
+        }
+      ],
+      "php_implementation": "Preserve one canonical JSON per chat. Add bounded paging, safe retention/deletion and export audit, backup/restore checks and measured contention handling. Do not introduce a conversation SQL table.",
+      "acceptance_test": "Large history paging stays bounded; unauthorized export is denied; a deployment/restore preserves ownership and all committed turns."
+    },
+    {
+      "id": "S01",
+      "area": "Support service",
+      "priority": "P1",
+      "title": "Link handoff tickets back to the actual conversation",
+      "observed_state": "A chat turn can hold ticket_id, but the support ticket stores generic context rather than an authoritative conversation/turn link and handoff summary.",
+      "project_sources": [
+        "app/Services/SupportTicketService.php::create",
+        "app/Services/SupportBotService.php::answer"
+      ],
+      "reference_sources": [
+        {
+          "id": "C1",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/listeners/reporting_event_listener.rb#L1-L163"
+        },
+        {
+          "id": "C3",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/models/conversation.rb#L71-L139"
+        }
+      ],
+      "php_implementation": "Add actor-safe conversation/turn references and a verified handoff summary to the business ticket, with a restricted link for staff to read the matching JSON.",
+      "acceptance_test": "Human support opens one ticket and sees the relevant prior question, verified facts and handoff reason without another customer’s data."
+    },
+    {
+      "id": "S02",
+      "area": "Support service",
+      "priority": "P1",
+      "title": "Add assignment, priority, pending and snoozed work queues",
+      "observed_state": "Support tickets currently use open/answered/closed and reply text; no assignee/team, priority, pending reason or snooze workflow was found.",
+      "project_sources": [
+        "storage/schema/collections.php::support_tickets",
+        "app/Services/SupportTicketService.php",
+        "views/admin/list.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "C3",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/models/conversation.rb#L71-L139"
+        },
+        {
+          "id": "C4",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/models/automation_rule.rb#L31-L83"
+        }
+      ],
+      "php_implementation": "Introduce a small PHP ticket state machine and explicit staff ownership, priority and due/snooze fields. Add only the queue features needed by the customer; no Rails migration.",
+      "acceptance_test": "Two staff members cannot unintentionally both own a ticket; a waiting-on-customer case is distinguishable from an unanswered urgent case."
+    },
+    {
+      "id": "S03",
+      "area": "Support service",
+      "priority": "P1",
+      "title": "Measure first response, handoff, resolution and reopen separately",
+      "observed_state": "Operational model latency is present; created_at/updated_at and a current status do not preserve first human response, time waiting, time to handoff or reopen episodes.",
+      "project_sources": [
+        "app/Services/SupportTicketService.php::reply/close",
+        "app/Services/AuditLogService.php::agentSummary"
+      ],
+      "reference_sources": [
+        {
+          "id": "C1",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/listeners/reporting_event_listener.rb#L1-L163"
+        }
+      ],
+      "php_implementation": "Record explicit ticket transitions and timestamps, distinguish bot from human replies, and compute date-window metrics from those events. Do not use updated_at as every lifecycle timestamp.",
+      "acceptance_test": "A closed then reopened ticket retains both episodes and correct first-human-response time, without double-counting a repeated handoff."
+    },
+    {
+      "id": "S04",
+      "area": "Support service",
+      "priority": "P1",
+      "title": "Separate resolution confirmation from satisfaction and silence",
+      "observed_state": "Yes-resolved/No-need-help feedback exists only in unfinished local #241 changes, with metrics from a bounded recent sample. It is not deployed CSAT or all-traffic resolution reporting.",
+      "project_sources": [
+        "app/Services/AgentConversationService.php::rateSupportTurn (uncommitted)",
+        "app/Services/AgentEvaluationService.php::supportOutcomeSummary (uncommitted)"
+      ],
+      "reference_sources": [
+        {
+          "id": "C1",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/listeners/reporting_event_listener.rb#L1-L163"
+        },
+        {
+          "id": "C2",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/models/csat_survey_response.rb#L1-L47"
+        }
+      ],
+      "php_implementation": "Keep explicit resolution confirmation; separately define satisfaction feedback and eligibility, display response rate/denominator and date range, and never assume silence means success.",
+      "acceptance_test": "Unrated, escalated, negative, reopened and confirmed cases remain distinct; a small recent sample is never labeled a site-wide success rate."
+    },
+    {
+      "id": "S05",
+      "area": "Support knowledge",
+      "priority": "P1",
+      "title": "Broaden retrieval tests and close the feedback-to-content loop",
+      "observed_state": "Specific Ayyappa collection routing is fixed in #249/draft merge; generic and Tamil retrieval, no-match handling, source-versioned policies and failure-cluster review remain incomplete.",
+      "project_sources": [
+        "app/Services/AgentContextService.php::requestedCollection/supportProducts",
+        "app/Services/SupportBotService.php::modelReply",
+        "app/Services/AgentEvaluationService.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "C4",
+          "url": "https://github.com/chatwoot/chatwoot/blob/1ef1d2b45ae0a17a35c5f1bd055e4ddf04dadabf/app/models/automation_rule.rb#L31-L83"
+        },
+        {
+          "id": "L2",
+          "url": "https://github.com/langfuse/langfuse/blob/168ededf52afd3642d3594cd0c27c7d394ae77dd/packages/shared/prisma/schema.prisma#L745-L831"
+        }
+      ],
+      "php_implementation": "Use deterministic intent/source routing, multilingual aliases, actual collection membership, confidence/clarification rules and a human-reviewed queue of repeated failed topics. Promote resolved failures into golden fixtures.",
+      "acceptance_test": "Ambiguous “festival products” requests clarification; Tamil/English variants match the same products; stale or missing policies are not fabricated."
+    },
+    {
+      "id": "C01",
+      "area": "Commerce",
+      "priority": "P1",
+      "title": "Persist customer carts and safely merge guest carts",
+      "observed_state": "CartService reads $_SESSION[cart]; no persisted cart lifecycle or cross-device customer-cart repository was found.",
+      "project_sources": [
+        "app/Services/CartService.php",
+        "app/Controllers/CommerceController.php",
+        "storage/schema/collections.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "B1",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Checkout/src/Cart.php#L353-L493"
+        }
+      ],
+      "php_implementation": "Use an authorized business cart record in existing MySQL infrastructure, with expiry/versioning and guest-to-account merge rules. Reprice and validate availability at checkout.",
+      "acceptance_test": "Customer signs in on another device and recovers only their cart; guest merge handles duplicate items without stale prices or cross-account access."
+    },
+    {
+      "id": "C02",
+      "area": "Commerce telemetry",
+      "priority": "P0",
+      "title": "Build a deduplicated end-to-end checkout funnel",
+      "observed_state": "Uncommitted SiteTelemetryService only records cart_add and checkout_initiated. Paid orders are authoritative, but no complete attributed, deduplicated stage/error funnel exists.",
+      "project_sources": [
+        "app/Services/SiteTelemetryService.php (uncommitted)",
+        "app/Controllers/CommerceController.php",
+        "app/Services/DatabaseService.php::createVerifiedOrder"
+      ],
+      "reference_sources": [
+        {
+          "id": "B1",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Checkout/src/Cart.php#L353-L493"
+        },
+        {
+          "id": "D3",
+          "url": "https://github.com/deepseek-ai/deepseek-harness/blob/39163dd30f703a79079e2d2446545cff3c453738/docs/subsystems/product-telemetry.md"
+        }
+      ],
+      "php_implementation": "Emit allowlisted events at real business boundaries: cart validated, checkout started, payment attempt/failure, verified order and fulfilment transitions. Use a privacy-safe checkout correlation ID and event idempotency; payment verification is server-authoritative.",
+      "acceptance_test": "Gateway callback retry counts one purchase; failed checkout is not a successful stage; counts reconcile with paid-order records and clear denominators."
+    },
+    {
+      "id": "C03",
+      "area": "Commerce telemetry",
+      "priority": "P1",
+      "title": "Measure abandoned carts from persistent state, not guessed event ratios",
+      "observed_state": "Session-only cart data and two action counters cannot establish who abandoned a checkout or its recoverable value.",
+      "project_sources": [
+        "app/Services/CartService.php",
+        "app/Services/SiteTelemetryService.php (uncommitted)"
+      ],
+      "reference_sources": [
+        {
+          "id": "B5",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Admin/src/Helpers/Reporting/Cart.php#L110-L180"
+        }
+      ],
+      "php_implementation": "Define active/converted/expired carts and a documented abandonment window. Report cart age/value and recovery outcomes; do not assume Bagisto’s two-day cutoff fits this business. Recovery messages require a separately approved customer-contact policy.",
+      "acceptance_test": "A completed or still-active cart is not labeled abandoned; rerunning the report yields stable cohort counts and totals."
+    },
+    {
+      "id": "C04",
+      "area": "Commerce catalogue",
+      "priority": "P2",
+      "title": "Add true SKU variants only where the catalogue needs them",
+      "observed_state": "The product schema exposes one price and stock_status per product; no variant SKU/option-specific inventory/pricing contract was found.",
+      "project_sources": [
+        "storage/schema/collections.php::products",
+        "app/Services/ProductService.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "B3",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Product/src/Type/Configurable.php"
+        }
+      ],
+      "php_implementation": "Represent size/material/colour variants with their own SKU, price, stock and images while retaining a parent product and backward-compatible existing slugs.",
+      "acceptance_test": "Choosing a size changes the actual order-line SKU/price/availability; variant selection survives cart, checkout and invoice."
+    },
+    {
+      "id": "C05",
+      "area": "Commerce inventory",
+      "priority": "P1",
+      "title": "Track numeric saleable inventory and reservations",
+      "observed_state": "Current stock_status and post-payment on_hold protection exist. There is no numeric stock movement/reservation/source ledger in the inspected product contract.",
+      "project_sources": [
+        "app/Services/ProductService.php",
+        "app/Services/DatabaseService.php::createVerifiedOrder",
+        "storage/schema/collections.php::products"
+      ],
+      "reference_sources": [
+        {
+          "id": "B4",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Inventory/src/Models/InventorySource.php"
+        },
+        {
+          "id": "B3",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Product/src/Type/Configurable.php"
+        }
+      ],
+      "php_implementation": "Add quantity accounting and atomic reservations/release before promising stock. Retain the existing on_hold safeguard. Multi-location inventory is optional unless needed; do not overbuild it first.",
+      "acceptance_test": "Two simultaneous buyers cannot consume the same last item; cancellation/refund/restock changes quantities exactly once."
+    },
+    {
+      "id": "C06",
+      "area": "Commerce fulfilment",
+      "priority": "P1",
+      "title": "Support line-level partial shipment and remaining quantities",
+      "observed_state": "Current fulfilment is primarily an order-level state and tracking fields. No shipment-line ledger with shipped/remaining quantities was found.",
+      "project_sources": [
+        "storage/schema/collections.php::orders",
+        "app/Services/OrderService.php",
+        "app/Controllers/AdminController.php::saveOrderStatus"
+      ],
+      "reference_sources": [
+        {
+          "id": "B2",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Sales/src/Models/OrderItem.php#L76-L171"
+        },
+        {
+          "id": "B7",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Sales/src/Repositories/ShipmentRepository.php#L42-L139"
+        }
+      ],
+      "php_implementation": "Introduce explicit shipment records with order-line quantities and tracking, validated against available quantities. Derive order-level status from the line ledger.",
+      "acceptance_test": "Shipping one of two items leaves the other outstanding; a repeated shipment submission cannot overship or emit duplicate notifications."
+    },
+    {
+      "id": "C07",
+      "area": "Commerce after-sales",
+      "priority": "P1",
+      "title": "Add returns and quantity-level refund allocation without replacing verified refunds",
+      "observed_state": "Gateway-verified refunds, partial/full amount summaries and totals protection already exist. Missing: customer return requests, reasons/disposition and allocation to item quantities.",
+      "project_sources": [
+        "app/Services/OrderService.php::importRefund/refundSummary",
+        "app/Services/DatabaseService.php::recordOrderRefund",
+        "storage/schema/collections.php::orders"
+      ],
+      "reference_sources": [
+        {
+          "id": "B2",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Sales/src/Models/OrderItem.php#L76-L171"
+        },
+        {
+          "id": "B6",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Sales/src/Repositories/RefundRepository.php#L40-L180"
+        }
+      ],
+      "php_implementation": "Keep provider verification as canonical. Add reviewed return/claim states and line/quantity allocations, inspect/replacement/refund decisions and stock disposition. Never infer payment success from customer text.",
+      "acceptance_test": "A partial return cannot exceed purchased quantity or verified refund amount; duplicate imports remain idempotent and invoice history is preserved."
+    },
+    {
+      "id": "C08",
+      "area": "Commerce promotions",
+      "priority": "P2",
+      "title": "Extend promotion eligibility rather than rebuilding coupons",
+      "observed_state": "Coupons already support fixed/percentage discounts, dates, spend limits, free shipping and usage rules. Product/category/customer-group rules and explicit stacking precedence are not modeled.",
+      "project_sources": [
+        "app/Services/CouponService.php",
+        "storage/schema/collections.php::coupons"
+      ],
+      "reference_sources": [
+        {
+          "id": "B9",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/CartRule/src/Repositories/CartRuleRepository.php"
+        }
+      ],
+      "php_implementation": "Add a small versioned eligibility rule contract for real marketing requirements, define conflict/stacking precedence, and derive applied promotions from saved order evidence.",
+      "acceptance_test": "One coupon cannot discount excluded products; totals are reproducible at checkout and historical invoices keep their original price evidence."
+    },
+    {
+      "id": "C09",
+      "area": "Commerce retention",
+      "priority": "P2",
+      "title": "Wishlist/save-for-later is optional backlog",
+      "observed_state": "No customer-owned wishlist/save-for-later model or route was found in the inspected implementation. This is an optional feature opportunity, not a critical checkout defect.",
+      "project_sources": [
+        "app/Services/ProjectMapService.php",
+        "storage/schema/collections.php",
+        "app/Services/CartService.php"
+      ],
+      "reference_sources": [
+        {
+          "id": "B8",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Customer/src/Repositories/WishlistRepository.php"
+        },
+        {
+          "id": "B1",
+          "url": "https://github.com/bagisto/bagisto/blob/c9209260c0f078e1b358c98050fe2e35a0ad75a4/packages/Webkul/Checkout/src/Cart.php#L353-L493"
+        }
+      ],
+      "php_implementation": "Add customer-owned saved items only if requested. Validate price and availability again when moving an item to cart; do not assume optional paid extensions are part of the free reference.",
+      "acceptance_test": "Saved items are account-isolated; unavailable products cannot silently become purchasable when moved to cart."
+    },
+    {
+      "id": "R01",
+      "area": "Review automation",
+      "priority": "P0",
+      "title": "Connect successful current-head CI to review requests",
+      "observed_state": "Main only contains branch PR creation and Validate application. There is no post-CI review coordinator; bapX/** branches were omitted from branch automation.",
+      "project_sources": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/branch-pr.yml"
+      ],
+      "reference_sources": [],
+      "php_implementation": "The accompanying repair adds a trusted-default-branch metadata-only workflow, exact-head validation, once-per-reviewer/commit request markers and bapX/** coverage.",
+      "acceptance_test": "Failed/stale CI, foreign repository or changed head produces no request; no PR code executes with write tokens."
+    },
+    {
+      "id": "R02",
+      "area": "Review automation",
+      "priority": "P0",
+      "title": "Respect reviewer-specific draft and author rules",
+      "observed_state": "Five current PRs are drafts. CodeRabbit defaults exclude drafts unless configured; Sourcery documents that bot-authored comments are ignored.",
+      "project_sources": [
+        ".github/workflows/branch-pr.yml",
+        "new .coderabbit.yaml / review coordinator"
+      ],
+      "reference_sources": [],
+      "php_implementation": "Enable CodeRabbit draft/incremental review via validated configuration. Use native vendor settings or an explicitly configured dedicated real-user request token for post-CI comments; never substitute a GitHub Actions/App bot for Sourcery.",
+      "acceptance_test": "A missing or bot-type token is reported blocked, not successful. Existing drafts are never marked ready just to force a review."
+    },
+    {
+      "id": "R03",
+      "area": "Review automation",
+      "priority": "P0",
+      "title": "Detect quota failures and actual reviewer receipts",
+      "observed_state": "Live manual request on #245 received Codex usage exhaustion. #240 has a completed current-head Codex receipt. Sourcery/CodeRabbit commands on #245 have no current-head receipt observed.",
+      "project_sources": [
+        "GitHub PR #240/#245 review summaries",
+        "new .github/scripts/review-automation.cjs"
+      ],
+      "reference_sources": [],
+      "php_implementation": "Classify requested, in-progress, completed-with-findings, quota-blocked and unknown separately. Bind receipts to current SHA and trusted bot identity; suppress blind quota retries.",
+      "acceptance_test": "A quota comment or a posted request never counts as reviewed; old-head and human-forged Codex summaries are ignored."
+    },
+    {
+      "id": "R04",
+      "area": "Review automation",
+      "priority": "P1",
+      "title": "Document external prerequisites without pretending code can provision them",
+      "observed_state": "Current GitHub connection has push but not admin permissions; no dedicated reviewer request secret is configured. App entitlement/installation settings cannot be established from silence.",
+      "project_sources": [
+        "GitHub repository permissions/variable and secret-name inventory",
+        "docs/engineering/ai-review-workflow.md"
+      ],
+      "reference_sources": [],
+      "php_implementation": "Document least-privilege REVIEW_REQUEST_TOKEN or native app configuration, default-branch activation requirement and quota recovery. Do not reuse unrelated secrets, buy credits or automatically merge.",
+      "acceptance_test": "Tokenless audit explicitly lists blocked prerequisites; a workflow job success is described as an audit run, not provider approval."
+    }
+  ],
+  "delivery": {
+    "review_base_pr": 253,
+    "supplemental_pr": 254,
+    "head_sha": "ec917eb168e2f6646ffc62ff05c52fbdfdedebce",
+    "state": "draft; not merged or deployed",
+    "review_unit_tests": "33/33 passing",
+    "php_regressions": "162/162 passing; 2241 assertions",
+    "project_ci": "passed locally and GitHub current-head validate",
+    "external_gates": "Codex review quota; native reviewer settings/entitlements; default-branch activation; optional dedicated user request token"
+  }
+}

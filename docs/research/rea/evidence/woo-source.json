@@ -1,0 +1,1095 @@
+{
+  "schema": "HistoricalSourceGraph",
+  "authority": "historical-reference",
+  "root_alias": "$REFERENCE_ROOT",
+  "root_sha256": "3c04339262874776daa88878ff9b0fa20795aad214a173fc124febfcd4796931",
+  "inventory_state": "partial",
+  "entries": [
+    {
+      "path": "includes",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "includes/admin",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "includes/admin/class-wc-admin-api-keys.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "dba47eedf0ad45d1537ef81afefe28ea7ab3cea338543b477d7b9e2e5c934fd1",
+      "size": 8553,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/class-wc-admin-exporters.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "8661746024e0939aac32c9bed0fbb26e98f3e07d31a8f4833ec5b3a840f55eb9",
+      "size": 8144,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/class-wc-admin-importers.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "59b682785b9dbe21ac36e3f05b9bd2daec137cd55ef37e827e36e9179a8e3d04",
+      "size": 8650,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/class-wc-admin-menus.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "fcccb0471e244970f0acd159eefb790c67cb3b935cd2c73379409ae0ae118ce6",
+      "size": 25644,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/class-wc-admin-status.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "e87e93c49fe546eb170e89d5a5157ed2463b949bbb6ef31a01f7586982c8ff32",
+      "size": 15459,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/class-wc-admin-webhooks.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "45df15aa152347edd6eef09cf9fd8fda28d0694710bf0b527593275079df2986",
+      "size": 12430,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-accounts.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "19f17b5dbe61c7a25631fbc516bfc0b2262c1f48df671486074ac19e17629cf3",
+      "size": 17834,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-advanced.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "f368d0e6e2db95531f76428d3993f6b8297432dd69a613384d16818373d7f1af",
+      "size": 21290,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-checkout.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "63e937f55e3b9069c5b98b6bbf477327f079593143f85e5063d1c4ecc6f20c91",
+      "size": 271,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-emails.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "5b8a5d1c028a0ba64dfbfe1a6ed47dcf8572e48d0322d56a93b802a00522c673",
+      "size": 39810,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-general.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "af94c9c9e3c63b0d4383e9e610d8beceb16997cf09729c24de7483ec2899f55c",
+      "size": 16554,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-integrations.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "99514ce4dc1e2c4473fdc725fa82d875842784052e9f908aad401e7e08ac37a8",
+      "size": 2255,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-page.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "0fbce8ea06f09d6313155c5932e2034c48996e1489c9bc89b52028435992b9ff",
+      "size": 17036,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-payment-gateways.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3676d87cc3d094ad1b48d410675a541eea4f82b1c3d8eff5a538c405672639d7",
+      "size": 15418,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-point-of-sale.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "d5212fd523f39322c6e598ed329215afc52a3e057c610af38076a14c1139dfc7",
+      "size": 2777,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-products.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a48a626b4adca7e6b9210e726ee92498e80ddcb6daaefddc2c6268235c164a17",
+      "size": 18864,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-shipping.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a1cb43cd7db160def426ae8ed4e5fe8a7cb8a2b44d4d544bf3bd94db8617fb50",
+      "size": 17754,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-site-visibility.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1538bde8544381e4155f495c4d9c7521fe05b14e96c720f365e984f623b2486f",
+      "size": 879,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/admin/settings/class-wc-settings-tax.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "042d09da093d29461aab5f9b31f240d291cb8e0d00fd6c2f2812b78962455881",
+      "size": 14220,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-cart-session.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "d9296a5bd9f62c73a2ac6585c8467b77d6a34b6a7fdd9ff8d0a74eba11c50639",
+      "size": 28065,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-comments.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "999daa321cbfb1a6ca54473ead8857dbac226dcb91c918fc5bb5cdd5b91ea3f0",
+      "size": 24966,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-coupon.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a2d3c76b0251c3da75c1cc9f3e52a59fba4b033e173bc9f98dc987337cfa31c5",
+      "size": 49775,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-customer.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "e3d0187fa5f8a1ad9eb9a75c149256672f5f0b69a372e587f180d4173f1631cc",
+      "size": 35102,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-download-handler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "2be981d42d1d91690fe38d03efa02af1818a9dda45ed7a4a1ae11f6a57c56006",
+      "size": 44655,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-emails.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "743f4a18e526f15524c603589cd9a83175b3e702f1488074f62ca3be2391eaab",
+      "size": 41347,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-order-refund.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "e0a1a32fcef3c29d59a80ce8dade89694b087806f894af6d16f121bed569b0f5",
+      "size": 7233,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-order.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a0ecf898ed85e7260e75fd557c8db139a9a4da6c8f6aebbd154b03e4518f5e79",
+      "size": 80539,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-product-download.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "cc2bb2dca3bb6cfad92c91b71b5bed2fed5286a9b3595dae824e879f562b6c48",
+      "size": 14748,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-product-external.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "737c38f9013573ccaaab6add00679e6ef6c937846817a375a675986efb9e391f",
+      "size": 5104,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-product-grouped.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "84dca4db871ee0fa72f4ee5c071f9e573fda297c05ef874ca5945232be64a664",
+      "size": 7042,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-product-variable.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "950e24d08e08a58a9b1416936c1de0ef8c9d44d159ee5d752423edf23c53e0a0",
+      "size": 27646,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-product-variation.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "44a9e5cbca92229816a605980378059a29ad69addc203a1611dfefebc525874f",
+      "size": 23779,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-session-handler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "93020272fe06b6e24624c4288d915b00a3fbc3447e3a324b7d200840c47f059b",
+      "size": 25110,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-shipping-zone.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "2df31b48ca297396e7bda1e8fbcb7cec53a4efcde32a8a83d33ba2be0ced25d5",
+      "size": 13392,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-tax.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "de18a75a96ac9045a9e3e52d3ebc5a110bbdf470fe9615a33b3fe090d1617a39",
+      "size": 40859,
+      "content_state": "hashed"
+    },
+    {
+      "path": "includes/class-wc-webhook.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "69178a522d18147c04891d3a1185c6caeaaa2d9ad929ee66d448ff0cffe2f9d0",
+      "size": 34579,
+      "content_state": "hashed"
+    },
+    {
+      "path": "license.txt",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Text",
+      "sha256": "03fdcdce033d6d7c061234e447195bf50fdaf3724708eb712dd4d90a6279ba12",
+      "size": 36318,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Abilities",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Abilities/AbilityDefinition.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a703fb94d2808065d27be73b91d1d927704ee0ce7f7c0010e86b75256f28b067",
+      "size": 592,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Categories",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Categories/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "e5ae995e0dcad4f76dbad86062da42cda844e4b0de277bccfa44853cbc8b5d2c",
+      "size": 8880,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Coupons",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Coupons/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "be31ed7ac15971d9246a1b7aa27e2a068e99c8e473ee32cb1cc43b47e7c12ffa",
+      "size": 8181,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Customers",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Customers/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "9e353d03acc599895510a44209964372a878de4df4ebb39747ec303ab0eda78d",
+      "size": 32244,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Downloads",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Downloads/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "8668f7f7d8bfe5e132a6771d3b6b1ff0af25731625616fa6c75c61c9a6050a0d",
+      "size": 12024,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Export",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Export/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3876f218076336c9d6c567d3245af5c5fb66a5ebb329853e1ae94c2d1126b5a5",
+      "size": 8292,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Import",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Import/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "c444c2fe7ce82458c562d5574a832d4953e7ef15ac48719bc4edf010cfd1394c",
+      "size": 8776,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Orders",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Orders/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "f6e922c0bb202af96a8b2c4796fc4e2a90ef017562a739272aeac8a3129b2fa7",
+      "size": 20250,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/PerformanceIndicators",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/PerformanceIndicators/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3406dc2dbcb2f5ffd72243bb450901332e015805d37e25a6629870b230b70c9c",
+      "size": 19766,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Products",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Products/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "fe7911c94310dff2c22073e96acb85986e4325eb9124c550321a20cdb6d7fca8",
+      "size": 12047,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Stock",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Stock/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "563476f68b5163aac4accc7936efcd5230d8c4dbc3c1ee1d4841c2364ba1bf3d",
+      "size": 17258,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Taxes",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Taxes/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "ddba99ed7a5704534d864dda74385c234cce52c543f20fffd25561db93b6b5ba",
+      "size": 11602,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Admin/API/Reports/Variations",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Admin/API/Reports/Variations/Controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "b3eb45cbbe2df260795a749b985506af398b0cec424a50b5f7306343c65451d8",
+      "size": 14689,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Checkout",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Checkout/Helpers",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Checkout/Helpers/ReserveStock.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "edd6e6be2c8f482355e43f230689f3138bec764016e31395217f63ae4c4b5b20",
+      "size": 17668,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Internal/Abilities",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Internal/Abilities/AbilitiesLoader.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "96915cbec525b27e887e97db2b84089a141f4fa89643773dd8de8e73a654186c",
+      "size": 9772,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/AbilitiesRegistry.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "24ef590b0d9eebcc4b7c23bebb179f5543d292cb449efb0417fbbb94e133a5c3",
+      "size": 910,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/AbstractDomainAbility.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6860578b1acea269b726902af24c3842335573592ffd4035f13d0be10d6bdf51",
+      "size": 392,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/OrderAddNote.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "86e50dbb34303f4cf7777710cd07371a90fc9746dc164065f21dc7c6a33f1683",
+      "size": 3416,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/OrderNotesQuery.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1261e8fadd79572692f8db5edada5480475ca2f6af5b9a50bf0232e8b16ae61a",
+      "size": 3707,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/OrderUpdateStatus.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "50bc3b70e117f846924eef0f4472df896a0eea4392132cec5c558e9e53f35e75",
+      "size": 4526,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/OrdersQuery.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "4407c6e12fbd2eb1d13312a486849c545213346e34091a3c73447fad73b6714b",
+      "size": 13600,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/ProductCreate.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "7d74c0b38d0837b56d34b96b8dd59b19a14901bc5e62c6bebbe138c0dc9ca10c",
+      "size": 4041,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/ProductDelete.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "5d9929b424db545a3a48d433f5a362dd198697b3b2e929028a451ce17802b0ca",
+      "size": 4275,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/ProductUpdate.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "de50d053cbe9cf0c9ed0591871e636780eef16a3f4b5b0fe1e45d6c106531477",
+      "size": 5677,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Abilities/Domain/ProductsQuery.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "702abc9cfa2dec877cbf07032bf1f7dcfe2a3258aa3dd42fef67174977cd0657",
+      "size": 6528,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/DataStores",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Internal/DataStores/Orders",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Internal/DataStores/Orders/OrdersTableDataStore.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "e31ff5d107609434a97f8d386d313e8bac0e28f8c98e2444a4a4dda8073792bf",
+      "size": 129045,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/MCP",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Internal/MCP/MCPAdapterProvider.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "bd2ebca58c811ac0b9b86159c608b05094ffc8d5f48c816e2c7d41e64f732d9e",
+      "size": 1947,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/MCP/McpEndpointRemoval.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3474ca541bcec9052f98b03ee1c0e086ec0da6c4ea61a94c728fa84aa33d85ab",
+      "size": 10427,
+      "content_state": "hashed"
+    },
+    {
+      "path": "src/Internal/Orders",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "src/Internal/Orders/OrderAttributionController.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "0d450d009d25042372fa8cf333d721696c3f945a73e9a99e3816f90b045bc44c",
+      "size": 16949,
+      "content_state": "hashed"
+    },
+    {
+      "path": "woocommerce.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "5a3d1c31d8add1106d100323f4ba1038be2c7bd52e93285d76b3c9ac29658803",
+      "size": 2401,
+      "content_state": "hashed"
+    }
+  ],
+  "relationships": [],
+  "parse_failures": [],
+  "exclusions": [],
+  "languages": [
+    "PHP",
+    "Text"
+  ],
+  "manifests": [],
+  "vcs": {
+    "kind": "none",
+    "head": null,
+    "dirty": null
+  },
+  "provenance": {
+    "importer": "rea-agents",
+    "importer_version": "6.8.0",
+    "caller": "rea-cli"
+  },
+  "limitations": [
+    "Path identity is revalidated around operations; Node lacks portable descriptor-relative openat traversal, so a syscall-boundary pathname race remains."
+  ]
+}

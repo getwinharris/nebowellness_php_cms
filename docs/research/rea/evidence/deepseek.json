@@ -1,0 +1,474 @@
+{
+  "schema": "HistoricalSourceGraph",
+  "authority": "historical-reference",
+  "root_alias": "$REFERENCE_ROOT",
+  "root_sha256": "e0f8b363c6c2ae8e865dbd9256e46e68df8314e8a6b159c658a6dfdbd7377037",
+  "inventory_state": "partial",
+  "entries": [
+    {
+      "path": "LICENSE",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": null,
+      "sha256": "ebb4f09972aee8608be255debaf78451a68e95c290f55c240dec2ecfa16ea6be",
+      "size": 1065,
+      "content_state": "hashed"
+    },
+    {
+      "path": "docs",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "docs/subsystems",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "docs/subsystems/core.md",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "6d13ab30d5a86e560cadfdf488dfbb302be90676680b205b49d5497c197375f1",
+      "size": 60686,
+      "content_state": "hashed"
+    },
+    {
+      "path": "docs/subsystems/session-telemetry.md",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "455dc79903517067ee2bc0a8cf5689fa8fa400fb7bd8cbd204224ff539ac5a16",
+      "size": 12823,
+      "content_state": "hashed"
+    },
+    {
+      "path": "packages",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/core",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/core/agent-loop",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/core/agent-loop/src",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/core/agent-loop/src/agent.ts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "TypeScript",
+      "sha256": "6fa6bd4c0ab2aaea988b92a3fd079fa38271f4b8065ec325a6ab09ec93eb13c8",
+      "size": 31225,
+      "content_state": "hashed"
+    },
+    {
+      "path": "packages/core/agent-loop/src/assistant-stream.ts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "TypeScript",
+      "sha256": "5c0d81f97ab4896a80ff34332449245c7323c858c300033674bb938a37ce1223",
+      "size": 4334,
+      "content_state": "hashed"
+    },
+    {
+      "path": "packages/core/agent-loop/src/inbox.ts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "TypeScript",
+      "sha256": "336e10096a4899cdbef71e68da6896c5ed84c17a95c56729d17b8ba607bac1ca",
+      "size": 8873,
+      "content_state": "hashed"
+    },
+    {
+      "path": "packages/core/session",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/core/session/src",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/core/session/src/repair.ts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "TypeScript",
+      "sha256": "c2835c920aba203c709e44686e55f43bb4d357ea59cfef3561c371b8ff115540",
+      "size": 9428,
+      "content_state": "hashed"
+    },
+    {
+      "path": "packages/core/session/src/seq-ranges.ts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "TypeScript",
+      "sha256": "9f746691995926cb17d3dd19da04871f2355be40c798ed5a8256659e6bf14559",
+      "size": 2908,
+      "content_state": "hashed"
+    },
+    {
+      "path": "packages/core/session/src/tool-history.ts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "TypeScript",
+      "sha256": "53ae6aebe5ebe9b1eb782f008315db33ff637611093e40fa3529ec3019b56683",
+      "size": 3762,
+      "content_state": "hashed"
+    },
+    {
+      "path": "packages/session",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/session/session-telemetry",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/session/session-telemetry/src",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "packages/session/session-telemetry/src/coordinator.ts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "TypeScript",
+      "sha256": "95b54c800069ec144f66af8acaae30e07805d784abd4e21e22d584b68feae4ae",
+      "size": 12947,
+      "content_state": "hashed"
+    }
+  ],
+  "relationships": [
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/cordis",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/dsh-agent",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/dsh-llm",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/dsh-scope",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/dsh-session",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/dsh-system-prompt",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/dsh-tools",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "@deepseek-ai/dsh-util-values",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "packages/core/agent-loop/src/assistant-stream.ts",
+      "kind": "imports",
+      "resolution": "internal",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "packages/core/agent-loop/src/inbox.ts",
+      "kind": "imports",
+      "resolution": "internal",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/agent.ts",
+      "to": "packages/core/agent-loop/src/runtime-context.ts",
+      "kind": "imports",
+      "resolution": "unresolved",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/assistant-stream.ts",
+      "to": "@deepseek-ai/dsh-agent",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/assistant-stream.ts",
+      "to": "@deepseek-ai/dsh-brand",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/assistant-stream.ts",
+      "to": "@deepseek-ai/dsh-llm",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/assistant-stream.ts",
+      "to": "@deepseek-ai/dsh-session",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/inbox.ts",
+      "to": "@deepseek-ai/dsh-agent",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/inbox.ts",
+      "to": "@deepseek-ai/dsh-llm",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/inbox.ts",
+      "to": "@deepseek-ai/dsh-session",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/inbox.ts",
+      "to": "@deepseek-ai/dsh-session-projection",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/agent-loop/src/inbox.ts",
+      "to": "zod",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/repair.ts",
+      "to": "@deepseek-ai/dsh-brand",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/repair.ts",
+      "to": "@deepseek-ai/dsh-llm",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/repair.ts",
+      "to": "@deepseek-ai/dsh-util-values",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/repair.ts",
+      "to": "packages/core/session/src/types.ts",
+      "kind": "imports",
+      "resolution": "unresolved",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/seq-ranges.ts",
+      "to": "packages/core/session/src/types.ts",
+      "kind": "imports",
+      "resolution": "unresolved",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/tool-history.ts",
+      "to": "@deepseek-ai/dsh-llm",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/tool-history.ts",
+      "to": "@deepseek-ai/dsh-util-values",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/core/session/src/tool-history.ts",
+      "to": "packages/core/session/src/types.ts",
+      "kind": "imports",
+      "resolution": "unresolved",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/session/session-telemetry/src/coordinator.ts",
+      "to": "@deepseek-ai/cordis",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/session/session-telemetry/src/coordinator.ts",
+      "to": "@deepseek-ai/dsh-agent",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/session/session-telemetry/src/coordinator.ts",
+      "to": "@deepseek-ai/dsh-session",
+      "kind": "imports",
+      "resolution": "external",
+      "parse_state": "parsed"
+    },
+    {
+      "from_path": "packages/session/session-telemetry/src/coordinator.ts",
+      "to": "packages/session/session-telemetry/src/index.ts",
+      "kind": "imports",
+      "resolution": "unresolved",
+      "parse_state": "parsed"
+    }
+  ],
+  "parse_failures": [],
+  "exclusions": [],
+  "languages": [
+    "Markdown",
+    "TypeScript"
+  ],
+  "manifests": [],
+  "vcs": {
+    "kind": "none",
+    "head": null,
+    "dirty": null
+  },
+  "provenance": {
+    "importer": "rea-agents",
+    "importer_version": "6.8.0",
+    "caller": "rea-cli"
+  },
+  "limitations": [
+    "Path identity is revalidated around operations; Node lacks portable descriptor-relative openat traversal, so a syscall-boundary pathname race remains."
+  ]
+}

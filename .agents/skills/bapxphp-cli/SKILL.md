@@ -31,6 +31,8 @@ admin-editable values.
 ```bash
 ./bapXphp lint path/to/changed.php
 ./bapXphp test
+./bapXphp rea status
+./bapXphp rea check
 ./bapXphp update
 ./bapXphp ci
 ./bapXphp index
@@ -38,7 +40,7 @@ admin-editable values.
 ./bapXphp codemap
 ```
 
-`update` regenerates committed maps and indexes; `ci` checks drift. Never hand-edit
+`update` regenerates the REA progress report, committed maps and indexes; `ci` checks drift. Never hand-edit
 generated maps or `index.yaml`.
 
 ## Content, database and operations

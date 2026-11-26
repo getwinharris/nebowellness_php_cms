@@ -1,0 +1,513 @@
+{
+  "schema": "HistoricalSourceGraph",
+  "authority": "historical-reference",
+  "root_alias": "$REFERENCE_ROOT",
+  "root_sha256": "45f25a110d87045f14cd436dd05e019749e307b29c2b42f27ba57cea057d04b0",
+  "inventory_state": "partial",
+  "entries": [
+    {
+      "path": "license.txt",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Text",
+      "sha256": "49e97f629ce763abb2f8f1f13da74cb5a8a9a72a0e72a7477d1540c98cef5141",
+      "size": 19903,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "wp-admin/includes",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "wp-admin/includes/class-wp-list-table.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3ecd133fcf8fa4f0dc0a0834ca4675ee8ee05b1616078530afd5044424f32676",
+      "size": 54873,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/includes/class-wp-site-health.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "d7517a0ddaa8b59b15265febafc6545357ab53e3f982c50c8296b37484af654d",
+      "size": 131168,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/includes/export.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1cd94583390885b9324bd5fde38da21af60603c85b64d4b0b6a878fcb1615bba",
+      "size": 26478,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/includes/image-edit.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "fa15826c86f1500f35fd925b68ae8f99454b0ce1d202c99a3af510948ef294e9",
+      "size": 44147,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/includes/post.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "86e825dbf107fc03f8ddb30141f25dbaac17b0526f6681d8b0d186a2bfaab1de",
+      "size": 82838,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/includes/privacy-tools.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "950cdf02239392ea6067cfb8cdcca033a51d64e882c99cb9cdd41ff4f28423cd",
+      "size": 33732,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/includes/schema.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a446ddd76ce401fc8173bfee4e79a98f8c3567ed3ba7560c2f167ca85e6976b0",
+      "size": 45583,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/menu.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "10dfad8b7ccab04c0af2e269c203c0a0a76c30438ee7b695dd97fb0f74a4cb3b",
+      "size": 18134,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/nav-menus.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "0eaea073868305594d0e0378da73130b26236d31caf0383ad11a6afb10f11d02",
+      "size": 50199,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/network",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "wp-admin/network/sites.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3cf00b8c1202275f47c1b0a1195f4145e6d4c9a864502b23ed3d5a3c3f846979",
+      "size": 14588,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options-discussion.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1fa70fd14d3120c229c26154f405090f687dc382ecf77f7a53043b9ead361118",
+      "size": 16403,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options-general.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "0ac15c8b3bc66d1497b611324a5ed613cd3202dbb69001acb1ba79fe5f854377",
+      "size": 22855,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options-media.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "de32e2e973ac65fe8650a940ec9c09d8f516db7530b2463efa503c42840d5ee7",
+      "size": 6640,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options-permalink.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "194e35380c9c404abdfed4e850a7492dfdb78ffe9698550e638cbcfe287d7945",
+      "size": 22491,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options-privacy.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6aaa2e7e0c86dde9219bce5b8359cd26da546ed716cb6f044c705f240ee7b189",
+      "size": 10704,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options-reading.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "5c85d05f28e1c42a15cb06480dc0550224f50e1dd845fee9d8afb7e27c4a42df",
+      "size": 10198,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options-writing.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "8cfde70a462950f169da068bc1cabead1521330346b041aebff30222283744b6",
+      "size": 9404,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/options.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "be1c998d13f04a61cb3b27a9d2614ca2e22d0a65da06b893e977f7fe6e92ab8f",
+      "size": 14266,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-admin/site-editor.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "52e337c1a1496388e8d37ca3efb9dc8fffbdee0f1468cab36ab550679b1f42e5",
+      "size": 12483,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "wp-includes/abilities-api",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "wp-includes/abilities-api.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6990a2bb316a412b9d8e71398c0f5478821aab158f6b1034cd7ebbf31687874e",
+      "size": 32800,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/abilities-api/class-wp-abilities-registry.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "37f5bb4ad1fc7c5e13503c20ffdfbc1052d6989c46ff008adc3cf28b9b3bfd60",
+      "size": 12846,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/abilities-api/class-wp-ability.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "0c0aa1db27f284cb9942865e6fbed0610178439430e2ac9a9f6a7dd209df049e",
+      "size": 33653,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/abilities.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "8b49d259e1015e3b8e54e3c5dde3a49d418e6b8cc34757f2428c6d53896f8075",
+      "size": 11797,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/capabilities.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "f5aaf3dd6a3c669f244fd6f01ad3a906556afd55941b443f1e9b34f65bb08573",
+      "size": 43584,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/class-wp-application-passwords.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "266e15ec38652acaee5e3fd6103fc1275d2d6ea5c54f8926c1c4ddf688559658",
+      "size": 17099,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/cron.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "dc27910a1ad004eb2aaabc19352246cc0b9e601bf2da870e141646fd9dd95591",
+      "size": 46266,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/rest-api",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "wp-includes/rest-api/endpoints",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "wp-includes/rest-api/endpoints/class-wp-rest-abilities-v1-list-controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "0b4dc26d32048268de00dbd27d816e2a319f11f4d243aee7d8b208c95aeef4d5",
+      "size": 12809,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/rest-api/endpoints/class-wp-rest-abilities-v1-run-controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "e343c9b7f598d4280baea9731364170cb2c01b3437371fa9b6c9ec8a10a415c1",
+      "size": 11642,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/rest-api/endpoints/class-wp-rest-autosaves-controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "4460e2aef083398870c980915319ebb45748ad93d0a748b7b0d941a0cc78e830",
+      "size": 15508,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/rest-api/endpoints/class-wp-rest-posts-controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "ac06af313d150b4442eced4655142337552c56caf4dedbd5a88d34d4abae4338",
+      "size": 104810,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/rest-api/endpoints/class-wp-rest-revisions-controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "c32f43d6bd5f89c7d434390658d9f60a8f5148603ac5afaf87ac054afe274f9e",
+      "size": 30780,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/rest-api/endpoints/class-wp-rest-settings-controller.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "4a1b63ab7502acf264e485ddf66ba8de4b85d9562676037c1c6584c18a8de632",
+      "size": 10330,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/revision.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1dc942d5eb3d9cee81b6c705a6fd52917c4ce5e5f509ece5ad6f748e345f8647",
+      "size": 31241,
+      "content_state": "hashed"
+    },
+    {
+      "path": "wp-includes/version.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "7163a7bfaf1fbac5024c0382931f17f9993076e15ff245e93254f009e0e34cc5",
+      "size": 1103,
+      "content_state": "hashed"
+    }
+  ],
+  "relationships": [],
+  "parse_failures": [],
+  "exclusions": [],
+  "languages": [
+    "PHP",
+    "Text"
+  ],
+  "manifests": [],
+  "vcs": {
+    "kind": "none",
+    "head": null,
+    "dirty": null
+  },
+  "provenance": {
+    "importer": "rea-agents",
+    "importer_version": "6.8.0",
+    "caller": "rea-cli"
+  },
+  "limitations": [
+    "Path identity is revalidated around operations; Node lacks portable descriptor-relative openat traversal, so a syscall-boundary pathname race remains."
+  ]
+}
