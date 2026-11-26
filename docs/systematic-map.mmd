@@ -937,16 +937,21 @@ flowchart LR
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   route_post_admin_blog_enhance_title --> controller_admincontroller
+  controller_admincontroller --> service_blogdraftservice
+  controller_admincontroller --> service_aiclient
   controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   route_post_admin_blog_enhance_content --> controller_admincontroller
+  controller_admincontroller --> service_blogdraftservice
+  controller_admincontroller --> service_aiclient
   controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   route_post_admin_blog_ai_draft --> controller_admincontroller
-  controller_admincontroller --> service_blogservice
   controller_admincontroller --> service_blogdraftservice
+  controller_admincontroller --> service_aiclient
+  controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   view_admin_resource -. includes .-> view_admin_campaign_fields

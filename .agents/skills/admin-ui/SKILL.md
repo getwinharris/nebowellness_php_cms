@@ -67,3 +67,5 @@ Update when an admin route, sidebar group, or CRUD form contract changes. The si
 - CRM uses owner-only routes, no-store responses, revision guards, private notes separate from customer-visible replies, and bounded customer context. Test ownership and JSON download authorization. Follow [the native harness contract](../../../docs/agent-harness.md); no fake inference.
 
 - Consultation fee cards use revision-guarded canonical settings, integer minor units and explicit draft/published visibility. Keep published display fees separate from therapy payment offers. Test draft visibility, save/reload, stale edit and the shared tool.
+
+- Blog AI proposals must come from actual completed provider inference. Show a separate review state, apply only to the unchanged editor snapshot, and never save automatically. Preserve links, images and alt text during enhancement; retain original text on errors, cancellation, stale edits or invalid suggestions. Use the route fixture and local browser acceptance in tests/browser/blog-editorial.cjs. Do not report isolated fixtures as production owner verification.

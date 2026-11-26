@@ -6,7 +6,7 @@ final class AdminController extends BaseController {
     public function __construct() {
         (new AuthService())->requireAdmin();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->isApiRequest = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) === '/admin/agent/ask';
+            $this->isApiRequest = in_array(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), ['/admin/agent/ask','/admin/blog/ai-draft','/admin/blog/enhance-title','/admin/blog/enhance-content'], true);
             $this->validateCsrf();
         }
         $this->seoKey = 'admin';
@@ -332,6 +332,10 @@ final class AdminController extends BaseController {
             // through the same route the normal admin screens post to.
             $command = \App\Services\AgentDraftService::command($message);
             if ($command !== null) {
+                if ($command === 'create-blog' && !module_on('blog')) {
+                    $this->jsonResponse(['error'=>'Blog is disabled. Enable it in Site Settings before drafting an article.'],409);
+                    return;
+                }
                 if ($command === 'add-product' && !module_on('shop')) {
                     $this->jsonResponse(['error'=>'Ecommerce is disabled. Enable it in Site Settings before drafting a product.'],409);
                     return;
@@ -398,10 +402,6 @@ final class AdminController extends BaseController {
             return '';
         }
         return $clean;
-    }
-
-    private function askModel(string $prompt): ?string {
-        return (new \App\Services\AiClient())->completeOrNull($prompt);
     }
 
     /**
@@ -820,39 +820,35 @@ final class AdminController extends BaseController {
             'slug' => $slug,
         ]);
     }
-    public function aiDraftBlog(): void{
-        $template = $_POST['template'] ?? 'editorial';
-        $title = $_POST['title'] ?? 'Article';
-        $sourceUrl = $_POST['source_url'] ?? '/';
-        $draft = (new BlogDraftService())->draft($template, $title, $sourceUrl);
-        $this->jsonResponse(['content' => $draft]);
-    }
-    /**
-     * Enhance one field at a time. The single AI Draft button rewrote the whole body
-     * from a title, so improving a headline meant losing the article. Title and content
-     * are now separate and each returns only its own field.
-     */
-    public function enhanceBlogTitle(): void{
-        $title = trim((string)($_POST['title'] ?? ''));
-        if ($title === '') { $this->jsonResponse(['error' => 'Enter a title first.'], 400); return; }
-        $result = $this->askModel(
-            "Rewrite this blog headline for Nebo Lifestyle Clinic, a naturopathy and functional medicine clinic. "
-            . "Return ONE headline only, plain text, no quotes, no markdown, under 70 characters.\n\nHeadline: " . $title
-        );
-        if ($result === null) { $this->jsonResponse(['error' => 'No AI API key is configured. Set ai_api_key in Admin → Integrations.'], 400); return; }
-        $clean = trim(preg_replace('/\s+/', ' ', strip_tags($result)) ?? $result, " \t\n\r\0\x0B\"'");
-        $this->jsonResponse(['title' => mb_substr($clean, 0, 120)]);
-    }
-    public function enhanceBlogContent(): void{
-        $content = trim((string)($_POST['content'] ?? ''));
-        if ($content === '') { $this->jsonResponse(['error' => 'Write some content first.'], 400); return; }
-        $result = $this->askModel(
-            "Improve the clarity and flow of this blog article. Keep the author's meaning, language and "
-            . "any Tamil text. Return Markdown only — no HTML, no code fences around the whole answer, "
-            . "no commentary.\n\nArticle:\n" . $content
-        );
-        if ($result === null) { $this->jsonResponse(['error' => 'No AI API key is configured. Set ai_api_key in Admin → Integrations.'], 400); return; }
-        $this->jsonResponse(['content' => trim($result)]);
+    public function aiDraftBlog(): void { $this->blogSuggestion('draft'); }
+    public function enhanceBlogTitle(): void { $this->blogSuggestion('title'); }
+    public function enhanceBlogContent(): void { $this->blogSuggestion('content'); }
+
+    private function blogSuggestion(string $field): void {
+        header('Cache-Control: private, no-store');
+        try {
+            if (!(new SettingsService())->strictModules()['blog']) $this->jsonResponse(['error'=>'Blog is disabled.'],404);
+            $service=new BlogDraftService();
+            if ($field==='draft') {
+                if (BlogDraftService::field($_POST['content']??'', BlogDraftService::MAX_ARTICLE_BYTES)!=='') {
+                    $this->jsonResponse(['error'=>'Use Enhance content to preserve an existing article.'],409);
+                }
+                $result=$service->draft(
+                    BlogDraftService::field($_POST['template']??'editorial',32),
+                    BlogDraftService::field($_POST['title']??'',600),
+                    BlogDraftService::field($_POST['source_url']??'',2048)
+                );
+            } else {
+                $result=$service->enhance($field,BlogDraftService::field($_POST[$field]??'', $field==='title'?600:BlogDraftService::MAX_ARTICLE_BYTES));
+            }
+            $status=$result['status'];unset($result['status']);
+            $this->jsonResponse($result,$status);
+        } catch (\InvalidArgumentException $error) {
+            $this->jsonResponse(['error'=>$error->getMessage()],422);
+        } catch (\Throwable $error) {
+            error_log('Editorial suggestion failed: '.get_class($error));
+            $this->jsonResponse(['error'=>'Editorial suggestion is unavailable. Original retained.'],503);
+        }
     }
     public function taxReport(): void{
         $this->requireModule('shop');

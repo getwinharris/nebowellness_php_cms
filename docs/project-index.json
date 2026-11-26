@@ -293,8 +293,9 @@
             "controller": "AdminController@aiDraftBlog",
             "view": "admin/blog",
             "services": [
-                "BlogService",
                 "BlogDraftService",
+                "AiClient",
+                "SecretService",
                 "AuthService"
             ]
         },
@@ -317,6 +318,8 @@
             "controller": "AdminController@enhanceBlogContent",
             "view": "admin/blog",
             "services": [
+                "BlogDraftService",
+                "AiClient",
                 "SecretService",
                 "AuthService"
             ]
@@ -328,6 +331,8 @@
             "controller": "AdminController@enhanceBlogTitle",
             "view": "admin/blog",
             "services": [
+                "BlogDraftService",
+                "AiClient",
                 "SecretService",
                 "AuthService"
             ]
@@ -1663,6 +1668,8 @@
                 "page": "admin/blog",
                 "controller": "AdminController@enhanceBlogTitle",
                 "services": [
+                    "BlogDraftService",
+                    "AiClient",
                     "SecretService",
                     "AuthService"
                 ]
@@ -1674,6 +1681,8 @@
                 "page": "admin/blog",
                 "controller": "AdminController@enhanceBlogContent",
                 "services": [
+                    "BlogDraftService",
+                    "AiClient",
                     "SecretService",
                     "AuthService"
                 ]

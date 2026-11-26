@@ -71,7 +71,7 @@ final class AgentDraftService
         } elseif (!$this->ai->configured()) {
             $note = 'No AI key is configured, so I could not draft this. The fields below are what a save needs.';
         } else {
-            $answer = $this->ai->completeOrNull($this->prompt($isBlog, $fields, $subject, $attachments), 1600, 0.4);
+            $answer = $this->ai->completeOrNull($this->prompt($isBlog, $fields, $subject, $attachments), 2400, 0.4, true);
             $values = $answer !== null ? $this->parse($answer, $fields) : [];
             $note = $values === []
                 ? 'The model did not return anything I could use. The fields below are what a save needs.'
@@ -148,7 +148,7 @@ final class AgentDraftService
             . implode(', ', $keys) . ".\n"
             . ($isBlog
                 ? "content must be markdown, at least four paragraphs, with ## subheadings. Do not put a title heading in content.\n"
-                  . "slug must be lowercase words joined by hyphens. Write warmly and respectfully about the tradition.\n"
+                  . "slug must be lowercase words joined by hyphens. Use the requested language and preserve clinical boundaries. Do not invent claims, links, prices, images or credentials.\n"
                 : "description must be two or three sentences a shopper would find useful. slug must be lowercase words joined by hyphens.\n")
             . "Never invent a price, a tax code or an image path.\n"
             . $attachments
@@ -158,22 +158,27 @@ final class AgentDraftService
     /** @return array<string,string> */
     private function parse(string $answer, array $fields): array
     {
-        // Models fence JSON even when told not to.
-        $answer = trim((string)preg_replace('/^\s*```(?:json)?|```\s*$/m', '', $answer));
-        $start = strpos($answer, '{');
-        $end = strrpos($answer, '}');
-        if ($start === false || $end === false || $end <= $start) return [];
-        $decoded = json_decode(substr($answer, $start, $end - $start + 1), true);
+        // Accept a single JSON object (with an optional enclosing JSON code fence).
+        $answer=trim($answer);
+        if (preg_match('/^\x60{3}(?:json)?\s*([\s\S]*?)\s*\x60{3}$/iD',$answer,$m)) $answer=trim($m[1]);
+        if (!str_starts_with($answer,'{') || !str_ends_with($answer,'}')) return [];
+        $decoded=json_decode($answer,true);
         if (!is_array($decoded)) return [];
 
-        $allowed = array_column($fields, 'name');
+        $allowed = array_column(array_filter($fields,static fn(array $field):bool=>!isset($field['hint'])), 'name');
         $values = [];
         foreach ($decoded as $key => $value) {
             if (!in_array($key, $allowed, true)) continue;
-            if (is_array($value)) $value = implode(', ', array_filter(array_map('strval', $value)));
-            if (!is_scalar($value)) continue;
+            if (!is_string($value) || !mb_check_encoding($value,'UTF-8') || strlen($value)>BlogDraftService::MAX_ARTICLE_BYTES) continue;
             $values[$key] = trim((string)$value);
         }
+        if (isset($values['content'])) {
+            try {
+                $values['content']=BlogDraftService::reviewable('content','',$values['content'],true);
+                $values['title']=BlogDraftService::reviewable('title','',$values['title']??'');
+            } catch (\InvalidArgumentException) { return []; }
+        } elseif (in_array('content',$allowed,true)) return [];
+        if (isset($values['slug']) && !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$values['slug'])) unset($values['slug']);
         return array_filter($values, fn(string $v): bool => $v !== '');
     }
 

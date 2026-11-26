@@ -140,9 +140,9 @@ final class ProjectMapService {
             ['method'=>'POST','path'=>'/admin/blog/toggle','name'=>'admin.blog.toggle','page'=>'admin/blog','controller'=>'AdminController@toggleBlog','services'=>['BlogService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/blog/delete','name'=>'admin.blog.delete','page'=>'admin/blog','controller'=>'AdminController@deleteBlog','services'=>['BlogService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/blog/preview','name'=>'admin.blog.preview','page'=>'admin/blog','controller'=>'AdminController@previewBlog','services'=>['BlogService','MarkdownRenderer']],
-            ['method'=>'POST','path'=>'/admin/blog/enhance-title','name'=>'admin.blog.enhance-title','page'=>'admin/blog','controller'=>'AdminController@enhanceBlogTitle','services'=>['SecretService']],
-            ['method'=>'POST','path'=>'/admin/blog/enhance-content','name'=>'admin.blog.enhance-content','page'=>'admin/blog','controller'=>'AdminController@enhanceBlogContent','services'=>['SecretService']],
-            ['method'=>'POST','path'=>'/admin/blog/ai-draft','name'=>'admin.blog.ai-draft','page'=>'admin/blog','controller'=>'AdminController@aiDraftBlog','services'=>['BlogService','BlogDraftService']],
+            ['method'=>'POST','path'=>'/admin/blog/enhance-title','name'=>'admin.blog.enhance-title','page'=>'admin/blog','controller'=>'AdminController@enhanceBlogTitle','services'=>['BlogDraftService','AiClient','SecretService']],
+            ['method'=>'POST','path'=>'/admin/blog/enhance-content','name'=>'admin.blog.enhance-content','page'=>'admin/blog','controller'=>'AdminController@enhanceBlogContent','services'=>['BlogDraftService','AiClient','SecretService']],
+            ['method'=>'POST','path'=>'/admin/blog/ai-draft','name'=>'admin.blog.ai-draft','page'=>'admin/blog','controller'=>'AdminController@aiDraftBlog','services'=>['BlogDraftService','AiClient','SecretService']],
 
 
         ];

@@ -57,3 +57,11 @@ Admin → Settings → Homepage Foundation accepts the clinic-confirmed minimum 
 In **Settings → Consultation fee catalogue**, add or edit an ordered fee card. Drafts remain visible only in Admin. Choose Published to make a fee visible on Contact and available through the shared read-only agent tool. The editor displays the saved amount and visibility as a preview. Prices are stored as integer minor units; choose a supported two-decimal currency, enter a nonnegative amount (zero is permitted for a free consultation), and give minimum and maximum durations in minutes. Set optional specific inclusions or shared general inclusions. Reload before retrying a stale edit. A consultation enquiry uses the existing verified Contact workflow; it never creates a charge or a confirmed appointment.
 
 Rich-text content accepts Markdown, simple safe HTML, headings, tables and approved links/images. Embedded active content, arbitrary attributes and unsafe URI schemes are removed during rendering. Use plain content and the existing media picker rather than embedded scripts.
+
+## AI editorial suggestions
+
+Open Blog, enter a title and request AI draft for an empty article, or Enhance for an existing headline or article body. The configured provider must return a completed response. The suggestion is shown separately in the editor; Apply changes only the current form and Discard retains the original. Saving is still an explicit owner operation. An in-flight suggestion is discarded if the article, title, template, reference or edit session changed.
+
+Content suggestions are bounded and must preserve existing rendered link destinations, images and alt text. Invalid, incomplete or unavailable provider output never replaces the article. New drafts do not invent links or claim to have read a source URL. Review all medical claims and editorial meaning before saving. Enterprise draft forms also reject incomplete model output and ignore model-supplied owner-only fields (including image, price and tax settings).
+
+Local browser acceptance with an existing Playwright/Chrome development environment: `node tests/browser/blog-editorial.cjs`. This exercises the real PHP view with synthetic suggestions, not production owner access.

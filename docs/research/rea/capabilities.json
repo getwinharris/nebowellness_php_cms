@@ -445,9 +445,9 @@
       "id": "cms-15",
       "track": "cms",
       "title": "AI blog drafting and enhancement",
-      "status": "partial",
+      "status": "implemented",
       "acceptance": "Real reviewable model draft, preserve original on failure and preserve images.",
-      "finding": "AgentDraftService uses inference; editor static draft route tracked separately.",
+      "finding": "Real provider-backed blog editor draft/title/body suggestions and Enterprise draft forms; explicit Apply review, stale-response protection, preserved links/images and owner-only fields, stop-reason validation on Google and compatible endpoints. Synthetic route and isolated Chrome fixtures pass; live authenticated acceptance remains open.",
       "issues": [
         140
       ],
@@ -459,15 +459,32 @@
       ],
       "source": [
         {
+          "path": "app/Services/BlogDraftService.php",
+          "anchor": "function reviewable("
+        },
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "bool $requireComplete = false"
+        },
+        {
           "path": "app/Services/AgentDraftService.php",
           "anchor": "function draft("
         },
         {
-          "path": "app/Controllers/AdminController.php",
-          "anchor": "function aiDraftBlog("
+          "path": "assets/blog-editorial.js",
+          "anchor": "function sameSnapshot("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/blog-editorial.test.cjs",
+          "anchor": "blog drafting and enhancement use completed inference"
+        },
+        {
+          "path": "tests/browser/blog-editorial.cjs",
+          "anchor": "Owner edited while AI was working"
+        }
+      ],
       "production": null
     },
     {
@@ -1476,9 +1493,9 @@
       "id": "completion-07",
       "track": "completion",
       "title": "Validated editorial generation",
-      "status": "partial",
+      "status": "implemented",
       "acceptance": "Real draft/rewrite with review, original preserved on invalid/truncated result.",
-      "finding": "Draft inference exists; editor regression tracked.",
+      "finding": "Real provider-backed blog editor draft/title/body suggestions and Enterprise draft forms; explicit Apply review, stale-response protection, preserved links/images and owner-only fields, stop-reason validation on Google and compatible endpoints. Synthetic route and isolated Chrome fixtures pass; live authenticated acceptance remains open.",
       "issues": [
         140
       ],
@@ -1494,15 +1511,32 @@
       ],
       "source": [
         {
+          "path": "app/Services/BlogDraftService.php",
+          "anchor": "function reviewable("
+        },
+        {
+          "path": "app/Services/AiClient.php",
+          "anchor": "bool $requireComplete = false"
+        },
+        {
           "path": "app/Services/AgentDraftService.php",
           "anchor": "function draft("
         },
         {
-          "path": "app/Services/AiClient.php",
-          "anchor": "function completeOrNull("
+          "path": "assets/blog-editorial.js",
+          "anchor": "function sameSnapshot("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/blog-editorial.test.cjs",
+          "anchor": "blog drafting and enhancement use completed inference"
+        },
+        {
+          "path": "tests/browser/blog-editorial.cjs",
+          "anchor": "Owner edited while AI was working"
+        }
+      ],
       "production": null
     },
     {
@@ -1964,6 +1998,18 @@
         "harness-10"
       ],
       "summary": "Initial source-backed baseline after PR #139; archived REA evidence and read-only bapX reference. Partial/missing count zero. General commerce parity excluded."
+    },
+    {
+      "id": "140-editorial",
+      "date": "2026-11-26",
+      "issues": [
+        140
+      ],
+      "components": [
+        "cms-15",
+        "completion-07"
+      ],
+      "summary": "Reproduced static draft endpoint with zero provider calls, replaced it with actual completed model responses and reviewed proposals. Loopback route tests cover compatible and Google finish states, auth/CSRF, outage, links/images, Enterprise fields; Chrome synthetic UI at 1440/375/390 verifies apply/discard and stale edit protection. Live owner acceptance remains separate."
     }
   ]
 }
