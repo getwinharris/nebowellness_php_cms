@@ -74,27 +74,46 @@ final class AgentToolRegistry implements ModelToolSet
         return $groups;
     }
 
-    /** Current public contact/identity facts, not customer/private or general writing. */
-    public static function identityQuestion(string $question): bool {
-        if (preg_match('/\b(?:my|customer(?:s|[’\x27]s)?|patient(?:s|[’\x27]s)?|staff|employee|admin|owner|login|password|credential|smtp|account)\b/i',$question)) {
-            if (!preg_match('/\b(?:public|clinic|business|site|website)\s+(?:contact|identity|address|name|email|phone|hours)\b/i',$question)) return false;
-        }
-        return preg_match('/\b(?:opening hours|business hours|clinic hours|working hours|opening times?|public contact(?: details| information)?|site identity|site name|business name|clinic name|contact details|contact information|contact (?:phone|number|email)|phone number|telephone number|whatsapp number|email address|public email|clinic address|business address|where (?:are you|is (?:the|your|our) (?:clinic|business|office)) located|where (?:is|are) (?:the|your|our) (?:clinic|business|office)|how (?:can|do|should) (?:i|we) (?:contact|reach|call|email) (?:you|the clinic|your clinic|our clinic)|when (?:are you|is the clinic) open)\b/i',$question)===1;
+    /** Public-fact acceptance categories, not a deterministic tool router. */
+    public static function identityIntents(string $question): array {
+        $business='(?:public|clinic|business|site|website|office|company|organization|organisation)(?:[’\x27]s)?';
+        $field='(?:contact|identity|location|address|name|e-?mail|telephone|phone|whatsapp|hours|opening)';
+        $explicit=preg_match('/\b'.$business.'\s+'.$field.'\b/i',$question)===1;
+        // Never reinterpret a private actor's personal contact as the public site.
+        if (preg_match('/\b(?:my|customer(?:s|[’\x27]s)?|patient(?:s|[’\x27]s)?|staff|employee|admin|owner|login|password|credential|smtp|account)\b/i',$question)&&!$explicit) return [];
+        $owner='(?:'.$business.'|your|our)';
+        $intents=[];
+        if (preg_match('/\b(?:'.$owner.'\s+e-?mail(?: address)?|e-?mail address|contact e-?mail|how (?:can|do|should) (?:i|we) e-?mail (?:you|the clinic|your clinic|our clinic))\b/i',$question)) $intents[]='email';
+        if (preg_match('/\b(?:'.$owner.'\s+(?:phone|telephone)(?: number)?|phone number|telephone number|contact phone|contact number|how (?:can|do|should) (?:i|we) call (?:you|the clinic|your clinic|our clinic))\b/i',$question)) $intents[]='phone';
+        if (preg_match('/\b(?:'.$owner.'\s+whatsapp(?: number)?|whatsapp number|how (?:can|do|should) (?:i|we) (?:contact|reach|message) (?:you|the clinic) (?:on|via) whatsapp)\b/i',$question)) $intents[]='whatsapp';
+        if (preg_match('/\b(?:'.$owner.'\s+(?:contact(?: details| information)?|identity|location|address|hours)|'.$business.'\s+name|our name|opening hours|business hours|working hours|opening times?|contact details|contact information|where (?:are you|is (?:the|your|our) (?:clinic|business|office)) located|where (?:is|are) (?:the|your|our) (?:clinic|business|office)|how (?:can|do|should) (?:i|we) (?:contact|reach) (?:you|the clinic|your clinic|our clinic)|when (?:are you|is the clinic) open|when do you (?:open|close))\b/i',$question)) $intents[]='identity';
+        return $intents;
     }
 
-    /** Validate concrete contact claims when an observed identity result is used. */
+    public static function identityQuestion(string $question): bool {
+        return self::identityIntents($question)!==[];
+    }
+
+    /** Verify concrete contact claims from the observed current identity. */
     public static function matchesIdentityFacts(string $question,string $answer,array $identity): bool {
-        if (!self::identityQuestion($question)||$identity===[]) return true;
+        $intents=self::identityIntents($question);
+        if ($intents===[]) return true;
+        if ($identity===[]) return false;
         $email=$identity['public_email']??'';
         preg_match_all('/[A-Z0-9.!#$%&\x27*+\/=?^_\x60{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,63}/i',$answer,$emails);
         foreach ($emails[0] as $mentioned) if ($email===''||strcasecmp($mentioned,$email)!==0) return false;
-        if ($email!==''&&preg_match('/\b(?:public email|email address|contact email)\b/i',$question)&&$emails[0]===[]) return false;
+        if ($email!==''&&in_array('email',$intents,true)&&$emails[0]===[]) return false;
         $phones=$identity['phones']??[];$whatsapp=$identity['whatsapp']??[];
-        preg_match_all('/(?<![0-9])\+[1-9](?:[ ()-]*[0-9]){7,14}(?![0-9])/',$answer,$numbers);
-        $actual=array_map(static fn(string $value):string=>preg_replace('/[ ()-]+/','',$value),$numbers[0]);
+        $numberQuestion=in_array('phone',$intents,true)||in_array('whatsapp',$intents,true);
+        // For explicit number requests, detect full-length digits even without a
+        // plus sign. Require the actual international value, not a guessed local
+        // number. Other identity answers only check explicit international claims.
+        $pattern=$numberQuestion?'/(?<![0-9])[0-9](?:[ ()-]*[0-9]){7,14}(?![0-9])/':'/(?<![0-9])\+[1-9](?:[ ()-]*[0-9]){7,14}(?![0-9])/';
+        preg_match_all($pattern,$answer,$numbers);
+        $actual=array_map(static fn(string $value):string=>'+'.preg_replace('/[^0-9]/','',$value),$numbers[0]);
         foreach ($actual as $number) if (!in_array($number,array_merge($phones,$whatsapp),true)) return false;
-        if ($whatsapp!==[]&&preg_match('/\bwhatsapp number\b/i',$question)&&!array_intersect($whatsapp,$actual)) return false;
-        if ($phones!==[]&&preg_match('/\b(?:phone number|telephone number|contact phone|contact number)\b/i',$question)&&!array_intersect($phones,$actual)) return false;
+        if ($whatsapp!==[]&&in_array('whatsapp',$intents,true)&&!array_intersect($whatsapp,$actual)) return false;
+        if ($phones!==[]&&in_array('phone',$intents,true)&&!array_intersect($phones,$actual)) return false;
         return true;
     }
 

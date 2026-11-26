@@ -61,3 +61,31 @@ test('identity questions require actual evidence and reject invented concrete co
   assert.equal(out.validEmail,true);assert.equal(out.badEmail,false);
   assert.equal(out.validPhone,true);assert.equal(out.wrongPhone,false);assert.equal(out.missing,true);
 });
+
+test('ordinary business contact wording shares one evidence and exact claim gate',()=>{
+  const out=php(String.raw`
+  $r=new App\Services\AgentToolRegistry(modules:['blog'=>true,'campaigns'=>true],scope:'admin');
+  $questions=['What is our business email?','What is your email?','What is the clinic phone?','What is our company telephone?','What is the business WhatsApp?','Where is our office?','When do you open?','What are your hours?'];
+  $private=['What is my email address?','What is the customer phone number?','What is the admin email address?','What is the patient address?','What is your name?'];
+  $identity=['public_email'=>'public@example.test','phones'=>['+12025550101'],'whatsapp'=>['+12025550102']];
+  $trace=new App\Services\AgentRunTrace();
+  $trace->provider('google','fixture',200,0,microtime(true),true);
+  $guesses=array_map(fn($q)=>$r->acceptsEvidence($q,'Invented contact information.',$trace),$questions);
+  $groups=array_map(fn($q)=>$r->requiredEvidence($q),$questions);
+  $claims=[
+    $r::matchesIdentityFacts($questions[0],'public@example.test',$identity),
+    $r::matchesIdentityFacts($questions[0],'wrong@example.test',$identity),
+    $r::matchesIdentityFacts($questions[0],'See our site.',$identity),
+    $r::matchesIdentityFacts($questions[2],'1 (202) 555-0101',$identity),
+    $r::matchesIdentityFacts($questions[2],'2025550199',$identity),
+    $r::matchesIdentityFacts($questions[4],'+12025550102',$identity),
+    $r::matchesIdentityFacts($questions[4],'+12025550101',$identity),
+    $r::matchesIdentityFacts($questions[0],'public@example.test',[]),
+  ];
+  echo json_encode(['guesses'=>$guesses,'groups'=>$groups,'private'=>array_map([$r,'identityQuestion'],$private),'claims'=>$claims]);
+  `);
+  assert.ok(out.guesses.every(x=>x===false));
+  assert.ok(out.groups.every(x=>x.some(g=>g.includes('published_site_identity'))));
+  assert.deepEqual(out.private,[false,false,false,false,false]);
+  assert.deepEqual(out.claims,[true,false,false,true,false,true,false,false]);
+});

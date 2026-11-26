@@ -57,3 +57,18 @@ private fields or model-authored executable content.
 - Live acceptance: verify source fingerprint and non-mutating public Support
   query. Authenticated owner and MCP production acceptance remain separate;
   never issue a real grant or publish a new business profile just to test.
+
+## Natural public contact phrasing (#182)
+
+One acceptance classification covers explicit public business/clinic/site
+identity, opening hours and common your/our email, telephone and WhatsApp
+questions. The same categories drive the required successful read and
+concrete-answer guard. Explicit private actor queries and ordinary model
+identity greetings are not converted into public-business lookups.
+When an explicit contact number is requested, check the full international
+digits (formatted or unformatted) against the appropriate observed channel;
+when a published email is requested, require the actual value. Do not
+claim this is a semantic validator for every identity or hours statement.
+Both agent routes use the same guard and are tested with a real disposable
+MariaDB record and correlated loopback provider responses, including the
+ordinary business-email wording that previously bypassed the gate.
