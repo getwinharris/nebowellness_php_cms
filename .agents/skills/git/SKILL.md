@@ -30,6 +30,10 @@ GitHub CLI (`gh`) on the hosted server.
   `git worktree remove`, not recursive folder deletion. Keep the common
   Git directory and owner configuration intact.
 
+GitHub issues are the sole work backlog; keep intent and acceptance there,
+not in a separate local task or objective file. Commit regenerated private
+`.agents/map.mmd` and `.agents/index.yaml` with their source changes.
+
 ## Local Workflow
 
 ```bash

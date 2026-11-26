@@ -55,7 +55,8 @@ final class KnowledgeGraphService {
                 'schema' => 'storage/schema/collections.php',
                 'blogs' => 'content/blog/posts/*.md',
                 'images' => 'assets/images/**/*',
-                'code_map' => 'map.mmd',
+                'code_map' => '.agents/map.mmd',
+                'knowledge_index' => '.agents/index.yaml',
                 'documentation_map' => 'docs/map.mmd',
             ],
             'rules' => [
@@ -67,29 +68,32 @@ final class KnowledgeGraphService {
             ],
             'discovery' => [
                 ['question' => 'Does a route, controller, service, view or collection exist?', 'use' => 'docs/project-index.json'],
-                ['question' => 'How are routes, controllers, services and collections connected?', 'use' => 'map.mmd'],
+                ['question' => 'How are routes, controllers, services and collections connected?', 'use' => '.agents/map.mmd'],
                 ['question' => 'What is the live product, category, consultant, campaign or admin-editable value?', 'use' => $appUrl . '/remotedb'],
                 ['question' => 'Where is a blog article and what frontmatter does it declare?', 'use' => 'concepts filtered by type=blog, then read its resource'],
                 ['question' => 'Where is an image and which source files reference it?', 'use' => 'concepts filtered by type=image; query by filename or resource'],
-                ['question' => 'What repository instructions or skill apply?', 'use' => 'AGENTS.md, then .agents/skills'],
+                ['question' => 'What repository instructions or skill apply?', 'use' => 'AGENTS.md, then .agents/skills; use .agents/REA/skills for source-derived engineering'],
                 ['question' => 'Where do I start debugging a feature or release?', 'use' => 'docs/README.md'],
                 ['question' => 'What changed in a release or is awaiting release?', 'use' => 'docs/changelog.md; verify the Git tag and production deployment separately'],
             ],
             'query_examples' => [
-                'sed -n \'1,/^concepts:$/p\' index.yaml',
+                'sed -n \'1,/^concepts:$/p\' .agents/index.yaml',
                 'jq --arg path "/contact" \'[.routes[] | select(.path == $path)]\' docs/project-index.json',
-                'rg -n -B4 -A14 \'id: "<concept-id>"\' index.yaml',
-                'rg -n -A10 \'id: "blog:gut-friendly-meals"\' index.yaml',
-                'rg -n -B4 -A12 \'filename: "<name>"\' index.yaml',
-                'rg -n -B4 -A14 \'path: "/shop"\' index.yaml',
-                'rg -n -B4 -A12 \'type: "skill"\' index.yaml',
-                'rg -n \'<term>\' docs/project-index.json map.mmd index.yaml',
+                'rg -n -B4 -A14 \'id: "<concept-id>"\' .agents/index.yaml',
+                'rg -n -A10 \'id: "blog:gut-friendly-meals"\' .agents/index.yaml',
+                'rg -n -B4 -A12 \'filename: "<name>"\' .agents/index.yaml',
+                'rg -n -B4 -A14 \'path: "/shop"\' .agents/index.yaml',
+                'rg -n -B4 -A12 \'type: "skill"\' .agents/index.yaml',
+                'rg -n \'<term>\' docs/project-index.json .agents/map.mmd .agents/index.yaml',
             ],
             'summary' => ['concepts' => count($concepts), 'relationships' => count($edges), 'by_type' => array_count_values(array_column($concepts, 'type'))],
             'concepts' => $concepts,
             'relationships' => $edges,
         ];
-        file_put_contents($outputFile, $this->toYaml($index));
+        $yaml = $this->toYaml($index);
+        if (file_put_contents($outputFile, $yaml) !== strlen($yaml)) {
+            throw new \RuntimeException('Unable to write knowledge index.');
+        }
     }
 
     public function renderMermaid(): string {
@@ -269,7 +273,11 @@ final class KnowledgeGraphService {
     private function indexSkillFiles(): void {
         $skillsDir = $this->root . '/.agents/skills';
         if (!is_dir($skillsDir)) return;
-        foreach (glob($skillsDir . '/*/SKILL.md') ?: [] as $file) {
+        // Only the native project skills and native REA adaptations are guidance;
+        // the pinned original WordPress/WooCommerce snapshots are evidence.
+        $skillFiles = array_merge(glob($skillsDir . '/*/SKILL.md') ?: [],
+            glob($this->root . '/.agents/REA/skills/rea-*/SKILL.md') ?: []);
+        foreach ($skillFiles as $file) {
             $name = basename(dirname($file));
             $content = file_get_contents($file);
             $frontmatter = $this->parseFrontmatter($content);

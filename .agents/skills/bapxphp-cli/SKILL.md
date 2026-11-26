@@ -22,8 +22,8 @@ every filesystem or Git operation.
 ./bapXphp understand
 ```
 
-Read `index.yaml` discovery and query it narrowly. Use `docs/project-index.json` for
-existence, `map.mmd` for wiring, original files for truth, and `/remotedb` for live
+Read `.agents/index.yaml` discovery and query it narrowly. Use `docs/project-index.json` for
+existence, `.agents/map.mmd` for wiring, original files for truth, and `/remotedb` for live
 admin-editable values.
 
 ## Validation and generated artifacts
@@ -48,7 +48,13 @@ admin-editable values.
 ```
 
 `update` regenerates the REA progress report, committed maps and indexes; `ci` checks drift. Never hand-edit
-generated maps or `index.yaml`.
+generated maps or `.agents/index.yaml`.
+
+The two developer artifacts are written only to `.agents/map.mmd` and
+`.agents/index.yaml` by default. The direct PHP generators accept an explicit
+alternate output for verification. The CLI's map/index/update/CI commands use
+the private canonical paths; the docs map and project index remain in docs/.
+GitHub issues, not the retired local task/objective commands, track all work.
 
 ## Content, database and operations
 

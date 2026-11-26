@@ -7,7 +7,7 @@ $root = $argv[1] ?? dirname(__DIR__);
 $service = new KnowledgeGraphService($root);
 $graph = $service->build();
 
-$indexFile = $argv[2] ?? $root . '/index.yaml';
+$indexFile = $argv[2] ?? $root . '/.agents/index.yaml';
 $service->writeYamlIndex($indexFile);
 
 echo json_encode([

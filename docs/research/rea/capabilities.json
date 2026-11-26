@@ -2186,6 +2186,16 @@
         "mcp-05"
       ],
       "summary": "Continued next clear issue loop using native REA audit and shared-domain skills. Migrated published practitioner/programme lists and exact detail to typed catalogue with strict input/output, source checks, publication and module recheck. Representative MariaDB and loopback tests; external transport and remaining legacy tools still partial."
+    },
+    {
+      "id": "152-private-developer-maps",
+      "date": "2026-11-26",
+      "issues": [
+        152,
+        141
+      ],
+      "components": [],
+      "summary": "Developer-only map/index relocation, canonical generator and CLI output/validation paths, native REA skill discovery, retired duplicate task/objective commands and public path denial. No business-agent tools, runtime data, tracked capability scope or implementation status changed."
     }
   ]
 }

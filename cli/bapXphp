@@ -40,8 +40,8 @@ set -euo pipefail
 #   bapXphp dev:user [--dry-run]   — create/update the fixed remote-DB customer used for browser testing
 #
 # ── Project Map ─────────────────────────────────────────────────
-#   bapXphp map                     — regenerate + view map.mmd (deterministic code graph with edges + gaps)
-#   bapXphp map:gen                 — regenerate systematic-map.mmd + map.mmd from source (AST/regex parsed)
+#   bapXphp map                     — regenerate + view .agents/map.mmd (deterministic code graph with edges + gaps)
+#   bapXphp map:gen                 — regenerate systematic-map.mmd + .agents/map.mmd from source (AST/regex parsed)
 #   bapXphp map:val                 — validate both maps are up-to-date
 #
 # ── Schema (collections.php) ───────────────────────────────────
@@ -97,18 +97,11 @@ set -euo pipefail
 #   bapXphp ai:probe [text|tools] [model] — verify exact response or native diagnostic tool round trip
 # ── Blog & Docs ──────────────────────────────────────────────────
 #       bapXphp docsmap                 — regenerate docs/map.mmd (content: skills, docs, blog, admin, agents)
-#       bapXphp codemap                 — regenerate map.mmd (root, code dependency graph with edges + gaps)
-#       bapXphp index                   — generate index.yaml knowledge index (concepts + relationships)
+#       bapXphp codemap                 — regenerate .agents/map.mmd (developer-only, code dependency graph with edges + gaps)
+#       bapXphp index                   — generate .agents/index.yaml knowledge index (concepts + relationships)
 #
-# ── Task Management (todowrite) ──────────────────────────────────
-#   bapXphp todo                   — list tasks
-#   bapXphp todo add <description> — add a task
-#   bapXphp todo update <id> <status> — update task status (pending/in_progress/completed/cancelled)
-#   bapXphp todo done <id>         — mark task completed
-#
-# ── Objectives ───────────────────────────────────────────────────
-#   bapXphp objective read         — show current objectives from OBJECTIVE.md
-#   bapXphp objective update <text> — update objective entry (pipe or pass text)
+# ── Issue tracking ─────────────────────────────────────────────
+#   GitHub issues are the sole backlog; use the connected GitHub tool or local gh.
 #
 # ── Question ─────────────────────────────────────────────────────
 #   bapXphp question <text>        — ask the user a question
@@ -648,31 +641,11 @@ cmd_ci() {
   fi
   rm -f "$ROOT/.project-index.tmp.json"
 
-  echo "── knowledge:val (index.yaml) ──"
-  php "$ROOT/cli/generate-okf-bundle.php" "$ROOT" "$ROOT/.index.tmp.yaml" >/dev/null 2>&1
-  if [ -f "$ROOT/index.yaml" ] && diff -q "$ROOT/index.yaml" "$ROOT/.index.tmp.yaml" >/dev/null 2>&1; then
-    ok "Knowledge index is current"
-  else
-    warn "KNOWLEDGE INDEX STALE. Run bapXphp update and commit index.yaml."
-    diff -u "$ROOT/index.yaml" "$ROOT/.index.tmp.yaml" | head -40 || true
-    failed=1
-  fi
-  rm -f "$ROOT/.index.tmp.yaml"
+  echo "── knowledge:val (.agents/index.yaml) ──"
+  validate_agent_artifact generate-okf-bundle.php index.yaml "Knowledge index" || failed=1
 
-  echo "── codemap:val (root map.mmd) ──"
-  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/.map.mmd.tmp"
-  if [ -f "$ROOT/map.mmd" ]; then
-    if ! diff -q "$ROOT/map.mmd" "$ROOT/.map.mmd.tmp" >/dev/null 2>&1; then
-      warn "CODE MAP STALE. Run bapXphp codemap and commit map.mmd."
-      failed=1
-    else
-      ok "Code map is current"
-    fi
-  else
-    warn "map.mmd missing. Run bapXphp codemap."
-    failed=1
-  fi
-  rm -f "$ROOT/.map.mmd.tmp"
+  echo "── codemap:val (.agents/map.mmd) ──"
+  validate_agent_artifact generate-code-map.php map.mmd "Code map" || failed=1
 
   echo "── smoke ──"
   php "$ROOT/cli/smoke-local.php" 2>&1 || { failed=1; warn "SMOKE FAILED"; }
@@ -693,7 +666,7 @@ cmd_update() {
   php "$ROOT/cli/rea-progress.php" update
   php "$ROOT/cli/generate-project-map.php"
   php "$ROOT/cli/generate-docs-map.php" "$ROOT" "$ROOT/docs/map.mmd"
-  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/map.mmd"
+  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/.agents/map.mmd"
   php "$ROOT/cli/generate-project-index.php" "$ROOT"
   php "$ROOT/cli/generate-okf-bundle.php" "$ROOT"
   php "$ROOT/cli/validate-project-map.php"
@@ -715,36 +688,43 @@ cmd_smoke() {
 # ── Map Commands ───────────────────────────────────────────────
 cmd_map() {
   require_php
-  echo "── Generating map.mmd (deterministic code graph) ──" >&2
-  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/map.mmd" >&2
-  echo "── map.mmd (code: routes → controllers → services → collections, edges + gaps) ──" >&2
-  cat "$ROOT/map.mmd"
+  echo "── Generating .agents/map.mmd (deterministic code graph) ──" >&2
+  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/.agents/map.mmd" >&2
+  echo "── .agents/map.mmd (code: routes → controllers → services → collections, edges + gaps) ──" >&2
+  cat "$ROOT/.agents/map.mmd"
 }
 
 cmd_map_gen() {
   require_php
   php "$ROOT/cli/generate-project-map.php" 2>&1
-  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/map.mmd" 2>&1
-  echo "generated: docs/systematic-map.mmd, map.mmd"
+  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/.agents/map.mmd" 2>&1
+  echo "generated: docs/systematic-map.mmd, .agents/map.mmd"
+}
+
+# Both private developer artifacts share the canonical paths and non-mutating
+# drift check. Scratch files are unique and remain below the private directory.
+validate_agent_artifact() {
+  local generator="$1" artifact="$2" label="$3" scratch
+  local committed="$ROOT/.agents/$artifact"
+  scratch=$(mktemp "$ROOT/.agents/.validation.XXXXXX") || { warn "$label: cannot create scratch output"; return 1; }
+  if ! php "$ROOT/cli/$generator" "$ROOT" "$scratch" >/dev/null; then
+    warn "$label generation failed"
+    rm -f "$scratch"
+    return 1
+  fi
+  if [ ! -f "$committed" ] || ! diff -q "$committed" "$scratch" >/dev/null 2>&1; then
+    warn "$label missing or stale. Run bapXphp update and commit .agents/$artifact."
+    rm -f "$scratch"
+    return 1
+  fi
+  rm -f "$scratch"
+  ok "$label is current"
 }
 
 cmd_map_val() {
   require_php
   php "$ROOT/cli/validate-project-map.php" 2>&1
-  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/.map.mmd.tmp" 2>&1
-  if [ -f "$ROOT/map.mmd" ]; then
-    if ! diff -q "$ROOT/map.mmd" "$ROOT/.map.mmd.tmp" >/dev/null 2>&1; then
-      warn "map.mmd STALE. Run bapXphp map:gen / codemap."
-      rm -f "$ROOT/.map.mmd.tmp"
-      return 1
-    fi
-    ok "map.mmd is current"
-  else
-    warn "map.mmd MISSING. Run bapXphp codemap."
-    rm -f "$ROOT/.map.mmd.tmp"
-    return 1
-  fi
-  rm -f "$ROOT/.map.mmd.tmp"
+  validate_agent_artifact generate-code-map.php map.mmd "Code map"
 }
 
 # ── Skills ──────────────────────────────────────────────────────
@@ -1234,12 +1214,12 @@ cmd_docsmap() {
   echo "Done. → docs/map.mmd"
 }
 
-# ── codemap — Regenerate root map.mmd ─────────────────────────
+# ── codemap — Regenerate .agents/map.mmd ─────────────────────────
 cmd_codemap() {
   require_php
-  echo "Generating map.mmd (code dependency graph)..."
-  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/map.mmd"
-  echo "Done. → map.mmd"
+  echo "Generating .agents/map.mmd (code dependency graph)..."
+  php "$ROOT/cli/generate-code-map.php" "$ROOT" "$ROOT/.agents/map.mmd"
+  echo "Done. → .agents/map.mmd"
 }
 
 # ── index — Generate queryable project knowledge index ──
@@ -1247,7 +1227,7 @@ cmd_okfgen() {
   require_php
   echo "Generating project knowledge index..."
   php "$ROOT/cli/generate-okf-bundle.php" "$ROOT"
-  echo "Done. → index.yaml"
+  echo "Done. → .agents/index.yaml"
 }
 
 cmd_product_images() {
@@ -1420,110 +1400,6 @@ cmd_find() {
 cmd_run() {
   [ $# -eq 0 ] && die "Usage: bapXphp run <command...>"
   eval "$@"
-}
-
-# ── todo — Task management (todowrite) ─────────────────────────────────
-cmd_todo() {
-  require_php
-  local dir="$ROOT/.agents/todo"
-  mkdir -p "$dir"
-  local file="$dir/tasks.json"
-  local action="${1:-list}" arg="${2:-}"
-
-  case "$action" in
-    list|ls|status)
-      if [ -f "$file" ]; then
-        php -r '
-          $tasks = json_decode(file_get_contents($argv[1]), true) ?: [];
-          if (empty($tasks)) { echo "No tasks.\n"; exit(0); }
-          printf("%-4s %-14s %s\n", "ID", "STATUS", "DESCRIPTION");
-          $i = 0;
-          foreach ($tasks as $t) {
-            printf("%-4d %-14s %s\n", $i, $t["status"] ?? "pending", $t["content"] ?? "");
-            $i++;
-          }
-        ' "$file"
-      else
-        echo "No tasks. Use: bapXphp todo add \"<description>\""
-      fi ;;
-    add|new)
-      [ -z "$arg" ] && die "Usage: bapXphp todo add \"<description>\""
-      php -r '
-        $file = $argv[1]; $content = $argv[2];
-        $tasks = is_file($file) ? (json_decode(file_get_contents($file), true) ?: []) : [];
-        $tasks[] = ["content" => $content, "status" => "pending", "created_at" => date("c")];
-        file_put_contents($file, json_encode($tasks, JSON_PRETTY_PRINT));
-        echo "Added task: $content\n";
-      ' "$file" "$arg" ;;
-    update|mod)
-      local id="${2:-}" status="${3:-}"
-      [ -z "$id" ] && die "Usage: bapXphp todo update <id> <status>"
-      [ -z "$status" ] && die "Status required: pending, in_progress, completed, cancelled"
-      php -r '
-        $file = $argv[1]; $id = (int)$argv[2]; $status = $argv[3];
-        $tasks = is_file($file) ? (json_decode(file_get_contents($file), true) ?: []) : [];
-        if (!isset($tasks[$id])) { fprintf(STDERR, "Task #%d not found\n", $id); exit(1); }
-        $tasks[$id]["status"] = $status;
-        $tasks[$id]["updated_at"] = date("c");
-        file_put_contents($file, json_encode($tasks, JSON_PRETTY_PRINT));
-        echo "Task #$id → $status\n";
-      ' "$file" "$id" "$status" ;;
-    done|complete|finish)
-      [ -z "$arg" ] && die "Usage: bapXphp todo done <id>"
-      php -r '
-        $file = $argv[1]; $id = (int)$argv[2];
-        $tasks = is_file($file) ? (json_decode(file_get_contents($file), true) ?: []) : [];
-        if (!isset($tasks[$id])) { fprintf(STDERR, "Task #%d not found\n", $id); exit(1); }
-        $tasks[$id]["status"] = "completed";
-        $tasks[$id]["updated_at"] = date("c");
-        file_put_contents($file, json_encode($tasks, JSON_PRETTY_PRINT));
-        echo "Task #$id completed: " . $tasks[$id]["content"] . "\n";
-      ' "$file" "$arg" ;;
-    *)
-      echo "Usage: bapXphp todo [list|add|update|done]"
-      echo "  todo               — list all tasks"
-      echo "  todo add <desc>    — add a new task"
-      echo "  todo update <id> <status> — update task status"
-      echo "  todo done <id>     — mark task completed"
-      exit 1 ;;
-  esac
-}
-
-# ── objective — Read/update OBJECTIVE.md ───────────────────────────
-cmd_objective() {
-  require_php
-  local action="${1:-read}" arg="${2:-}"
-  local objFile="$ROOT/OBJECTIVE.md"
-
-  case "$action" in
-    read|show|cat)
-      [ -f "$objFile" ] || die "OBJECTIVE.md not found"
-      php -r '
-        $lines = file($argv[1]);
-        $capture = false;
-        foreach ($lines as $line) {
-          if (preg_match("/^## /", $line)) $capture = true;
-          if ($capture) echo $line;
-        }
-      ' "$objFile"
-      echo ""
-      echo "── Full path: $objFile ──"
-      echo "Use: bapXphp objective update to modify" ;;
-    update|write|edit)
-      if [ -n "$arg" ] && [ "$arg" != "-" ]; then
-        echo "$arg" >> "$objFile"
-        echo "Appended to OBJECTIVE.md"
-      else
-        echo "Paste content (Ctrl+D to finish):"
-        cat >> "$objFile"
-        echo "Appended to OBJECTIVE.md"
-      fi ;;
-    *)
-      echo "Usage: bapXphp objective read"
-      echo "       bapXphp objective update <text>"
-      echo "       bapXphp objective update (paste with Ctrl+D)"
-      exit 1 ;;
-  esac
 }
 
 # ── question — Ask the user a question ───────────────────────────────
@@ -2195,10 +2071,8 @@ main() {
       cmd_codemap ;;
     index|okfgen|knowledge-graph|kg)
       cmd_okfgen ;;
-    todo)
-      shift; cmd_todo "$@" ;;
-    objective|obj)
-      shift; cmd_objective "$@" ;;
+    todo|objective|obj)
+      die "Local task/objective tracking is retired. Use the repository GitHub issues and AGENTS.md." ;;
     question|ask)
       shift; cmd_question "$@" ;;
     memory|mem|session)

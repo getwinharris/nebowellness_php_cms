@@ -19,6 +19,8 @@ final class DocsMapService
             '    ### Repository Intelligence',
             '    AGENTS_FILES["Root AGENTS.md contract"]',
             '    SYSTEMATIC_MAP["docs/systematic-map.mmd"]',
+            '    CODE_MAP[".agents/map.mmd"]',
+            '    KNOWLEDGE_INDEX[".agents/index.yaml"]',
             '    COLLECTIONS_SCHEMA["storage/schema/collections.php"]',
             '    DESIGN_SYSTEM["Design.md"]',
             '',
@@ -84,7 +86,8 @@ final class DocsMapService
     private function skillsSection(): array
     {
         $lines = ["    ### Agent Skills"];
-        $dirs = glob($this->root . '/.agents/skills/*/SKILL.md') ?: [];
+        $dirs = array_merge(glob($this->root . '/.agents/skills/*/SKILL.md') ?: [],
+            glob($this->root . '/.agents/REA/skills/rea-*/SKILL.md') ?: []);
         foreach ($dirs as $skillFile) {
             $name = basename(dirname($skillFile));
             $lines[] = '    SKILL_' . $this->stableId($name) . '["' . $this->label($name) . '"]';

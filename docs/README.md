@@ -16,8 +16,8 @@ Start with the root [`README.md`](../README.md) for human navigation and
   views, integrations, and schema collections.
 - [`systematic-map.mmd`](systematic-map.mmd): generated systematic inventory.
 - [`map.mmd`](map.mmd): documentation/content mindmap.
-- [`../map.mmd`](../map.mmd): route-to-controller-to-service dependency graph.
-- [`../index.yaml`](../index.yaml): query router for blogs, images, skills, code,
+- [`../.agents/map.mmd`](../.agents/map.mmd): route-to-controller-to-service dependency graph.
+- [`../.agents/index.yaml`](../.agents/index.yaml): query router for blogs, images, skills, code,
   schema, and hosted `/remotedb` concepts.
 
 Generated files point to original sources. Do not hand-edit them.
@@ -28,7 +28,7 @@ Start with an exact path and inspect its GET and POST entries independently:
 
 ```sh
 jq --arg path '/campaigns/{slug}' '[.routes[] | select(.path == $path)]' docs/project-index.json
-rg -n -A12 'id: "schema:campaign_pages"' index.yaml
+rg -n -A12 'id: "schema:campaign_pages"' .agents/index.yaml
 ```
 
 | Task | Search the route inventory for | Next source |

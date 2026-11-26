@@ -396,6 +396,15 @@ $tests['knowledge index keeps type-qualified concepts collision-free'] = functio
         $name = basename(dirname($file));
         assertTrue(isset($concepts['skill:' . $name]), "Knowledge index should include skill:{$name}");
     }
+    foreach (glob(app_path('.agents/REA/skills/rea-*/SKILL.md')) ?: [] as $file) {
+        $name = basename(dirname($file));
+        assertTrue(isset($concepts['skill:' . $name]), "Knowledge index should include native REA skill:{$name}");
+    }
+    foreach ($concepts as $concept) {
+        if ($concept['type'] === 'skill') {
+            assertTrue(!str_starts_with($concept['filePath'], '.agents/REA/reference/'), 'Original REA reference skills are not executable guidance');
+        }
+    }
     assertTrue(isset($concepts['route:get__shop']), 'Knowledge index should include type-qualified shop route');
     assertTrue(isset($concepts['blog:your-first-nebo-consultation']), 'Knowledge index should include a type-qualified Nebo article');
     $brandImage = $concepts['image:assets/images/nebo-clinic-hero.webp'] ?? null;
@@ -2084,7 +2093,7 @@ $tests['architecture and deployment docs describe current php template stack'] =
         assertTrue(!str_contains($doc, 'React'), 'Docs should not describe the removed React/CDN architecture');
         assertTrue(!str_contains($doc, 'CDN'), 'Docs should not say the app loads React from a CDN');
     }
-    foreach (['small PHP hosting', 'public_html', 'hosted MySQL as the primary runtime store', '.env', 'APP_NAME', 'APP_URL', 'Admin → Settings', 'Admin → Integrations', 'docs/project-index.json', 'index.yaml', 'docs/README.md', 'docs/deployment-hostinger.md', 'AGENTS.md', 'docs/systematic-map.mmd'] as $needle) {
+    foreach (['small PHP hosting', 'public_html', 'hosted MySQL as the primary runtime store', '.env', 'APP_NAME', 'APP_URL', 'Admin → Settings', 'Admin → Integrations', 'docs/project-index.json', '.agents/index.yaml', '.agents/map.mmd', 'docs/README.md', 'docs/deployment-hostinger.md', 'AGENTS.md', 'docs/systematic-map.mmd'] as $needle) {
         assertTrue(str_contains($readme, $needle), "README should describe {$needle}");
     }
     assertTrue(is_file(app_path('docs/README.md')), 'Documentation index should exist and be linked from README');
@@ -2240,10 +2249,19 @@ $tests['local smoke tool source covers key routes and CSRF protection'] = functi
     assertTrue(str_contains($source, 'PASS local smoke'), 'Local smoke should provide an authoritative success signal');
 };
 
-$tests['systematic project map, docs/map.mmd, and root map.mmd are the generated map artifacts'] = function (): void {
+$tests['generated developer navigation stays private and retired root artifacts stay absent'] = function (): void {
     assertTrue(is_file(app_path('docs/systematic-map.mmd')), 'Systematic Mermaid map should exist');
     assertTrue(is_file(app_path('docs/map.mmd')), 'docs/map.mmd should exist');
-    assertTrue(is_file(app_path('map.mmd')), 'root map.mmd should exist');
+    assertTrue(is_file(app_path('.agents/map.mmd')), 'Private code map should exist');
+    assertTrue(is_file(app_path('.agents/index.yaml')), 'Private knowledge index should exist');
+    foreach (['map.mmd', 'index.yaml', 'TODO.md', 'OBJECTIVE.md'] as $retired) {
+        assertTrue(!file_exists(app_path($retired)) && !is_link(app_path($retired)), "Retired root artifact must stay absent: {$retired}");
+    }
+    $knowledge = file_get_contents(app_path('.agents/index.yaml'));
+    assertTrue(str_contains($knowledge, 'code_map: ".agents/map.mmd"'), 'Knowledge index points to the relocated code map');
+    assertTrue(str_contains($knowledge, 'knowledge_index: ".agents/index.yaml"'), 'Knowledge index records its private canonical path');
+    assertTrue(str_contains($knowledge, '.agents/REA/skills/rea-wp-abilities-audit/SKILL.md'), 'Native REA skills must be discoverable');
+    assertTrue(!str_contains($knowledge, '.agents/REA/reference/wordpress/skills/'), 'Upstream skills must not be indexed as native guidance');
     foreach (['docs/PROJECT_MAP.md', 'docs/project-map.json', 'docs/project-map.mmd'] as $path) {
         assertTrue(!is_file(app_path($path)), "Old project-map artifact should not exist: {$path}");
     }
@@ -2252,12 +2270,12 @@ $tests['systematic project map, docs/map.mmd, and root map.mmd are the generated
         assertTrue(str_contains($map, $needle), "Systematic map should include {$needle}");
     }
     $dmap = file_get_contents(app_path('docs/map.mmd'));
-    foreach (['CLI (bapXphp)', 'Agent Skills', 'Blog & Content', 'Application Architecture', 'Data Layer'] as $needle) {
+    foreach (['CLI (bapXphp)', 'Agent Skills', 'Blog & Content', 'Application Architecture', 'Data Layer', '.agents/map.mmd', '.agents/index.yaml'] as $needle) {
         assertTrue(str_contains($dmap, $needle), "docs/map.mmd should include {$needle}");
     }
-    $cmap = file_get_contents(app_path('map.mmd'));
+    $cmap = file_get_contents(app_path('.agents/map.mmd'));
     foreach (['PUBLIC Routes', 'AUTH Routes', 'PAYMENT Routes', 'ADMIN Routes', 'Controllers', 'Services', 'Schema Collections'] as $needle) {
-        assertTrue(str_contains($cmap, $needle), "root map.mmd should include {$needle}");
+        assertTrue(str_contains($cmap, $needle), "Private code map should include {$needle}");
     }
 };
 
