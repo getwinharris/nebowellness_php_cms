@@ -2481,6 +2481,23 @@ $tests['campaign image fallback replaces missing bundled artwork and keeps confi
     ]), 'Configured uploaded media is retained');
 };
 
+$tests['homepage programmes are opt-in, published and owner ordered'] = function (): void {
+    $svc = \App\Services\CampaignPageService::class;
+    $base = ['status'=>'published','homepage_program'=>true,'program_area'=>'gut','program_area_label'=>'Gut health','program_duration'=>'6 weeks','program_order'=>10,'title'=>'Example','summary'=>'Owner copy'];
+    $cards = $svc::homepagePrograms([
+        $base + ['slug'=>'b'],
+        array_replace($base, ['slug'=>'a','program_order'=>1]),
+        array_replace($base, ['slug'=>'draft','status'=>'draft']),
+        array_replace($base, ['slug'=>'ordinary','homepage_program'=>false]),
+        array_replace($base, ['slug'=>'invalid','program_area'=>'all']),
+    ]);
+    assertSame(['a','b'], array_column($cards, 'slug'), 'Only valid published opted-in cards are ordered');
+    assertSame('Owner copy', $cards[0]['copy'], 'The public card uses the editable summary');
+    assertSame([], $svc::homepagePrograms([]), 'No hardcoded programme fallback');
+    fileContains('views/public/home.php', 'href="/campaigns/');
+    fileContains('app/Controllers/AdminController.php', 'CampaignPageService::programFields');
+};
+
 $tests['campaign field edits preserve saved keys and reject invalid definitions by row'] = function (): void {
     $service = \App\Services\CampaignPageService::class;
     $definitions = json_decode('[

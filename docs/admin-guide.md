@@ -36,3 +36,7 @@ In **Integrations → Google reporting**, enter the numeric GA4 property ID and 
 The GA4 measurement ID configures visitor measurement separately from report access. Eligible signed-out homepage and About visits require opt-in in **Privacy → Audience measurement preferences**. Advertising also requires the owner to enable the saved destinations. General landing links may include a single `utm_source=google`, `facebook` or `instagram` for Analytics. Other query parameters and fragments exclude the visit. Measurement runs in an isolated frame without access to forms or chat. Verify provider receipt with a designated test property before using results to assess campaigns.
 
 [GA4 Data API](https://developers.google.com/analytics/devguides/reporting/data/v1) · [Search Console API](https://developers.google.com/webmaster-tools/v1/api_reference_index) · [Google site verification](https://support.google.com/webmasters/answer/9008080)
+
+### Owner-managed programmes
+
+In Campaign pages, use the existing title, summary, body, image and enquiry settings. Enable Show in homepage programmes, enter a stable lowercase category key and label, optional duration, and numerical display order. Only published opted-in campaigns are included; the public cards lead to their own detail pages. Other campaigns remain separate. Draft or uncheck to remove a card.

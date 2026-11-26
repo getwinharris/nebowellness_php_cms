@@ -18,10 +18,12 @@
                         <select name="<?= e($field) ?>" id="field-<?= e($field) ?>">
                             <option value="optional">Optional</option><option value="required">Required</option><option value="hidden">Hidden</option>
                         </select>
-                    <?php elseif(in_array($field, ['active','form_require_otp'], true)): ?>
+                    <?php elseif(in_array($field, ['active','form_require_otp','homepage_program'], true)): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
-                            <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" <?= $field === 'active' ? 'checked' : '' ?>> <?= $field === 'active' ? 'Active' : 'Require email OTP before submission' ?>
+                            <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1" <?= $field === 'active' ? 'checked' : '' ?>> <?= $field === 'active' ? 'Active' : ($field === 'homepage_program' ? 'Show in homepage programmes' : 'Require email OTP before submission') ?>
                         </label>
+                    <?php elseif($field === 'program_order'): ?>
+                        <input type="number" name="program_order" id="field-program_order" min="0" max="9999" step="1" placeholder="999">
                     <?php elseif($field === 'free_shipping'): ?>
                         <label style="flex-direction:row; align-items:center; gap:var(--space-xs); text-transform:none; font-weight:400;">
                             <input type="checkbox" name="<?= e($field) ?>" id="field-<?= e($field) ?>" value="1"> Also give free shipping
