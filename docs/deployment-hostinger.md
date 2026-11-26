@@ -68,6 +68,7 @@ This application is built for normal PHP hosting, not Vercel. Vercel's official 
 - `mod_rewrite` enabled.
 - Writable `storage/` directory.
 - OpenSSL and cURL PHP extensions for encrypted settings and payment/OAuth calls.
+- DOM/libxml and mbstring for safe rich-text rendering; missing DOM falls back to escaped text.
 
 ## Architecture Notes
 

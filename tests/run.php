@@ -2877,6 +2877,56 @@ $tests['implementing agent owns the release and successful ticket archive is ide
     $chat->clear();
 };
 
+$tests['markdown render reconstructs safe content without executable attributes'] = function (): void {
+    $renderer=new \App\Services\MarkdownRenderer();
+    $html=$renderer->render("<p onclick=\"qa()\" style=\"position:fixed\">Safe Tamil தமிழ்</p>\n\n<a href=\"java&#x73;cript:qa\" onfocus=\"qa()\">unsafe link</a>\n\n<img src=\"data:image/svg+xml,qa\" onerror=\"qa()\">\n\n<svg><text>discarded vector</text></svg>\n\n<script>discarded script</script>");
+    foreach (['onclick','onfocus','onerror','position:fixed','javascript:','data:image','<svg','<script','discarded vector','discarded script'] as $bad) assertTrue(!str_contains($html,$bad),'Remove unsafe rich-text fragment: '.$bad);
+    assertTrue(str_contains($html,'Safe Tamil தமிழ்')&&str_contains($html,'unsafe link'),'Preserve safe text');
+    $html=$renderer->render("## Section\n\n[Contact](/contact#contact-form)\n\n[External](https://example.test/)\n\n![Illustration](/assets/images/nebo-clinic-hero.webp)\n\n| Name | Amount |\n|---|---:|\n| Example | 500 |");
+    foreach (['id="heading-section"','href="/contact#contact-form"','rel="noopener noreferrer"','<img src="/assets/images/nebo-clinic-hero.webp"','alt="Illustration"','style="text-align:right"','<table>'] as $good) assertTrue(str_contains($html,$good),'Preserve safe formatted content: '.$good);
+    foreach (['//example.test/path','/\\example.test/path','javascript:qa','java&#10;script:qa','https://name:password@example.test/','data:text/html,qa','vbscript:qa'] as $bad) {
+        $html=$renderer->render('<a href="'.$bad.'">Text</a>');
+        assertTrue(!str_contains($html,'href='),'Reject unsafe or ambiguous URL: '.$bad);
+    }
+    $html=$renderer->render("```php\n**example** [a](javascript:qa) <b>literal</b>\n```");
+    assertTrue(str_contains($html,'class="language-php"')&&str_contains($html,'**example**')&&!str_contains($html,'<a ')&&!str_contains($html,'<strong>'),'Fenced code remains literal');
+};
+
+$tests['consultation fees are exact, scoped, and independently owner editable'] = function (): void {
+    $service=\App\Services\ConsultationFeeService::class;
+    $base=['title'=>'Initial Consultation','description'=>'Detailed virtual consultation','amount'=>'500','currency'=>'INR','min_minutes'=>'60','max_minutes'=>'75','display_order'=>'10','status'=>'published','inclusions'=>''];
+    $row=$service::normalize($base,'initial');
+    assertSame(50000,$row['amount_minor'],'Minor currency units');
+    assertSame('₹500',$service::price($row),'Exact public currency format');
+    assertSame('60–75 minutes',$service::duration($row),'Exact duration range');
+    assertSame(0,$service::minorUnits('0'),'Explicit free fee accepted');
+    assertSame(1250,$service::minorUnits('12.50'),'Exact fractional amount');
+    foreach (['-1','1.001','1e3','NaN','10000000',[],true] as $amount) {
+        $rejected=false;try{$service::minorUnits($amount);}catch(\InvalidArgumentException){$rejected=true;}
+        assertTrue($rejected,'Reject invalid amount');
+    }
+    foreach ([['currency'=>'XYZ'],['min_minutes'=>'0'],['max_minutes'=>'59'],['status'=>'hidden'],['title'=>'']] as $invalid) {
+        $rejected=false;try{$service::normalize(array_replace($base,$invalid),'test');}catch(\InvalidArgumentException){$rejected=true;}
+        assertTrue($rejected,'Reject invalid catalogue fields');
+    }
+    $draft=$service::normalize(array_replace($base,['title'=>'Hidden fee','status'=>'draft','amount'=>'999']),'draft');
+    $catalogue=$service::fromSettings(['consultation_fees'=>[$draft,$row],'consultation_inclusions'=>['Owner inclusion']]);
+    assertSame(['initial'],array_column($catalogue['fees'],'id'),'Only published records exposed');
+    assertSame(['Owner inclusion'],$catalogue['inclusions'],'Shared owner inclusions preserved');
+    assertSame([], $service::fromSettings([])['fees'],'New site has no invented defaults');
+    $other=$service::normalize(array_replace($base,['title'=>'Independent clinic','amount'=>'27.50','currency'=>'USD']),'other');
+    assertSame('USD 27.50',$service::price($service::fromSettings(['consultation_fees'=>[$other]])['fees'][0]),'Independent client currency and content');
+    assertTrue(!$service::matchesNamedPrice('How much is Initial Consultation?','It costs ₹900.',$catalogue),'Reject wrong named fee');
+    assertTrue($service::matchesNamedPrice('How much is Initial Consultation?','It costs ₹500.',$catalogue),'Accept actual amount');
+    $trace=new \App\Services\AgentRunTrace();
+    $trace->source($service::SOURCE);
+    assertSame([$service::SOURCE],$trace->sources(),'Real fee source allowed');
+    foreach (['support','admin'] as $scope) {
+        $registry=new \App\Services\AgentToolRegistry(modules:['shop'=>false,'blog'=>false,'campaigns'=>false],scope:$scope);
+        assertTrue($registry->has('published_consultation_fees'),'Fee tool independent of shop and campaigns');
+    }
+};
+
 foreach ($tests as $name => $test) {
     try {
         $test();

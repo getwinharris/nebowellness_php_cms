@@ -22,6 +22,15 @@ if (!array_key_exists('message', $contactValues) && ($consultant ?? '') !== '') 
 }
 $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 $clinicChannels = (new \App\Services\ClinicContactService())->channels();
+try { $consultationCatalogue=(new \App\Services\ConsultationFeeService())->published(); }
+catch (\Throwable) { $consultationCatalogue=null; }
+$feeId=is_string($_GET['fee']??null)?$_GET['fee']:'';
+if ($feeId!==''&&!array_key_exists('message',$contactValues)) {
+    foreach ($consultationCatalogue['fees']??[] as $fee) if ($fee['id']===$feeId) {
+        $contactValues['message']='I would like to enquire about '.$fee['title'].'.';
+        $contactValues['subject']??='general'; break;
+    }
+}
 ?>
 <section class="nebo-contact-page" aria-labelledby="contact-title">
     <div class="container container--wide">
@@ -44,6 +53,23 @@ $clinicChannels = (new \App\Services\ClinicContactService())->channels();
                 <figcaption>Illustrative scene</figcaption>
             </figure>
         </header>
+        <?php if (!empty($consultationCatalogue['fees'])): ?>
+        <section class="consultation-fees" id="consultation-fees" aria-labelledby="consultation-fees-title">
+            <header><span class="eyebrow">Consultations</span><h2 id="consultation-fees-title">Online consultation fees</h2><p>Explore the clinic’s published consultation options. Send an enquiry to arrange a time; an enquiry is not a confirmed appointment.</p></header>
+            <div class="consultation-fees__grid">
+                <?php foreach ($consultationCatalogue['fees'] as $fee): ?>
+                <article class="consultation-fee">
+                    <div class="consultation-fee__header"><h3><?= e($fee['title']) ?></h3><strong class="consultation-fee__price"><?= e($fee['display_price']) ?></strong></div>
+                    <p class="consultation-fee__duration"><?= e($fee['duration']) ?></p>
+                    <?php if ($fee['description']!==''): ?><p><?= e($fee['description']) ?></p><?php endif; ?>
+                    <?php if ($fee['inclusions']): ?><ul><?php foreach ($fee['inclusions'] as $line): ?><li><?= e($line) ?></li><?php endforeach; ?></ul><?php endif; ?>
+                    <a class="btn btn-outline" href="/contact?fee=<?= e(rawurlencode($fee['id'])) ?>#contact-form">Enquire about this consultation <span aria-hidden="true">↗</span></a>
+                </article>
+                <?php endforeach; ?>
+            </div>
+            <?php if ($consultationCatalogue['inclusions']): ?><div class="consultation-fees__inclusions"><h3>What consultations include</h3><ul><?php foreach ($consultationCatalogue['inclusions'] as $line): ?><li><?= e($line) ?></li><?php endforeach; ?></ul></div><?php endif; ?>
+        </section>
+        <?php elseif ($consultationCatalogue===null): ?><p class="consultation-fees__notice">Consultation fees are temporarily unavailable. Please contact the clinic for current information.</p><?php endif; ?>
         <div class="contact-layout">
             <section class="contact-form-card" id="contact-form" aria-labelledby="contact-form-title">
                 <h2 class="contact-form-card__title" id="contact-form-title">Send an enquiry</h2>

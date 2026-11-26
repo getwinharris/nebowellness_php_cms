@@ -41,8 +41,8 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 318
-  relationships: 301
+  concepts: 319
+  relationships: 306
   by_type:
     blog: 5
     controller: 13
@@ -50,7 +50,7 @@ summary:
     image: 40
     route: 129
     schema: 25
-    service: 58
+    service: 59
     skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -1071,6 +1071,7 @@ concepts:
     path: "/"
     controller: "PublicController@home"
     services:
+      - "ConsultationFeeService"
       - "ClinicContactService"
       - "CampaignPageService"
       - "ConsultantService"
@@ -1580,6 +1581,7 @@ concepts:
     controller: "AdminController@settings"
     services:
       - "SettingsService"
+      - "ConsultationFeeService"
       - "AuthService"
     view: "admin/settings"
   - id: "route:get__admin_shipping"
@@ -1909,6 +1911,7 @@ concepts:
     controller: "PublicController@contact"
     services:
       - "ClinicContactService"
+      - "ConsultationFeeService"
     view: "public/contact"
   - id: "route:get__docs"
     type: "route"
@@ -2221,6 +2224,7 @@ concepts:
     controller: "AdminController@agentAsk"
     services:
       - "AgentSessionService"
+      - "ConsultationFeeService"
       - "ClinicKnowledgeService"
       - "AgentConversation"
       - "SecretService"
@@ -2698,6 +2702,7 @@ concepts:
     path: "/admin/settings/save"
     controller: "AdminController@saveSettings"
     services:
+      - "ConsultationFeeService"
       - "ClinicContactService"
       - "SettingsService"
       - "AuditLogService"
@@ -2852,6 +2857,7 @@ concepts:
     controller: "PublicController@contact"
     services:
       - "ContactService"
+      - "ConsultationFeeService"
     view: "public/contact"
   - id: "route:post__create_order"
     type: "route"
@@ -3016,6 +3022,7 @@ concepts:
     controller: "SupportController@ask"
     services:
       - "AgentSessionService"
+      - "ConsultationFeeService"
       - "ClinicKnowledgeService"
       - "ClinicContactService"
       - "AgentConversation"
@@ -3472,6 +3479,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:ConsultationFeeService"
+    type: "service"
+    title: "ConsultationFeeService"
+    description: "Service: ConsultationFeeService"
+    resource: "app/Services/ConsultationFeeService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:ConsultationService"
     type: "service"
     title: "ConsultationService"
@@ -3900,6 +3915,9 @@ relationships:
     to: "service:ConsultantService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:ConsultationFeeService"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:ConsultationService"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4047,6 +4065,9 @@ relationships:
     to: "service:ConsultantService"
     relation: "uses"
   - from: "controller:PublicController"
+    to: "service:ConsultationFeeService"
+    relation: "uses"
+  - from: "controller:PublicController"
     to: "service:ContactService"
     relation: "uses"
   - from: "controller:PublicController"
@@ -4117,6 +4138,9 @@ relationships:
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:ClinicKnowledgeService"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:ConsultationFeeService"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:SeoService"
@@ -4598,8 +4622,14 @@ relationships:
   - from: "service:ClinicKnowledgeService"
     to: "schema:consultants"
     relation: "stores"
+  - from: "service:ClinicKnowledgeService"
+    to: "schema:settings"
+    relation: "stores"
   - from: "service:ConsultantService"
     to: "schema:consultants"
+    relation: "stores"
+  - from: "service:ConsultationFeeService"
+    to: "schema:settings"
     relation: "stores"
   - from: "service:ConsultationService"
     to: "schema:appointments"

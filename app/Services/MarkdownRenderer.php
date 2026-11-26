@@ -6,7 +6,8 @@ final class MarkdownRenderer
     public function render(string $markdown): string
     {
         $html = $markdown;
-        $html = $this->renderCodeBlocks($html);
+        $codeBlocks=[];
+        $html = $this->renderCodeBlocks($html,$codeBlocks);
         $html = $this->renderHeadings($html);
         $html = $this->renderHorizontalRules($html);
         $html = $this->renderTables($html);
@@ -14,6 +15,7 @@ final class MarkdownRenderer
         $html = $this->renderOrderedLists($html);
         $html = $this->renderInlineFormatting($html);
         $html = $this->renderParagraphs($html);
+        foreach ($codeBlocks as $token=>$block) $html=str_replace(['<p>'.$token.'</p>',$token],$block,$html);
         $html = $this->sanitize($html);
         return $html;
     }
@@ -92,17 +94,110 @@ final class MarkdownRenderer
         return array_map('trim', explode('|', $row));
     }
 
+    /**
+     * Rebuild the parsed fragment, never trust strip_tags attribute preservation.
+     * Only explicitly allowed nodes and attributes enter the returned document.
+     */
     private function sanitize(string $html): string
     {
-        return strip_tags($html, '<p><br><strong><em><b><i><u><s><ol><ul><li><h1><h2><h3><h4><h5><h6><pre><code><blockquote><hr><a><img><table><thead><tbody><tr><th><td><div><span><sub><sup><del><ins><mark><figure><figcaption><cite><q><dl><dt><dd><abbr><address>');
+        if (!class_exists(\DOMDocument::class)) {
+            // Fail closed on an incomplete PHP installation.
+            return '<p>' . e(strip_tags($html)) . '</p>';
+        }
+        $source=new \DOMDocument('1.0','UTF-8');
+        $previous=libxml_use_internal_errors(true);
+        try {
+            $loaded=$source->loadHTML('<!doctype html><html><head><meta charset="UTF-8"></head><body>'.$html.'</body></html>',LIBXML_NONET|LIBXML_NOERROR|LIBXML_NOWARNING);
+            if (!$loaded) return '<p>'.e(strip_tags($html)).'</p>';
+            $target=new \DOMDocument('1.0','UTF-8');
+            $root=$target->createElement('div');
+            $target->appendChild($root);
+            $body=$source->getElementsByTagName('body')->item(0);
+            if (!$body) return '';
+            foreach ($body->childNodes as $child) $this->copySafeNode($child,$root,$target);
+            $result='';
+            foreach ($root->childNodes as $child) $result.=$target->saveHTML($child);
+            return $result;
+        } finally {
+            libxml_clear_errors();
+            libxml_use_internal_errors($previous);
+        }
     }
 
-    private function renderCodeBlocks(string $html): string
+    private function copySafeNode(\DOMNode $node,\DOMNode $parent,\DOMDocument $target,int $depth=0): void
     {
-        return preg_replace_callback('/```(\w*)\n(.*?)```/s', function ($m) {
+        if ($depth>64) return;
+        if ($node instanceof \DOMText) {
+            $parent->appendChild($target->createTextNode($node->nodeValue??''));
+            return;
+        }
+        if (!$node instanceof \DOMElement) return;
+        $tag=strtolower($node->tagName);
+        $allowed=['p','br','strong','em','b','i','u','s','ol','ul','li','h1','h2','h3','h4','h5','h6','pre','code','blockquote','hr','a','img','table','thead','tbody','tr','th','td','div','span','sub','sup','del','ins','mark','figure','figcaption','cite','q','dl','dt','dd','abbr','address'];
+        if (in_array($tag,['script','style','iframe','object','embed','svg','math','template','form','textarea','input','button','select','link','meta','base','noscript'],true)) return;
+        if (!in_array($tag,$allowed,true)) {
+            foreach ($node->childNodes as $child) $this->copySafeNode($child,$parent,$target,$depth+1);
+            return;
+        }
+        $safe=$target->createElement($tag);
+        if ($tag==='a') {
+            $href=self::safeUrl($node->getAttribute('href'));
+            if ($href===null) {
+                foreach ($node->childNodes as $child) $this->copySafeNode($child,$parent,$target,$depth+1);
+                return;
+            }
+            $safe->setAttribute('href',$href);
+            if (preg_match('#^https?://#i',$href)) {
+                $safe->setAttribute('target','_blank'); $safe->setAttribute('rel','noopener noreferrer');
+            }
+            if ($node->hasAttribute('title')) $safe->setAttribute('title',mb_substr($node->getAttribute('title'),0,300));
+        }
+        if ($tag==='img') {
+            $src=self::safeUrl($node->getAttribute('src'),true);
+            if ($src===null) return;
+            $safe->setAttribute('src',$src);
+            $safe->setAttribute('alt',mb_substr($node->getAttribute('alt'),0,500));
+            $safe->setAttribute('loading','lazy');
+            foreach (['width','height'] as $dimension) {
+                $value=$node->getAttribute($dimension);
+                if (preg_match('/^[1-9][0-9]{0,3}$/D',$value)) $safe->setAttribute($dimension,$value);
+            }
+        }
+        if (preg_match('/^h[1-6]$/D',$tag)) {
+            $id=$node->getAttribute('id');
+            if (preg_match('/^heading-[a-z0-9-]{1,200}$/D',$id)) $safe->setAttribute('id',$id);
+        }
+        if ($tag==='code' && preg_match('/^language-[a-zA-Z0-9_-]{1,40}$/D',$node->getAttribute('class')))
+            $safe->setAttribute('class',$node->getAttribute('class'));
+        if (in_array($tag,['th','td'],true) && preg_match('/^text-align\s*:\s*(left|center|right)\s*;?$/iD',trim($node->getAttribute('style')),$match))
+            $safe->setAttribute('style','text-align:'.strtolower($match[1]));
+        $parent->appendChild($safe);
+        if (!in_array($tag,['br','hr','img'],true))
+            foreach ($node->childNodes as $child) $this->copySafeNode($child,$safe,$target,$depth+1);
+    }
+
+    private static function safeUrl(string $url,bool $image=false): ?string
+    {
+        $url=trim($url);
+        if ($url===''||strlen($url)>2048||preg_match('/[\x00-\x20\x7f\\\\]/',$url)||str_starts_with($url,'//')) return null;
+        if (preg_match('#^https?://#i',$url)) {
+            $parts=parse_url($url);
+            return is_array($parts)&&!empty($parts['host'])&&!isset($parts['user'])&&!isset($parts['pass'])?$url:null;
+        }
+        if (!$image && preg_match('/^mailto:[^@\s?]+@[^@\s?]+$/iD',$url)) return $url;
+        if (!$image && preg_match('/^tel:\+?[0-9]{3,15}$/iD',$url)) return $url;
+        if (str_contains($url,':') || ($image&&str_starts_with($url,'#'))) return null;
+        return $url;
+    }
+
+    private function renderCodeBlocks(string $html,array &$blocks): string
+    {
+        return preg_replace_callback('/```(\w*)\n(.*?)```/s', function ($m) use (&$blocks) {
             $lang = $m[1] ? ' class="language-' . e($m[1]) . '"' : '';
             $code = e($m[2]);
-            return '<pre><code' . $lang . '>' . $code . '</code></pre>';
+            $token='NEBOCODE'.bin2hex(random_bytes(16)).'END';
+            $blocks[$token]='<pre><code' . $lang . '>' . $code . '</code></pre>';
+            return $token;
         }, $html);
     }
 
@@ -159,7 +254,7 @@ final class MarkdownRenderer
         $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $html);
         $html = preg_replace('/\*(.+?)\*/', '<em>$1</em>', $html);
         $html = preg_replace('/`([^`]+)`/', '<code>$1</code>', $html);
-        $html = preg_replace_callback('/\[([^\]]+)\]\(([^)]+)\)/', function ($m) {
+        $html = preg_replace_callback('/(?<!!)\[([^\]]+)\]\(([^)]+)\)/', function ($m) {
             $url = $m[2];
             if (str_starts_with($url, 'http')) {
                 return '<a href="' . e($url) . '" target="_blank" rel="noopener">' . e($m[1]) . '</a>';
@@ -184,7 +279,7 @@ final class MarkdownRenderer
         foreach ($blocks as $block) {
             $block = trim($block);
             if ($block === '') continue;
-            if (preg_match('/^<(h[1-6]|ul|ol|li|pre|blockquote|hr|div|table|p)/', $block)) {
+            if (preg_match('/^<(h[1-6]|ul|ol|li|pre|blockquote|hr|div|table|figure|p)/', $block)) {
                 $result[] = $block;
             } else {
                 $result[] = '<p>' . $block . '</p>';

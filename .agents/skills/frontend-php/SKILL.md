@@ -45,9 +45,9 @@ and the behaviors and content to preserve. Ask for one result per section with
 the observed problem, its evidence, the fix, and the Browser check that proves
 the change. Keep shared styles, data changes, and issue writes under named ownership.
 
-Review the integrated diff and rendered page with an agent that did not implement
-the changes. Run a separate gap pass against the original brief and its reference
-states. Have the gap agent look for missing sections, assets, interactions, and
+The implementing agent must self-review the integrated diff and rendered page.
+Run a distinct gap pass against the original brief and reference states; optional
+independent feedback is not a release gate. Look for missing sections, assets, interactions, and
 unverified mobile or fallback states. Reproduce findings before fixing them or
 updating an existing issue. Open a scoped issue when a confirmed finding needs
 approved assets, content, or work outside the current change.
@@ -72,3 +72,5 @@ When work changes a layout contract or reveals a reusable UI check, update this 
 - For stronger reference fidelity, update the canonical visual contract and existing winning CSS rather than layering arbitrary effects over a mismatched composition. Match reference states and measurements; use a native JS interaction when CSS alone cannot express selection. Test hover, keyboard focus, touch, no-JS and reduced motion, using approved Nebo assets/content.
 
 - Support must distinguish genuine model/tool responses, explicit application actions and provider failure. Verify actual native call correlation, scope, consent, and separate telephone/WhatsApp controls. Do not substitute prerecorded answers for unavailable inference.
+
+- Rich-text rendering must use the shared element/attribute allowlist and safe URL validation; never pass raw owner HTML or arbitrary attributes into a public or admin preview. Preserve heading anchors, table alignment, code literals and safe images. Verify stored content and malformed input in an isolated browser.

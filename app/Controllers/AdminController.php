@@ -218,6 +218,15 @@ final class AdminController extends BaseController {
         // apply the fields actually submitted. Defaulting absent keys would blank out
         // every field belonging to the other forms (notably the GST configuration).
         $service = new SettingsService();
+        if (array_key_exists('fee_action',$_POST)) {
+            try {
+                (new \App\Services\ConsultationFeeService())->save($_POST,is_string($_POST['fee_revision']??null)?$_POST['fee_revision']:'');
+                (new AuditLogService())->record('save','settings','public',['fields'=>['consultation_catalogue']]);
+                $this->flash('Consultation catalogue saved.','success');
+            } catch (\InvalidArgumentException | \DomainException $error) { $this->flash($error->getMessage(),'error'); }
+            catch (\Throwable) { $this->flash('Could not save the consultation catalogue.','error'); }
+            $this->redirect('/admin/settings#consultation-catalogue');
+        }
         if (array_key_exists('clinic_phones', $_POST) || array_key_exists('clinic_whatsapp', $_POST)) {
             try {
                 $service->saveClinicChannels($_POST['clinic_phones']??null,$_POST['clinic_whatsapp']??null,is_string($_POST['contact_revision']??null)?$_POST['contact_revision']:'');
@@ -353,6 +362,7 @@ final class AdminController extends BaseController {
             $context=(string)$retrieved['summary'];
             $lookups=[];
             if (preg_match('/\b(support|tickets?|enquiries)\b/i',$message)) $lookups['support_enquiries']=$tools->retrieve('support_enquiries',[],$trace);
+            if (\App\Services\ConsultationFeeService::isFeeQuestion($message)) $lookups['published_consultation_fees']=$tools->retrieve('published_consultation_fees',[],$trace);
             if ($message===\App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT) $lookups['appointment_summary']=$tools->retrieve('appointment_summary',[],$trace);
             if ($message===\App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT && $tools->has('therapy_enquiry_summary')) $lookups['therapy_enquiry_summary']=$tools->retrieve('therapy_enquiry_summary',['days'=>30],$trace);
             $context.="\nRetrieved tool evidence: ".json_encode($lookups,JSON_INVALID_UTF8_SUBSTITUTE|JSON_UNESCAPED_UNICODE);
@@ -366,8 +376,8 @@ final class AdminController extends BaseController {
             } else {
                 $answer = "AI model not configured. Go to Admin → Integrations and set api_endpoint, ai_api_key, and agent_model.";
             }
-            $requiredTool = $message===\App\Services\AgentToolRegistry::SUPPORT_INBOX_PROMPT ? 'support_enquiries' : ($message===\App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT ? 'therapy_enquiry_summary' : ($message===\App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT ? 'appointment_summary' : null));
-            $failed = ($requiredTool!==null&&!$trace->usedNativeTool([$requiredTool])) || empty($modelConfig['apiKey']) || \App\Services\AiClient::isError($answer) || !(new \App\Services\AiReplyCleaner())->usableAnswer($answer,$message) || !$trace->hasNativeToolAnswer();
+            $requiredTool = \App\Services\ConsultationFeeService::isFeeQuestion($message) ? 'published_consultation_fees' : ($message===\App\Services\AgentToolRegistry::SUPPORT_INBOX_PROMPT ? 'support_enquiries' : ($message===\App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT ? 'therapy_enquiry_summary' : ($message===\App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT ? 'appointment_summary' : null)));
+            $failed = !\App\Services\ConsultationFeeService::matchesNamedPrice($message,$answer,$lookups['published_consultation_fees']??[]) || ($requiredTool!==null&&!$trace->usedNativeTool([$requiredTool])) || empty($modelConfig['apiKey']) || \App\Services\AiClient::isError($answer) || !(new \App\Services\AiReplyCleaner())->usableAnswer($answer,$message) || !$trace->hasNativeToolAnswer();
             (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'model', $startedAt, $trace);
             if ($failed) {
                 $this->jsonResponse(['error'=>'The model could not answer. Try again or use a clinic workflow from the sidebar.', 'missing'=>$attachments['missing']],502);

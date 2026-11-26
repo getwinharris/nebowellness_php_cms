@@ -5,7 +5,7 @@
     "summary": {
         "routes": 129,
         "controllers": 13,
-        "services": 58,
+        "services": 59,
         "views": 55,
         "collections": 25
     },
@@ -17,6 +17,7 @@
             "controller": "PublicController@home",
             "view": "public/home",
             "services": [
+                "ConsultationFeeService",
                 "ClinicContactService",
                 "CampaignPageService",
                 "ConsultantService",
@@ -224,6 +225,7 @@
             "view": "admin/agent",
             "services": [
                 "AgentSessionService",
+                "ConsultationFeeService",
                 "ClinicKnowledgeService",
                 "AgentConversation",
                 "SecretService",
@@ -767,6 +769,7 @@
             "view": "admin/settings",
             "services": [
                 "SettingsService",
+                "ConsultationFeeService",
                 "AuthService"
             ]
         },
@@ -789,6 +792,7 @@
             "controller": "AdminController@saveSettings",
             "view": "admin/settings",
             "services": [
+                "ConsultationFeeService",
                 "ClinicContactService",
                 "SettingsService",
                 "AuditLogService",
@@ -1128,7 +1132,8 @@
             "controller": "PublicController@contact",
             "view": "public/contact",
             "services": [
-                "ClinicContactService"
+                "ClinicContactService",
+                "ConsultationFeeService"
             ]
         },
         {
@@ -1138,7 +1143,8 @@
             "controller": "PublicController@contact",
             "view": "public/contact",
             "services": [
-                "ContactService"
+                "ContactService",
+                "ConsultationFeeService"
             ]
         },
         {
@@ -1416,6 +1422,7 @@
             "view": "public/support",
             "services": [
                 "AgentSessionService",
+                "ConsultationFeeService",
                 "ClinicKnowledgeService",
                 "ClinicContactService",
                 "AgentConversation",
@@ -1506,6 +1513,7 @@
         "ClinicContactService",
         "ClinicKnowledgeService",
         "ConsultantService",
+        "ConsultationFeeService",
         "ConsultationService",
         "ContactService",
         "CouponService",

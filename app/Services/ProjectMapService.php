@@ -12,7 +12,7 @@ final class ProjectMapService {
 
     public static function registry(): array {
         $routes = [
-            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['ClinicContactService','CampaignPageService','ConsultantService','PublicDiscoveryService','SettingsService']],
+            ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['ConsultationFeeService','ClinicContactService','CampaignPageService','ConsultantService','PublicDiscoveryService','SettingsService']],
             ['method'=>'GET','path'=>'/about','name'=>'about','page'=>'public/about','controller'=>'PublicController@about','services'=>[]],
             ['method'=>'GET','path'=>'/sri-panchami-spiritual','name'=>'spiritual','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
             ['method'=>'GET','path'=>'/spiritual','name'=>'spiritual.short','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
@@ -38,8 +38,8 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/checkout','name'=>'checkout','page'=>'public/checkout','controller'=>'PublicController@checkout','services'=>['CartService','ProductService','SecretService','AddressService','SettingsService']],
             ['method'=>'GET','path'=>'/openapi.json','name'=>'discovery.openapi','page'=>'public/openapi','controller'=>'PublicController@discoveryContract','services'=>['SeoService']],
             ['method'=>'GET','path'=>'/sitemap.xml','name'=>'sitemap','page'=>'public/sitemap','controller'=>'PublicController@sitemap','services'=>['BlogService','ProductService','CampaignPageService','SettingsService','SeoService']],
-            ['method'=>'GET','path'=>'/contact','name'=>'contact','page'=>'public/contact','controller'=>'PublicController@contact','services'=>['ClinicContactService']],
-            ['method'=>'POST','path'=>'/contact','name'=>'contact.post','page'=>'public/contact','controller'=>'PublicController@contact','services'=>['ContactService']],
+            ['method'=>'GET','path'=>'/contact','name'=>'contact','page'=>'public/contact','controller'=>'PublicController@contact','services'=>['ClinicContactService','ConsultationFeeService']],
+            ['method'=>'POST','path'=>'/contact','name'=>'contact.post','page'=>'public/contact','controller'=>'PublicController@contact','services'=>['ContactService','ConsultationFeeService']],
             ['method'=>'POST','path'=>'/forms/email-otp','name'=>'forms.email-otp','page'=>'public/contact','controller'=>'PublicController@sendEmailOtp','services'=>['EmailOtpService','SmtpMailer','SecretService']],
             ['method'=>'GET','path'=>'/login','name'=>'login','page'=>'public/login','controller'=>'PublicController@login','services'=>['AuthService']],
             ['method'=>'GET','path'=>'/forgot-password','name'=>'forgot-password','page'=>'public/forgot-password','controller'=>'AuthController@forgotPassword','services'=>['PasswordResetService']],
@@ -80,13 +80,13 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/admin/consultation-analytics','name'=>'admin.consultation-analytics','page'=>'admin/consultation-analytics','controller'=>'AdminController@consultationAnalytics','services'=>['ConsultationService']],
             ['method'=>'GET','path'=>'/admin/tax-report','name'=>'admin.tax-report','page'=>'admin/tax-report','controller'=>'AdminController@taxReport','services'=>['OrderService','TaxService']],
             ['method'=>'GET','path'=>'/admin/campaigns','name'=>'admin.campaigns','page'=>'admin/resource','controller'=>'AdminController@campaigns','services'=>['ResourceService','SchemaService']],
-            ['method'=>'GET','path'=>'/admin/settings','name'=>'admin.settings','page'=>'admin/settings','controller'=>'AdminController@settings','services'=>['SettingsService']],
-            ['method'=>'POST','path'=>'/admin/settings/save','name'=>'admin.settings.save','page'=>'admin/settings','controller'=>'AdminController@saveSettings','services'=>['ClinicContactService','SettingsService','AuditLogService']],
+            ['method'=>'GET','path'=>'/admin/settings','name'=>'admin.settings','page'=>'admin/settings','controller'=>'AdminController@settings','services'=>['SettingsService','ConsultationFeeService']],
+            ['method'=>'POST','path'=>'/admin/settings/save','name'=>'admin.settings.save','page'=>'admin/settings','controller'=>'AdminController@saveSettings','services'=>['ConsultationFeeService','ClinicContactService','SettingsService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/settings/admin-credentials','name'=>'admin.settings.admin-credentials','page'=>'admin/settings','controller'=>'AdminController@saveAdminCredentials','services'=>['EnvService','AuditLogService']],
             ['method'=>'GET','path'=>'/admin/search-performance','name'=>'admin.search-performance','page'=>'admin/search-performance','controller'=>'AdminController@searchPerformance','services'=>['SecretService']],
             ['method'=>'GET','path'=>'/admin/integrations','name'=>'admin.integrations','page'=>'admin/integrations','controller'=>'AdminController@integrations','services'=>['SettingsService','PaymentService','SecretService','GoogleCustomerAuthService']],
             ['method'=>'GET','path'=>'/admin/agent','name'=>'admin.agent','page'=>'admin/agent','controller'=>'AdminController@agent','services'=>['AgentConversation','SecretService','AgentAttachmentService','AuditLogService','DatabaseService']],
-            ['method'=>'POST','path'=>'/admin/agent/ask','name'=>'admin.agent.ask','page'=>'admin/agent','controller'=>'AdminController@agentAsk','services'=>['AgentSessionService','ClinicKnowledgeService','AgentConversation','SecretService','AgentContextService','AuditLogService','AgentAttachmentService','AgentDraftService','AgentToolRegistry','AgentRunTrace','AiReplyCleaner','AiClient','AiModelRouter']],
+            ['method'=>'POST','path'=>'/admin/agent/ask','name'=>'admin.agent.ask','page'=>'admin/agent','controller'=>'AdminController@agentAsk','services'=>['AgentSessionService','ConsultationFeeService','ClinicKnowledgeService','AgentConversation','SecretService','AgentContextService','AuditLogService','AgentAttachmentService','AgentDraftService','AgentToolRegistry','AgentRunTrace','AiReplyCleaner','AiClient','AiModelRouter']],
             ['method'=>'GET','path'=>'/admin/contact-submissions','name'=>'admin.contact-submissions','page'=>'admin/resource','controller'=>'AdminController@contactSubmissions','services'=>['ContactService']],
             ['method'=>'POST','path'=>'/admin/contact_submissions/save','name'=>'admin.contact-submissions.save','page'=>'admin/resource','controller'=>'AdminController@saveContactSubmission','services'=>['ResourceService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/contact_submissions/delete','name'=>'admin.contact-submissions.delete','page'=>'admin/resource','controller'=>'AdminController@deleteContactSubmission','services'=>['ResourceService','AuditLogService']],
@@ -127,7 +127,7 @@ final class ProjectMapService {
             ['method'=>'POST','path'=>'/consultation/initiate','name'=>'consultation.initiate','page'=>'public/contact','controller'=>'ConsultationController@initiate','services'=>['AuthService']],
             ['method'=>'POST','path'=>'/reviews/product','name'=>'reviews.product','page'=>'account/orders','controller'=>'ReviewController@saveProduct','services'=>['ReviewService']],
             ['method'=>'GET','path'=>'/support','name'=>'support.page','page'=>'public/support','controller'=>'SupportController@page','services'=>['SeoService']],
-            ['method'=>'POST','path'=>'/support/ask','name'=>'support.ask','page'=>'public/support','controller'=>'SupportController@ask','services'=>['AgentSessionService','ClinicKnowledgeService','ClinicContactService','AgentConversation','SupportBotService','AgentContextService','SupportTicketService','AuditLogService','AgentRunTrace','AiClient','AiModelRouter','AiReplyCleaner']],
+            ['method'=>'POST','path'=>'/support/ask','name'=>'support.ask','page'=>'public/support','controller'=>'SupportController@ask','services'=>['AgentSessionService','ConsultationFeeService','ClinicKnowledgeService','ClinicContactService','AgentConversation','SupportBotService','AgentContextService','SupportTicketService','AuditLogService','AgentRunTrace','AiClient','AiModelRouter','AiReplyCleaner']],
 
             ['method'=>'GET','path'=>'/docs','name'=>'docs.index','page'=>'public/blog','controller'=>'PublicController@docs','services'=>[]],
             ['method'=>'GET','path'=>'/help/{slug}','name'=>'help.show','page'=>'public/blog-post','controller'=>'PublicController@doc','services'=>[]],
@@ -609,7 +609,8 @@ final class ProjectMapService {
         $overrides = [
             'AgentContextService' => ['users', 'orders', 'appointments', 'support_tickets'],
             'CustomerCrmService' => ['users','contact_submissions','support_tickets','therapy_sessions','orders'],
-            'ClinicKnowledgeService'=>['consultants','campaign_pages'],
+            'ClinicKnowledgeService'=>['consultants','campaign_pages','settings'],
+            'ConsultationFeeService'=>['settings'],
             'ClinicContactService'=>['settings'],
             'DatabaseService' => ['users', 'addresses', 'products', 'orders', 'appointments', 'consultation_messages', 'consultation_signals', 'secrets', 'mail_inbox', 'mail_outbox', 'contact_submissions'],
         ];

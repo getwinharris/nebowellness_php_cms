@@ -9,6 +9,8 @@ category: docs
 
 ## Unreleased
 
+- Added an owner-managed consultation fee catalogue shared by Contact and both agent surfaces; draft/published visibility and revision guards. Hardened shared Markdown rendering against unsafe HTML attributes and destinations, and corrected Markdown images.
+
 - Customer Support and Enterprise Agent remember a bounded conversation in the current session. Both support reload, follow-up questions, retry and clearing. Owner diagnostics show provider failures and latency by model and request type.
 - Therapy intake now has an owner queue, a customer status page, clinician assignments and conflict-checked scheduling. Paid requests use a distinct Razorpay order and require a verified capture before confirmation.
 - Added owner GA4 and Search Console reports, separate opt-ins for analytics and advertising, and write-only provider credential fields. Google customers can explicitly link a verified identity during sign-in or registration.

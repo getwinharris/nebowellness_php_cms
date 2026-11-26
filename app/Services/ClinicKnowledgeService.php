@@ -25,6 +25,8 @@ final class ClinicKnowledgeService {
     public function search(string $query): array {
         $modules=(new SettingsService($this->store))->strictModules();
         $documents=[];
+        $catalogue=(new ConsultationFeeService($this->store))->published();
+        foreach ($catalogue['fees'] as $fee) $documents[]=['type'=>'consultation_fee','title'=>$fee['title'],'url'=>ConsultationFeeService::SOURCE,'text'=>$fee['display_price'].' | '.$fee['duration'].' | '.$fee['description']."\n".implode("\n",array_merge($fee['inclusions'],$catalogue['inclusions']))];
         foreach ($this->practitioners() as $row) {
             $documents[]=['type'=>'practitioner','title'=>$row['name'],'url'=>$row['url'],
                 'text'=>implode(' | ',array_filter([$row['credentials'],$row['speciality'],

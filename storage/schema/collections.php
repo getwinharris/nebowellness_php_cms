@@ -401,6 +401,7 @@
                 'admin_password' => ['type' => 'secret'],
                 'foundation_customers_min' => ['type' => 'number'],
                 'clinic_phones'=>['type'=>'array'], 'clinic_whatsapp'=>['type'=>'array'],
+                'consultation_fees'=>['type'=>'array'], 'consultation_inclusions'=>['type'=>'array'],
             ],
         ],
         'contact_submissions' => [

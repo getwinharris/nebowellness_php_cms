@@ -36,6 +36,49 @@
         <button class="btn btn-primary" type="submit">Save contact channels</button>
     </form>
 </div>
+<?php
+try { $feeCatalogue=\App\Services\ConsultationFeeService::fromSettings($settings,false); }
+catch (\Throwable) { $feeCatalogue=null; }
+?>
+<section class="admin-card" id="consultation-catalogue" aria-labelledby="fee-catalogue-title">
+    <h2 id="fee-catalogue-title">Consultation fee catalogue</h2>
+    <p>Manage the fees shown on Contact and available to both agents. Save a draft to preview or choose Published to display it. These are informational fees only, not session charges or bookings.</p>
+    <?php if ($feeCatalogue===null): ?><p role="alert">Catalogue unavailable. Reload after checking site settings.</p><?php else:
+        $feeRevision=\App\Services\ResourceService::revision($settings);
+        $feeRows=$feeCatalogue['fees'];
+        if (count($feeRows)<\App\Services\ConsultationFeeService::LIMIT) $feeRows[]=['id'=>'','title'=>'','description'=>'','amount_minor'=>0,'currency'=>'INR','min_minutes'=>30,'max_minutes'=>30,'display_order'=>count($feeRows)*10,'status'=>'draft','inclusions'=>[]];
+        foreach ($feeRows as $fee):
+            $key=$fee['id']?:'new';
+    ?>
+        <details class="fee-editor"<?= $key==='new'?'':' open' ?>>
+            <summary><?= e($key==='new'?'Add consultation fee':$fee['title'].' · '.\App\Services\ConsultationFeeService::price($fee).' · '.ucfirst($fee['status'])) ?></summary>
+            <form class="admin-form" method="post" action="/admin/settings/save">
+                <input type="hidden" name="_csrf" value="<?= e($csrf) ?>"><input type="hidden" name="fee_action" value="save">
+                <input type="hidden" name="fee_revision" value="<?= e($feeRevision) ?>"><input type="hidden" name="fee_id" value="<?= e($fee['id']) ?>">
+                <div class="admin-form__row">
+                    <div class="form-group"><label for="fee-title-<?= e($key) ?>">Title</label><input id="fee-title-<?= e($key) ?>" name="title" value="<?= e($fee['title']) ?>" maxlength="100" required></div>
+                    <div class="form-group"><label for="fee-status-<?= e($key) ?>">Visibility</label><select id="fee-status-<?= e($key) ?>" name="status"><option value="draft"<?= $fee['status']==='draft'?' selected':'' ?>>Draft (hidden)</option><option value="published"<?= $fee['status']==='published'?' selected':'' ?>>Published</option></select></div>
+                </div>
+                <div class="admin-form__row">
+                    <div class="form-group"><label for="fee-amount-<?= e($key) ?>">Amount</label><input id="fee-amount-<?= e($key) ?>" name="amount" type="number" min="0" max="9999999.99" step=".01" value="<?= e(\App\Services\ConsultationFeeService::amountInput($fee['amount_minor'])) ?>" required></div>
+                    <div class="form-group"><label for="fee-currency-<?= e($key) ?>">Currency</label><select id="fee-currency-<?= e($key) ?>" name="currency"><?php foreach (array_keys(\App\Services\ConsultationFeeService::CURRENCIES) as $currency): ?><option<?= $currency===$fee['currency']?' selected':'' ?>><?= e($currency) ?></option><?php endforeach; ?></select></div>
+                    <div class="form-group"><label for="fee-min-<?= e($key) ?>">Minimum minutes</label><input id="fee-min-<?= e($key) ?>" name="min_minutes" type="number" min="1" max="1440" value="<?= (int)$fee['min_minutes'] ?>" required></div>
+                    <div class="form-group"><label for="fee-max-<?= e($key) ?>">Maximum minutes</label><input id="fee-max-<?= e($key) ?>" name="max_minutes" type="number" min="1" max="1440" value="<?= (int)$fee['max_minutes'] ?>" required></div>
+                </div>
+                <label for="fee-description-<?= e($key) ?>">Description</label><textarea id="fee-description-<?= e($key) ?>" name="description" rows="2" maxlength="500"><?= e($fee['description']) ?></textarea>
+                <label for="fee-inclusions-<?= e($key) ?>">Specific inclusions (one per line; optional)</label><textarea id="fee-inclusions-<?= e($key) ?>" name="inclusions" rows="3" maxlength="4000"><?= e(implode("\n",$fee['inclusions'])) ?></textarea>
+                <label for="fee-order-<?= e($key) ?>">Display order</label><input id="fee-order-<?= e($key) ?>" name="display_order" type="number" min="0" max="9999" value="<?= (int)$fee['display_order'] ?>" required>
+                <button type="submit" class="btn btn-primary">Save fee</button>
+            </form>
+        </details>
+    <?php endforeach; ?>
+        <form class="admin-form" method="post" action="/admin/settings/save">
+            <input type="hidden" name="_csrf" value="<?= e($csrf) ?>"><input type="hidden" name="fee_action" value="inclusions"><input type="hidden" name="fee_revision" value="<?= e($feeRevision) ?>">
+            <label for="fee-shared-inclusions">General consultation inclusions (one per line)</label><textarea id="fee-shared-inclusions" name="shared_inclusions" rows="6" maxlength="4000"><?= e(implode("\n",$feeCatalogue['inclusions'])) ?></textarea>
+            <button type="submit" class="btn btn-primary">Save general inclusions</button>
+        </form>
+    <?php endif; ?>
+</section>
 <div class="admin-card">
     <h2>Homepage Foundation</h2>
     <p>Publish a clinic-confirmed minimum historical customer count. This is not the number of website accounts, orders or enquiries. Leave blank to hide the figure. Programmes and practitioner totals are calculated from published records.</p>

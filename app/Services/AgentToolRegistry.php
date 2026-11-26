@@ -52,6 +52,7 @@ final class AgentToolRegistry
     public function declarations(): array
     {
         $tools = [
+            ['name'=>'published_consultation_fees','description'=>'Read current published online consultation fees, currency, duration and included services. Display prices only, not programme package prices, payment offers or confirmed bookings.','parameters'=>['type'=>'object']],
             ['name'=>'search_clinic_knowledge','description'=>'Search current public practitioner profiles, published programme body passages and published articles by a specific query. Return ranked excerpts and real source URLs, never private records.','parameters'=>['type'=>'object','properties'=>['query'=>['type'=>'string']],'required'=>['query']]],
             ['name'=>'clinic_context','description'=>'Retrieve the current permitted clinic and account information for this session. No other customer records are available.','parameters'=>['type'=>'object']],
             ['name'=>'owner_dashboard_summary','description'=>'Retrieve the current owner-only operational summary.','parameters'=>['type'=>'object']],
@@ -156,7 +157,7 @@ final class AgentToolRegistry
             ],
         ];
         $tools = array_values(array_filter($tools, fn(array $tool): bool => $this->scope === 'support'
-            ? in_array($tool['name'], ['clinic_context','search_clinic_knowledge','published_practitioners','published_programmes','published_programme_detail','search_articles'], true)
+            ? in_array($tool['name'], ['clinic_context','published_consultation_fees','search_clinic_knowledge','published_practitioners','published_programmes','published_programme_detail','search_articles'], true)
             : $tool['name'] !== 'clinic_context'));
         if (empty($this->modules['shop'])) {
             $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], [
@@ -259,6 +260,7 @@ final class AgentToolRegistry
         if (!is_string($encoded)||strlen($encoded)>48000) $result=['error'=>'Result exceeds the tool budget. Narrow the lookup.'];
         $trace?->tool($name,isset($result['error'])?'error':'ok',$started,'model',$callId);
         if (!isset($result['error']) && $trace!==null) {
+            if ($name==='published_consultation_fees' && !empty($result['fees'])) $trace->source(ConsultationFeeService::SOURCE);
             if ($name==='published_practitioners' && !empty($result['practitioners'])) $trace->source('/#team');
             if ($name==='published_programme_detail') $trace->source((string)($result['url']??''));
             if ($name==='published_programmes') foreach ($result['programmes']??[] as $item) $trace->source((string)($item['url']??''));
@@ -300,6 +302,7 @@ final class AgentToolRegistry
         if ($args===null) return ['error'=>'Invalid lookup arguments.'];
         try {
             return match ($name) {
+                'published_consultation_fees'=>(new ConsultationFeeService($this->store))->published(),
                 'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
                 'clinic_context' => $this->contextLoader !== null ? ($this->contextLoader)() : ['error'=>'Context unavailable.'],
                 'owner_dashboard_summary'=>['summary'=>(new AgentContextService($this->store))->forAdmin(!empty($this->modules['shop']))],

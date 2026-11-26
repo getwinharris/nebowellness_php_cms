@@ -60,13 +60,14 @@ final class SupportBotService {
                 }
             }
         }
+        if (ConsultationFeeService::isFeeQuestion($message)) $evidence['published_consultation_fees']=$tools->retrieve('published_consultation_fees',[],$this->trace);
         $context['retrieved_evidence']=$evidence;
         $answer=$this->modelReply($message,$context,$previous,$tools);
         $cleaner=new AiReplyCleaner();
         $candidate=$answer===null?'':$cleaner->clean($answer,'');
-        $rightTool=true;
+        $rightTool=!isset($evidence['published_consultation_fees'])||$this->trace->usedNativeTool(['published_consultation_fees']);
         if (isset($evidence['published_practitioners']) && preg_match('/\b(registration|qualifications?|credentials?|specialit\w*)\b/i',$message))
-            $rightTool=$this->trace->usedNativeTool(['published_practitioners','search_clinic_knowledge']);
+            $rightTool=$rightTool && $this->trace->usedNativeTool(['published_practitioners','search_clinic_knowledge']);
         if (isset($evidence['published_programme_detail'])) $rightTool=$rightTool && $this->trace->usedNativeTool(['published_programme_detail','search_clinic_knowledge']);
         if ($answer===null || !$cleaner->usableAnswer($candidate,$message) || !$this->trace->hasNativeToolAnswer() || !$rightTool || !self::matchesRetrievedFacts($message,$candidate,$evidence)) {
             if ($answer!==null) $this->trace->markProviderResponseUnusable();
@@ -91,7 +92,7 @@ final class SupportBotService {
         }
         $detail=$evidence['published_programme_detail']??[];
         if (preg_match('/\b(duration|how long)\b/i',$question) && !empty($detail['duration']) && !str_contains(mb_strtolower($answer),mb_strtolower((string)$detail['duration']))) return false;
-        return true;
+        return ConsultationFeeService::matchesNamedPrice($question,$answer,$evidence['published_consultation_fees']??[]);
     }
 
     private function unavailable(string $message,float $startedAt,string $error): array {
