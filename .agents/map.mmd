@@ -7,10 +7,10 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 115 routes, 14 controllers, 74 services, 61 views, 0 data files, 22 tools"]
+  subgraph ARCH["Architecture Overview — 115 routes, 14 controllers, 75 services, 61 views, 0 data files, 22 tools"]
     arch_routes["> Routes: 115 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 14"]:::arch
-    arch_svc["> Services: 74"]:::arch
+    arch_svc["> Services: 75"]:::arch
     arch_views["> Views: 61"]:::arch
     arch_data["> Collections: 27 schema | 0 files"]:::arch
     arch_tools["> Tools: 22"]:::arch
@@ -229,6 +229,7 @@ flowchart LR
     service_ownerabilityservice["OwnerAbilityService"]:::code
     service_passwordresetservice["PasswordResetService"]:::code
     service_paymentservice["PaymentService"]:::code
+    service_privateagentjournalstore["PrivateAgentJournalStore"]:::code
     service_productservice["ProductService"]:::code
     service_projectmapservice["ProjectMapService"]:::code
     service_providerprobetools["ProviderProbeTools"]:::code
@@ -726,6 +727,7 @@ flowchart LR
   controller_admincontroller -. renders .-> view_admin_agent
   route_post_admin_agent_ask --> controller_admincontroller
   controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_privateagentjournalstore
   controller_admincontroller --> service_consultationfeeservice
   controller_admincontroller --> service_clinicknowledgeservice
   controller_admincontroller --> service_agentconversation
@@ -774,15 +776,18 @@ flowchart LR
   controller_admincontroller -. renders .-> view_admin_customers
   route_get_admin_agent_sessions --> controller_admincontroller
   controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_privateagentjournalstore
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_agent_sessions
   route_get_admin_agent_sessions_id_json --> controller_admincontroller
   controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_privateagentjournalstore
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_agent_sessions
   route_post_admin_agent_sessions_purge --> controller_admincontroller
   controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_privateagentjournalstore
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_agent_sessions
@@ -790,6 +795,7 @@ flowchart LR
   controller_admincontroller --> service_databaseservice
   controller_admincontroller --> service_supportticketservice
   controller_admincontroller --> service_agentsessionservice
+  controller_admincontroller --> service_privateagentjournalstore
   controller_admincontroller --> service_customercrmservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_support_inbox
@@ -901,6 +907,7 @@ flowchart LR
   controller_supportcontroller -. renders .-> view_public_support
   route_post_support_ask --> controller_supportcontroller
   controller_supportcontroller --> service_agentsessionservice
+  controller_supportcontroller --> service_privateagentjournalstore
   controller_supportcontroller --> service_consultationfeeservice
   controller_supportcontroller --> service_clinicknowledgeservice
   controller_supportcontroller --> service_cliniccontactservice

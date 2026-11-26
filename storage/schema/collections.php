@@ -273,6 +273,8 @@
                 'created_at'=>['type'=>'datetime'], 'expires_at'=>['type'=>'datetime'], 'updated_at'=>['type'=>'datetime'],
             ],
         ],
+        // Legacy v1 archive only: new conversations use the private JSON v2 journal.
+        // Preserve these rows and their support-ticket references; no bulk migration.
         'agent_sessions' => [
             'primary_key'=>'id', 'owner_field'=>'customer_email', 'admin_managed'=>false, 'agent_context'=>[],
             'fields'=>[

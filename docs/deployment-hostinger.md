@@ -123,3 +123,16 @@ This application is built for normal PHP hosting, not Vercel. Vercel's official 
 - Razorpay disabled: add live key ID and secret in admin integrations.
 - Google login not working: register the exact `APP_URL` callback in Google Cloud Console. New Nebo production setup uses `https://www.nebowellness.com/auth/google/callback`. For an apex-to-www change, register both callbacks, wait 10 minutes for active sign-ins to expire, then update `APP_URL` and retain the apex callback until the transition is complete.
 - Emails not sending: check Admin → Integrations → Send a Test Email. It reports the exact SMTP error. For Hostinger use `smtp.hostinger.com`, port 465 (SSL) or 587 (TLS), the full email address as username, and a From Email matching that mailbox.
+
+## Private agent journal storage
+
+New session archives use a per-installation sibling directory outside
+public_html, derived from the canonical application path. PHP must be
+allowed to create that directory with mode 0700 and write 0600 JSON
+files. If the hosting account or open_basedir policy disallows this,
+new archive writes fail closed with an unavailable status; do not move
+the archive into public_html to make the test pass. Configure the
+hosting permission safely and verify an owner-authorized test session
+before claiming live archive acceptance. Existing remoteDB v1 archives
+are retained. Include the private directory in protected backups; do
+not commit transcripts or expose them through web or public agent tools.

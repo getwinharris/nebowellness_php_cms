@@ -2344,10 +2344,11 @@
       "title": "Durable execution journal",
       "status": "partial",
       "acceptance": "Append start/step/call/result/end milestones and recover interrupted turns.",
-      "finding": "Private final-event archive exists; full incremental journal absent.",
+      "finding": "Versioned private JSON archive for new conversations, atomic append-preserving snapshots, correlated turn/trace replay deduplication and legacy v1 compatibility. Request-start/step checkpoints and interrupted inference recovery remain absent. Failed authorized v2 archive retries freeze the original event scope on accepted-turn replay, without repeating inference or including newer unshared messages.",
       "issues": [
         134,
-        128
+        128,
+        192
       ],
       "references": [
         {
@@ -2363,9 +2364,22 @@
         {
           "path": "app/Services/AgentSessionService.php",
           "anchor": "function persist("
+        },
+        {
+          "path": "app/Services/PrivateAgentJournalStore.php",
+          "anchor": "public function persist("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/private-agent-journal.test.cjs",
+          "anchor": "private JSON journals are atomic"
+        },
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "Force a real filesystem failure"
+        }
+      ],
       "production": null
     },
     {
@@ -2461,9 +2475,10 @@
       "title": "Private history and CRM projections",
       "status": "partial",
       "acceptance": "Owner-only bounded history, export, notes, retention and owner live acceptance.",
-      "finding": "Session archive and CRM exist; authenticated acceptance pending.",
+      "finding": "Private file-backed new transcripts, bounded owner metadata/export and explicit expired-file cleanup; historical remoteDB transcripts retained and source outages distinguished. Both actual agent fixtures and loopback legacy read tested; authenticated hosted acceptance remains pending. Retention and recent ordering validate stored timestamps independently of restored filesystem mtime; large inventory scans fail explicitly at bounded budget.",
       "issues": [
-        134
+        134,
+        192
       ],
       "references": [
         {
@@ -2479,12 +2494,20 @@
         {
           "path": "app/Services/AgentSessionService.php",
           "anchor": "function get("
+        },
+        {
+          "path": "app/Services/PrivateAgentJournalStore.php",
+          "anchor": "public function persist("
         }
       ],
       "tests": [
         {
           "path": "tests/crm-integration.php",
           "anchor": "Durable session readback"
+        },
+        {
+          "path": "tests/private-agent-journal.test.cjs",
+          "anchor": "private JSON journals are atomic"
         }
       ],
       "production": null
@@ -3000,6 +3023,57 @@
         "cms-05"
       ],
       "summary": "Source-pinned WordPress future publication checks reconstructed as read-time Markdown eligibility, admin and CLI reports, hidden flag preservation, validated atomic saves, private raw source routes, and no scheduled newsletter dispatch. Isolated date boundary/public route/agent article tests. General durable scheduler and timed CMS page publication remain partial; no database engine, production content mutation or completion promotion."
+    },
+    {
+      "id": "192-private-agent-journals",
+      "date": "2026-11-27",
+      "issues": [
+        192,
+        134,
+        186
+      ],
+      "components": [
+        "harness-05",
+        "harness-08"
+      ],
+      "summary": "Private v2 JSON archive outside document root for newly started authorized conversations; bounded event projection, identity binding, lock/atomic write, replay deduplication, expiry and explicit file-only cleanup. Existing in-flight v1 archives retain authority until reset; historic remoteDB records are neither copied nor deleted. Both real chat fixture paths and legacy remoteDB wire contract tested; no local database server. Hosted write permissions, authenticated owner acceptance and incremental interrupted-turn checkpoints remain separate; no coverage promotion."
+    },
+    {
+      "id": "192-journal-replay-recovery",
+      "date": "2026-11-27",
+      "issues": [
+        192,
+        134
+      ],
+      "components": [
+        "harness-05"
+      ],
+      "summary": "Resolve PR #193 review: cached turns preserve archive status; authorized failed persistence retries on replay without provider calls or new sharing permission. Both real route fixtures reproduce unsafe directory mode, failed replay, restored permission, exactly one archived turn and stable saved replay. No new database or production mutation."
+    },
+    {
+      "id": "192-journal-replay-consent-fence",
+      "date": "2026-11-27",
+      "issues": [
+        192,
+        134
+      ],
+      "components": [
+        "harness-05",
+        "harness-08"
+      ],
+      "summary": "Self-review narrowed archive retry to the exact originally authorized v2 event references, retained within the bounded replay window. Later unshared Support turns cannot be archived by a failed older retry; v1 full-record retry is disabled to avoid overwriting subsequent remoteDB state. Existing failure status remains visible. Real chat route regression added."
+    },
+    {
+      "id": "192-journal-retention-timestamps",
+      "date": "2026-11-27",
+      "issues": [
+        192,
+        134
+      ],
+      "components": [
+        "harness-08"
+      ],
+      "summary": "Address Codex review: private journal listing and confirmed cleanup classify records by validated updated_at rather than filesystem mtime, including restored backups. Candidate scan is bounded and completes before cleanup deletes any; expired copied record and current backdated-mtime fixture verify behavior. Very large inventory pagination remains separate."
     }
   ]
 }

@@ -10,7 +10,7 @@ const {mkdtemp,rm,readFile,writeFile,rename}=require('node:fs/promises');
 const http=require('node:http'),path=require('node:path'),os=require('node:os');
 const root=path.resolve(__dirname,'..');
 const token='remote-contract-fixture-only';
-const schemaNames=new Set(['settings','users','cms_pages']);
+const schemaNames=new Set(['settings','users','cms_pages','agent_sessions']);
 const wireRow=row=>({id:row.id,_data:JSON.stringify(row)});
 function php(code,args=[],env={}){
     return new Promise((resolve,reject)=>{
@@ -33,7 +33,9 @@ test('existing remoteDB client reads and patches canonical collections without a
     // Keep the fixture implementation in one serialized JSON transaction. The
     // application domain transition and revision algorithm remain PHP source.
     try{
-        await writeFile(file,JSON.stringify({settings:{app_settings:{id:'app_settings',fixture_keep:'preserved',module_blog:'1'}},users:{fixture:{id:'fixture',role:'customer'}}}),{mode:0o600});
+        const legacyId='a'.repeat(32),freshId='b'.repeat(32),now=new Date().toISOString().replace(/\.\d+Z$/,'Z');
+        const legacy={id:legacyId,schema_version:1,surface:'support',actor_type:'signed_in',customer_email:'legacy@example.test',events:[],created_at:now,updated_at:now};
+        await writeFile(file,JSON.stringify({settings:{app_settings:{id:'app_settings',fixture_keep:'preserved',module_blog:'1'}},users:{fixture:{id:'fixture',role:'customer'}},agent_sessions:{[legacyId]:legacy}}),{mode:0o600});
         server=http.createServer(async(req,res)=>{
             let raw='';
             for await(const chunk of req){raw+=chunk;if(raw.length>262144){res.writeHead(413);res.end();return;}}
@@ -54,6 +56,9 @@ test('existing remoteDB client reads and patches canonical collections without a
                 const state=JSON.parse(await readFile(file,'utf8'));
                 const save=async()=>{const temp=file+'.tmp';await writeFile(temp,JSON.stringify(state),{mode:0o600});await rename(temp,file);};
                 if(!body.action||body.action==='query'){
+                    if(body.query?.includes('FROM agent_sessions WHERE _updated_at >= ? ORDER BY _updated_at DESC LIMIT 100')){
+                        return respond(200,{success:true,data:Object.values(state.agent_sessions).map(row=>({id:row.id,updated_at:row.updated_at,surface:row.surface,actor_type:row.actor_type,turns:row.events.length}))});
+                    }
                     const match=/^SELECT \* FROM ([a-z_]+)( WHERE id = \?)?$/.exec(body.query??'');
                     if(!match||!schemaNames.has(match[1])||!state[match[1]])return respond(422,{error:'unsupported fixture query'});
                     const rows=Object.values(state[match[1]]);
@@ -120,6 +125,23 @@ test('existing remoteDB client reads and patches canonical collections without a
             'echo json_encode(compact("before","after","duplicate","draft","stale","published","hidden","restored"),JSON_THROW_ON_ERROR);'
         ].join(' '));
         assert.equal(page.before,false);assert.equal(page.after,true);assert.equal(page.duplicate,true);assert.equal(page.draft,null);assert.equal(page.stale,true);assert.equal(page.hidden,null);assert.deepEqual(page.restored,page.published);
+        const archive=path.join(dir,'private-agent-journal');
+        const fresh={...legacy,id:freshId,schema_version:2,customer_email:'new@example.test',omitted_turns:0,prior_history_unavailable:false};
+        const beforeArchive=requests.length;
+        const local=await run('$s=new App\\Services\\AgentSessionService(privateStore:new App\\Services\\PrivateAgentJournalStore($argv[1]));$s->persist(json_decode($argv[2],true,flags:JSON_THROW_ON_ERROR));echo json_encode($s->get($argv[3]),JSON_THROW_ON_ERROR);',[archive,JSON.stringify(fresh),freshId]);
+        assert.equal(local.schema_version,2);assert.equal(requests.length,beforeArchive,'New private persistence and lookup make no remoteDB calls');
+        const combined=await run('$s=new App\\Services\\AgentSessionService(privateStore:new App\\Services\\PrivateAgentJournalStore($argv[1]));echo json_encode(["legacy"=>$s->get($argv[2]),"report"=>$s->recentReport()],JSON_THROW_ON_ERROR);',[archive,legacyId]);
+        assert.deepEqual(combined.legacy,legacy);assert.equal(combined.report.unavailable.length,0);
+        assert.deepEqual(combined.report.items.map(r=>r.id).sort(),[legacyId,freshId].sort());
+        mode='unavailable';
+        const partial=await run('$s=new App\\Services\\AgentSessionService(privateStore:new App\\Services\\PrivateAgentJournalStore($argv[1]));echo json_encode(["local"=>$s->get($argv[2]),"report"=>$s->recentReport()],JSON_THROW_ON_ERROR);',[archive,freshId]);
+        assert.equal(partial.local.id,freshId);assert.deepEqual(partial.report.unavailable,['legacy_remote']);assert.deepEqual(partial.report.items.map(r=>r.id),[freshId]);
+        mode='normal';
+        const privateDown=await run('$s=new App\\Services\\AgentSessionService(privateStore:new App\\Services\\PrivateAgentJournalStore($argv[1]));echo json_encode(["legacy"=>$s->get($argv[2]),"report"=>$s->recentReport()],JSON_THROW_ON_ERROR);',[path.join(dir,'collections.json'),legacyId]);
+        assert.equal(privateDown.legacy.id,legacyId);
+        assert.deepEqual(privateDown.report.unavailable,['private_files']);
+        assert.deepEqual(privateDown.report.items.map(r=>r.id),[legacyId]);
+        assert.deepEqual(JSON.parse(await readFile(file,'utf8')).agent_sessions,{[legacyId]:legacy});
         for(const failure of ['unavailable','malformed','bad-row','bad-object']){
             mode=failure;
             const denied=await run('$db=new App\\Services\\DatabaseService();try{$db->read("users");echo "false";}catch(Throwable){echo "true";}');

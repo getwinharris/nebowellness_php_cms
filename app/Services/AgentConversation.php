@@ -29,7 +29,7 @@ final class AgentConversation
 
     public function clear(): void
     {
-        $this->state = ['version'=>self::VERSION, 'id' => bin2hex(random_bytes(16)), 'turns' => [], 'journal'=>[], 'created_at'=>date('c')];
+        $this->state = ['version'=>self::VERSION, 'id' => bin2hex(random_bytes(16)), 'turns' => [], 'journal'=>[], 'archive_version'=>PrivateAgentJournalStore::VERSION, 'created_at'=>date('c')];
         $this->save();
     }
 
@@ -71,7 +71,44 @@ final class AgentConversation
         if (preg_match('/^[a-f0-9]{16}$/D', $traceId)) $turn['trace_id'] = $traceId;
         $this->state['turns'][$id] = $turn;
         $this->state['turns'] = array_slice($this->state['turns'], -self::MAX_TURNS, null, true);
+        $this->state['archive_pending']=array_intersect_key($this->state['archive_pending']??[],$this->state['turns']);
         $this->save();
+    }
+
+    /** Remember the exact authorized snapshot, without duplicating its messages. */
+    public function rememberArchiveStatus(string $id,string $status,?array $snapshot=null): void
+    {
+        if (!isset($this->state['turns'][$id])) return;
+        if (!in_array($status,['saved','unavailable'],true)) throw new \InvalidArgumentException('Invalid archive status.');
+        $this->state['turns'][$id]['response']['archive_status']=$status;
+        if ($status==='saved') unset($this->state['archive_pending'][$id]);
+        elseif ($snapshot!==null&&($snapshot['schema_version']??null)===PrivateAgentJournalStore::VERSION) {
+            $keys=[];
+            foreach ($snapshot['events'] as $event) $keys[]=$event['turn_id'].':'.$event['trace']['trace_id'];
+            $this->state['archive_pending'][$id]=[
+                'keys'=>$keys,
+                'omitted_turns'=>$snapshot['omitted_turns'],
+                'prior_history_unavailable'=>$snapshot['prior_history_unavailable'],
+            ];
+        }
+        $this->save();
+    }
+
+    /** Retry only the scope authorized at the original failed write. */
+    public function archiveRetrySnapshot(string $id): ?array
+    {
+        $pending=$this->state['archive_pending'][$id]??null;
+        if (!is_array($pending)||($this->state['archive_version']??1)!==PrivateAgentJournalStore::VERSION||
+            ($this->state['turns'][$id]['response']['archive_status']??null)!=='unavailable') return null;
+        $record=$this->journal();$events=[];
+        foreach ($pending['keys'] as $key) {
+            if (!isset($this->state['journal'][$key])) return null;
+            $events[]=$this->state['journal'][$key];
+        }
+        $record['events']=$events;
+        $record['omitted_turns']=$pending['omitted_turns'];
+        $record['prior_history_unavailable']=$pending['prior_history_unavailable'];
+        return $record;
     }
 
     /** The private journal is distinct from the 12-turn replay/prompt window. */
@@ -81,6 +118,7 @@ final class AgentConversation
             $this->state['journal'] = [];
         }
         $key = $id . ':' . $trace->id;
+        if (isset($this->state['journal'][$key])) return;
         $event = AgentSessionService::event($question, $response, $status, $trace) + ['turn_id'=>$id];
         if ($status < 400 && $event['ticket_id'] !== null) {
             foreach ($this->state['journal'] as $recorded) {
@@ -99,7 +137,7 @@ final class AgentConversation
     public function journal(): array {
         $user = $_SESSION['user'] ?? [];
         return [
-            'id'=>$this->id(), 'schema_version'=>1, 'surface'=>$this->surface,
+            'id'=>$this->id(), 'schema_version'=>$this->state['archive_version']??1, 'surface'=>$this->surface,
             'actor_type'=>$this->surface === 'admin' ? 'owner' : (empty($user['email']) ? 'guest' : 'signed_in'),
             'customer_email'=>$this->surface === 'support' && ($user['role'] ?? '') === 'customer' ? (string)($user['email'] ?? '') : '',
             'created_at'=>$this->state['created_at'] ?? date('c'),

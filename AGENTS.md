@@ -220,10 +220,11 @@ the existing guidance as written. Regenerate affected indexes and maps with
   or new database server. Development can explicitly use BAPX_DB_MODE=remote.
 - **Flat-file knowledge:** blog bodies remain Markdown with YAML frontmatter;
   agent knowledge/instructions use MD/YAML/JSON; active conversation state is
-  private JSON in PHP sessions. The older durable agent_sessions archive still
-  resides in the existing remoteDB. Move new archive persistence to private
-  files only through a reviewed compatibility/retention change; preserve old
-  transcripts, consent, owner access and CRM links.
+  private JSON in PHP sessions. New conversations archive authorized visible
+  history into versioned private JSON files outside the public installation;
+  pre-existing active conversations retain their v1 remoteDB archive until
+  reset or idle expiry. Historical remoteDB transcripts remain readable.
+  Preserve consent, owner access, retention and CRM links; no bulk migration.
 - **Verification:** no automatic MariaDB container or local SQL server. Use
   PHP/JS tests, isolated temporary flat files and a schema-bound loopback
   remoteDB contract fixture. Historical direct-engine integration suites remain

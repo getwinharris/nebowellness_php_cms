@@ -107,3 +107,14 @@ architecture change, not proof that the fixture reproduces server-side
 SQL locks, payment processing or every business operation. Extend the
 contract coverage issue by issue; use an authorized isolated endpoint for
 serving-side acceptance. Never substitute a production customer record.
+
+## Private agent archive boundary (#192)
+
+Newly started conversations archive authorized visible turns in versioned
+JSON files in a per-installation directory outside both the application
+and document root. The current PHP-session prompt window remains separate.
+Old active v1 conversations retain their original remoteDB archive until
+reset or idle expiry; historical records remain readable and are not
+copied or deleted by this change. Users, tickets and CRM remain remoteDB
+records, linked by the stable conversation ID. Owner history merges
+bounded metadata from both sources and reports partial availability.

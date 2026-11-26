@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
 const { randomBytes } = require('node:crypto');
-const { mkdtemp, rm } = require('node:fs/promises');
+const { mkdtemp, rm, readFile, chmod } = require('node:fs/promises');
 const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
@@ -53,7 +53,7 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     async function request(surface, fields, identity) {
         const proc = spawn('php', [path.join(__dirname, 'fixtures/agent-session.php'), dir, session], {
             env: {
-                ...process.env, BAPX_TEST_MODE: '1', AI_API_KEY: 'synthetic',
+                ...process.env, BAPX_TEST_MODE: '1', BAPX_AGENT_JOURNAL_TEST_DIR:path.join(dir,'private-journal'), AI_API_KEY: 'synthetic',
                 BAPX_AI_ENDPOINT: 'http://127.0.0.1:' + provider.address().port, AGENT_MODEL: 'fixture',
             },
         });
@@ -76,16 +76,23 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     assert.notEqual(support.conversation, owner.conversation);
     for (const surface of ['support', 'admin']) {
         const fields = { _csrf: 'fixture-token', conversation: sessions[surface].conversation };
-        const turn = { ...fields, turn_id: randomBytes(16).toString('hex'), message: questions[surface] };
+        const turn = { ...fields, turn_id: randomBytes(16).toString('hex'), message: questions[surface], ...(surface==='support'?{archive_session:'1'}:{}) };
         const first = await request(surface, turn);
         assert.equal(first.status, 200);
         const key = surface === 'admin' ? 'answer' : 'reply';
         assert.equal(first.body[key], 'The fixture clinic offers programmes.');
         assert.equal(first.body.response_mode, 'model_with_retrieval');
+        assert.equal(first.body.archive_status,'saved');
+        const file=path.join(dir,'private-journal',sessions[surface].conversation+'.json');
+        const archived=JSON.parse(await readFile(file,'utf8'));
+        assert.equal(archived.schema_version,2);assert.equal(archived.surface,surface);assert.equal(archived.events.length,1);
+        assert.equal(archived.events[0].question,questions[surface]);
         const calls = providerPrompts.length;
         const replay = await request(surface, turn);
         assert.equal(replay.body[key], first.body[key]);
+        assert.equal(replay.body.archive_status,'saved');
         assert.equal(providerPrompts.length, calls);
+        assert.deepEqual(JSON.parse(await readFile(file,'utf8')),archived,'Replay does not rewrite the journal');
         assert.equal((await request(surface, { ...turn, message: 'different message' })).status, 409);
         const resumed = await request(surface, { ...fields, conversation_action: 'history' });
         assert.match(resumed.body.turns[0].trace_id, /^[a-f0-9]{16}$/);
@@ -127,6 +134,10 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     assert.deepEqual(cleared.body.turns, []);
     assert.notEqual(cleared.body.conversation, support.conversation);
     assert.equal((await request('support', { ...fields, conversation_action: 'history' })).status, 409);
+    const unshared=await request('support',{_csrf:'fixture-token',conversation:cleared.body.conversation,turn_id:randomBytes(16).toString('hex'),message:'Hello there, good morning'});
+    assert.equal(unshared.status,200);assert.ok(!('archive_status' in unshared.body));
+    await assert.rejects(readFile(path.join(dir,'private-journal',cleared.body.conversation+'.json'),'utf8'),{code:'ENOENT'});
+
     const oldOwner = { _csrf: 'fixture-token', conversation: owner.conversation, conversation_action: 'history' };
     assert.equal((await request('admin', oldOwner)).body.turns.length, 2);
     // Actual provider-selected native reads generate fresh server-projected UI.
@@ -146,6 +157,43 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     assert.ok(!(await request('admin',oldOwner)).body.turns.some(t=>'a2ui' in t.response));
     assert.ok(!('a2ui' in hello.body));
     assert.ok(!('a2ui' in guessedCount.body));
+
+    // Force a real filesystem failure, without losing the accepted model turn.
+    // Retry while unavailable, then recover the exact same turn with no new inference.
+    const archiveDir=path.join(dir,'private-journal');
+    for (const surface of ['admin','support']) {
+        const initial=await request(surface);
+        const fields={_csrf:'fixture-token',conversation:initial.conversation,turn_id:randomBytes(16).toString('hex'),
+            message:surface==='admin'?'Draft a short fictional welcome sentence':'Hello there, good morning',
+            ...(surface==='support'?{archive_session:'1'}:{})};
+        const file=path.join(archiveDir,initial.conversation+'.json');
+        const key=surface==='admin'?'answer':'reply';
+        let first;
+        await chmod(archiveDir,0o755);
+        try {
+            first=await request(surface,fields);
+            assert.equal(first.status,200);assert.equal(first.body.archive_status,'unavailable');
+            const calls=providerPrompts.length;
+            const replay=await request(surface,fields);
+            assert.equal(replay.body[key],first.body[key]);assert.equal(replay.body.archive_status,'unavailable');
+            assert.equal(providerPrompts.length,calls);
+        } finally {await chmod(archiveDir,0o700);}
+        let unsharedTurn=null;
+        if(surface==='support'){
+            unsharedTurn=randomBytes(16).toString('hex');
+            const later=await request(surface,{_csrf:'fixture-token',conversation:initial.conversation,turn_id:unsharedTurn,message:'Hello there, good morning — later unshared message'});
+            assert.equal(later.status,200);assert.ok(!('archive_status' in later.body));
+        }
+        const calls=providerPrompts.length;
+        const recovered=await request(surface,fields);
+        assert.equal(recovered.body[key],first.body[key]);assert.equal(recovered.body.archive_status,'saved');
+        assert.equal(providerPrompts.length,calls);
+        const saved=JSON.parse(await readFile(file,'utf8'));
+        assert.equal(saved.events.filter(e=>e.turn_id===fields.turn_id).length,1);
+        if(unsharedTurn)assert.ok(!saved.events.some(e=>e.turn_id===unsharedTurn),'Retry must never archive later unshared Support turns');
+        assert.equal((await request(surface,fields)).body.archive_status,'saved');
+        assert.deepEqual(JSON.parse(await readFile(file,'utf8')),saved);
+    }
 
     assert.equal((await request('admin', oldOwner, 'second-owner')).status, 409);
 });
