@@ -6,6 +6,7 @@
     <form id="consultant-form" method="post" action="/admin/<?= e($collection) ?>/save" class="admin-form" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
         <input type="hidden" name="id" id="resource-id">
+        <input type="hidden" name="revision" id="resource-revision">
         <input type="hidden" name="photo_url" id="field-photo_url">
         <textarea name="photo_urls" id="field-photo_urls" style="display:none"></textarea>
         <div class="admin-form__with-media">
@@ -128,7 +129,7 @@
                         <td>
                             <div style="display:flex; gap:var(--space-xs); align-items:center;">
                                 <span style="color:var(--color-text-muted); font-size:0.75rem;">Enquiry profile</span>
-                                <button type="button" class="btn btn-sm btn-ghost edit-item" data-item='<?= e(json_encode(array_merge($item, ['__id' => $item['id'] ?? '']), JSON_HEX_APOS)) ?>'>
+                                <button type="button" class="btn btn-sm btn-ghost edit-item" data-item='<?= e(json_encode(array_merge($item, ['__id' => $item['id'] ?? '', '__revision' => \App\Services\ResourceService::revision($item)]), JSON_HEX_APOS)) ?>'>
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     Edit
                                 </button>
@@ -221,6 +222,7 @@ function addImages(paths) {
 
 function resetForm() {
     document.getElementById('resource-id').value = '';
+    document.getElementById('resource-revision').value = '';
     document.getElementById('save-btn').textContent = 'Save Consultant';
     galleryImages = []; renderGallery();
     document.getElementById('field-photo_url').value = '';
@@ -237,6 +239,7 @@ document.querySelectorAll('.edit-item').forEach(button => {
     button.addEventListener('click', () => {
         const item = JSON.parse(button.dataset.item || '{}');
         document.getElementById('resource-id').value = item.__id || '';
+        document.getElementById('resource-revision').value = item.__revision || '';
         document.getElementById('save-btn').textContent = 'Update Consultant';
         document.getElementById('field-name').value = item.name || '';
         document.getElementById('field-slug').value = item.slug || '';
@@ -244,7 +247,7 @@ document.querySelectorAll('.edit-item').forEach(button => {
         document.getElementById('field-registration_number').value = item.registration_number || '';
         document.getElementById('field-speciality').value = item.speciality || '';
         document.getElementById('field-experience_years').value = item.experience_years || '';
-        document.getElementById('field-display_order').value = item.display_order || '';
+        document.getElementById('field-display_order').value = item.display_order ?? '';
         document.getElementById('field-gender').value = item.gender || 'unspecified';
         document.getElementById('field-status').value = item.status || 'visible';
         document.getElementById('field-languages').value = Array.isArray(item.languages) ? item.languages.join(', ') : (item.languages || '');

@@ -301,10 +301,11 @@ $consultationSteps = [
             <h2 class="section-title">Why Choose Nebo?</h2>
         </div>
         <?php
-        $homeFigures = [
-            [count($consultants), 'Practitioner profiles', 'Meet the team and see their specialities.'],
-            [count($consultationSteps), 'Consultation steps', 'From sharing your goals to planning care.'],
-        ];
+        $homeFigures = [];
+        if (empty($teamUnavailable)) {
+            $homeFigures[] = [count($consultants), 'Practitioner profiles', 'Meet the team and see their specialities.'];
+        }
+        $homeFigures[] = [count($consultationSteps), 'Consultation steps', 'From sharing your goals to planning care.'];
         if (!empty($therapyProducts)) {
             $homeFigures[] = [count($therapyProducts), 'Featured services', 'Clinic-led options to explore.'];
         }

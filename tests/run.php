@@ -593,6 +593,7 @@ $tests['homepage team is sourced only from visible owner-managed profiles'] = fu
     fileContains('app/Services/ConsultantService.php', "=== 'visible'");
     fileContains('views/public/home.php', 'elseif ($consultants !== [])');
     fileContains('views/public/home.php', 'teamUnavailable');
+    fileContains('views/public/home.php', 'if (empty($teamUnavailable))');
 };
 
 $tests['practitioner registration is optional, owner-editable and escaped'] = function (): void {
@@ -609,6 +610,8 @@ $tests['practitioner registration is optional, owner-editable and escaped'] = fu
     fileContains('views/admin/consultant-form.php', "item.registration_number");
     fileContains('views/public/home.php', "e(\$consultant['registration_number'])");
     fileContains('app/Controllers/AdminController.php', "array_key_exists('registration_number', \$_POST)");
+    fileContains('views/admin/consultant-form.php', 'name="revision"');
+    fileContains('app/Controllers/AdminController.php', '$resource->save($data, $id !==');
 };
 
 $tests['public anchor scrolling respects reduced motion before and after styles load'] = function (): void {
