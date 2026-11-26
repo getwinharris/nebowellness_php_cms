@@ -47,6 +47,103 @@ final class AiClient
         return trim($answer) !== '' ? $answer : null;
     }
 
+    /** Only the configured model and its established native Google fallback are selectable. */
+    public static function probeTargets(array $config): array {
+        $model=(string)($config['model']??'');
+        $targets=$model!==''?[$model]:[];
+        if (($config['provider']??'')==='google'&&$model===AiModelRouter::PRIMARY) $targets[]=AiModelRouter::FALLBACK;
+        return $targets;
+    }
+
+    /**
+     * A pinned diagnostic, not a production turn. Reuse the native transport
+     * methods, but never call modelFor/recordSuccess/recordFailure.
+     * Only the configured connection and its allowlisted model can be tested.
+     */
+    public function probe(string $mode='text',string $target=''): array {
+        $trace=new AgentRunTrace();
+        $started=microtime(true);
+        $config=$this->secrets->getModelConfig();
+        $model=$target!==''?$target:(string)($config['model']??'');
+        $provider=(string)($config['provider']??'');
+        $base=['ok'=>false,'mode'=>in_array($mode,['text','tools'],true)?$mode:'invalid',
+            'provider'=>in_array($provider,['google','openai','anthropic'],true)?$provider:'unknown',
+            'model'=>in_array($model,self::probeTargets($config),true)?AgentRunTrace::modelLabel($model):'unavailable',
+            'tool_calls'=>0];
+        $result=static function(string $reason,array $extra=[]) use ($base,$trace,$started):array {
+            $message=match($reason) {
+                'verified'=>'Verified the exact response for this diagnostic.',
+                'invalid_target'=>'Select an available configured model and diagnostic mode.',
+                'not_configured'=>'Configure an AI key in Integrations.',
+                'unsupported_provider'=>'This diagnostic does not support the configured protocol.',
+                'authentication'=>'The provider rejected authentication or access.',
+                'rate_limit'=>'The provider reported a quota or rate limit.',
+                'provider_unavailable'=>'The provider returned a temporary server error.',
+                'provider_request'=>'The provider rejected the request or model configuration.',
+                'timeout'=>'The request timed out before a completed response.',
+                'transport'=>'No complete provider response was received.',
+                'tool_not_verified'=>'A single valid diagnostic tool round trip was not observed.',
+                'unexpected_answer'=>'The visible answer did not match the fresh diagnostic challenge.',
+                'incomplete_response'=>'The provider did not return a complete usable response.',
+                default=>'Diagnostic could not complete.',
+            };
+            return array_replace($base,$extra,['ok'=>$reason==='verified','reason'=>$reason,'message'=>$message,
+                'duration_ms'=>(int)round((microtime(true)-$started)*1000)],$trace->metadata());
+        };
+        if (!in_array($mode,['text','tools'],true)||!in_array($model,self::probeTargets($config),true)) return $result('invalid_target');
+        if (trim((string)($config['apiKey']??''))==='') return $result('not_configured');
+        if (!in_array($provider,['google','openai'],true)) return $result('unsupported_provider');
+        if (!function_exists('curl_init')) return $result('transport');
+        // Separate request-local trace; no production routing transitions.
+        $client=new self($this->secrets,$this->router,trace:$trace);
+        $challenge='probe-'.bin2hex(random_bytes(8));
+        $tools=$mode==='tools'?new ProviderProbeTools($challenge):null;
+        $prompt=$tools!==null?'Call connection_probe exactly once with no arguments. Then return exactly the challenge value from its result.':
+            'Return exactly this diagnostic value, with no additional text: '.$challenge;
+        try {
+            if ($tools!==null) {
+                $answer=$provider==='google'?
+                    $client->completeGoogleWithTools($config,$model,$prompt,$tools,256,0.0,2,20,true,true):
+                    $client->completeChatWithTools(array_replace($config,['model'=>$model]),$prompt,$tools,256,2,true,true);
+            } else {
+                $prompt=$client->withAnswerFence($prompt);
+                $answer=$provider==='google'?
+                    $client->completeGooglePlain($config,$model,$prompt,256,0.0,20,true):
+                    $client->completeChatPlain($config,$model,$prompt,256,20,true);
+            }
+        } catch (\Throwable) {
+            $trace->markProviderResponseUnusable();
+            return $result('incomplete_response');
+        }
+        $steps=$trace->metadata()['steps'];
+        $toolSteps=array_values(array_filter($steps,static fn(array $step):bool=>($step['kind']??'')==='tool'&&($step['origin']??'')==='model'));
+        $calls=$tools?->successfulCalls()??0;
+        $extra=['tool_calls'=>$calls];
+        $last=null;
+        foreach ($steps as $step) if (($step['kind']??'')==='provider') $last=$step;
+        $status=(int)($last['status']??0);
+        $outcome=$last['outcome']??'';
+        if ($outcome==='timeout') return $result('timeout',$extra);
+        if ($outcome==='transport_error') return $result('transport',$extra);
+        if (in_array($status,[401,403],true)) return $result('authentication',$extra);
+        if ($status===429) return $result('rate_limit',$extra);
+        if ($status>=500) return $result('provider_unavailable',$extra);
+        if ($status!==200) return $result('provider_request',$extra);
+        if ($tools!==null&&($calls!==1||count($toolSteps)!==1||!$trace->hasNativeToolAnswer()||!$trace->usedNativeTool(['connection_probe']))) {
+            $trace->markProviderResponseUnusable();
+            return $result('tool_not_verified',$extra);
+        }
+        if (self::isError($answer)||trim($answer)===''||!$trace->hasCompletedInference()) {
+            $trace->markProviderResponseUnusable();
+            return $result('incomplete_response',$extra);
+        }
+        if (!hash_equals($challenge,trim($answer))) {
+            $trace->markProviderResponseUnusable();
+            return $result('unexpected_answer',$extra);
+        }
+        return $result('verified',$extra);
+    }
+
     /**
      * A conversation in which the model may look things up before answering.
      *
@@ -100,12 +197,13 @@ final class AiClient
         array $config,
         string $model,
         string $prompt,
-        AgentToolRegistry $tools,
+        ModelToolSet $tools,
         int $maxTokens,
         float $temperature,
         int $maxRounds,
         int $timeout = 20,
-        bool $requireTool = true
+        bool $requireTool = true,
+        bool $requireComplete = false
     ): string {
         $endpoint = rtrim((string)($config['endpoint'] ?? ''), '/');
         $url = $endpoint . '/' . rawurlencode($model) . ':generateContent';
@@ -150,7 +248,7 @@ final class AiClient
             $calls=[];
             foreach ($parts as $part) if (isset($part->functionCall)) $calls[]=$part->functionCall;
             if (!$calls) {
-                if ((!$hasSuccessfulTool && ($requireTool || $callsUsed>0)) || ($candidate->finishReason??'STOP')!=='STOP') {
+                if ((!$hasSuccessfulTool && ($requireTool || $callsUsed>0)) || ($candidate->finishReason??($requireComplete?'':'STOP'))!=='STOP') {
                     $this->trace?->markProviderResponseUnusable(); return 'AI request failed: no completed native tool answer.';
                 }
                 $visible=json_decode(json_encode($parts,JSON_THROW_ON_ERROR),true);
@@ -189,7 +287,7 @@ final class AiClient
     }
 
     /** Native Chat Completions protocol: assistant tool_calls + correlated tool messages. */
-    private function completeChatWithTools(array $config,string $prompt,AgentToolRegistry $tools,int $maxTokens,int $maxRounds,bool $requireTool): string {
+    private function completeChatWithTools(array $config,string $prompt,ModelToolSet $tools,int $maxTokens,int $maxRounds,bool $requireTool,bool $requireComplete=false): string {
         $tools->beginInferenceAttempt();
         $this->trace?->beginInferenceAttempt();
         $key=trim((string)($config['apiKey']??''));
@@ -217,7 +315,7 @@ final class AiClient
             $calls=$message['tool_calls']??[];
             if (!is_array($calls)) return 'AI request failed: malformed tool calls.';
             if (!$calls) {
-                if ((!$success && ($requireTool || $callsUsed>0)) || ($choice['finish_reason']??'stop')!=='stop' || !empty($message['refusal'])) {
+                if ((!$success && ($requireTool || $callsUsed>0)) || ($choice['finish_reason']??($requireComplete?'':'stop'))!=='stop' || !empty($message['refusal'])) {
                     $this->trace?->markProviderResponseUnusable(); return 'AI request failed: no valid completed tool-grounded response.';
                 }
                 $content=is_string($message['content']??null)?$message['content']:'';
@@ -288,6 +386,14 @@ final class AiClient
             );
         }
 
+        return $this->completeChatPlain($config,$model,$prompt,$maxTokens,20,$requireComplete);
+    }
+
+    private function completeChatPlain(array $config,string $model,string $prompt,int $maxTokens,int $timeout,bool $requireComplete): string
+    {
+        $endpoint=rtrim((string)($config['endpoint']??''),'/');
+        $provider=(string)($config['provider']??'openai');
+        $key=trim((string)($config['apiKey']??''));
         $this->lastModel = $model;
         $url = $endpoint . '/chat/completions';
         $payload = (string)json_encode([
@@ -302,7 +408,7 @@ final class AiClient
         } else {
             $headers[] = 'Authorization: Bearer ' . $key;
         }
-        $body = $this->post($url, $payload, $headers, $status, 20, $provider, $model);
+        $body = $this->post($url, $payload, $headers, $status, $timeout, $provider, $model);
         if ($status !== 200 || $body === false) return self::describeFailure($status, $body, $this->transportError);
         $result = json_decode((string)$body, true);
         if (is_array($result)) $this->trace?->usage($result);

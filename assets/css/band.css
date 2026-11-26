@@ -6969,3 +6969,16 @@ main:has(> :is(.campaign-index, .campaign-page)) { padding-block-start: 0; paddi
 .fee-editor summary { cursor:pointer; font-weight:600; min-height:44px; padding-block:12px; overflow-wrap:anywhere; }
 .fee-editor > form { padding-top:12px; }
 @media(max-width:743px) { .consultation-fees__grid,.consultation-fees__inclusions ul { grid-template-columns:minmax(0,1fr); } .fee-editor { padding:8px 12px; } }
+
+/* Owner-only provider diagnostics, independent of production routing. */
+.ai-probe-card{margin-top:var(--space-lg)}
+.ai-probe-card h2{font-size:1.1rem;margin:0 0 var(--space-sm)}
+.ai-probe-copy{color:var(--color-text-muted);font-size:.85rem;line-height:1.6;margin:0 0 var(--space-md);overflow-wrap:anywhere}
+.ai-probe-result{margin-bottom:var(--space-md);padding:var(--space-sm) var(--space-md);border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-bg-alt);overflow-wrap:anywhere}
+.ai-probe-result.is-verified{border-color:var(--color-success,#15803d)}
+.ai-probe-result.is-unverified{border-color:var(--color-error,#b91c1c)}
+.ai-probe-result p{font-size:.85rem;margin:var(--space-2xs) 0 var(--space-sm)}
+.ai-probe-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:var(--space-sm);margin:var(--space-sm) 0;font-size:.85rem}
+.ai-probe-meta dt{color:var(--color-text-muted)}
+.ai-probe-meta dd{margin:0;font-weight:600}
+.ai-probe-result .table-responsive{max-width:100%;overflow-x:auto}

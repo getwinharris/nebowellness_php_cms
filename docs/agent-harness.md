@@ -55,3 +55,7 @@ The shared `published_consultation_fees` tool returns only published fee cards, 
 ### Editorial completion contract
 
 Blog editor proposals and Enterprise structured drafts use the same configured AiClient, without irrelevant retrieval. Require explicit natural completion (`stop` for Chat Completions, `STOP` for Google); reject length-limited, blocked, missing or tool-call-only output. Plain visible text excludes thought parts. The editor validates the proposal and requires explicit Apply followed by ordinary Save; provider error details never replace the source article. Model-generated owner-only fields are ignored. See #140 and the REA register.
+
+### Pinned provider diagnostics
+
+Use the saved model configuration with either `./bapXphp ai:probe text [model]` or `./bapXphp ai:probe tools [model]`, or Admin → Integrations → Verify the AI connection. Text requires the exact fresh challenge and natural finish. Tools mode requires exactly one valid synthetic read-only call followed by the correct hidden challenge. The diagnostic shares the native transport but cannot read business records, switch production model, or change production failover counters. Trace metadata contains observed status, duration, call reference and provider usage only. A diagnostic passing is not agent-surface acceptance. See [the reference-derived contract](research/rea/contracts/provider-diagnostics.md).

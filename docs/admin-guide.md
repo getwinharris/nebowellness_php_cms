@@ -14,6 +14,13 @@ Public visitors send consultation enquiries through the contact form. Practition
 
 Enterprise Agent → Recent agent runs shows up to 12 recorded runs across customer support and the Enterprise Agent. Filter by agent and distinguish failed provider attempts from failed runs. A retry or fallback can produce an answer after a provider attempt fails. Use the trace ID to correlate an event with the dashboard. The explorer shows operational metadata and excludes chat content, tool inputs, and tool results.
 
+Open **Integrations → Verify the AI connection** and select a saved model
+and diagnostic mode. Text checks a fresh response; native tool round trip
+checks a synthetic function call and exact result. The result shows model,
+mode, elapsed time, trace ID and observed transfer/tool steps. A failed
+probe does not change the production routing state or expose a raw upstream
+error. A verified probe does not establish complete live agent behavior.
+
 ### Backend adaptation sequence
 
 Reference revision [bapXphpAiBackend `2392570`](https://github.com/bapxmediahub/bapXphpAiBackend/commit/2392570522c140345e4710b583f92e64f0ec8f40).

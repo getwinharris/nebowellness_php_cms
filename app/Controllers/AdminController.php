@@ -269,7 +269,13 @@ final class AdminController extends BaseController {
         $this->redirect('/admin/settings');
     }
     public function saveAdminCredentials(): void{(new EnvService())->saveAdminCredentials($_POST); (new AuditLogService())->record('save','admin-credentials','env'); $this->flash('Admin credentials saved.','success'); $this->redirect('/admin/settings');}
-    public function integrations(): void{$this->render('admin/integrations',['pageTitle' => 'Integrations', 'secrets'=>(new SecretService())->all(), 'googleCallbackUri'=>\App\Services\GoogleCustomerAuthService::callbackUri()]);}
+    public function integrations(): void {
+        $secrets=new SecretService();
+        $config=$secrets->getModelConfig();
+        $this->render('admin/integrations',['pageTitle'=>'Integrations','secrets'=>$secrets->all(),
+            'probeTargets'=>\App\Services\AiClient::probeTargets($config),
+            'googleCallbackUri'=>\App\Services\GoogleCustomerAuthService::callbackUri()]);
+    }
     public function saveIntegrations(): void {
         try {
             $values = \App\Integrations\GoogleSiteKit\GoogleSiteKitClient::settings($_POST);
@@ -653,27 +659,24 @@ final class AdminController extends BaseController {
         $this->redirect(preg_match('#^/admin/[a-z0-9/-]*$#i', $redirect) ? $redirect : '/admin/media');
     }
     public function fixPermissions(): void{(new StoragePermissionService())->fix(); (new AuditLogService())->record('fix','permissions','storage'); $this->flash('Storage permissions checked and updated where PHP is allowed.','success'); $this->redirect('/admin/settings');}
-    /**
-     * Ask the configured model one real question and report exactly what came back.
-     *
-     * Both agents fall back to a canned reply when a call is rejected — correct for a
-     * customer, but it left the owner unable to tell "the model is switched off" from
-     * "the model name is wrong" or "the key expired". Every one of those looked like a
-     * bot that had stopped thinking.
-     */
-    public function testAi(): void{
+    /** Test a pinned provider/model without changing production routing state. */
+    public function testAi(): void {
         $this->validateCsrf();
-        $config = (new SecretService())->getModelConfig();
-        $client = new \App\Services\AiClient();
-        $answer = $client->complete('Reply with exactly: connection ok', 32, 0.0);
-        $ok = !\App\Services\AiClient::isError($answer) && trim($answer) !== '';
-        $_SESSION['ai_test_result'] = [
-            'ok' => $ok,
-            'model' => $client->lastModel() ?: (string)($config['model'] ?? ''),
-            'endpoint' => (string)($config['endpoint'] ?? ''),
-            'message' => $ok ? trim($answer) : ($answer !== '' ? $answer : 'The provider returned an empty response.'),
-        ];
-        (new AuditLogService())->record('test','ai',(string)($config['model'] ?? ''),['result'=>$ok ? 'ok' : 'failed']);
+        $mode=$_POST['probe_mode']??'text';
+        $target=$_POST['probe_model']??'';
+        if (!is_string($mode)||!is_string($target)||strlen($mode)>16||strlen($target)>200) {
+            $result=['ok'=>false,'reason'=>'invalid_target','message'=>'Select a valid diagnostic mode and model.'];
+        } else {
+            try { $result=(new \App\Services\AiClient())->probe($mode,$target); }
+            catch (\Throwable) { $result=['ok'=>false,'reason'=>'diagnostic_unavailable','message'=>'Unable to read diagnostic configuration.']; }
+        }
+        $_SESSION['ai_test_result']=$result;
+        (new AuditLogService())->record('test','ai',(string)($result['model']??''),[
+            'result'=>$result['ok']?'ok':'failed','mode'=>$result['mode']??'invalid',
+            'reason'=>$result['reason'],'trace_id'=>$result['trace_id']??null,
+            'duration_ms'=>$result['duration_ms']??null,'tool_calls'=>$result['tool_calls']??0,
+            'steps'=>$result['steps']??[],
+        ]);
         $this->redirect('/admin/integrations');
     }
 

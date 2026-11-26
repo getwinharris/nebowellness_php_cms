@@ -1564,9 +1564,9 @@
       "id": "completion-08",
       "track": "completion",
       "title": "Real provider diagnostics",
-      "status": "partial",
+      "status": "implemented",
       "acceptance": "Independent genuine text and tool round-trip probes for configured compatible models.",
-      "finding": "Existing integration test/probe, real compatible model acceptance pending.",
+      "finding": "Pinned real text and isolated native tool challenges share the production transport; exact completed output, scoped targets, truthful failures and bounded trace. CLI and owner route fixtures pass; external provider and authenticated production UI acceptance remain separate.",
       "issues": [
         82,
         128
@@ -1579,15 +1579,48 @@
         {
           "source": "openai-tools",
           "locator": "Function calling"
+        },
+        {
+          "source": "bapx-provider-diagnostics",
+          "locator": "app/Services/AiClient.php"
         }
       ],
       "source": [
         {
+          "path": "app/Services/AiClient.php",
+          "anchor": "function probe("
+        },
+        {
+          "path": "app/Services/ModelToolSet.php",
+          "anchor": "interface ModelToolSet"
+        },
+        {
+          "path": "app/Services/ProviderProbeTools.php",
+          "anchor": "function executeModelCall("
+        },
+        {
           "path": "app/Controllers/AdminController.php",
           "anchor": "function testAi("
+        },
+        {
+          "path": "cli/ai-probe.php",
+          "anchor": "->probe("
+        },
+        {
+          "path": "docs/research/rea/contracts/provider-diagnostics.md",
+          "anchor": "## Ownership and execution"
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/ai-probe.test.cjs",
+          "anchor": "diagnostics reject a successful HTTP response that does not complete the challenge"
+        },
+        {
+          "path": "tests/browser/ai-probe.cjs",
+          "anchor": "failureEvidence"
+        }
+      ],
       "production": null
     },
     {
@@ -2042,6 +2075,18 @@
         "cms-13"
       ],
       "summary": "Inspected original WordPress Site Health source against archived REA digest; recorded concrete native contract. Implemented bounded deployed-source fingerprint and optional Git metadata, local CLI verification, red/green and actual HTTP fixtures. cms-13 stays partial because scheduler and complete system health are not implemented. Production evidence remains separate."
+    },
+    {
+      "id": "82-pinned-provider-diagnostics",
+      "date": "2026-11-26",
+      "issues": [
+        82,
+        128
+      ],
+      "components": [
+        "completion-08"
+      ],
+      "summary": "Read exact reference provider diagnostic source and preserved hashes. Replaced false HTTP/nonempty success with pinned text and synthetic native tool challenges; shared provider transport, no business access or routing mutations. Red/green loopback CLI and owner POST fixtures, isolated Chrome desktop/mobile passed. External model and live authenticated acceptance remain separate; no provider capability or cooldown claims."
     }
   ]
 }
