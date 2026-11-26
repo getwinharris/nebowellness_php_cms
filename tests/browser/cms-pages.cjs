@@ -20,7 +20,9 @@ const root=path.resolve(__dirname,'../..');
     });
     await page.goto('http://cms-fixture.test'+p);
     const doc=page.locator('.cms-document');
-    assert.equal(await doc.locator('.cms-section').count(),2);
+    assert.equal(await doc.locator('.cms-section').count(),5);
+    assert.ok((await doc.textContent()).includes('No matching published entries'));
+    assert.ok((await doc.textContent()).includes('Current published information is temporarily unavailable.'));
     if(p.startsWith('/admin')){
       assert.match(await doc.textContent(),/Private draft body/);
       assert.ok(await page.getByRole('button',{name:'Publish saved draft'}).isVisible());

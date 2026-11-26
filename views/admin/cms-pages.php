@@ -42,7 +42,8 @@
                     <label>Visibility<select name="<?= e($prefix) ?>[visible]"><option value="1" <?= $section['visible']?'selected':'' ?>>Visible</option><option value="0" <?= !$section['visible']?'selected':'' ?>>Hidden</option></select></label>
                     <?php foreach (CmsSectionRegistry::TYPES[$type]['fields'] as $field=>$label): ?>
                         <label><?= e($label) ?>
-                        <?php if ($field==='body'): ?><textarea name="<?= e($prefix) ?>[content][body]" rows="5" maxlength="6000"><?= e($section['content']['body']) ?></textarea>
+                        <?php if ($field==='display_limit'): ?><select name="<?= e($prefix) ?>[content][display_limit]"><?php for ($count=1;$count<=12;$count++): ?><option value="<?= $count ?>" <?= (string)$count===$section['content']['display_limit']?'selected':'' ?>><?= $count ?></option><?php endfor; ?></select>
+                        <?php elseif ($field==='body'): ?><textarea name="<?= e($prefix) ?>[content][body]" rows="5" maxlength="6000"><?= e($section['content']['body']) ?></textarea>
                         <?php else: ?><input name="<?= e($prefix) ?>[content][<?= e($field) ?>]" maxlength="<?= CmsSectionRegistry::LIMITS[$field] ?>" value="<?= e($section['content'][$field]) ?>"><?php endif; ?>
                         </label>
                         <?php if ($field==='image_url'): ?><small>Use a local raster image path from the <a href="/admin/media" target="_blank" rel="noopener">media library</a>.</small><?php endif; ?>
@@ -57,7 +58,7 @@
             <div class="cms-actions"><button class="btn btn-primary" type="submit" name="page_action" value="save">Save draft</button></div>
             <h3>Add a section</h3>
             <div class="cms-actions"><?php foreach (CmsSectionRegistry::TYPES as $type=>$definition): ?><button class="btn btn-outline" name="page_action" value="add:<?= e($type) ?>" type="submit" <?= count($values['sections'])>=CmsSectionRegistry::LIMIT?'disabled':'' ?>>+ <?= e($definition['label']) ?></button><?php endforeach; ?></div>
-            <p><small>Section actions save the current valid fields. Preview shows only saved visible sections. Maximum <?= CmsSectionRegistry::LIMIT ?> sections.</small></p>
+            <p><small>Section actions save the current valid fields. Live sections read current published service records; they never duplicate or publish those records. Preview shows only saved visible sections. Maximum <?= CmsSectionRegistry::LIMIT ?> sections.</small></p>
         </form>
     </div>
     <aside class="admin-card cms-preview">

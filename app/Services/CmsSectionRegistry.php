@@ -12,8 +12,12 @@ final class CmsSectionRegistry {
         'image_text'=>['label'=>'Image and text','fields'=>['heading'=>'Heading','body'=>'Markdown content','image_url'=>'Image path','image_alt'=>'Image description']],
         'faq'=>['label'=>'FAQ','fields'=>['heading'=>'Question','body'=>'Answer (Markdown)']],
         'cta'=>['label'=>'Call to action','fields'=>['heading'=>'Heading','body'=>'Supporting text','link_label'=>'Button label','link_url'=>'Destination']],
+        'programmes'=>['label'=>'Live programmes','fields'=>['heading'=>'Heading','body'=>'Introduction','display_limit'=>'Maximum programmes']],
+        'team'=>['label'=>'Live team','fields'=>['heading'=>'Heading','body'=>'Introduction','display_limit'=>'Maximum practitioners']],
+        'fee_table'=>['label'=>'Live consultation fees','fields'=>['heading'=>'Heading','body'=>'Introduction','display_limit'=>'Maximum fee entries']],
+
     ];
-    public const LIMITS=['heading'=>180,'body'=>6000,'image_url'=>300,'image_alt'=>240,'link_label'=>80,'link_url'=>400];
+    public const LIMITS=['heading'=>180,'body'=>6000,'image_url'=>300,'image_alt'=>240,'link_label'=>80,'link_url'=>400,'display_limit'=>2];
 
     public static function exact(array $value,array $keys): bool {
         return count($value)===count($keys)&&!array_diff(array_keys($value),$keys);
@@ -36,8 +40,9 @@ final class CmsSectionRegistry {
     }
     public static function fresh(string $type): array {
         if (!isset(self::TYPES[$type])) throw new \InvalidArgumentException('Unknown section type.');
-        return ['id'=>bin2hex(random_bytes(8)),'type'=>$type,'visible'=>true,
-            'content'=>array_fill_keys(array_keys(self::TYPES[$type]['fields']),'')];
+        $content=array_fill_keys(array_keys(self::TYPES[$type]['fields']),'');
+        if (array_key_exists('display_limit',$content)) $content['display_limit']='6';
+        return ['id'=>bin2hex(random_bytes(8)),'type'=>$type,'visible'=>true,'content'=>$content];
     }
     public static function validate(array $section,bool $publishing=false): array {
         if (!self::exact($section,['id','type','visible','content'])||
@@ -51,6 +56,7 @@ final class CmsSectionRegistry {
         $content=[];
         foreach ($keys as $key) {
             $value=self::text($section['content'][$key],self::LIMITS[$key],$key==='body');
+            if ($key==='display_limit'&&!preg_match('/^(?:[1-9]|1[012])$/D',$value)) throw new \InvalidArgumentException('Display count must be 1–12.');
             if ($key==='image_url'&&$value!==''&&!self::imagePath($value)) throw new \InvalidArgumentException('Choose a safe local raster image.');
             if ($key==='link_url'&&$value!==''&&!self::linkPath($value)) throw new \InvalidArgumentException('Choose a public page path or HTTPS link.');
             if ($key==='body'&&preg_match('/^\s*#{1,2}\s+/m',$value)) throw new \InvalidArgumentException('Use the section heading field and level 3 or deeper Markdown headings.');
@@ -60,6 +66,7 @@ final class CmsSectionRegistry {
             $required=match($section['type']) {
                 'hero'=>['heading'],'rich_text'=>['body'],'image_text'=>['body','image_url','image_alt'],
                 'faq'=>['heading','body'],'cta'=>['heading','link_label','link_url'],
+                'programmes','team','fee_table'=>['heading','display_limit'],
             };
             foreach ($required as $field) if ($content[$field]==='') throw new \InvalidArgumentException('Complete visible '.$section['type'].' section fields before publishing.');
         }

@@ -67,3 +67,21 @@ test('preview and public template render visible typed content without leaking h
     }
     assert.match(r.live,/<h1 class="cms-document-title">/);assert.match(r.draft,/<h2 class="cms-document-title">/);
 });
+
+test('live section schema bounds counts and projections reject extra/private or malformed data',()=>{
+    const result=php([
+        '$s=App\\Services\\CmsSectionRegistry::class;$d=App\\Services\\CmsDynamicSectionService::class;',
+        '$db=new App\\Services\\DatabaseService();$r=new App\\Services\\NativeAbilityRegistry($db,"support",["campaigns"=>true]);$off=new App\\Services\\NativeAbilityRegistry($db,"support",["campaigns"=>false]);',
+        '$section=$s::fresh("programmes");$section["content"]["heading"]="Live programmes";$good=$s::validate($section,true);$bad=[];',
+        'foreach(["0","13","1.0","01","999"] as $limit){$candidate=$section;$candidate["content"]["display_limit"]=$limit;try{$s::validate($candidate);$bad[]=false;}catch(InvalidArgumentException){$bad[]=true;}}',
+        '$row=["title"=>"Fixture","summary"=>"Text","duration"=>"8 weeks","url"=>"/campaigns/fixture"];$value=["programmes"=>[$row,$row]];',
+        '$ready=$d::project("programmes",$value,1,$r);$empty=$d::project("programmes",["programmes"=>[]],1,$r);$disabled=$d::project("programmes",$value,1,$off);',
+        '$invalid=$d::project("programmes",["programmes"=>[$row+["private"=>"not public"]]],1,$r);$unsafe=$d::project("programmes",["programmes"=>[array_replace($row,["url"=>"javascript:alert(1)"])]],1,$r);',
+        'echo json_encode(compact("good","bad","ready","empty","disabled","invalid","unsafe"),JSON_THROW_ON_ERROR);'
+    ].join(' '));
+    assert.equal(result.good.content.display_limit,'6');assert.ok(result.bad.every(Boolean));
+    assert.equal(result.ready.state,'ready');assert.equal(result.ready.rows.length,1);assert.equal(result.ready.total,2);
+    for(const [key,expected] of [['empty','empty'],['disabled','disabled'],['invalid','unavailable'],['unsafe','unavailable']]){
+        assert.equal(result[key].state,expected);assert.deepEqual(result[key].rows,[]);
+    }
+});

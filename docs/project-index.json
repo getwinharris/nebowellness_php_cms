@@ -5,8 +5,8 @@
     "summary": {
         "routes": 113,
         "controllers": 14,
-        "services": 73,
-        "views": 59,
+        "services": 74,
+        "views": 60,
         "collections": 27
     },
     "routes": [
@@ -643,6 +643,8 @@
             "services": [
                 "CmsPageService",
                 "CmsSectionRegistry",
+                "CmsDynamicSectionService",
+                "NativeAbilityRegistry",
                 "MarkdownRenderer",
                 "AuthService"
             ]
@@ -1187,6 +1189,8 @@
             "services": [
                 "CmsPageService",
                 "CmsSectionRegistry",
+                "CmsDynamicSectionService",
+                "NativeAbilityRegistry",
                 "MarkdownRenderer",
                 "SeoService"
             ]
@@ -1395,6 +1399,7 @@
         "CategoryService",
         "ClinicContactService",
         "ClinicKnowledgeService",
+        "CmsDynamicSectionService",
         "CmsPageService",
         "CmsSectionRegistry",
         "CommerceAbilityService",
@@ -1479,6 +1484,7 @@
         "layouts/admin",
         "layouts/app",
         "partials/care-icon",
+        "partials/cms-dynamic-section",
         "partials/cms-page-document",
         "partials/home-figures",
         "partials/therapy-products",

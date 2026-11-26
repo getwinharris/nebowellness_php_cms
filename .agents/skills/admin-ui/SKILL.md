@@ -93,3 +93,9 @@ Update when an admin route, sidebar group, or CRUD form contract changes. The si
   Native page draft/publication/restore and media archive share the
   serving DB lock; new managed references require an active inventory
   entry, including images promoted from a draft. Preserve archive bytes.
+
+- Live programmes, team and consultation fees are reusable page sections
+  backed by the existing typed published abilities. Owners edit heading,
+  intro and 1–12 display count; they cannot overwrite source records in
+  the page editor. Disabled, empty and unavailable data are distinct,
+  and saved preview uses the same bounded public renderer.
