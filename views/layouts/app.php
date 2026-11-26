@@ -61,6 +61,7 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <script src="/assets/header-contact.js?v=<?= filemtime(__DIR__ . '/../../assets/header-contact.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-status.js') ?>" defer></script>
 <script src="/assets/agent-conversation.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-conversation.js') ?>" defer></script>
+<script src="/assets/a2ui-readonly.js?v=<?= filemtime(app_path('assets/a2ui-readonly.js')) ?>" defer></script>
 <script src="/assets/support-chat.js?v=<?= filemtime(__DIR__ . '/../../assets/support-chat.js') ?>" defer></script>
 <style>
 <?php

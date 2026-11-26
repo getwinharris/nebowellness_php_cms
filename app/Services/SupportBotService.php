@@ -60,6 +60,8 @@ final class SupportBotService {
         $result=$this->finishReply($candidate,'model',$startedAt,$evidence['clinic_context']??$context);
         $result['response_mode']=$this->trace->hasNativeToolAnswer()?'model_with_retrieval':'model_direct';
         $result['sources']=$this->trace->hasNativeToolAnswer()?$this->trace->sources():[];
+        if ($result['response_mode']==='model_with_retrieval' && ($ui=$tools->observedUi($this->trace->id))!==null) $result['a2ui']=$ui;
+
         if ($this->isPrivateAccountQuestion($message)||preg_match('/\b(?:cart|checkout)\b/i',$message)) $result['memory']='none';
         return $result;
     }

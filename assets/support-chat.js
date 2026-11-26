@@ -242,6 +242,7 @@
             appendMessage(turn, failed ? 'Support unavailable' : result.response_mode === 'application_action' ? 'Clinic action' : 'Support AI', reply);
             appendActions(turn, actions);
             if (result.response_mode === 'model_with_retrieval') {
+                if (!failed) window.BapxA2ui?.append(turn, result.a2ui);
                 appendActions(turn,validActions((Array.isArray(result.sources)?result.sources:[]).slice(0,5).map(path=>({type:'navigate',path,label:'Source: '+path}))));
 
                 const label=document.createElement('small'); label.className='support-source-note';

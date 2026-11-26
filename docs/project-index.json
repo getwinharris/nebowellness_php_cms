@@ -235,6 +235,7 @@
                 "AgentDraftService",
                 "AgentToolRegistry",
                 "NativeAbilityRegistry",
+                "A2uiCatalogService",
                 "AbilitySchema",
                 "OwnerAbilityService",
                 "CommerceAbilityService",
@@ -1553,6 +1554,7 @@
                 "SupportBotService",
                 "AgentToolRegistry",
                 "NativeAbilityRegistry",
+                "A2uiCatalogService",
                 "AbilitySchema",
                 "AgentContextService",
                 "SupportTicketService",
@@ -1789,7 +1791,6 @@
         "navigation_without_get_route": [],
         "unwired_controllers": [],
         "unwired_services": [
-            "A2uiCatalogService",
             "CourierService",
             "ModelToolSet",
             "ProjectMapService",

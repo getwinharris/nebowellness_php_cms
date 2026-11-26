@@ -67,3 +67,15 @@ All eighteen existing names now use native v1 contracts: six public reads, five 
 ## External MCP published reads
 
 The scoped /mcp transport uses the native registry for the six published clinic abilities, with current module gates. It is not a third agent surface. Independent expiring/revocable bearer grants are provisioned explicitly through the authorized operator CLI; no browser cookie or provider credential authorizes MCP. See [the pinned transport contract](research/rea/contracts/mcp-read-transport.md). Legacy clients, OAuth onboarding and live authenticated client acceptance remain separate.
+
+
+## A2UI read-only result surfaces
+
+The chat endpoints optionally attach one native A2UI 1.0 literal snapshot
+from validated observed tool results. The shared PHP catalog and JavaScript
+renderer use the same bounded component vocabulary and strict tree rules.
+Only the approved role-scoped projections are shown; raw tool payloads and
+model-authored executable content are not passed to the renderer. Text
+answers remain usable without the optional script. No UI actions, dynamic
+bindings or model-negotiated rendering are implemented yet. See
+[the native catalog contract](research/rea/contracts/a2ui-native-catalog.md).

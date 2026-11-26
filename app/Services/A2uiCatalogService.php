@@ -3,7 +3,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 /**
- * Native catalog foundation for A2UI 1.0. No renderer or UI RPC is exposed yet.
+ * Native A2UI 1.0 literal snapshot subset. No renderer RPC or write actions.
  * Server ability metadata is separate from renderer functions and is not a grant.
  */
 final class A2uiCatalogService
@@ -64,7 +64,7 @@ final class A2uiCatalogService
         ];
     }
 
-    /** Local literal-only envelope; future surface lifecycle must validate the complete tree. */
+    /** Local literal-only component envelope. */
     public static function validComponent(array $component): bool
     {
         $name=$component['component']??null;
@@ -77,6 +77,88 @@ final class A2uiCatalogService
         if (!AbilitySchema::valid($component,$schema)) return false;
         $children=$component['children']??[];
         return count($children)===count(array_unique($children))&&!in_array($component['id'],$children,true);
+    }
+
+
+    /** The snapshot is an atomic, bounded tree: no orphan, duplicate, cycle or shared child. */
+    public static function validTree(array $components): bool
+    {
+        if (!array_is_list($components)||count($components)<1||count($components)>48) return false;
+        $byId=[];
+        foreach ($components as $component) {
+            if (!is_array($component)||!self::validComponent($component)||isset($byId[$component['id']])) return false;
+            $byId[$component['id']]=$component;
+        }
+        $seen=[];
+        $walk=static function(string $id,int $depth) use (&$walk,&$seen,$byId):bool {
+            if ($depth>6||isset($seen[$id])||!isset($byId[$id])) return false;
+            $seen[$id]=true;
+            foreach ($byId[$id]['children']??[] as $child) if (!$walk($child,$depth+1)) return false;
+            return true;
+        };
+        return $walk('root',0)&&count($seen)===count($byId);
+    }
+
+    /**
+     * Only fresh, successfully completed native model-call results enter here.
+     * Never pass provider-authored components, arbitrary records or restored sessions.
+     * This is a server-projected read-only snapshot, not a model-generated UI.
+     */
+    public function observedSurface(array $evidence,string $traceId): ?array
+    {
+        if (!preg_match('/^[a-f0-9]{16}$/D',$traceId)) return null;
+        $allowed=array_column($this->serverAbilities(),null,'name');
+        $sections=[];
+        foreach (['published_consultation_fees','published_programmes','search_articles','appointment_summary','therapy_enquiry_summary'] as $name) {
+            $data=$evidence[$name]??null;
+            if (!isset($allowed[$name])||!is_array($data)||!AbilitySchema::valid($data,$allowed[$name]['output_schema'])) continue;
+            $items=[];$title='';
+            switch ($name) {
+                case 'published_consultation_fees':
+                    $title='Published consultation fees (display only)';
+                    foreach (array_slice($data['fees'],0,4) as $fee) $items[]=['label'=>$fee['title'],'value'=>$fee['display_price'].' · '.$fee['duration']];
+                    $count=count($data['fees']);break;
+                case 'published_programmes':
+                    $title='Published programmes';
+                    foreach (array_slice($data['programmes'],0,4) as $programme) {
+                        $items[]=['text'=>$programme['title'].($programme['duration']!==''?' · '.$programme['duration']:'')];
+                    }
+                    $count=count($data['programmes']);break;
+                case 'search_articles':
+                    $title='Published article search';
+                    foreach (array_slice($data['articles'],0,4) as $article) $items[]=['text'=>$article['title']];
+                    $count=$data['found'];break;
+                case 'appointment_summary':
+                    $title='Historical appointments (not current bookings)';
+                    $items[]=['label'=>'Total historical appointments','value'=>(string)$data['total']];
+                    foreach ($data['by_status'] as $status=>$n) $items[]=['label'=>ucfirst($status),'value'=>(string)$n];
+                    $count=count($items);break;
+                case 'therapy_enquiry_summary':
+                    $title='Therapy requests · last '.$data['days'].' days (not confirmed appointments)';
+                    $items[]=['label'=>'Requests','value'=>(string)$data['request_count']];
+                    foreach ($data['inbox_status'] as $status=>$n) $items[]=['label'=>ucfirst($status),'value'=>(string)$n];
+                    $count=count($items);break;
+            }
+            if ($items===[]) $items[]=['text'=>'No matching published records.'];
+            elseif ($count>count($items)) $items[]=['text'=>'Showing '.count($items).' of '.$count.' records.'];
+            $sections[]=['title'=>$title,'items'=>$items];
+            if (count($sections)>=2) break;
+        }
+        if ($sections===[]) return null;
+        $components=[];$cards=[];
+        foreach ($sections as $i=>$section) {
+            $card='card_'.$i;$cards[]=$card;$children=[];
+            foreach ($section['items'] as $j=>$item) {
+                $id='item_'.$i.'_'.$j;$children[]=$id;
+                $components[]=['id'=>$id,'component'=>isset($item['label'])?'Metric':'Text']+$item;
+            }
+            $components[]=['id'=>$card,'component'=>'Card','title'=>$section['title'],'children'=>$children];
+        }
+        array_unshift($components,['id'=>'root','component'=>'Stack','direction'=>'vertical','children'=>$cards]);
+        if (!self::validTree($components)) return null;
+        return ['version'=>self::VERSION,'createSurface'=>[
+            'surfaceId'=>'records_'.$traceId,'catalogId'=>self::ID,'components'=>$components,
+        ]];
     }
 
     /** Project trusted discovery only; never let a caller choose a role or execute a function here. */

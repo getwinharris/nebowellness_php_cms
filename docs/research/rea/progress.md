@@ -19,10 +19,10 @@ Implementation coverage counts only complete scoped components with source and t
 | Service booking and landing pages | 6 / 8 | 75.0% | 2 | 0 | 2 / 8 | 25.0% |
 | Google Site Kit | 3 / 7 | 42.9% | 2 | 2 | 0 / 7 | 0.0% |
 | WordPress Abilities and MCP | 3 / 6 | 50.0% | 3 | 0 | 0 / 6 | 0.0% |
-| A2UI v1.0 | 0 / 6 | 0.0% | 3 | 3 | 0 / 6 | 0.0% |
+| A2UI v1.0 | 0 / 6 | 0.0% | 5 | 1 | 0 / 6 | 0.0% |
 | OpenAI-compatible Chat Completions | 6 / 9 | 66.7% | 2 | 1 | 0 / 9 | 0.0% |
 | DeepSeek Harness | 4 / 10 | 40.0% | 6 | 0 | 1 / 10 | 10.0% |
-| **Total** | 26 / 61 | 42.6% | 27 | 8 | 3 / 61 | 4.9% |
+| **Total** | 26 / 61 | 42.6% | 29 | 6 | 3 / 61 | 4.9% |
 
 ## Explicit exclusions
 
@@ -103,12 +103,12 @@ Catalog-constrained generative UI, native PHP/JS.
 
 | ID | Capability | Status | Acceptance / remaining work | Issues |
 |---|---|---|---|---|
-| a2ui-01 | Native structured UI baseline | partial | Approved cards/forms/navigation, safe rendering and text fallback. — Existing draft forms and navigation; not A2UI protocol. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125) |
-| a2ui-02 | Versioned component and function catalog | partial | Advertise approved components, schemas and authorized functions. — Versioned native literal-only component catalog, strict local component validation and scoped read-only server ability metadata projection. Renderer functions intentionally empty; live negotiation, surface renderer and callable events not implemented. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125), [#167](https://github.com/getwinharris/nebowellness_php_cms/issues/167) |
-| a2ui-03 | Surface lifecycle and bound data | missing | Create/update/delete surfaces and data models with schema validation. — No A2UI lifecycle transport. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
+| a2ui-01 | Native structured UI baseline | partial | Approved cards/forms/navigation, safe rendering and text fallback. — Native read-only structured cards and text fallback are wired into both actual chat endpoints; existing draft/navigation flows remain separate. Interactive form UI still outstanding. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125), [#167](https://github.com/getwinharris/nebowellness_php_cms/issues/167) |
+| a2ui-02 | Versioned component and function catalog | partial | Advertise approved components, schemas and authorized functions. — Versioned native catalog and scoped read-only metadata; shared browser renderer consumes the agreed explicit catalog ID. Negotiation and renderer functions remain unimplemented. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125), [#167](https://github.com/getwinharris/nebowellness_php_cms/issues/167) |
+| a2ui-03 | Surface lifecycle and bound data | partial | Create/update/delete surfaces and data models with schema validation. — Atomic createSurface snapshot with bounded validated component tree on both surfaces. Incremental updates, deletion messages and bound data still missing. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#167](https://github.com/getwinharris/nebowellness_php_cms/issues/167) |
 | a2ui-04 | Typed user events and function RPC | missing | Correlated agent/renderer function calls, authorized callers and explicit actions. — Existing action links are not A2UI RPC. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#134](https://github.com/getwinharris/nebowellness_php_cms/issues/134) |
-| a2ui-05 | Validation and recovery | partial | Reject unknown components/unsafe values/duplicate actions; fallback on invalid message. — Existing JS link allowlists; protocol validation absent. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
-| a2ui-06 | Responsive renderer acceptance | missing | Golden component/action fixtures and desktop/mobile both agent surfaces. — Current UI tests do not prove A2UI. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125) |
+| a2ui-05 | Validation and recovery | partial | Reject unknown components/unsafe values/duplicate actions; fallback on invalid message. — Strict PHP and JS snapshot validators, rejects malformed tree/component/function envelopes and uses text-only DOM; normal response remains when optional UI fails. Broader action/recovery lifecycle remains pending. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#167](https://github.com/getwinharris/nebowellness_php_cms/issues/167) |
+| a2ui-06 | Responsive renderer acceptance | partial | Golden component/action fixtures and desktop/mobile both agent surfaces. — Both real PHP chat templates and actual browser scripts passed six Chromium fixture scenarios (1440, 375, 390px each) for structured cards, malformed fallback, literal text and no overflow; provider-loop acceptance tested separately. Interactive components and live authenticated acceptance remain unverified. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125), [#167](https://github.com/getwinharris/nebowellness_php_cms/issues/167) |
 
 ## OpenAI-compatible Chat Completions
 
@@ -181,6 +181,7 @@ Native retrieval, execution, sessions, observability and recovery.
 
 ## Scope reviews and updates
 
+- 2026-11-26 · `167-native-a2ui-readonly-snapshot` — Both chat routes project actual successful scoped native read results into one bounded A2UI 1.0 literal createSurface snapshot, validated again by shared DOM renderer. Text remains visible; no persistence/replay, mutation, dynamic binding, negotiation or production claim. Synthetic route, adversarial renderer and six desktop/mobile Chromium fixture scenarios passed; coverage remains partial.
 - 2026-11-26 · `167-native-a2ui-catalog` — Native versioned catalog and scoped read ability metadata foundation; strict literal component validation tests. No renderer functions, protocol lifecycle, runtime negotiation or live acceptance yet; partial only.
 - 2026-11-26 · `164-standalone-cms-identity` — Rename the project-owned CLI, developer skill and all active generator/validation/workflow references to bapXcms. Record repository comparison and independent product boundary. Preserve archived source bytes, historical review entries, service payments and production data. Retail runtime retirement follows in a separate change; no coverage increase.
 - 2026-11-26 · `162-scoped-mcp-read-transport` — Add published-read-only external MCP transport and independently revocable expiring bearer grants. Modern pinned protocol subset; no legacy/OAuth/live-client acceptance claim. Existing registry owns tool schemas and execution.

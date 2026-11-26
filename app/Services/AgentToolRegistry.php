@@ -34,6 +34,11 @@ final class AgentToolRegistry implements ModelToolSet
     public function beginInferenceAttempt(): void { $this->modelResults=[]; }
     /** Request-local, bounded actual tool results; never persisted in trace metadata. */
     public function modelResults(): array { return $this->modelResults; }
+    /** Project fresh observed evidence only; no raw result or generated HTML is exposed. */
+    public function observedUi(string $traceId): ?array {
+        return (new A2uiCatalogService($this->nativeAbilities))->observedSurface($this->modelResults,$traceId);
+    }
+
 
     /**
      * Known live-fact questions need the appropriate observed evidence, not a dummy

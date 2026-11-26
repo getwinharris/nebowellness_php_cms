@@ -43,7 +43,7 @@ query_examples:
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
   concepts: 371
-  relationships: 340
+  relationships: 342
   by_type:
     blog: 5
     controller: 14
@@ -2431,6 +2431,7 @@ concepts:
       - "AgentDraftService"
       - "AgentToolRegistry"
       - "NativeAbilityRegistry"
+      - "A2uiCatalogService"
       - "AbilitySchema"
       - "OwnerAbilityService"
       - "CommerceAbilityService"
@@ -3254,6 +3255,7 @@ concepts:
       - "SupportBotService"
       - "AgentToolRegistry"
       - "NativeAbilityRegistry"
+      - "A2uiCatalogService"
       - "AbilitySchema"
       - "AgentContextService"
       - "SupportTicketService"
@@ -4353,6 +4355,9 @@ relationships:
     to: "service:TaxService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:A2uiCatalogService"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:AbilitySchema"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4642,6 +4647,9 @@ relationships:
     relation: "uses"
   - from: "controller:ReviewController"
     to: "service:ReviewService"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:A2uiCatalogService"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AbilitySchema"

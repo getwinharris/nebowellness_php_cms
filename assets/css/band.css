@@ -6982,3 +6982,21 @@ main:has(> :is(.campaign-index, .campaign-page)) { padding-block-start: 0; paddi
 .ai-probe-meta dt{color:var(--color-text-muted)}
 .ai-probe-meta dd{margin:0;font-weight:600}
 .ai-probe-result .table-responsive{max-width:100%;overflow-x:auto}
+
+/* Native A2UI read-only result cards shared by the two agent surfaces. */
+.a2ui-readonly { display:grid; gap:8px; margin-block:12px; min-width:0; overflow-wrap:anywhere; }
+.a2ui-readonly .a2ui-source { margin:0; font-size:.75rem; font-weight:600; color:inherit; opacity:.8; }
+.a2ui-stack { display:grid; gap:8px; min-width:0; }
+.a2ui-stack--horizontal { grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr)); }
+.a2ui-card { display:grid; gap:8px; min-width:0; padding:12px; border:1px solid var(--color-border,#dce3e8); border-radius:var(--radius-md,8px); }
+.a2ui-card .a2ui-card-title { margin:0; font:inherit; font-weight:650; }
+.a2ui-card .a2ui-text { margin:0; }
+.a2ui-metric { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 10px; min-width:0; }
+.a2ui-metric + .a2ui-metric { padding-top:8px; border-top:1px solid var(--color-border,#dce3e8); }
+.a2ui-metric-value { font-variant-numeric:tabular-nums; }
+/* Structured results need the conversation width rather than a short text bubble. */
+.agent-bubble:has(.a2ui-readonly) { flex:1 1 auto; max-width:100%; width:100%; }
+@media (max-width:600px) {
+    .agent-row--bot:has(.a2ui-readonly) { flex-direction:column; gap:4px; }
+    .agent-bubble:has(.a2ui-readonly) { flex:none; padding:10px 8px; }
+}
