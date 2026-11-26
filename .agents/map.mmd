@@ -791,6 +791,7 @@ flowchart LR
   controller_admincontroller --> service_cmssectionregistry
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_databaseservice
+  controller_admincontroller --> service_mediaservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_cms_pages
   route_get_admin_site_profile --> controller_admincontroller
@@ -825,6 +826,7 @@ flowchart LR
   route_post_admin_media_archive --> controller_admincontroller
   controller_admincontroller --> service_mediaservice
   controller_admincontroller --> service_auditlogservice
+  controller_admincontroller --> service_databaseservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_media
   route_post_admin_media_upload --> controller_admincontroller
@@ -904,6 +906,8 @@ flowchart LR
   route_post_remotedb --> controller_remotedbcontroller
   controller_remotedbcontroller --> service_databaseservice
   controller_remotedbcontroller --> service_secretservice
+  controller_remotedbcontroller --> service_cmspageservice
+  controller_remotedbcontroller --> service_mediaservice
   controller_remotedbcontroller -. renders .-> view_public_404
   route_get_blog --> controller_blogcontroller
   controller_blogcontroller --> service_blogservice

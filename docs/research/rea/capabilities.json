@@ -206,12 +206,13 @@
       "title": "General page/section builder",
       "status": "partial",
       "acceptance": "Reusable sections, reorder/hide, draft preview/publish without source edits.",
-      "finding": "Independent native page editor and five typed section types with ordering, hiding, saved preview, explicit publication and restore. Existing homepage conversion, navigation, dynamic service sections and shared forms remain pending. Schema readiness and confirmation-protected owner initialization keep pre-existing pages and sitemap usable before setup.",
+      "finding": "Independent native page editor and five typed section types with ordering, hiding, saved preview, explicit publication and restore. Existing homepage conversion, navigation, dynamic service sections and shared forms remain pending. Schema readiness and confirmation-protected owner initialization keep pre-existing pages and sitemap usable before setup. Actual schema read and configured setup path distinguish absence from unreadable storage. Native page save serializes with media archive.",
       "issues": [
         125,
         123,
         176,
-        178
+        178,
+        180
       ],
       "references": [
         {
@@ -239,6 +240,10 @@
         {
           "path": "views/partials/cms-page-document.php",
           "anchor": "cms-document"
+        },
+        {
+          "path": "app/Services/DatabaseService.php",
+          "anchor": "function withCmsMediaLock("
         }
       ],
       "tests": [
@@ -253,6 +258,10 @@
         {
           "path": "tests/browser/cms-pages.cjs",
           "anchor": "overflow:false,errors"
+        },
+        {
+          "path": "tests/cms-media-boundary-integration.cjs",
+          "anchor": "PASS loopback configured bridge"
         }
       ],
       "production": null
@@ -332,10 +341,11 @@
       "title": "Managed media archive/restore",
       "status": "implemented",
       "acceptance": "Protect referenced/bundled files; reversible archive of eligible upload.",
-      "finding": "PR #100 local DB/browser evidence.",
+      "finding": "Recoverable archive preserves original bytes. Native page save/publication/restore and archive serialize at serving DB; new managed references require a unique active inventory record. Legacy non-CMS writers retain reversible archive safety.",
       "issues": [
         85,
-        178
+        178,
+        180
       ],
       "references": [
         {
@@ -347,6 +357,10 @@
         {
           "path": "app/Services/MediaService.php",
           "anchor": "function setArchived("
+        },
+        {
+          "path": "app/Services/DatabaseService.php",
+          "anchor": "function withCmsMediaLock("
         }
       ],
       "tests": [
@@ -361,6 +375,10 @@
         {
           "path": "tests/cms-pages-integration.cjs",
           "anchor": "existing reference scan"
+        },
+        {
+          "path": "tests/cms-media-boundary-integration.cjs",
+          "anchor": "PASS loopback configured bridge"
         }
       ],
       "production": null
@@ -2828,6 +2846,22 @@
         "cms-08"
       ],
       "summary": "Live rollout exposed missing cms_pages schema (sitemap 503). Confirm absence using database metadata; existing sitemap and media reference scan remain usable, unknown authored pages 404; database outages still fail closed. Owner-only CSRF/confirmation-protected idempotent initialization on serving installation, no production content changes. Disposable database tests cover setup, denial, preserved records and existing references."
+    },
+    {
+      "id": "180-cms-media-boundary",
+      "date": "2026-11-27",
+      "issues": [
+        180,
+        178,
+        176,
+        125,
+        85
+      ],
+      "components": [
+        "cms-06",
+        "cms-08"
+      ],
+      "summary": "Address late review with actual schema read and exact missing-table classification, configured owner-confirmed initialization, shared serving DB lock for native page edits and reversible media archive, active managed-reference validation and real existing sitemap/reference assertions. Disposable bridge and concurrent DB integration cover read errors, setup, archival and page revision behavior. No production migration or content mutation; legacy non-CMS writers remain outside lock."
     }
   ]
 }

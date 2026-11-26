@@ -618,6 +618,7 @@
             "services": [
                 "MediaService",
                 "AuditLogService",
+                "DatabaseService",
                 "AuthService"
             ]
         },
@@ -657,6 +658,7 @@
                 "CmsSectionRegistry",
                 "AuditLogService",
                 "DatabaseService",
+                "MediaService",
                 "AuthService"
             ]
         },
@@ -1234,7 +1236,9 @@
             "view": "public/404",
             "services": [
                 "DatabaseService",
-                "SecretService"
+                "SecretService",
+                "CmsPageService",
+                "MediaService"
             ]
         },
         {

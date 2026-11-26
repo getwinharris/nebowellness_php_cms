@@ -175,22 +175,32 @@ final class MediaService {
             // An uninstalled page collection has no media references. Read failures still block archiving.
             if ($collection==='cms_pages' && !$this->store->collectionExists($collection)) continue;
             foreach ($this->store->read($collection) as $record) {
-                $this->collectReferences($references, $record, $collection, (string)($record['id'] ?? ''));
+                self::collectReferences($references, $record, $collection, (string)($record['id'] ?? ''));
             }
         }
         foreach (new \DirectoryIterator(app_path('content/blog/posts')) as $file) {
             if (!$file->isFile() || $file->getExtension() !== 'md') continue;
             $text = file_get_contents($file->getPathname());
             if ($text === false) throw new \RuntimeException('Unable to check blog image usage.');
-            $this->collectReferences($references, $text, 'blog', $file->getBasename('.md'));
+            self::collectReferences($references, $text, 'blog', $file->getBasename('.md'));
         }
 
         return $references;
     }
 
-    public function setArchived(array $ids, bool $archive): array {
-        $ids = array_values(array_unique(array_filter($ids, 'is_string')));
-        if (!$ids || count($ids) > 50) throw new \InvalidArgumentException('Select between one and 50 uploads.');
+    public static function archiveIds(array $ids): array {
+        $ids=array_values(array_unique(array_filter($ids,'is_string')));
+        if (!$ids||count($ids)>50) throw new \InvalidArgumentException('Select between one and 50 uploads.');
+        return $ids;
+    }
+
+    public function setArchived(array $ids,bool $archive): array {
+        return $this->store->archiveMedia($ids,$archive);
+    }
+
+    /** Internal serving-database operation; DatabaseService holds the CMS/media lock. */
+    public function archiveWhileLocked(array $ids, bool $archive): array {
+        $ids=self::archiveIds($ids);
         $references = $archive ? $this->references() : [];
         $changed = [];
         $blocked = 0;
@@ -203,8 +213,8 @@ final class MediaService {
                     ++$blocked;
                     continue;
                 }
-                // Keep the bytes at their original URL. An open editor or an external page
-                // may publish a reference immediately after the usage check.
+                // Keep the bytes at their original URL. Legacy non-CMS editors and
+                // external pages are outside the native CMS/media lock.
                 $this->store->upsertIfRevision('media_files', ['id'=>$id, 'archived_at'=>$archive ? date('c') : null], ResourceService::revision($record));
                 $changed[] = $id;
             } catch (\Throwable) {
@@ -214,9 +224,33 @@ final class MediaService {
         return ['changed'=>$changed, 'blocked'=>$blocked, 'failed'=>$failed];
     }
 
-    private function collectReferences(array &$references, mixed $value, string $collection, string $id): void {
+    private static function referencePaths(mixed $value): array {
+        $references=[];
+        self::collectReferences($references,$value,'cms_pages','candidate');
+        return array_keys($references);
+    }
+
+    /** Do not add a new managed reference or promote an archived draft image. */
+    public function assertCmsReferences(array $before,array $after): void {
+        $added=array_diff(self::referencePaths($after),self::referencePaths($before));
+        $published=array_diff(self::referencePaths($after['published']??null),self::referencePaths($before['published']??null));
+        $needed=array_unique(array_merge($added,$published));
+        if ($needed===[]) return;
+        $byUrl=[];
+        foreach ($this->store->read('media_files') as $row) {
+            if (self::isManagedUpload($row)) $byUrl[$row['url']][]=$row;
+        }
+        foreach ($needed as $url) {
+            $matches=$byUrl[$url]??[];
+            if (count($matches)!==1||!empty($matches[0]['archived_at'])) {
+                throw new \DomainException('A selected managed image is archived or missing from the media library. Restore or replace it before saving.');
+            }
+        }
+    }
+
+    private static function collectReferences(array &$references, mixed $value, string $collection, string $id): void {
         if (is_array($value)) {
-            foreach ($value as $child) $this->collectReferences($references, $child, $collection, $id);
+            foreach ($value as $child) self::collectReferences($references, $child, $collection, $id);
         } elseif (is_string($value)) {
             preg_match_all('~(?:^|/|\b)(assets/images/media/uploads/[0-9]{4}/[0-9]{2}/[a-z0-9-]+\.(?:png|webp|jpe?g|gif))~i', rawurldecode($value), $matches);
             foreach ($matches[1] as $path) $references['/' . $path][$collection][$id] = true;

@@ -96,7 +96,7 @@ final class RemoteDbController {
 
     private function mutate(string $action, array $input): void {
         $collection = preg_replace('/[^a-z_]/', '', (string)($input['collection'] ?? ''));
-        if ($collection === '') {
+        if ($collection === '' || $collection!==($input['collection']??null)) {
             http_response_code(422);
             echo json_encode(['error' => 'Collection is required']);
             return;
@@ -127,6 +127,22 @@ final class RemoteDbController {
                 if (!is_string($input['slug']??null)||!is_string($input['title']??null)) throw new \InvalidArgumentException('Page slug and title required.');
                 $record=$store->createCmsPage($input['slug'],$input['title']);
                 echo json_encode(['success'=>true,'record'=>$record],JSON_THROW_ON_ERROR);
+                return;
+            }
+            if ($action==='collection_status') {
+                echo json_encode(['success'=>true,'present'=>$store->collectionExists($collection)],JSON_THROW_ON_ERROR);
+                return;
+            }
+            if ($action==='cms_page_save'&&$collection==='cms_pages') {
+                if (!is_string($input['slug']??null)||!is_string($input['revision']??null)||!is_string($input['page_action']??null)||
+                    (isset($input['document'])&&!is_array($input['document']))) throw new \InvalidArgumentException('Invalid page edit.');
+                $store->saveCmsPage($input['slug'],$input['revision'],$input['page_action'],$input['document']??null);
+                echo json_encode(['success'=>true],JSON_THROW_ON_ERROR);
+                return;
+            }
+            if ($action==='media_archive'&&$collection==='media_files') {
+                if (!is_array($input['ids']??null)||!is_bool($input['archive']??null)) throw new \InvalidArgumentException('Invalid media archive.');
+                echo json_encode(['success'=>true,'summary'=>$store->archiveMedia($input['ids'],$input['archive'])],JSON_THROW_ON_ERROR);
                 return;
             }
             if ($action === 'upsert') {
