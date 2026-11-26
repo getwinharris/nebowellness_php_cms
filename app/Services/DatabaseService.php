@@ -235,6 +235,25 @@ final class DatabaseService {
         }
         return $record;
     }
+    /** Create-only immutable CMS route identity. Never replace an existing page. */
+    public function createCmsPage(string $slug,string $title): array {
+        $row=CmsPageService::newRecord($slug,$title);
+        if ($this->isTestMode()) throw new \DomainException('CMS page persistence requires a database.');
+        if ($this->isRemote()) {
+            $result=$this->remoteMutation('cms_page_create','cms_pages',['slug'=>$slug,'title'=>$row['draft']['title']]);
+            if (($result['record']['id']??null)!==$slug) throw new \RuntimeException('Page creation could not be confirmed.');
+            return CmsPageService::state($result['record']);
+        }
+        try {
+            $stmt=$this->db()->prepare('INSERT INTO cms_pages (id,_data,_created_at,_updated_at) VALUES (?,?,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)');
+            $stmt->execute([$slug,json_encode($row,JSON_THROW_ON_ERROR)]);
+        } catch (\PDOException $error) {
+            if ((string)$error->getCode()==='23000') throw new \DomainException('That page path already exists.');
+            throw $error;
+        }
+        return $row;
+    }
+
     /** Create the account and first delivery address together, including through the remote bridge. */
     public function registerCustomer(array $user, array $address): void {
         $email = trim((string)($user['email'] ?? ''));

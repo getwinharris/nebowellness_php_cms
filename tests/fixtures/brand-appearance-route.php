@@ -23,5 +23,5 @@ if($path==='/__fixture/flash'){
     unset($_SESSION['flash']);
     exit;
 }
-if(!in_array($path,['/admin/appearance','/admin/appearance/save','/admin/site-profile','/admin/site-profile/save','/contact','/manifest.json','/admin/manifest.json','/'],true)){http_response_code(404);exit;}
+if(!in_array($path,['/admin/pages','/admin/pages/save','/sitemap.xml','/admin/appearance','/admin/appearance/save','/admin/site-profile','/admin/site-profile/save','/contact','/manifest.json','/admin/manifest.json','/'],true)&&!preg_match('~^/pages/[a-z0-9-]+$~D',$path)){http_response_code(404);exit;}
 (new App\Router(require __DIR__.'/../../app/routes.php'))->dispatch($_SERVER['REQUEST_METHOD'],$_SERVER['REQUEST_URI']);

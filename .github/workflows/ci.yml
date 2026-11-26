@@ -75,3 +75,4 @@ jobs:
           node tests/brand-appearance-integration.cjs
           node tests/site-profile-integration.cjs
           node tests/site-identity-agent-integration.cjs
+          node tests/cms-pages-integration.cjs

@@ -123,6 +123,12 @@ final class RemoteDbController {
                 echo json_encode(['success'=>true]);
                 return;
             }
+            if ($action==='cms_page_create'&&$collection==='cms_pages') {
+                if (!is_string($input['slug']??null)||!is_string($input['title']??null)) throw new \InvalidArgumentException('Page slug and title required.');
+                $record=$store->createCmsPage($input['slug'],$input['title']);
+                echo json_encode(['success'=>true,'record'=>$record],JSON_THROW_ON_ERROR);
+                return;
+            }
             if ($action === 'upsert') {
                 $record = $input['record'] ?? null;
                 if (!is_array($record) || empty($record['id'])) throw new \InvalidArgumentException('Record id is required.');

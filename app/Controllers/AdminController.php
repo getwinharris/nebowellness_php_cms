@@ -477,6 +477,49 @@ final class AdminController extends BaseController {
             $question
         );
     }
+    public function cmsPages(): void {
+        $service=new \App\Services\CmsPageService();
+        $pages=[];$editor=null;$pageError='';
+        try {
+            $pages=$service->listing();
+            if (isset($_GET['slug'])) $editor=$service->editor(\App\Services\CmsPageService::slug($_GET['slug']));
+        } catch (\DomainException | \InvalidArgumentException $e) {$pageError=$e->getMessage();}
+        catch (\Throwable $e) {$pageError='Page storage is unavailable. Reload before editing.';error_log('CMS pages: '.get_class($e));}
+        header('Cache-Control: private, no-store');
+        $this->render('admin/cms-pages',['pageTitle'=>'Pages','pages'=>$pages,'editor'=>$editor,'pageError'=>$pageError]);
+    }
+
+    public function saveCmsPage(): void {
+        $target='/admin/pages';
+        try {
+            $slug=\App\Services\CmsPageService::slug($_POST['slug']??null);
+            $target.='?slug='.rawurlencode($slug);
+            $action=$_POST['page_action']??null;
+            if (!is_string($action)) throw new \InvalidArgumentException('Choose a page action.');
+            $service=new \App\Services\CmsPageService();
+            if ($action==='create') {
+                $title=\App\Services\CmsSectionRegistry::text($_POST['title']??null,120);
+                $service->create($slug,$title);
+            } else {
+                $revision=$_POST['revision']??null;
+                if (!is_string($revision)) throw new \InvalidArgumentException('Page revision required.');
+                $input=null;
+                if (in_array($action,['publish','unpublish','restore','discard'],true)) {
+                    if (($_POST['confirm']??null)!=='1') throw new \InvalidArgumentException('Confirm the page action.');
+                } else {
+                    if (!is_array($_POST['page']??null)) throw new \InvalidArgumentException('Page fields required.');
+                    $input=\App\Services\CmsPageService::formDocument($_POST['page']);
+                }
+                $service->save($slug,$revision,$action,$input);
+            }
+            $this->flash(match($action) {'publish'=>'Page published.','unpublish'=>'Page unpublished.','restore'=>'Previous publication restored.','discard'=>'Draft discarded.',default=>'Draft saved.'},'success');
+            try {(new AuditLogService())->record(explode(':',$action,2)[0],'cms-page',$slug);}
+            catch (\Throwable $e) {error_log('CMS page audit unavailable after confirmed save');}
+        } catch (\DomainException | \InvalidArgumentException $e) {$this->flash($e->getMessage(),'error');}
+        catch (\Throwable $e) {error_log('CMS page write: '.get_class($e));$this->flash('Page change could not be confirmed. Reload before trying again.','error');}
+        $this->redirect($target);
+    }
+
     public function siteProfile(): void{
         $error='';$editor=null;
         try {$editor=(new \App\Services\SiteProfileService())->editor();}
