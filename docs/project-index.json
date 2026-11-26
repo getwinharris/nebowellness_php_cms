@@ -6,7 +6,7 @@
         "routes": 125,
         "controllers": 13,
         "services": 54,
-        "views": 51,
+        "views": 52,
         "collections": 24
     },
     "routes": [
@@ -1510,6 +1510,7 @@
         "admin/therapy",
         "layouts/admin",
         "layouts/app",
+        "partials/care-icon",
         "partials/home-figures",
         "partials/therapy-products",
         "public/404",

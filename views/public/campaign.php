@@ -23,6 +23,9 @@ $overview = trim((new \App\Services\MarkdownRenderer())->render((string)($campai
       <a class="campaign-hero__back" href="/campaigns"><span aria-hidden="true">←</span> All services</a>
       <h1><?= e($campaign['title']) ?></h1>
       <?php if ($summary !== ''): ?><p class="campaign-hero__summary"><?= e($summary) ?></p><?php endif; ?>
+      <?php if (!empty($campaign['homepage_program']) && trim((string)($campaign['program_duration'] ?? '')) !== ''): ?>
+        <p class="campaign-hero__duration"><span>Program duration</span><strong><?= e((string)$campaign['program_duration']) ?></strong></p>
+      <?php endif; ?>
       <div class="campaign-hero__actions">
         <a class="btn btn-primary" href="#campaign-enquiry">Enquire about this program</a>
         <?php if ($overview !== ''): ?><a class="campaign-text-link" href="#campaign-overview">Program details <span aria-hidden="true">↓</span></a><?php endif; ?>

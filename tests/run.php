@@ -2764,6 +2764,27 @@ $tests['therapy capture confirms only a verified available future session'] = fu
     }
 };
 
+$tests['owner-managed Foundation minimum figure preserves accessible suffix and scope'] = function (): void {
+    $service = \App\Services\SettingsService::class;
+    assertSame(1000, $service::normalizeFoundationCustomersMin('1000'), 'Owner minimum is stored as a whole number');
+    assertSame(null, $service::normalizeFoundationCustomersMin(''), 'Blank hides the figure');
+    assertSame(null, $service::normalizeFoundationCustomersMin(null), 'Absent setting does not imply a customer count');
+    foreach (['0','-1','2.5','1e3','100000000','1000+',[],true] as $invalid) {
+        $rejected = false;
+        try { $service::normalizeFoundationCustomersMin($invalid); } catch (\InvalidArgumentException) { $rejected = true; }
+        assertTrue($rejected, 'Invalid historical figure rejected');
+    }
+    $homeFigures = [[1000,'Customers served','Clinic-reported figure','+','people'],[6,'Practitioners','Visible profiles','','clinician']];
+    ob_start(); require app_path('views/partials/home-figures.php'); $html = ob_get_clean();
+    assertTrue(str_contains($html, 'data-home-count="1000">1,000'), 'Animation gets numeric data without the suffix');
+    assertTrue(str_contains($html, 'class="sr-only">1,000+</span>'), 'Accessible final count includes the plus sign');
+    assertSame(2, substr_count($html, '<svg class="nebo-care-icon"'), 'Original decorative icons render');
+    assertSame(1, substr_count($html, 'class="nebo-home-figures__suffix"'), 'Only historical minimum has plus suffix');
+    assertTrue(str_contains(file_get_contents(app_path('app/Services/SettingsService.php')), 'upsertIfRevision'), 'Owner edit uses revision guard');
+    assertTrue(str_contains(file_get_contents(app_path('views/public/home.php')), 'isset($foundationCustomersMin)'), 'No fixed default historical count');
+    assertTrue(str_contains(file_get_contents(app_path('views/public/contact.php')), 'https://wa.me/917200182025'), 'Contact provides the existing confirmed clinic WhatsApp action');
+};
+
 foreach ($tests as $name => $test) {
     try {
         $test();
