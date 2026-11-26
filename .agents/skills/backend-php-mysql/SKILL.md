@@ -2,14 +2,14 @@
 name: backend-php-mysql
 description: Use when editing PHP controllers, services, hosted MySQL persistence, authentication, agent context, orders, reviews, media metadata, payments, or audit behavior.
 ---
-# PHP and MySQL Backend
+# PHP collection and remoteDB backend
 
 - Follow the root `AGENTS.md` repository contract.
-- Keep route -> controller -> service -> MySQL boundaries through `DatabaseService`; extend existing services instead of creating parallel stores.
-- Hosted MySQL is the only runtime store for admin-editable records. Local development uses direct MySQL or the configured `<APP_URL>/remotedb` fallback. Never create local product, category, consultant, order, user, setting, media-metadata, or secret copies.
+- Keep route -> controller -> service -> JSON-compatible collection boundaries through `DatabaseService`; extend existing services instead of creating parallel stores.
+- Existing hosted remoteDB is authoritative for admin-editable business records. Development uses the existing configured remoteDB endpoint; do not provision a local database engine. Never create local product, category, consultant, order, user, setting, media-metadata, or secret copies.
 - `storage/schema/collections.php` declares collection shapes. `bapXcms db init` creates tables. `db sync` is only a compatibility alias for initialization; it does not import or export JSON/YAML.
 - Blog bodies remain Markdown with YAML frontmatter in `content/blog/posts/`. Image binaries remain in `assets/images/` or writable upload storage.
-- Write new upload and usage metadata to MySQL `media_files`. Keep historical YAML and bundled assets readable and protected. Only provenance-checked managed uploads qualify for owner archiving. Preserve original URLs and allow restoration.
+- Write new upload and usage metadata to the remoteDB collection `media_files`. Keep historical YAML and bundled assets readable and protected. Only provenance-checked managed uploads qualify for owner archiving. Preserve original URLs and allow restoration.
 - Filter customer/support context through `AgentContextService`. Expose the bounded owner aggregate through a model-selected read-only tool, not an eager dump for every request. Keep personal customer data out. Do not force irrelevant tool calls for greetings, clarifications or creative work; record direct inference separately from inference using retrieved records. Enforce relevant evidence for current business claims, and never credit a previous failed provider exchange.
 - Migrate existing agent tools through the NativeAbilityRegistry and AbilitySchema contract; keep stable provider names, recheck trusted scope/module at invocation, validate output, never interpret unavailable data as empty success. Follow the native abilities audit and verify skills before exposing any new capability.
 - Keep both agent surfaces on the shared AiClient native tool harness. Consult provider documentation and use loopback protocol fixtures before changing retry or routing behavior. Count logical failed turns for model switching; record individual HTTP attempts separately. A transient Google 503 may retry the same provider request once within its deadline; do not replay executed tools or report provider success from a canned fallback.
@@ -18,11 +18,11 @@ description: Use when editing PHP controllers, services, hosted MySQL persistenc
 - Public consultation booking is retired. `ConsultationService`, `consultation_messages`, and `consultation_signals` are retained legacy code; historical appointments remain owner-accessible. Do not restore public booking, messaging, calls, or WebRTC without an explicit product change.
 - When direct MySQL is unavailable, use the collection-allowlisted `DatabaseService` protocol at lowercase `/remotedb`. Configure its credential through Admin -> Integrations/MySQL secrets. Never expose arbitrary SQL, credentials, or secret records. An empty remote password fails closed; preserve the 503 rejection.
 - Keep payment clients as small `integrations/` wrappers, source secrets through `SecretService` or system environment variables, and verify signatures before mutating orders or wallet balances.
-- Use `bapXcms read blog <slug>` and `bapXcms write blog [slug]` for blog operations. Product and other admin-editable content must be read and written through hosted MySQL-backed application flows.
+- Use `bapXcms read blog <slug>` and `bapXcms write blog [slug]` for blog operations. Business records must be read and written through the existing authorized collection flows.
 
 ## Testing
 
-Run `php -l` on every changed PHP file and then `./bapXcms test`. For storage changes, exercise the affected admin page against the remote database. Confirm transport, non-2xx, and invalid-response failures surface visibly; repeated reads are memoized within a request; and mutations invalidate cached reads.
+Run `php -l` on every changed PHP file and then `./bapXcms test`. Default CI must not provision MariaDB or another SQL server. Use disposable JSON-file fixtures and the actual remoteDB client contract. Keep historical engine-specific evidence distinct from rerun tests. For storage changes, exercise the affected admin page against the remote database. Confirm transport, non-2xx, and invalid-response failures surface visibly; repeated reads are memoized within a request; and mutations invalidate cached reads.
 
 ## Keeping this skill current
 
@@ -46,3 +46,10 @@ Update when a service boundary, remote mutation protocol, consultation product p
   labels out of the native registry and MCP projection, and test both agent
   routes against actual scoped records using the loopback provider fixture.
   See docs/research/rea/contracts/published-site-identity.md.
+
+- Storage architecture (#186): preserve private JSON/PHP-session agent state,
+  MD/YAML knowledge and blog content, and authoritative remoteDB business
+  records. The legacy durable transcript collection is a compatibility
+  boundary; do not delete or duplicate production history during a migration.
+  Explicit remote mode must refuse a self-referential endpoint. The
+  loopback contract fixture is test-only, not a production file database.

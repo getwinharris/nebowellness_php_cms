@@ -38,7 +38,7 @@ Implementation coverage = implemented count / in-scope component count × 100. P
 
 ## Engineering contract
 
-One native PHP/MySQL/JS implementation, independent of the reference repository, with no third-party plugin installation, vector store or paid orchestration runtime.
+One native PHP/JS implementation with JSON-compatible collections, existing remoteDB for persistent business records and private flat-file MD/YAML/JSON agent knowledge and blog content. No local database server, third-party plugin installation, vector store or paid orchestration runtime.
 
 1. **WordPress CMS:** adopt the native workflow concepts: one canonical site profile, authored pages and sections, draft/preview/publish, revisions and stale-write protection, media ownership, accessible filtered admin lists, permissions and system health. Reuse current services before adding new ones.
 2. **Service workflows:** a submitted form is an enquiry, not a confirmed appointment. Preserve typed field IDs, validated consent, revision checks, booking state transitions and payment verification. Only confirmed user action may mutate records.

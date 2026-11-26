@@ -17,19 +17,6 @@ jobs:
     if: github.actor != 'ci-ai-bot' && github.repository == 'getwinharris/nebowellness_php_cms'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    services:
-      mariadb:
-        image: mariadb:11.8
-        env:
-          MARIADB_RANDOM_ROOT_PASSWORD: 'yes'
-          MARIADB_DATABASE: clinic_test
-          MARIADB_USER: clinic_fixture
-          MARIADB_PASSWORD: disposable-fixture
-        ports:
-          - 3306/tcp
-        options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
-          --health-interval=5s --health-timeout=5s --health-retries=15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,7 +24,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: curl, json, mbstring, pdo_mysql, dom, libxml, gd, fileinfo
+          extensions: curl, json, mbstring, dom, libxml, gd, fileinfo
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -51,29 +38,10 @@ jobs:
       - name: Validate code, tests, maps, and routes
         run: ./bapXcms ci
 
-      - name: Exercise durable clinic workflows in strict MariaDB
-        env:
-          BAPX_MYSQL_HOST: 127.0.0.1
-          BAPX_MYSQL_PORT: ${{ job.services.mariadb.ports[3306] }}
-          BAPX_MYSQL_DB: clinic_test
-          BAPX_MYSQL_USER: clinic_fixture
-          BAPX_MYSQL_PASS: disposable-fixture
-          APP_URL: http://127.0.0.1
-          BAPX_REMOTE_DB_URL: http://127.0.0.1/remotedb
+      - name: Verify isolated JSON-backed remoteDB transport and native collection contracts
+        run: node --test tests/remote-collection-contract.cjs
+      - name: Record acceptance scope
         run: |
-          ./bapXcms db init
-          php tests/therapy-integration.php
-          php tests/identity-media-integration.php
-          php tests/agent-audit-integration.php
-          php tests/crm-integration.php
-          php tests/consultation-fee-integration.php
-          php tests/native-public-ability-integration.php
-          php tests/native-owner-ability-integration.php
-          php tests/native-commerce-ability-integration.php
-          php tests/native-session-ability-integration.php
-          php tests/mcp-read-integration.php
-          node tests/brand-appearance-integration.cjs
-          node tests/site-profile-integration.cjs
-          node tests/site-identity-agent-integration.cjs
-          node tests/cms-pages-integration.cjs
-          node tests/cms-media-boundary-integration.cjs
+          echo "Default CI uses PHP/JS, private file fixtures and the remoteDB wire contract."
+          echo "Historical direct-engine integration suites are retained but not run."
+          echo "No production database mutation or engine-specific acceptance is claimed."

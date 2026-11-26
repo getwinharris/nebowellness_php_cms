@@ -8,6 +8,7 @@ $envValue = static function (string $key, string $default = '') use ($fileEnv): 
 $appUrl = rtrim($envValue('APP_URL', 'https://www.nebowellness.com'), '/');
 return [
     'app_url' => $appUrl,
+    'mode' => $envValue('BAPX_DB_MODE', 'auto'),
     'host' => $envValue('BAPX_MYSQL_HOST'),
     'port' => $envValue('BAPX_MYSQL_PORT', '3306'),
     'dbname' => $envValue('BAPX_MYSQL_DB'),

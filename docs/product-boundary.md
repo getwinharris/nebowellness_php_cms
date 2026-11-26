@@ -47,7 +47,7 @@ and official REA references are historical source evidence only.
   layouts, theme tokens and workflows. Preview diffs, validate schemas,
   require current revision and confirmation, record receipts/audit, and
   support rollback. Never execute AI-generated PHP/JS or arbitrary SQL.
-- Native PHP/MySQL/vanilla JS, shared hosting, isolated customer installs.
+- Native PHP/vanilla JS, existing remoteDB JSON-compatible collection contract, shared hosting and isolated customer installs.
   Installer/provisioning follows verified native core. No paid runtime
   dependency, mandatory external orchestrator, vector database or vendor
   runtime. Existing customer appearance and service behavior are protected.
@@ -86,3 +86,24 @@ is deployment-specific; unconfigured independent installations remain
 neutral. Existing appearance and phone/WhatsApp contracts remain in place.
 General page content, navigation ordering, policies, form builder and
 installation packaging are separate acceptance work.
+
+## Storage and verification boundary (#186)
+
+The existing remoteDB API owns all business records, including users, CMS,
+CRM, settings and media metadata. Preserve the serving backend; do not
+provision another database engine or copy production records into local
+fixtures. Explicit BAPX_DB_MODE=remote bypasses the local SQL connection
+probe and rejects a self-referential endpoint. JSON row envelopes must
+decode as real records. Blogs use Markdown/YAML; agent instructions and
+active state use private MD/YAML/JSON files and PHP sessions. The historic
+durable agent transcript archive still uses remoteDB and requires a
+separately reviewed preservation/migration contract.
+
+Default CI uses PHP and JS, file fixtures and the existing client exercised
+against a disposable loopback remoteDB contract. Historical direct-engine
+integration suites remain in the repository and retain their earlier
+evidence but are not rerun by this gate. This is a deliberate test
+architecture change, not proof that the fixture reproduces server-side
+SQL locks, payment processing or every business operation. Extend the
+contract coverage issue by issue; use an authorized isolated endpoint for
+serving-side acceptance. Never substitute a production customer record.
