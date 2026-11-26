@@ -9,12 +9,12 @@ test('Markdown date gate uses site midnight, preserves hidden edits, and fails c
  try {
  const r=php([
   '$b=new App\\Services\\BlogService($argv[1]);$class=App\\Services\\BlogService::class;',
-  '$b->save(["slug"=>"future","title"=>"Future --- article","content"=>"PRIVATE_SCHEDULED_FIXTURE","published_at"=>"2999-01-01","published"=>true]);',
-  '$b->save(["slug"=>"hidden","title"=>"Hidden article","content"=>"PRIVATE_HIDDEN_FIXTURE","published"=>false,"published_at"=>"2020-01-01"]);',
-  '$b->save(["slug"=>"hidden","title"=>"Edited hidden","content"=>"PRIVATE_HIDDEN_FIXTURE"]);',
-  '$b->save(["slug"=>"public","title"=>"Visible fixture article","content"=>"VISIBLE_FIXTURE","published_at"=>"2020-01-01","published"=>true]);',
+  '$b->save(["slug"=>"future","title"=>"Future --- article","content"=>"PRIVATE_SCHEDULED_FIXTURE","published_at"=>"2999-01-01","published"=>true],"new");',
+  '$b->save(["slug"=>"hidden","title"=>"Hidden article","content"=>"PRIVATE_HIDDEN_FIXTURE","published"=>false,"published_at"=>"2020-01-01"],"new");',
+  '$b->save(["slug"=>"hidden","title"=>"Edited hidden","content"=>"PRIVATE_HIDDEN_FIXTURE"],$b->find("hidden")["_revision"]);',
+  '$b->save(["slug"=>"public","title"=>"Visible fixture article","content"=>"VISIBLE_FIXTURE","published_at"=>"2020-01-01","published"=>true],"new");',
   'file_put_contents($argv[1]."/invalid.md","---\\nslug: invalid\\npublished: true\\npublished_at: 2026-02-30\\n---\\nPRIVATE_INVALID_FIXTURE");',
-  '$before=file_get_contents($argv[1]."/hidden.md");$rejected=false;try{$b->save(["slug"=>"hidden","published_at"=>"2026-02-30","content"=>"changed"]);}catch(InvalidArgumentException){$rejected=true;}',
+  '$before=file_get_contents($argv[1]."/hidden.md");$rejected=false;try{$b->save(["slug"=>"hidden","published_at"=>"2026-02-30","content"=>"changed"],$b->find("hidden")["_revision"]);}catch(InvalidArgumentException){$rejected=true;}',
   '$boundary=["published"=>true,"published_at"=>"2026-11-27"];',
   '$states=[$class::publicationState($boundary,new DateTimeImmutable("2026-11-26T18:29:59Z")),$class::publicationState($boundary,new DateTimeImmutable("2026-11-26T18:30:00Z"))];',
   '$search=(new App\\Services\\ClinicKnowledgeService(blog:$b))->searchArticles("fixture article");',

@@ -125,11 +125,12 @@
       "title": "Content revisions and restore",
       "status": "partial",
       "acceptance": "Revision history, restore and stale-edit rejection for blog/pages.",
-      "finding": "Native page draft/published/previous-publication lifecycle and locked revision compare added; full history and blog revision history remain absent.",
+      "finding": "Native CMS page previous-publication restore plus Markdown exact-byte revision snapshots, stale-write rejection, owner content comparison and confirmed restore preserving current publication controls. Native blog/doc/image CLI and AI draft forms share guarded save. Full page history, deleted article recovery and hosted acceptance remain incomplete.",
       "issues": [
         125,
         140,
-        176
+        176,
+        195
       ],
       "references": [
         {
@@ -149,12 +150,32 @@
         {
           "path": "app/Services/CmsPageService.php",
           "anchor": "function transition("
+        },
+        {
+          "path": "app/Services/BlogRevisionStore.php",
+          "anchor": "public function snapshot("
+        },
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "public function restore("
         }
       ],
       "tests": [
         {
           "path": "tests/cms-pages.test.cjs",
           "anchor": "native page lifecycle preserves stable identity"
+        },
+        {
+          "path": "tests/blog-revision.test.cjs",
+          "anchor": "Markdown revisions use exact source hashes"
+        },
+        {
+          "path": "tests/blog-revision.test.cjs",
+          "anchor": "actual owner blog routes enforce"
+        },
+        {
+          "path": "tests/browser/blog-revisions.cjs",
+          "anchor": "overflow:false"
         }
       ],
       "production": null
@@ -163,12 +184,13 @@
       "id": "cms-04",
       "track": "cms",
       "title": "Autosave and edit locking",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Recover draft and protect concurrent editing.",
-      "finding": "No verified general autosave or edit lease.",
+      "finding": "Markdown native writer operations serialize and reject stale revisions under a cooperative lock; editor and agent draft form submit explicit revisions. Autosave recovery and editor leases remain missing.",
       "issues": [
         125,
-        140
+        140,
+        195
       ],
       "references": [
         {
@@ -176,8 +198,22 @@
           "locator": "wp-includes/revision.php"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/BlogRevisionStore.php",
+          "anchor": "public function locked("
+        },
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "private function checkedSource("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/blog-revision.test.cjs",
+          "anchor": "Markdown revisions use exact source hashes"
+        }
+      ],
       "production": null
     },
     {
@@ -3000,6 +3036,20 @@
         "cms-05"
       ],
       "summary": "Source-pinned WordPress future publication checks reconstructed as read-time Markdown eligibility, admin and CLI reports, hidden flag preservation, validated atomic saves, private raw source routes, and no scheduled newsletter dispatch. Isolated date boundary/public route/agent article tests. General durable scheduler and timed CMS page publication remain partial; no database engine, production content mutation or completion promotion."
+    },
+    {
+      "id": "195-markdown-revision-history",
+      "date": "2026-11-27",
+      "issues": [
+        195,
+        125,
+        140
+      ],
+      "components": [
+        "cms-03",
+        "cms-04"
+      ],
+      "summary": "Verified pinned WordPress revision and post editor members; native Markdown exact-byte history in private directory, cooperative lock, revision-checked create/edit/toggle/delete, explicit content comparison and restore retaining current visibility/date/category/type. Guard native CLI writers and agent hidden create-only drafts. Isolated concurrent and actual route tests plus three responsive view fixtures passed. No database engine or production content changes; autosave, deleted-content recovery, full CMS page history and hosted acceptance remain separate."
     }
   ]
 }

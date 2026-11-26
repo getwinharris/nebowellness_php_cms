@@ -132,6 +132,14 @@
         csrf.type = 'hidden'; csrf.name = '_csrf';
         csrf.value = csrfToken;
         form.appendChild(csrf);
+        if (draft.kind === 'blog' && draft.action === '/admin/blog/save') {
+            // The model creates a new draft only. It cannot overwrite a live slug
+            // or grant itself a revision token for an existing article.
+            for (const [name,value] of [['revision','new'],['published','false']]) {
+                const hidden=document.createElement('input');
+                hidden.type='hidden'; hidden.name=name; hidden.value=value; form.appendChild(hidden);
+            }
+        }
 
         (draft.fields || []).forEach(function (field) {
             const row = document.createElement('label');
@@ -164,7 +172,7 @@
         const save = document.createElement('button');
         save.type = 'submit';
         save.className = 'btn btn-primary btn-sm';
-        save.textContent = draft.kind === 'blog' ? 'Save blog post' : 'Save product';
+        save.textContent = draft.kind === 'blog' ? 'Save hidden draft' : 'Save product';
         actions.appendChild(save);
         form.appendChild(actions);
 

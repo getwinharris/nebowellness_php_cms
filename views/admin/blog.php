@@ -6,6 +6,7 @@
 <form method="post" action="/admin/blog/save" id="blog-form" class="admin-blog-editor" hidden>
     <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
     <input type="hidden" id="edit-slug" value="">
+    <input type="hidden" name="revision" id="edit-revision" value="new">
     <input type="hidden" name="type" id="edit-type" value="blog">
     <div class="admin-blog-editor__grid">
         <label>Title <button type="button" class="btn btn-sm btn-outline be-enhance-inline" id="enhance-title">Enhance</button> <input type="text" name="title" id="edit-title" required style="width:100%"></label>
@@ -126,6 +127,36 @@
 <?php if (isset($publicationReport)): ?>
 <p class="be-hint" role="status">Editorial publication eligibility (<?= e($publicationReport['timezone']) ?>): <?= (int)$publicationReport['counts']['visible'] ?> visible · <?= (int)$publicationReport['counts']['scheduled'] ?> scheduled · <?= (int)$publicationReport['counts']['hidden'] ?> hidden · <?= (int)$publicationReport['counts']['invalid'] ?> invalid. <?= $publicationReport['next_date'] ? 'Next due: '.e($publicationReport['next_date']) : 'No scheduled posts.' ?></p>
 <?php endif; ?>
+<?php if (!empty($historySlug)): ?>
+<section class="admin-card" aria-label="Article revision history">
+    <h2>Revision history: <?= e($historySlug) ?></h2>
+    <p>Previous Markdown versions are private. Restore changes article content, not its publication date, visibility, category or type. No subscriber email is sent.</p>
+    <?php if (!empty($historyError)): ?><p role="alert"><?= e($historyError) ?></p><?php elseif (!$history): ?><p>No previous revisions recorded.</p><?php else:
+    $current=null;foreach ($posts as $candidate) if($candidate['slug']===$historySlug){$current=$candidate;break;}
+    foreach($history as $revision): ?>
+    <div class="blog-revision-row">
+        <div><strong><?= e($revision['saved_at']) ?></strong><br><small><?= e(substr($revision['revision'],0,12)) ?> · <?= (int)$revision['bytes'] ?> bytes</small></div>
+        <a class="btn btn-outline" href="/admin/blog?history=<?= e(rawurlencode($historySlug)) ?>&amp;version=<?= e($revision['revision']) ?>">Compare version</a>
+    </div>
+    <?php endforeach; endif; ?>
+    <?php if (!empty($historyPreview)&&!empty($current)): ?>
+        <h3>Review selected revision</h3>
+        <div class="blog-revision-compare">
+            <section><h4>Current: <?= e((string)($current['title']??'')) ?></h4><pre><?= e(mb_substr((string)$current['content'],0,12000)) ?></pre></section>
+            <section><h4>Previous: <?= e($historyPreview['title']) ?></h4><pre><?= e(mb_substr($historyPreview['content'],0,12000)) ?></pre></section>
+        </div>
+        <?php if(mb_strlen((string)$current['content'])>12000||mb_strlen($historyPreview['content'])>12000): ?><p>Preview truncated to 12,000 characters per version. Restore uses the complete saved version.</p><?php endif; ?>
+        <form method="post" action="/admin/blog/restore" class="cms-editor-form">
+            <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
+            <input type="hidden" name="slug" value="<?= e($historySlug) ?>">
+            <input type="hidden" name="revision" value="<?= e($current['_revision']) ?>">
+            <input type="hidden" name="restore_revision" value="<?= e($historyPreview['revision']) ?>">
+            <label><input type="checkbox" name="confirm" value="1" required> Restore this version while keeping current publication settings</label>
+            <button class="btn btn-outline" type="submit">Restore content</button>
+        </form>
+    <?php endif; ?>
+</section>
+<?php endif; ?>
 <div class="table-wrap" style="background:var(--color-white);border-radius:var(--radius-md);border:1px solid var(--color-border)">
 <table>
     <thead><tr><th>Title</th><th>Category</th><th>Published</th><th>Date</th><th></th></tr></thead>
@@ -137,11 +168,13 @@
         <td><?= e(ucfirst(\App\Services\BlogService::publicationState($post))) ?></td>
         <td><?= e($post['published_at'] ?? '') ?></td>
         <td>
+            <a class="btn btn-sm btn-ghost" href="/admin/blog?history=<?= e(rawurlencode($post['slug'])) ?>">Revisions</a>
             <button class="btn btn-sm btn-ghost" onclick="editPost(<?= e(json_encode($post)) ?>)">Edit</button>
             <?php $__live = !empty($post['published']); ?>
             <form method="post" action="/admin/blog/toggle" style="display:inline">
                 <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
                 <input type="hidden" name="slug" value="<?= e($post['slug'] ?? '') ?>">
+                <input type="hidden" name="revision" value="<?= e($post['_revision'] ?? '') ?>">
                 <button class="btn btn-sm btn-ghost" title="<?= $__live ? 'Hide from the site' : 'Publish to the site' ?>"
                         aria-label="<?= $__live ? 'Hide post' : 'Publish post' ?>">
                     <?php if ($__live): ?>
@@ -154,6 +187,7 @@
             <form method="post" action="/admin/blog/delete" style="display:inline" onsubmit="return confirm('Delete this post?')">
                 <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
                 <input type="hidden" name="slug" value="<?= e($post['slug'] ?? '') ?>">
+                <input type="hidden" name="revision" value="<?= e($post['_revision'] ?? '') ?>">
                 <button class="btn btn-sm btn-ghost" style="color:var(--color-error)">Delete</button>
             </form>
         </td>
@@ -165,13 +199,14 @@
 
 <script>
 function toggleForm(){var f=document.getElementById('blog-form');f.hidden=!f.hidden;if(f.hidden){f.reset();document.getElementById('edit-slug-display').readOnly=false;if(window.beLoadMarkdown)window.beLoadMarkdown('');}}
-function editPost(post){document.getElementById('edit-slug').value=post.slug||'';document.getElementById('edit-slug-display').value=post.slug||'';document.getElementById('edit-slug-display').readOnly=true;document.getElementById('edit-type').value=post.type||'blog';document.getElementById('edit-title').value=post.title||'';document.getElementById('edit-category').value=post.category||'';document.getElementById('edit-template').value=post.template||'editorial';document.getElementById('edit-image').value=post.og_image||post.image||'';document.getElementById('edit-image-alt').value=post.image_alt||'';document.getElementById('edit-source-url').value=post.source_url||'';document.getElementById('edit-summary').value=post.summary||post.excerpt||'';document.getElementById('edit-order').value=post.order||'';document.getElementById('edit-excerpt').value=post.excerpt||'';document.getElementById('edit-date').value=post.published_at||'';document.getElementById('edit-published').value=post.published===true?'true':'false';document.getElementById('edit-author').value=post.author||'Admin';document.getElementById('edit-content').value=post.content||'';if(window.beLoadMarkdown)window.beLoadMarkdown(post.content||'');document.getElementById('blog-form').hidden=false;document.getElementById('blog-form').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('edit-title').focus();}
+function editPost(post){document.getElementById('edit-revision').value=post._revision||'';document.getElementById('edit-slug').value=post.slug||'';document.getElementById('edit-slug-display').value=post.slug||'';document.getElementById('edit-slug-display').readOnly=true;document.getElementById('edit-type').value=post.type||'blog';document.getElementById('edit-title').value=post.title||'';document.getElementById('edit-category').value=post.category||'';document.getElementById('edit-template').value=post.template||'editorial';document.getElementById('edit-image').value=post.og_image||post.image||'';document.getElementById('edit-image-alt').value=post.image_alt||'';document.getElementById('edit-source-url').value=post.source_url||'';document.getElementById('edit-summary').value=post.summary||post.excerpt||'';document.getElementById('edit-order').value=post.order||'';document.getElementById('edit-excerpt').value=post.excerpt||'';document.getElementById('edit-date').value=post.published_at||'';document.getElementById('edit-published').value=post.published===true?'true':'false';document.getElementById('edit-author').value=post.author||'Admin';document.getElementById('edit-content').value=post.content||'';if(window.beLoadMarkdown)window.beLoadMarkdown(post.content||'');document.getElementById('blog-form').hidden=false;document.getElementById('blog-form').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('edit-title').focus();}
 document.getElementById('edit-title').addEventListener('input',function(){if(document.getElementById('edit-slug').value&&document.getElementById('edit-slug-display').readOnly)return;var slug=this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');document.getElementById('edit-slug').value=slug;document.getElementById('edit-slug-display').value=slug;});
 function previewArticle(){var f=document.getElementById('blog-form');var fd=new FormData(f);fetch('/admin/blog/preview',{method:'POST',body:fd}).then(function(r){return r.text();}).then(function(html){var w=window.open('','_blank');w.document.write(html);w.document.close();});}
 
 </script>
 
 <style>
+.blog-revision-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-border);overflow-wrap:anywhere}.blog-revision-row form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.blog-revision-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.blog-revision-compare section{min-width:0}.blog-revision-compare pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:24rem;overflow:auto;border:1px solid var(--color-border);padding:12px;border-radius:8px}@media(max-width:720px){.blog-revision-compare{grid-template-columns:minmax(0,1fr)}}
 .be-settings{margin:0 0 14px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-white)}
 .be-settings>summary{padding:10px 14px;cursor:pointer;font-weight:600;font-size:.88rem;list-style:none;display:flex;align-items:center;gap:8px}
 .be-settings>summary::-webkit-details-marker{display:none}

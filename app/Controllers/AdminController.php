@@ -3,7 +3,7 @@ namespace App\Controllers;
 use App\Services\{AgentConversation,AuditLogService,MailQueueService,AuthService,BlogDraftService,CampaignPageService,ConsultationService,EnvService,MailStorageService,MarkdownRenderer,MediaService,OrderService,ResourceService,SchemaService,SecretService,SettingsService,StoragePermissionService};
 final class AdminController extends BaseController {
     protected string $layout = 'admin';
-    public function __construct() {
+    public function __construct(private ?\App\Services\BlogService $blogFixture=null) {
         (new AuthService())->requireAdmin();
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->isApiRequest = in_array(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), ['/admin/agent/ask','/admin/blog/ai-draft','/admin/blog/enhance-title','/admin/blog/enhance-content'], true);
@@ -149,7 +149,8 @@ final class AdminController extends BaseController {
     public function saveCampaign(): void{
         $this->requireModule('campaigns');
         $title = trim((string)($_POST['title'] ?? ''));
-        $slug = trim((string)($_POST['slug'] ?? ''));
+        $this->requireModule('blog');
+        $slug = is_string($_POST['slug']??null)?trim($_POST['slug']):'';
         if ($slug === '') $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $title) ?? '', '-'));
         if ($title === '' || !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $slug)) {
             $this->campaignSaveError('Enter a title and a URL slug using lowercase letters, numbers, and hyphens.');
@@ -819,13 +820,22 @@ final class AdminController extends BaseController {
     }
     public function blog(): void{
         $this->requireModule('blog');
-        $blog = new \App\Services\BlogService();
+        $blog = ($this->blogFixture??new \App\Services\BlogService());
+        $history=[];$historySlug='';$historyError='';$historyPreview=null;
+        if (is_string($_GET['history']??null)&&\App\Services\BlogService::validSlug($_GET['history'])) {
+            $historySlug=$_GET['history'];
+            try {$history=$blog->revisions($historySlug);
+                if(is_string($_GET['version']??null))$historyPreview=$blog->revisionPreview($historySlug,$_GET['version']);
+            }
+            catch (\Throwable) {$historyError='Article revision storage unavailable.';}
+        }
         // The editor's "Choose from uploads" picker needs the library, otherwise it
         // renders empty and the only way to set an image is to type a path.
         $this->render('admin/blog',[
             'pageTitle'=>'Blog','title'=>'Blog Posts',
             'posts'=>$blog->all(true),'categories'=>$blog->categories(),
             'publicationReport'=>$blog->publicationReport(),
+            'history'=>$history,'historySlug'=>$historySlug,'historyError'=>$historyError,'historyPreview'=>$historyPreview,
             'mediaFiles'=>(new MediaService())->all('blog'),
             'currentAuthor'=>$this->currentAuthorName(),
         ]);
@@ -843,17 +853,24 @@ final class AdminController extends BaseController {
     }
 
     public function saveBlog(): void{
-        $blog = new \App\Services\BlogService();
+        $blog = ($this->blogFixture??new \App\Services\BlogService());
         $slug = trim((string)($_POST['slug'] ?? ''));
         // Only a post that did not exist before triggers the newsletter, so editing an
         // article never re-mails everyone who already received it.
-        $isNew = $slug === '' || $blog->find($slug) === null;
+        $revision=$_POST['revision']??null;
+        if(!is_string($revision)||($revision!=='new'&&!\App\Services\BlogRevisionStore::hashValid($revision))) {
+            $this->flash('Reload the article before saving.','error');$this->redirect('/admin/blog');
+        }
 
         // The date and the author are facts the site already knows, so it should not be
         // asking for them. Left blank they were saved blank, which is why a new post
         // showed no date and sorted to the bottom of the list. Both stay editable for
         // the case where a post is backdated or written by someone else.
         $post = $_POST;
+        foreach (['slug','title','published_at','author','content'] as $field) if (isset($post[$field])&&!is_string($post[$field])) {
+            $this->flash('Invalid article form.','error');$this->redirect('/admin/blog');
+        }
+        $post['slug']=$slug;
         if (trim((string)($post['published_at'] ?? '')) === '') {
             $existing = $slug !== '' ? $blog->find($slug) : null;
             $post['published_at'] = (string)($existing['published_at'] ?? '') ?: date('Y-m-d');
@@ -862,12 +879,12 @@ final class AdminController extends BaseController {
             $post['author'] = $this->currentAuthorName();
         }
         $post['updated_at'] = date('Y-m-d');
-        try { $saved=$blog->save($post); }
-        catch (\InvalidArgumentException $error) { $this->flash($error->getMessage(),'error'); $this->redirect('/admin/blog'); }
+        try { $saved=$blog->save($post,$revision); }
+        catch (\DomainException | \InvalidArgumentException $error) { $this->flash($error->getMessage(),'error'); $this->redirect('/admin/blog'); }
         catch (\Throwable $error) { $this->flash('Article save failed. No successful publication was recorded.','error'); $this->redirect('/admin/blog'); }
         (new AuditLogService())->record('save','blog',$saved['slug']);
         $sent = 0;
-        if ($isNew && module_on('blog') && $blog->isPublic($saved) && ($_POST['notify_subscribers'] ?? '') === '1') {
+        if ($saved['_created'] && module_on('blog') && $blog->isPublic($saved) && ($_POST['notify_subscribers'] ?? '') === '1') {
             $sent = $this->sendBlogNewsletter(array_merge($post,$saved));
         }
         $this->flash($sent > 0 ? "Blog post saved. Newsletter sent to {$sent} subscriber(s)." : 'Blog post saved: '.\App\Services\BlogService::publicationState($saved).'.','success');
@@ -891,24 +908,42 @@ final class AdminController extends BaseController {
     }
     /** Flip a post between published and hidden without opening the editor. */
     public function toggleBlog(): void{
-        $slug = trim((string)($_POST['slug'] ?? ''));
-        $blog = new \App\Services\BlogService();
-        $post = $slug !== '' ? $blog->find($slug) : null;
-        if (!$post) { $this->flash('Post not found.','error'); $this->redirect('/admin/blog'); }
-        $post['published'] = empty($post['published']);
-        try { $saved=$blog->save($post); } catch (\Throwable $error) { $this->flash('Publication could not be changed. Check article metadata.','error'); $this->redirect('/admin/blog'); }
-        (new AuditLogService())->record('save','blog.published',$slug,['published'=>$post['published']]);
-        $this->flash('Publication state: '.\App\Services\BlogService::publicationState($saved).'.','success');
+        $this->requireModule('blog');
+        $slug=is_string($_POST['slug']??null)?$_POST['slug']:'';
+        try {
+            $revision=$_POST['revision']??null;
+            if(!is_string($revision))throw new \InvalidArgumentException('Reload the article before saving.');
+            $saved=($this->blogFixture??new \App\Services\BlogService())->toggle($slug,$revision);
+            (new AuditLogService())->record('save','blog.published',$slug,['published'=>$saved['published']]);
+            $this->flash('Publication state: '.\App\Services\BlogService::publicationState($saved).'.','success');
+        }catch(\DomainException | \InvalidArgumentException $error){$this->flash($error->getMessage(),'error');}
+        catch(\Throwable){$this->flash('Publication could not be changed. Check article storage.','error');}
         $this->redirect('/admin/blog');
     }
     public function deleteBlog(): void{
-        $slug = (string)($_POST['slug'] ?? '');
-        if ($slug !== '') {
-            (new \App\Services\BlogService())->delete($slug);
+        $this->requireModule('blog');
+        $slug=is_string($_POST['slug']??null)?$_POST['slug']:'';
+        try{
+            $revision=$_POST['revision']??null;
+            if(!is_string($revision))throw new \InvalidArgumentException('Reload the article before deleting.');
+            ($this->blogFixture??new \App\Services\BlogService())->delete($slug,$revision);
             (new AuditLogService())->record('delete','blog',$slug);
-        }
-        $this->flash('Blog post deleted.','info');
+            $this->flash('Blog post deleted; previous Markdown retained privately.','success');
+        }catch(\DomainException | \InvalidArgumentException $error){$this->flash($error->getMessage(),'error');}
+        catch(\Throwable){$this->flash('Article deletion could not be confirmed.','error');}
         $this->redirect('/admin/blog');
+    }
+    public function restoreBlog(): void{
+        $this->requireModule('blog');
+        $slug=is_string($_POST['slug']??null)?$_POST['slug']:'';
+        try{
+            if(($_POST['confirm']??null)!=='1'||!is_string($_POST['revision']??null)||!is_string($_POST['restore_revision']??null))throw new \InvalidArgumentException('Confirm the selected revision restore.');
+            ($this->blogFixture??new \App\Services\BlogService())->restore($slug,$_POST['restore_revision'],$_POST['revision']);
+            (new AuditLogService())->record('restore','blog',$slug,['revision'=>$_POST['restore_revision']]);
+            $this->flash('Article content restored. Publication settings are unchanged.','success');
+        }catch(\DomainException | \InvalidArgumentException $error){$this->flash($error->getMessage(),'error');}
+        catch(\Throwable){$this->flash('Revision restore could not be confirmed.','error');}
+        $this->redirect('/admin/blog?history='.rawurlencode($slug));
     }
     public function previewBlog(): void{
         $this->layout = 'app';

@@ -40,6 +40,7 @@ final class BlogController extends BaseController
             return;
         }
 
+        unset($post['_revision']);
         $content = $post['html'] ?? '';
 
         $title = $post['seo_title'] ?? $post['title'] ?? ucfirst(str_replace('-', ' ', $slug));

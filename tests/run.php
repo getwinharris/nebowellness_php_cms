@@ -1435,6 +1435,9 @@ $tests['the admin agent attaches documents and drafts into a form it cannot save
 
     $draft = (new \App\Services\AgentDraftService())->draft('create-blog', '');
     assertSame('/admin/blog/save', $draft['action'], 'A draft posts to the existing save route');
+    $agentForm=file_get_contents(app_path('assets/admin-agent.js'));
+    assertTrue(str_contains($agentForm,"['revision','new']")&&str_contains($agentForm,"['published','false']"),'Agent blog forms must create hidden new drafts only');
+
     assertTrue(count($draft['fields']) > 0, 'A draft lists the fields a save needs');
     $names = array_column($draft['fields'], 'name');
     foreach (['title', 'slug', 'category', 'content'] as $needed) {

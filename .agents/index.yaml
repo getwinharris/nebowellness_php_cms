@@ -42,16 +42,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 361
-  relationships: 312
+  concepts: 364
+  relationships: 314
   by_type:
     blog: 5
     controller: 14
-    doc: 54
+    doc: 55
     image: 40
-    route: 115
+    route: 116
     schema: 27
-    service: 74
+    service: 75
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -484,6 +484,14 @@ concepts:
     resource: "docs/research/rea/contracts/markdown-publication.md"
     tags: []
     filename: "markdown-publication.md"
+    header_image: ""
+  - id: "doc:markdown-revisions"
+    type: "doc"
+    title: "markdown-revisions"
+    description: ""
+    resource: "docs/research/rea/contracts/markdown-revisions.md"
+    tags: []
+    filename: "markdown-revisions.md"
     header_image: ""
   - id: "doc:mcp-read-transport"
     type: "doc"
@@ -1493,6 +1501,7 @@ concepts:
     controller: "AdminController@blog"
     services:
       - "BlogService"
+      - "BlogRevisionStore"
       - "AuthService"
     view: "admin/blog"
   - id: "route:get__admin_campaigns"
@@ -2418,6 +2427,7 @@ concepts:
     controller: "AdminController@deleteBlog"
     services:
       - "BlogService"
+      - "BlogRevisionStore"
       - "AuditLogService"
       - "AuthService"
     view: "admin/blog"
@@ -2468,7 +2478,25 @@ concepts:
     controller: "AdminController@previewBlog"
     services:
       - "BlogService"
+      - "BlogRevisionStore"
       - "MarkdownRenderer"
+      - "AuthService"
+    view: "admin/blog"
+  - id: "route:post__admin_blog_restore"
+    type: "route"
+    title: "POST /admin/blog/restore"
+    description: "admin.blog.restore"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/admin/blog/restore"
+    controller: "AdminController@restoreBlog"
+    services:
+      - "BlogService"
+      - "BlogRevisionStore"
+      - "AuditLogService"
       - "AuthService"
     view: "admin/blog"
   - id: "route:post__admin_blog_save"
@@ -2484,6 +2512,7 @@ concepts:
     controller: "AdminController@saveBlog"
     services:
       - "BlogService"
+      - "BlogRevisionStore"
       - "AuditLogService"
       - "AuthService"
     view: "admin/blog"
@@ -2500,6 +2529,7 @@ concepts:
     controller: "AdminController@toggleBlog"
     services:
       - "BlogService"
+      - "BlogRevisionStore"
       - "AuditLogService"
       - "AuthService"
     view: "admin/blog"
@@ -3446,6 +3476,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:BlogRevisionStore"
+    type: "service"
+    title: "BlogRevisionStore"
+    description: "Service: BlogRevisionStore"
+    resource: "app/Services/BlogRevisionStore.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:BlogService"
     type: "service"
     title: "BlogService"
@@ -4191,6 +4229,9 @@ relationships:
     to: "service:BlogDraftService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:BlogRevisionStore"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:BlogService"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4731,6 +4772,9 @@ relationships:
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_blog_preview"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:post__admin_blog_restore"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_blog_save"

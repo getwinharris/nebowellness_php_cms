@@ -104,3 +104,10 @@ Update when an admin route, sidebar group, or CRUD form contract changes. The si
   not an automatic report on GET. Use the configured public origin and
   approved general public pages, preserve separate lab/page/origin metric
   scope, show stale/access/quota/unavailable honestly and never expose keys.
+
+- Blog authoring uses exact Markdown SHA-256 revision tokens (or new for
+  create-only), a private cooperative write lock and immutable previous
+  snapshots. Keep restore owner-confirmed and retain current publication
+  controls. Native CLI and agent draft forms use the same save contract;
+  agent drafts are hidden until separately published. See
+  docs/research/rea/contracts/markdown-revisions.md.
