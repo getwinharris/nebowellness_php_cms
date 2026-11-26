@@ -2797,6 +2797,16 @@ $tests['shared motion is scoped and never hides required page content'] = functi
     assertTrue(str_contains($admin,'admin-submenu-entered')&&str_contains($admin,'submenu.hidden = !expanded'),'Admin expansion stays semantically immediate');
 };
 
+$tests['editorial scroll choreography preserves content and owner headings'] = function (): void {
+    $layout = file_get_contents(app_path('views/layouts/app.php'));
+    assertTrue(str_contains($layout,'Developed With ♥️ by <a href="https://mediahub.bapx.in/"'), 'Exact footer attribution');
+    $css = file_get_contents(app_path('assets/css/band.css'));
+    foreach (['nebo-media-unveil','nebo-media-depth','animation-timeline: view(block)','nebo-rule-draw','prefers-reduced-motion: no-preference','nebo-profile-settle'] as $needle) assertTrue(str_contains($css,$needle),'Motion contract '.$needle);
+    $script = file_get_contents(app_path('assets/site-motion.js'));
+    foreach (["body.querySelectorAll('h2')","link.textContent = heading.textContent.trim()","link.href = '#' + heading.id","outline.hidden = false","slice(0, 12)"] as $needle) assertTrue(str_contains($script,$needle),'Outline uses bounded published headings: '.$needle);
+    assertTrue(str_contains(file_get_contents(app_path('views/public/campaign.php')), 'data-program-outline'), 'Programme outline is progressive enhancement');
+};
+
 foreach ($tests as $name => $test) {
     try {
         $test();

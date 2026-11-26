@@ -217,7 +217,7 @@ Shape should stay consistent within a component family -- don't mix `sm` and `lg
 - **Value-proposition cards outside the homepage editorial chapters:** 4-column desktop / 2 tablet / 1 mobile, white card, warm icon circle, `accent-italic` heading, muted body, `4px` hover lift into `shadow-lg`.
 - **Footer:** charcoal gray (`#2f3437`) field with white headings and links, soft white
   body text, direct clinic contact details, and verified Instagram, Facebook, and
-  YouTube links. The credit links to `https://mediahub.bapx.in/`. Avoid duplicate
+  YouTube links. The credit reads “Developed With ♥️ by @bapxmediahub” and links to `https://mediahub.bapx.in/`. Avoid duplicate
   navigation and retired devotional routes.
 - **Mail:** transactional email uses the full clinic name, cool-gray surfaces, white
   type on blue or charcoal headers, an 8px blue action, and “Owner notification” for
@@ -469,3 +469,10 @@ Use the illustrative veranda as a wide backdrop on desktop and carry it behind t
 - Extend the native homepage chapter observer for individual proof figures, pillars, focus cards, workplace galleries and resource links. Keep the existing reversible statement and practitioner selection. Do not add scroll hijacking, automatic rail playback or an external animation runtime.
 - Public internal pages use one bounded intersection observer on semantic headings, media and selected editorial cards. Entries remain readable before observation; apply short individual translate/opacity entrance only after intersection. The authenticated workspace uses much shorter, smaller movement, never animating values, input controls or table rows.
 - Primary menu uses consistent labelled line icons, a left slide with staggered entry, a distinct mobile secondary/return panel and the existing native dialog focus/close contract. Admin group openings and mobile sidebar have a brief entrance; hidden and expanded semantics change immediately. No motion under reduced motion or while focus is within animated content.
+
+
+### Reference-driven scroll choreography
+- Use the saved SHA evidence ledger in [docs/sha-motion-comparison.md](docs/sha-motion-comparison.md) for effect selection, not source copying. Timed arrival is distinct from scroll-driven progress.
+- On supported browsers, use native view timelines for reversible image masks on programme/journal/stories/workplace/resource media and exit-linked depth on already-visible Contact/About/programme hero images; the outer frame, labels, buttons, and text do not clip or move. On photo-overlay cards use focal depth rather than a mask, so their contrast layer stays intact. Never mask real practitioner faces or data.
+- Keep a single semantic statement with a reversible boundary and a bounded hero hold. Do not add a 300% pinned location sequence for a single clinic, autoplay galleries, or vendor scroll wrappers.
+- Programme detail contents use owner-authored section headings for native jump links; omit for sparse content. Reduced motion disables visual effects, not the outline. Preserve admin editable text, forms and existing destinations.

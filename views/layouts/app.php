@@ -331,7 +331,7 @@ if ($__flash):
                 <a href="/terms">Terms</a>
                 <a href="/privacy">Privacy</a>
             </div>
-            <span>Developed by <a href="https://mediahub.bapx.in/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></span>
+            <span>Developed With ♥️ by <a href="https://mediahub.bapx.in/" target="_blank" rel="noopener noreferrer">@bapxmediahub</a></span>
         </div>
     </div>
 </footer>

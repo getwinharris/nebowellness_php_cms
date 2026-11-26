@@ -6675,3 +6675,120 @@ main:has(> :is(.campaign-index, .campaign-page)) { padding-block-start: 0; paddi
 @media print {
     .site-motion-entered, .admin-main .site-motion-entered { animation: none !important; translate: none !important; opacity: 1 !important; }
 }
+
+/* REA reference comparison: section-level media choreography.
+   Media effects use the actual viewport position, not a timed substitute.
+   Text, captions, controls and layout boxes remain stationary and readable. */
+.campaign-outline[hidden] { display: none; }
+.campaign-outline:not([hidden]) { display: block; }
+.campaign-outline {
+    padding-block: 22px;
+    border-block-end: 1px solid var(--brand-rule);
+}
+.campaign-outline__label { margin: 0 0 9px; color: var(--color-text-muted); font-size: .78rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.campaign-outline__links {
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 4px 20px; list-style: none; padding: 0; margin: 0;
+}
+.campaign-outline__links li { min-width: 0; }
+.campaign-outline__links a {
+    display: inline-flex; align-items: center; min-height: 44px;
+    color: var(--brand-deep-blue); font-weight: 500; font-size: .88rem;
+    text-decoration: underline; text-decoration-color: transparent; text-underline-offset: .35em;
+    overflow-wrap: anywhere;
+}
+.campaign-outline__links a:is(:hover, :focus-visible, [aria-current]) { text-decoration-color: currentColor; }
+.campaign-outline__links a[aria-current] { font-weight: 650; }
+.campaign-page__body > h2[tabindex="-1"]:focus-visible { outline: 2px solid var(--brand-focus); outline-offset: 4px; }
+@media(max-width: 743px) {
+    .campaign-outline { padding-inline: 20px; }
+    .campaign-outline__links { flex-wrap: nowrap; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; padding: 2px 3px 6px; }
+    .campaign-outline__links li { flex: 0 0 auto; max-width: 80vw; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .campaign-outline__links a { transition: text-decoration-color .2s ease, color .2s ease; }
+    .team-enhanced .is-rail-current .team-slide__media :is(img, .team-slide__initials) {
+        animation: nebo-profile-settle .48s cubic-bezier(.22,1,.36,1) backwards;
+    }
+    .team-enhanced .is-rail-current .team-slide__media:focus-visible :is(img,.team-slide__initials) { animation: none; }
+    .team-detail .team-slide__body.is-team-current > :is(h3, p) {
+        animation: nebo-profile-copy .38s cubic-bezier(.22,1,.36,1) backwards;
+    }
+    .team-detail .team-slide__body.is-team-current > p:nth-of-type(2) { animation-delay: 45ms; }
+    .team-detail .team-slide__body.is-team-current:focus-within > * { animation: none; }
+}
+@keyframes nebo-profile-settle { from { scale: .96; opacity: .85; } to { scale: 1; opacity: 1; } }
+@keyframes nebo-profile-copy { from { translate: 0 8px; opacity: .8; } to { translate: 0 0; opacity: 1; } }
+@supports (animation-timeline: view()) and (clip-path: inset(0)) {
+    @media screen and (prefers-reduced-motion: no-preference) {
+        /* The programme and journal card frames already clip their media. */
+        .motion-ready :is(.nebo-about-photo, .contact-intro__image, .campaign-hero__media, .nebo-practice-gallery__images > figure) {
+            overflow: clip;
+        }
+        .motion-ready :is(.nebo-testimonials__art, .nebo-resource-split__media,
+            .nebo-practice-gallery__images > figure, .nebo-about-photo, .contact-intro__image,
+            .campaign-hero__media, .blog-post__featured, .blog-card__media,
+            .therapy-product__media) { view-timeline-name: --nebo-media-entry; }
+        .motion-ready :is(.nebo-testimonials__art, .nebo-resource-split__media,
+            .nebo-practice-gallery__images > figure, .nebo-about-photo, .contact-intro__image,
+            .campaign-hero__media, .blog-post__featured, .blog-card__media,
+            .therapy-product__media) > img:not([hidden]) {
+            animation: nebo-media-unveil linear both;
+            animation-timeline: --nebo-media-entry;
+            animation-range: entry 0% entry 95%;
+        }
+        /* Internal hero images are usually already in the first viewport. Keep
+           their whole composition on arrival; settle into depth as they leave. */
+        .motion-ready :is(.nebo-about-photo, .contact-intro__image, .campaign-hero__media) > img:not([hidden]):not([aria-hidden="true"]) {
+            animation-name: nebo-internal-hero-drift;
+            animation-range: exit 0% exit 95%;
+        }
+        /* The horizontal rails must use a vertical page-section timeline, not their
+           own horizontal overflow scrollport. */
+        .motion-ready :is([data-nebo-chapter="programs"], .therapy-products) {
+            view-timeline-name: --nebo-rail-media-entry;
+        }
+        .motion-ready [data-nebo-chapter="programs"] .program-slide__media > img,
+        .motion-ready .therapy-products .therapy-product__media > img:not([hidden]) {
+            animation: nebo-media-unveil linear both;
+            animation-timeline: --nebo-rail-media-entry;
+            animation-range: entry 0% entry 85%;
+        }
+        /* Do not clip text-overlay artwork: move the image under its fixed contrast layer. */
+        .motion-ready .nebo-care-mosaic__card--photo { overflow: clip; }
+        .motion-ready .nebo-care-mosaic__card--photo > img {
+            animation: nebo-media-depth linear both;
+            animation-timeline: view(block);
+            animation-range: cover 0% cover 90%;
+        }
+        .motion-ready .nebo-care-mosaic__card--photo:hover > img { transform: scale(1.018); }
+        .motion-ready .nebo-care-mosaic__card--photo > img { transition: transform .5s ease-out; }
+        .motion-ready .therapy-feature > img:not([hidden]) {
+            animation: nebo-media-unveil-flat linear both;
+            animation-timeline: view(block);
+            animation-range: entry 0% entry 95%;
+        }
+        /* Reveal rules from left to right. Parent timeline keeps them attached to the actual section. */
+        .motion-ready :is(.home-rail-heading > div:first-child, [data-nebo-chapter="stories"] .section-header,
+          [data-nebo-chapter="focus"] .section-header, .nebo-resource-split__copy,
+          .nebo-about-intro__copy, .contact-intro__copy, .blog-editorial__header,
+          .campaign-index__intro) { view-timeline-name: --nebo-rule-entry; }
+        .motion-ready :is(.home-rail-heading > div:first-child, [data-nebo-chapter="stories"] .section-header,
+          [data-nebo-chapter="focus"] .section-header, .nebo-resource-split__copy,
+          .nebo-about-intro__copy, .contact-intro__copy, .blog-editorial__header,
+          .campaign-index__intro)::before {
+            content: ""; display: block; width: 48px; height: 1px; margin-block-end: 14px;
+            background: currentColor; opacity: .58; transform-origin: left;
+            animation: nebo-rule-draw linear both; animation-timeline: --nebo-rule-entry;
+            animation-range: entry 0% entry 65%;
+        }
+        .stack-keyboard-flow :is(img, .section-header, .home-rail-heading) { animation: none !important; }
+        .stack-keyboard-flow :is(.section-header, .home-rail-heading > div:first-child, .nebo-resource-split__copy)::before { animation: none !important; }
+    }
+}
+@keyframes nebo-media-unveil { from { clip-path: inset(24% 0 0 0); scale: 1.055; } to { clip-path: inset(0); scale: 1; } }
+@keyframes nebo-internal-hero-drift { from { scale: 1; } to { scale: 1.065; } }
+@keyframes nebo-media-unveil-flat { from { clip-path: inset(22% 0 0 0); } to { clip-path: inset(0); } }
+@keyframes nebo-media-depth { from { scale: 1.09; } to { scale: 1; } }
+@keyframes nebo-rule-draw { from { scale: .08 1; } to { scale: 1 1; } }
+@media print { .campaign-outline { display: none !important; } }
