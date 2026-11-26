@@ -4,10 +4,9 @@ use App\Services\MarkdownRenderer;
 final class BlogService {
     private string $postsDir;
     private string $categoriesFile;
-    public function __construct() {
-        $this->postsDir = app_path('content/blog/posts');
+    public function __construct(?string $postsDir=null) {
+        $this->postsDir = $postsDir??app_path('content/blog/posts');
         $this->categoriesFile = app_path('content/blog/categories.yaml');
-        if (!is_dir($this->postsDir)) mkdir($this->postsDir, 0775, true);
     }
     /** Categories that disappear with their module, so their posts disappear too. */
     private const MODULE_CATEGORIES = [
@@ -19,14 +18,24 @@ final class BlogService {
      *
      * A post whose category belongs to a switched-off module is withheld from the site.
      */
-    public function all(bool $all = false): array {
+    public function all(bool $all = false,?array $modules=null): array {
+        $strict=$modules!==null;
+        if ($strict&&(!is_dir($this->postsDir)||!is_readable($this->postsDir)||is_link($this->postsDir))) throw new \RuntimeException('Article source unavailable.');
+        if ($strict&&!$all&&empty($modules['blog'])) return [];
+        $files=glob($this->postsDir.'/*.md');
+        if ($strict&&($files===false||count($files)>500)) throw new \RuntimeException('Article inventory unavailable or exceeds budget.');
         $posts = [];
-        foreach (glob($this->postsDir . '/*.md') ?: [] as $file) {
+        foreach ($files ?: [] as $file) {
+            if ($strict&&(is_link($file)||!is_file($file)||!is_readable($file)||filesize($file)>524288)) throw new \RuntimeException('Article source unavailable or exceeds budget.');
             $post = $this->parseFile($file);
-            if (!$post) continue;
+            if (!$post) {
+                if ($strict) throw new \RuntimeException('Article source unavailable.');
+                continue;
+            }
             if (!$all) {
                 if (empty($post['published'])) continue;
-                if ($this->categoryIsDisabled((string)($post['category'] ?? ''))) continue;
+                if ($this->categoryIsDisabled((string)($post['category'] ?? ''),$modules)) continue;
+                if ($strict&&(!is_string($post['slug']??null)||$post['slug']!==pathinfo($file,PATHINFO_FILENAME))) throw new \RuntimeException('Article slug does not resolve to its source.');
             }
             $posts[] = $post;
         }
@@ -34,11 +43,11 @@ final class BlogService {
         return $posts;
     }
 
-    public function categoryIsDisabled(string $category): bool {
+    public function categoryIsDisabled(string $category,?array $modules=null): bool {
         $category = strtolower(trim($category));
         if ($category === '') return false;
         foreach (self::MODULE_CATEGORIES as $module => $categories) {
-            if (in_array($category, $categories, true) && !module_on($module)) return true;
+            if (in_array($category, $categories, true) && !($modules===null?module_on($module):!empty($modules[$module]))) return true;
         }
         return false;
     }
@@ -53,6 +62,7 @@ final class BlogService {
         return $this->parseYamlList($yaml);
     }
     public function save(array $data): array {
+        if (!is_dir($this->postsDir)&&!mkdir($this->postsDir,0775,true)&&!is_dir($this->postsDir)) throw new \RuntimeException('Article storage unavailable.');
         $slug = $data['slug'] ?? '';
         if ($slug === '') $slug = $this->slugify($data['title'] ?? 'untitled');
         $content = $data['content'] ?? '';

@@ -983,12 +983,13 @@
       "title": "Native ability catalogue",
       "status": "partial",
       "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
-      "finding": "Four of 18 existing internal tools migrated to typed native catalogue: published fees, practitioners, programmes and exact detail. Validated output, safe missing/unavailable, read-only state and module recheck; remaining legacy catalogue and external execution incomplete.",
+      "finding": "Six of 18 internal tools migrated: typed published fee/practitioner/programme/detail and public search capabilities. Strict article/module filtering and explicit source failure; remaining legacy tools and external execution incomplete.",
       "issues": [
         121,
         128,
         148,
-        150
+        150,
+        154
       ],
       "references": [
         {
@@ -1020,6 +1021,14 @@
         {
           "path": "app/Services/ClinicKnowledgeService.php",
           "anchor": "function programmeDetail("
+        },
+        {
+          "path": "app/Services/ClinicKnowledgeService.php",
+          "anchor": "function searchArticles("
+        },
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "function all(bool $all = false,?array $modules=null)"
         }
       ],
       "tests": [
@@ -1038,6 +1047,14 @@
         {
           "path": "tests/native-public-ability-integration.php",
           "anchor": "Stale discovered ability rechecks actual module"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "public search contracts distinguish an empty result"
+        },
+        {
+          "path": "tests/native-public-ability-integration.php",
+          "anchor": "Published knowledge search has a typed result"
         }
       ],
       "production": null
@@ -1127,11 +1144,12 @@
       "title": "Execution and output validation",
       "status": "partial",
       "acceptance": "Recheck permission and schema on invocation, bound results and structured errors.",
-      "finding": "Four of 18 existing internal tools migrated to typed native catalogue: published fees, practitioners, programmes and exact detail. Validated output, safe missing/unavailable, read-only state and module recheck; remaining legacy catalogue and external execution incomplete.",
+      "finding": "Six of 18 internal tools migrated: typed published fee/practitioner/programme/detail and public search capabilities. Strict article/module filtering and explicit source failure; remaining legacy tools and external execution incomplete.",
       "issues": [
         128,
         148,
-        150
+        150,
+        154
       ],
       "references": [
         {
@@ -1159,6 +1177,14 @@
         {
           "path": "app/Services/ClinicKnowledgeService.php",
           "anchor": "function programmeDetail("
+        },
+        {
+          "path": "app/Services/ClinicKnowledgeService.php",
+          "anchor": "function searchArticles("
+        },
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "function all(bool $all = false,?array $modules=null)"
         }
       ],
       "tests": [
@@ -1177,6 +1203,14 @@
         {
           "path": "tests/native-public-ability-integration.php",
           "anchor": "Stale discovered ability rechecks actual module"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "public search contracts distinguish an empty result"
+        },
+        {
+          "path": "tests/native-public-ability-integration.php",
+          "anchor": "Published knowledge search has a typed result"
         }
       ],
       "production": null
@@ -1749,10 +1783,11 @@
       "title": "Business knowledge retrieval",
       "status": "partial",
       "acceptance": "Current published/actor-scoped records, provenance and fresh follow-ups.",
-      "finding": "Lexical search and scoped tools; multilingual/relevance coverage incomplete.",
+      "finding": "Typed public lexical search with bounded Unicode terms, canonical source links, explicit missing-source errors and strict module filtering; broader owned/owner knowledge and durable retrieval evaluation remain partial.",
       "issues": [
+        123,
         128,
-        123
+        154
       ],
       "references": [
         {
@@ -1768,9 +1803,26 @@
         {
           "path": "app/Services/AgentToolRegistry.php",
           "anchor": "function modelResults("
+        },
+        {
+          "path": "app/Services/ClinicKnowledgeService.php",
+          "anchor": "function searchArticles("
+        },
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "function all(bool $all = false,?array $modules=null)"
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "public search contracts distinguish an empty result"
+        },
+        {
+          "path": "tests/native-public-ability-integration.php",
+          "anchor": "Published knowledge search has a typed result"
+        }
+      ],
       "production": null
     },
     {
@@ -2196,6 +2248,20 @@
       ],
       "components": [],
       "summary": "Developer-only map/index relocation, canonical generator and CLI output/validation paths, native REA skill discovery, retired duplicate task/objective commands and public path denial. No business-agent tools, runtime data, tracked capability scope or implementation status changed."
+    },
+    {
+      "id": "154-typed-knowledge-search",
+      "date": "2026-11-26",
+      "issues": [
+        154,
+        128
+      ],
+      "components": [
+        "mcp-01",
+        "mcp-05",
+        "harness-02"
+      ],
+      "summary": "Migrated both public lexical retrieval abilities using pinned REA domain/validation contracts. Stable typed output and Unicode ranking, strict blog filtering, absent/unreadable data fails closed and no directory creation on read. Red/green fixture and isolated DB test coverage; six of 18 migrated, wider catalogue/knowledge and external transport remain partial."
     }
   ]
 }

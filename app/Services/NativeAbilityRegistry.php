@@ -76,6 +76,23 @@ final class NativeAbilityRegistry
                 self::object($programme+['body'=>self::string(12000)]),
                 ['slug'=>self::string(120,1)+['pattern'=>'^[a-z0-9]+(?:-[a-z0-9]+)*$']],'campaigns'
             ),
+            'search_clinic_knowledge'=>self::definition(
+                'Search published fees, visible practitioners, programme passages and published articles. Returns ranked excerpts and real source URLs.',
+                self::object(['matches'=>self::listOf(self::object([
+                    'source_type'=>self::string(30,1)+['enum'=>['consultation_fee','practitioner','programme','article']],
+                    'title'=>self::string(200,1),'url'=>self::string(160,1)+['pattern'=>'^/(?:#team|contact#consultation-fees|(?:campaigns|blog)/[a-z0-9]+(?:-[a-z0-9]+)*)$'],
+                    'score'=>['type'=>'integer','minimum'=>1,'maximum'=>208],'excerpt'=>self::string(1800),
+                ]),5),'method'=>self::string(60,1)+['const'=>'lexical title and passage matching'],'scope'=>self::string(50,1)+['const'=>'Published clinic records only']]),
+                ['query'=>self::string(500,1)+['pattern'=>'\S']]
+            ),
+            'search_articles'=>self::definition(
+                'Search published blog and help articles by keyword. Returns titles and paths.',
+                self::object(['found'=>['type'=>'integer','minimum'=>0,'maximum'=>500],
+                    'articles'=>self::listOf(self::object(['title'=>self::string(200,1),
+                        'path'=>self::string(126,1)+['pattern'=>'^/blog/[a-z0-9]+(?:-[a-z0-9]+)*$'],
+                        'category'=>self::string(120),'score'=>['type'=>'integer','minimum'=>1,'maximum'=>120]]),5)]),
+                ['query'=>self::string(500,1)+['pattern'=>'\S']],'blog'
+            ),
         ];
     }
 
@@ -126,6 +143,8 @@ final class NativeAbilityRegistry
                 'published_practitioners'=>['practitioners'=>(new ClinicKnowledgeService($this->store))->practitioners()],
                 'published_programmes'=>['programmes'=>(new ClinicKnowledgeService($this->store))->programmes()],
                 'published_programme_detail'=>(new ClinicKnowledgeService($this->store))->programmeDetail($args['slug']),
+                'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
+                'search_articles'=>(new ClinicKnowledgeService($this->store))->searchArticles($args['query']),
                 default=>throw new \LogicException('Unmapped native ability.'),
             };
             if ($result===null) return self::error('ability_not_found','Published programme not found.');

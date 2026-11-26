@@ -56,8 +56,8 @@ test('published clinic abilities use the native catalogue and recheck scoped inv
    'compatible'=>$tools->completionDeclarations(),
  ]);
  `);
- assert.deepEqual(data.names,['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail']);
- assert.deepEqual(data.disabled,['published_consultation_fees','published_practitioners']);
+ assert.deepEqual(data.names,['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge']);
+ assert.deepEqual(data.disabled,['published_consultation_fees','published_practitioners','search_clinic_knowledge']);
  assert.equal(data.invalid.code,'ability_invalid_input');
  assert.equal(data.trace.steps[0].outcome,'error');
  assert.equal(data.missing.code,'ability_not_found');
@@ -69,4 +69,43 @@ test('published clinic abilities use the native catalogue and recheck scoped inv
  const compatible=data.compatible.find(t=>t.function.name==='published_programme_detail');
  assert.equal(compatible.function.parameters.additionalProperties,false);
  assert.deepEqual(compatible.function.parameters.required,['slug']);
+});
+test('public search contracts distinguish an empty result from unavailable knowledge and reject invalid input',()=>{
+ const data=php(String.raw`
+ $r=new App\Services\NativeAbilityRegistry(new App\Services\DatabaseService(),'support',['shop'=>false,'blog'=>true,'campaigns'=>false]);
+ $disabled=new App\Services\NativeAbilityRegistry(new App\Services\DatabaseService(),'support',['shop'=>false,'blog'=>false,'campaigns'=>false]);
+ echo json_encode([
+  'names'=>array_column($r->discover(),'name'),
+  'empty'=>$r->invoke('search_articles',['query'=>'no-such-fixture-8dec9f']),
+  'unavailable'=>$r->invoke('search_clinic_knowledge',['query'=>'consultation']),
+  'invalid'=>$r->invoke('search_clinic_knowledge',['query'=>[]]),
+  'blank'=>$r->invoke('search_articles',['query'=>'   ']),
+  'disabled'=>$disabled->invoke('search_articles',['query'=>'clinic']),
+ ]);
+ `);
+ assert.ok(data.names.includes('search_clinic_knowledge')&&data.names.includes('search_articles'));
+ assert.deepEqual(data.empty,{found:0,articles:[]});
+ assert.equal(data.unavailable.code,'ability_unavailable');
+ assert.equal(data.invalid.code,'ability_invalid_input');
+ assert.equal(data.blank.code,'ability_invalid_input');
+ assert.equal(data.disabled.code,'ability_not_available');
+});
+
+test('strict article scan is read only, filters draft and disabled categories and rejects unreadable or aliased sources',()=>{
+ const fs=require('node:fs'),os=require('node:os');
+ const tmp=fs.mkdtempSync(path.join(os.tmpdir(),'nebo-article-fixture-'));
+ try {
+  const write=(name,published,category,title)=>fs.writeFileSync(path.join(tmp,name+'.md'),'---\ntitle: '+title+'\nslug: '+name+'\ncategory: '+category+'\npublished: '+published+'\nsummary: தமிழ் wellness\n---\n\nPublic fixture body');
+  write('visible',true,'wellness','தமிழ் wellness');
+  write('draft',false,'wellness','Draft private');
+  write('shop-only',true,'products','Hidden module');
+  const p=JSON.stringify(tmp);
+  const result=php('$blog=new App\\Services\\BlogService('+p+'); $m=["blog"=>true,"shop"=>false]; echo json_encode(["slugs"=>array_column($blog->all(false,$m),"slug"),"disabled"=>$blog->all(false,["blog"=>false]),"missing"=>is_dir('+JSON.stringify(tmp+'/absent')+')]);');
+  assert.deepEqual(result.slugs,['visible']);assert.deepEqual(result.disabled,[]);
+  const unknown=php('$p='+JSON.stringify(tmp+'/absent')+'; $b=new App\\Services\\BlogService($p);$failed=false;try{$b->all(false,["blog"=>true]);}catch(Throwable){$failed=true;}echo json_encode(["failed"=>$failed,"created"=>is_dir($p)]);');
+  assert.deepEqual(unknown,{failed:true,created:false});
+  fs.symlinkSync(path.join(tmp,'visible.md'),path.join(tmp,'aliased.md'));
+  const unsafe=php('$b=new App\\Services\\BlogService('+p+'); $failed=false;try{$b->all(false,["blog"=>true]);}catch(Throwable){$failed=true;}echo json_encode($failed);');
+  assert.equal(unsafe,true);
+ }finally{fs.rmSync(tmp,{recursive:true,force:true});}
 });

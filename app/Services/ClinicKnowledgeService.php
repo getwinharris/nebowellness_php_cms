@@ -4,7 +4,7 @@ namespace App\Services;
 
 /** Read-only, public records only; no owner operations or customer identities. */
 final class ClinicKnowledgeService {
-    public function __construct(private DatabaseService $store = new DatabaseService()) {}
+    public function __construct(private DatabaseService $store = new DatabaseService(),private ?BlogService $blog=null) {}
     private static function publicText(mixed $value,int $max,bool $required=false): string {
         if ($value===null&&!$required) return '';
         if (!is_string($value)||!mb_check_encoding($value,'UTF-8')||mb_strlen($value)>$max||
@@ -67,21 +67,60 @@ final class ClinicKnowledgeService {
                     $row['registration_number']!==''?'Registration number: '.$row['registration_number']:'']))];
         }
         if (!empty($modules['campaigns'])) foreach (array_slice((new CampaignPageService($this->store))->published(),0,80) as $row) {
-            if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',(string)$row['slug'])) continue;
-            $documents[]=['type'=>'programme','title'=>(string)$row['title'],'url'=>'/campaigns/'.$row['slug'],
-                'text'=>implode("\n",[(string)($row['summary']??''),(string)($row['program_duration']??''),(string)($row['body']??'')])];
+            $slug=self::publicText($row['slug']??null,120,true);
+            if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$slug)) throw new \DomainException('Invalid programme slug.');
+            $body=$row['body']??'';
+            if (!is_string($body)||!mb_check_encoding($body,'UTF-8')) throw new \DomainException('Invalid programme body.');
+            $documents[]=['type'=>'programme','title'=>self::publicText($row['title']??null,200,true),'url'=>'/campaigns/'.$slug,
+                'text'=>implode("\n",[self::publicText($row['summary']??null,6000),self::publicText($row['program_duration']??null,80),mb_substr($body,0,16000)])];
         }
-        if (!empty($modules['blog'])) foreach (array_slice((new BlogService())->all(false),0,80) as $row) {
-            if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',(string)($row['slug']??''))) continue;
-            $documents[]=['type'=>'article','title'=>(string)($row['title']??''),'url'=>'/blog/'.$row['slug'],
-                'text'=>(string)($row['summary']??$row['excerpt']??'')."\n".(string)($row['content']??'')];
+        if (!empty($modules['blog'])) foreach (array_slice(($this->blog??new BlogService())->all(false,$modules),0,80) as $row) {
+            $article=self::article($row);
+            $body=$row['content']??'';
+            if (!is_string($body)||!mb_check_encoding($body,'UTF-8')) throw new \DomainException('Invalid article body.');
+            $documents[]=['type'=>'article','title'=>$article['title'],'url'=>$article['path'],
+                'text'=>self::publicText($row['summary']??$row['excerpt']??null,6000)."\n".mb_substr($body,0,16000)];
         }
         return ['matches'=>self::rank($query,$documents),'method'=>'lexical title and passage matching','scope'=>'Published clinic records only'];
     }
 
+    private static function article(array $row): array {
+        $slug=self::publicText($row['slug']??null,120,true);
+        if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$slug)) throw new \DomainException('Invalid published article slug.');
+        return ['title'=>self::publicText($row['title']??null,200,true),'path'=>'/blog/'.$slug,
+            'category'=>self::publicText($row['category']??null,120)];
+    }
+
+    public function searchArticles(string $query): array {
+        $modules=(new SettingsService($this->store))->strictModules();
+        if (empty($modules['blog'])) throw new \DomainException('Blog unavailable.');
+        $words=self::words($query,2);
+        $scored=[];
+        foreach (($this->blog??new BlogService())->all(false,$modules) as $row) {
+            $article=self::article($row);
+            $title=mb_strtolower($article['title']);
+            $summary=mb_strtolower(self::publicText($row['excerpt']??$row['summary']??null,6000));
+            $score=0;
+            foreach ($words as $word) {
+                if (str_contains($title,$word)) $score+=2;
+                if (str_contains($summary,$word)) $score++;
+            }
+            if ($score>0) $scored[]=$article+['score'=>$score];
+        }
+        usort($scored,static fn(array $a,array $b):int=>($b['score']<=>$a['score'])?:strcmp($a['path'],$b['path']));
+        return ['found'=>count($scored),'articles'=>array_slice($scored,0,5)];
+    }
+
+    private static function words(string $query,int $minimum=3): array {
+        return array_slice(array_values(array_unique(array_filter(
+            preg_split('/[^\p{L}\p{N}\p{M}]+/u',mb_strtolower(trim($query)))?:[],
+            static fn(string $word):bool=>mb_strlen($word)>=$minimum&&!in_array($word,['the','what','which','who','where','when','how','about','tell','please','and','for','your','with','does','have','can','this','that','from','more','need'],true)
+        ))),0,40);
+    }
+
     public static function rank(string $query,array $documents): array {
         $lower=mb_strtolower(trim($query));
-        $words=array_values(array_unique(array_filter(preg_split('/[^\p{L}\p{N}]+/u',$lower)?:[],static fn(string $word):bool=>mb_strlen($word)>=3&&!in_array($word,['the','what','which','who','where','when','how','about','tell','please','and','for','your','with','does','have','can','this','that','from','more','need'],true))));
+        $words=self::words($query,2);
         if (!$words) return [];
         $hits=[];
         foreach ($documents as $document) {
