@@ -54,7 +54,16 @@ if ($sourceRatio > $targetRatio) {
     $sourceY = (int)round(($sourceHeight - $cropHeight) / 2);
 }
 
-$relative = "/assets/images/blog/{$slug}.webp";
+$blog = new \App\Services\BlogService();
+$post = $blog->find($slug);
+if ($post === null) {
+    fwrite(STDERR, "Blog post not found.\n");
+    exit(1);
+}
+// New image names are content-addressed, so an older revision's image
+// bytes are not overwritten by a subsequent crop.
+$suffix=substr(hash('sha256',$bytes),0,20);
+$relative = "/assets/images/blog/{$slug}-{$suffix}.webp";
 $target = $root . $relative;
 printf("Source: %dx%d\nCrop: %dx%d at %d,%d\nTarget: %s\n", $sourceWidth, $sourceHeight, $cropWidth, $cropHeight, $sourceX, $sourceY, $relative);
 if ($dryRun) {
@@ -69,14 +78,9 @@ if (!imagewebp($canvas, $target, 88)) {
     fwrite(STDERR, "Unable to write cropped WebP image.\n");
     exit(1);
 }
-$blog = new \App\Services\BlogService();
-$post = $blog->find($slug);
-if ($post === null) {
-    fwrite(STDERR, "Image written, but blog post {$slug} was not found.\n");
-    exit(1);
-}
 $post['og_image'] = $relative;
 if ($sourceUrl !== '') $post['source_url'] = $sourceUrl;
 if ($imageAlt !== '') $post['image_alt'] = $imageAlt;
-$blog->save($post);
+try {$blog->save($post,$post['_revision']);}
+catch(Throwable $error){fwrite(STDERR,"Article image reference not saved; staged image retained. ".$error->getMessage()."\n");exit(1);}
 echo "Updated {$slug} to use the cropped image for its card and article hero.\n";

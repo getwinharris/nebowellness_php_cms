@@ -37,6 +37,7 @@ final class BlogService {
                 if (!$this->isPublic($post,$modules)) continue;
                 if ($strict&&(!is_string($post['slug']??null)||$post['slug']!==pathinfo($file,PATHINFO_FILENAME))) throw new \RuntimeException('Article slug does not resolve to its source.');
             }
+            if (!$all) unset($post['_revision']);
             $posts[] = $post;
         }
         usort($posts, fn($a, $b) => strcmp($b['published_at'] ?? '', $a['published_at'] ?? ''));
@@ -96,16 +97,40 @@ final class BlogService {
         if ($yaml === false || $yaml === '') return [];
         return $this->parseYamlList($yaml);
     }
-    public function save(array $data): array {
+    public function save(array $data,string $expectedRevision): array {
         if (!is_dir($this->postsDir)&&!mkdir($this->postsDir,0775,true)&&!is_dir($this->postsDir)) throw new \RuntimeException('Article storage unavailable.');
         $slug = $data['slug'] ?? '';
         if (!is_string($slug)) throw new \InvalidArgumentException('Invalid article slug.');
-        if ($slug === '') $slug = $this->slugify((string)($data['title'] ?? 'untitled'));
+        if ($slug === '') {
+            if(!is_string($data['title']??null))throw new \InvalidArgumentException('Enter an article title.');
+            $slug=$this->slugify($data['title']);
+        }
         if (!self::validSlug($slug)) throw new \InvalidArgumentException('Invalid article slug.');
+        $history=new BlogRevisionStore($this->postsDir);
+        return $history->locked(fn()=> $this->saveLocked($history,$slug,$data,$expectedRevision));
+    }
+    private function checkedSource(string $slug,string $expectedRevision): ?string {
+        if(!self::validSlug($slug))throw new \InvalidArgumentException('Invalid article slug.');
+        if($expectedRevision!=='new'&&!BlogRevisionStore::hashValid($expectedRevision))throw new \InvalidArgumentException('Reload the article before saving.');
+        $path=$this->postsDir.'/'.$slug.'.md';
+        if(!file_exists($path)&&!is_link($path)){
+            if($expectedRevision!=='new')throw new \DomainException('Article no longer exists. Reload the editor.');
+            return null;
+        }
+        $bytes=BlogRevisionStore::read($path);
+        if($expectedRevision==='new'||!hash_equals($expectedRevision,hash('sha256',$bytes)))throw new \DomainException('Article changed or the slug already exists. Reload before saving.');
+        return $bytes;
+    }
+    private function saveLocked(BlogRevisionStore $history,string $slug,array $data,string $expectedRevision): array {
+        $before=$this->checkedSource($slug,$expectedRevision);
         $data['slug']=$slug;
-        $existing=$this->find($slug);
-        if (is_file($this->postsDir.'/'.$slug.'.md')&&$existing===null) throw new \RuntimeException('Existing article metadata is invalid. Repair the source before editing.');
-        $flag=$data['published']??($existing['published']??true);
+        $existing=$before===null?null:$this->parseBytes($before,$slug);
+        if($before===null&&$history->inventory($slug)!==[])throw new \DomainException('This slug has retained article history. Choose a new slug.');
+
+        if ($before!==null&&$existing===null) throw new \RuntimeException('Existing article metadata is invalid. Repair the source before editing.');
+        $data=array_replace($existing??[],$data);
+        if(!is_string($data['title']??null)||trim($data['title'])==='')throw new \InvalidArgumentException('Enter an article title.');
+        $flag=$data['published']??true;
         if (!in_array($flag,[true,false,'true','false','1','0'],true)) throw new \InvalidArgumentException('Invalid publication flag.');
         $data['published']=in_array($flag,[true,'true','1'],true);
         $data['published_at']=$data['published_at']??($existing['published_at']??date('Y-m-d'));
@@ -130,18 +155,67 @@ final class BlogService {
         }
         $md = "---\n{$frontmatter}---\n\n{$content}";
         $destination=$this->postsDir.'/'.$slug.'.md';
-        if (is_link($destination)) throw new \RuntimeException('Article destination unavailable.');
-        $tmp=tempnam($this->postsDir,'.blog-');
-        if ($tmp===false) throw new \RuntimeException('Article storage unavailable.');
-        try {
-            if (file_put_contents($tmp,$md,LOCK_EX)!==strlen($md)||!rename($tmp,$destination)) throw new \RuntimeException('Article save failed.');
-        } finally { if (is_file($tmp)) unlink($tmp); }
+        if($before!==$md){
+            if($before!==null)$history->snapshot($slug,$before);
+            // Recheck the actual bytes immediately before replacing. Manual
+            // file editors/deployment are not participants in this lock.
+            $this->checkedSource($slug,$expectedRevision);
+            BlogRevisionStore::atomicWrite($destination,$md,0644);
+        }
+        $data['content']=$content;
+        unset($data['html']);
+        $data['_revision']=hash('sha256',$md);
+        $data['_created']=$before===null;
         return $data;
     }
-    public function delete(string $slug): void {
-        if (!self::validSlug($slug)) throw new \InvalidArgumentException('Invalid article slug.');
-        $file = $this->postsDir . '/' . $slug . '.md';
-        if (is_file($file)&&!is_link($file)) unlink($file);
+    public function revisions(string $slug): array {
+        $history=new BlogRevisionStore($this->postsDir);
+        return $history->locked(fn(bool $ready)=>$ready?$history->inventory($slug):[],false);
+    }
+    public function revisionPreview(string $slug,string $revision): array {
+        $history=new BlogRevisionStore($this->postsDir);
+        return $history->locked(function()use($history,$slug,$revision):array {
+            $post=$this->parseBytes($history->load($slug,$revision),$slug);
+            if($post===null)throw new \RuntimeException('Article revision metadata invalid.');
+            return ['revision'=>$revision,'title'=>(string)($post['title']??''),'content'=>(string)$post['content']];
+        },false);
+    }
+    /** Restore editorial content only, not publication state or article identity. */
+    public function restore(string $slug,string $revision,string $expectedRevision): array {
+        $history=new BlogRevisionStore($this->postsDir);
+        return $history->locked(function()use($history,$slug,$revision,$expectedRevision):array{
+            $before=$this->checkedSource($slug,$expectedRevision);
+            if($before===null)throw new \DomainException('Restore requires an existing article.');
+            $current=$this->parseBytes($before,$slug);
+            $prior=$this->parseBytes($history->load($slug,$revision),$slug);
+            if($current===null||$prior===null)throw new \RuntimeException('Article revision metadata invalid.');
+            // Clear fields absent from the selected historical version rather
+            // than silently retaining newer editorial values.
+            foreach(array_keys($current) as $key)if(!array_key_exists($key,$prior))$prior[$key]='';
+            foreach(['published','published_at','category','type'] as $key)$prior[$key]=$current[$key]??($key==='published'?true:'');
+            $prior['updated_at']=date('Y-m-d');
+            return $this->saveLocked($history,$slug,$prior,$expectedRevision);
+        });
+    }
+    public function toggle(string $slug,string $expectedRevision): array {
+        $history=new BlogRevisionStore($this->postsDir);
+        return $history->locked(function()use($history,$slug,$expectedRevision):array{
+            $bytes=$this->checkedSource($slug,$expectedRevision);
+            if($bytes===null||($post=$this->parseBytes($bytes,$slug))===null)throw new \DomainException('Article unavailable.');
+            $post['published']=!($post['published']===true);
+            $post['updated_at']=date('Y-m-d');
+            return $this->saveLocked($history,$slug,$post,$expectedRevision);
+        });
+    }
+    public function delete(string $slug,string $expectedRevision): void {
+        $history=new BlogRevisionStore($this->postsDir);
+        $history->locked(function()use($history,$slug,$expectedRevision):void{
+            $bytes=$this->checkedSource($slug,$expectedRevision);
+            if($bytes===null)throw new \DomainException('Article not found.');
+            $history->snapshot($slug,$bytes);
+            $this->checkedSource($slug,$expectedRevision);
+            if(!unlink($this->postsDir.'/'.$slug.'.md'))throw new \RuntimeException('Article deletion could not be confirmed.');
+        });
     }
     public function saveCategory(array $data): void {
         $cats = $this->categories();
@@ -169,8 +243,10 @@ final class BlogService {
         file_put_contents($this->categoriesFile, $yaml, LOCK_EX);
     }
     private function parseFile(string $file): ?array {
-        $raw = file_get_contents($file);
-        if ($raw === false || $raw === '') return null;
+        try {$raw=BlogRevisionStore::read($file);}catch(\Throwable){return null;}
+        return $this->parseBytes($raw,pathinfo($file,PATHINFO_FILENAME));
+    }
+    private function parseBytes(string $raw,string $slug): ?array {
         $meta = [];
         $content = $raw;
         if (str_starts_with($raw, '---')) {
@@ -196,9 +272,10 @@ final class BlogService {
             }
         }
         $meta['content'] = $content;
-        $meta['slug'] = $meta['slug'] ?? pathinfo($file, PATHINFO_FILENAME);
-        if (!is_string($meta['slug'])||!self::validSlug($meta['slug'])||$meta['slug']!==pathinfo($file,PATHINFO_FILENAME)) return null;
+        $meta['slug'] = $meta['slug'] ?? $slug;
+        if (!is_string($meta['slug'])||!self::validSlug($meta['slug'])||$meta['slug']!==$slug) return null;
         $meta['published'] = $meta['published'] ?? true;
+        $meta['_revision']=hash('sha256',$raw);
         $meta['html'] = (new MarkdownRenderer())->render($content);
         return $meta;
     }

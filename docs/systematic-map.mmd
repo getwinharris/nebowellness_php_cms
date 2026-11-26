@@ -7,10 +7,10 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 115 routes, 14 controllers, 74 services, 61 views, 0 data files, 22 tools"]
-    arch_routes["> Routes: 115 (Public + Auth + Payment + Admin + Support)"]:::arch
+  subgraph ARCH["Architecture Overview — 116 routes, 14 controllers, 75 services, 61 views, 0 data files, 22 tools"]
+    arch_routes["> Routes: 116 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 14"]:::arch
-    arch_svc["> Services: 74"]:::arch
+    arch_svc["> Services: 75"]:::arch
     arch_views["> Views: 61"]:::arch
     arch_data["> Collections: 27 schema | 0 files"]:::arch
     arch_tools["> Tools: 22"]:::arch
@@ -143,6 +143,7 @@ flowchart LR
     route_post_admin_blog_save["POST /admin/blog/save"]:::route
     route_post_admin_blog_toggle["POST /admin/blog/toggle"]:::route
     route_post_admin_blog_delete["POST /admin/blog/delete"]:::route
+    route_post_admin_blog_restore["POST /admin/blog/restore"]:::route
     route_post_admin_blog_preview["POST /admin/blog/preview"]:::route
     route_post_admin_blog_enhance_title["POST /admin/blog/enhance-title"]:::route
     route_post_admin_blog_enhance_content["POST /admin/blog/enhance-content"]:::route
@@ -192,6 +193,7 @@ flowchart LR
     service_auditlogservice["AuditLogService"]:::code
     service_authservice["AuthService"]:::code
     service_blogdraftservice["BlogDraftService"]:::code
+    service_blogrevisionstore["BlogRevisionStore"]:::code
     service_blogservice["BlogService"]:::code
     service_brandassetservice["BrandAssetService"]:::code
     service_campaignpageservice["CampaignPageService"]:::code
@@ -943,25 +945,36 @@ flowchart LR
   controller_blogcontroller -. renders .-> view_public_blog
   route_get_admin_blog --> controller_admincontroller
   controller_admincontroller --> service_blogservice
+  controller_admincontroller --> service_blogrevisionstore
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   route_post_admin_blog_save --> controller_admincontroller
   controller_admincontroller --> service_blogservice
+  controller_admincontroller --> service_blogrevisionstore
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   route_post_admin_blog_toggle --> controller_admincontroller
   controller_admincontroller --> service_blogservice
+  controller_admincontroller --> service_blogrevisionstore
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   route_post_admin_blog_delete --> controller_admincontroller
   controller_admincontroller --> service_blogservice
+  controller_admincontroller --> service_blogrevisionstore
+  controller_admincontroller --> service_auditlogservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_blog
+  route_post_admin_blog_restore --> controller_admincontroller
+  controller_admincontroller --> service_blogservice
+  controller_admincontroller --> service_blogrevisionstore
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog
   route_post_admin_blog_preview --> controller_admincontroller
   controller_admincontroller --> service_blogservice
+  controller_admincontroller --> service_blogrevisionstore
   controller_admincontroller --> service_markdownrenderer
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_blog

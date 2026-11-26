@@ -76,7 +76,7 @@ final class AgentDraftService
             $values = $answer !== null ? $this->parse($answer, $fields) : [];
             $note = $values === []
                 ? 'The model did not return anything I could use. The fields below are what a save needs.'
-                : 'Here is a draft. Read it, change anything you want, then press Save — nothing is published until you do.';
+                : 'Here is a draft. Review and save it as a hidden article; publish it separately in the Blog editor.';
         }
 
         if ($isBlog && ($values['slug'] ?? '') === '' && ($values['title'] ?? '') !== '') {

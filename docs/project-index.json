@@ -3,9 +3,9 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 115,
+        "routes": 116,
         "controllers": 14,
-        "services": 74,
+        "services": 75,
         "views": 61,
         "collections": 27
     },
@@ -292,6 +292,7 @@
             "view": "admin/blog",
             "services": [
                 "BlogService",
+                "BlogRevisionStore",
                 "AuthService"
             ]
         },
@@ -316,6 +317,7 @@
             "view": "admin/blog",
             "services": [
                 "BlogService",
+                "BlogRevisionStore",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -354,7 +356,21 @@
             "view": "admin/blog",
             "services": [
                 "BlogService",
+                "BlogRevisionStore",
                 "MarkdownRenderer",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/blog/restore",
+            "name": "admin.blog.restore",
+            "controller": "AdminController@restoreBlog",
+            "view": "admin/blog",
+            "services": [
+                "BlogService",
+                "BlogRevisionStore",
+                "AuditLogService",
                 "AuthService"
             ]
         },
@@ -366,6 +382,7 @@
             "view": "admin/blog",
             "services": [
                 "BlogService",
+                "BlogRevisionStore",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -378,6 +395,7 @@
             "view": "admin/blog",
             "services": [
                 "BlogService",
+                "BlogRevisionStore",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -1415,6 +1433,7 @@
         "AuditLogService",
         "AuthService",
         "BlogDraftService",
+        "BlogRevisionStore",
         "BlogService",
         "BrandAssetService",
         "CampaignPageService",
