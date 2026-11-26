@@ -11,7 +11,7 @@ final class A2uiCatalogService
     public const VERSION = '1.0';
     public const ID = 'https://bapx.in/schemas/bapxcms/a2ui/1.0/catalog';
     private const READ_ABILITIES = [
-        'published_consultation_fees', 'published_practitioners',
+        'published_site_identity', 'published_consultation_fees', 'published_practitioners',
         'published_programmes', 'published_programme_detail',
         'search_clinic_knowledge', 'search_articles',
         'appointment_summary', 'campaign_pages', 'therapy_enquiry_summary',
@@ -109,11 +109,21 @@ final class A2uiCatalogService
         if (!preg_match('/^[a-f0-9]{16}$/D',$traceId)) return null;
         $allowed=array_column($this->serverAbilities(),null,'name');
         $sections=[];
-        foreach (['published_consultation_fees','published_programmes','search_articles','appointment_summary','therapy_enquiry_summary'] as $name) {
+        foreach (['published_site_identity','published_consultation_fees','published_programmes','search_articles','appointment_summary','therapy_enquiry_summary'] as $name) {
             $data=$evidence[$name]??null;
             if (!isset($allowed[$name])||!is_array($data)||!AbilitySchema::valid($data,$allowed[$name]['output_schema'])) continue;
             $items=[];$title='';
             switch ($name) {
+                case 'published_site_identity':
+                    $title=$data['name'].' · Published contact details';
+                    foreach (['tagline'=>'','description'=>'','public_email'=>'Email: ','address'=>'Address: ','hours_weekday'=>'Hours: ','hours_weekend'=>'Hours: '] as $key=>$label) {
+                        if ($data[$key]!=='') $items[]=['text'=>$label.$data[$key]];
+                    }
+                    foreach (['phones'=>'Phone: ','whatsapp'=>'WhatsApp: '] as $key=>$label) {
+                        if ($data[$key]!==[]) $items[]=['text'=>$label.implode(', ',$data[$key])];
+                    }
+                    if ($items===[]) $items[]=['text'=>'No additional contact details are published.'];
+                    $count=count($items);break;
                 case 'published_consultation_fees':
                     $title='Published consultation fees (display only)';
                     foreach (array_slice($data['fees'],0,4) as $fee) $items[]=['label'=>$fee['title'],'value'=>$fee['display_price'].' · '.$fee['duration']];

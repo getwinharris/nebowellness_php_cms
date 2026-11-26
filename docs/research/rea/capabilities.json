@@ -1023,7 +1023,7 @@
       "title": "Native ability catalogue",
       "status": "implemented",
       "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
-      "finding": "Twelve active service/CMS/CRM names have native v1 metadata, bounded typed input/output, scope/module authorization and read-only annotations. Six retail names were retired permanently; trusted session context contains service navigation but no retail records.",
+      "finding": "Thirteen active service/CMS/CRM names have native v1 metadata and typed scoped read contracts, including canonical published site identity. Six retail names retired permanently. No raw settings or draft identity in public output.",
       "issues": [
         121,
         128,
@@ -1033,7 +1033,8 @@
         156,
         158,
         160,
-        165
+        165,
+        174
       ],
       "references": [
         {
@@ -1142,11 +1143,15 @@
         },
         {
           "path": "tests/native-ability.test.cjs",
-          "anchor": "all twelve remaining service names have typed native definitions"
+          "anchor": "all thirteen service names have typed native definitions"
         },
         {
           "path": "tests/native-session-ability-integration.php",
           "anchor": "Session context leaves business state unchanged"
+        },
+        {
+          "path": "tests/site-identity-ability.test.cjs",
+          "anchor": "published identity projection and A2UI exclude drafts"
         }
       ],
       "production": null
@@ -1161,7 +1166,8 @@
       "issues": [
         121,
         128,
-        162
+        162,
+        174
       ],
       "references": [
         {
@@ -1187,6 +1193,10 @@
         {
           "path": "tests/mcp-read-integration.php",
           "anchor": "Exact module-filtered public list"
+        },
+        {
+          "path": "tests/site-identity-ability.test.cjs",
+          "anchor": "published identity projection and A2UI exclude drafts"
         }
       ],
       "production": null
@@ -1291,7 +1301,8 @@
         158,
         160,
         162,
-        165
+        165,
+        174
       ],
       "references": [
         {
@@ -1404,7 +1415,7 @@
         },
         {
           "path": "tests/native-ability.test.cjs",
-          "anchor": "all twelve remaining service names have typed native definitions"
+          "anchor": "all thirteen service names have typed native definitions"
         },
         {
           "path": "tests/native-session-ability-integration.php",
@@ -1413,6 +1424,10 @@
         {
           "path": "tests/mcp-read-integration.php",
           "anchor": "Real typed published read only"
+        },
+        {
+          "path": "tests/site-identity-ability.test.cjs",
+          "anchor": "published identity projection and A2UI exclude drafts"
         }
       ],
       "production": null
@@ -1457,7 +1472,8 @@
       "issues": [
         128,
         125,
-        167
+        167,
+        174
       ],
       "references": [
         {
@@ -1483,6 +1499,10 @@
         {
           "path": "tests/agent-session.test.cjs",
           "anchor": "Actual provider-selected native reads generate fresh server-projected UI"
+        },
+        {
+          "path": "tests/site-identity-ability.test.cjs",
+          "anchor": "published identity projection and A2UI exclude drafts"
         }
       ],
       "production": null
@@ -2120,7 +2140,8 @@
       "acceptance": "Model-led discovery and role-filtered schemas/skills.",
       "finding": "Bounded schema ranking; no deferred discovery.",
       "issues": [
-        128
+        128,
+        174
       ],
       "references": [
         {
@@ -2134,7 +2155,12 @@
           "anchor": "function declarations("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/site-identity-ability.test.cjs",
+          "anchor": "published identity projection and A2UI exclude drafts"
+        }
+      ],
       "production": null
     },
     {
@@ -2710,6 +2736,24 @@
         "cms-11"
       ],
       "summary": "Native reference-derived owner identity contract with saved private draft, preview, explicit publish and previous-version restore; current revision gates, validated complete public projection, contact/SEO/discovery/manifest wiring, existing appearance/phone settings reused. Two synthetic identity and 12 Chromium fixture scenarios. Actual owner route MariaDB test in CI; navigation ordering, policies/page content, PWA icon generation and generic installer remain separate. No live business settings mutation or coverage completion claim."
+    },
+    {
+      "id": "174-published-identity-ability",
+      "date": "2026-11-26",
+      "issues": [
+        174,
+        125,
+        128
+      ],
+      "components": [
+        "mcp-01",
+        "mcp-02",
+        "mcp-05",
+        "a2ui-01",
+        "harness-03",
+        "cms-07"
+      ],
+      "summary": "Shared parameterless public identity read through native registry, authorized MCP and both agents; strict canonical projection excludes draft/history/admin/private settings, validates explicit contact evidence and renders bounded A2UI card. Synthetic unit and route fixtures plus real MariaDB/MCP and loopback provider acceptance in CI. No scope expansion to writes or production grant issuance; no coverage increase claimed."
     }
   ]
 }

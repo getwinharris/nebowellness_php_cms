@@ -39,3 +39,10 @@ Update when a service boundary, remote mutation protocol, consultation product p
   See docs/research/rea/contracts/brand-asset-safety.md and the disposable
   real-route integration suite; do not test owner mutations on production
   without an authorized test plan.
+
+- The shared published_site_identity ability reads only the canonical
+  published profile and existing public contact channels. It is a bounded
+  read, not raw settings or an editor endpoint. Keep draft/history/admin
+  labels out of the native registry and MCP projection, and test both agent
+  routes against actual scoped records using the loopback provider fixture.
+  See docs/research/rea/contracts/published-site-identity.md.

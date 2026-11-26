@@ -62,11 +62,11 @@ Use the saved model configuration with either `./bapXcms ai:probe text [model]` 
 
 ### Native typed ability migration
 
-Twelve active names use native v1 contracts: six public reads, five owner operational reads and one trusted support-session context. Six former retail names were intentionally retired under the standalone CMS scope; historical evidence is retained. NativeAbilityRegistry owns versioned metadata, scope, bounded input/output validation and safe error codes. Missing canonical fee settings is unavailable, not empty success. The [ability audit](research/rea/contracts/native-abilities-audit.md) maps remaining legacy tools and verification obligations. External MCP transport remains incomplete; the internal catalogue migration is complete.
+Thirteen active names use native v1 contracts: seven public reads, five owner operational reads and one trusted support-session context. Six former retail names were intentionally retired under the standalone CMS scope; historical evidence is retained. NativeAbilityRegistry owns versioned metadata, scope, bounded input/output validation and safe error codes. Missing canonical fee settings is unavailable, not empty success. The [ability audit](research/rea/contracts/native-abilities-audit.md) maps remaining legacy tools and verification obligations. The scoped MCP read transport is implemented; wider client compatibility and live authenticated acceptance remain separate.
 
 ## External MCP published reads
 
-The scoped /mcp transport uses the native registry for the six published clinic abilities, with current module gates. It is not a third agent surface. Independent expiring/revocable bearer grants are provisioned explicitly through the authorized operator CLI; no browser cookie or provider credential authorizes MCP. See [the pinned transport contract](research/rea/contracts/mcp-read-transport.md). Legacy clients, OAuth onboarding and live authenticated client acceptance remain separate.
+The scoped /mcp transport uses the native registry for the seven published site/service abilities, with current module gates. It is not a third agent surface. Independent expiring/revocable bearer grants are provisioned explicitly through the authorized operator CLI; no browser cookie or provider credential authorizes MCP. See [the pinned transport contract](research/rea/contracts/mcp-read-transport.md). Legacy clients, OAuth onboarding and live authenticated client acceptance remain separate.
 
 
 ## A2UI read-only result surfaces
@@ -79,3 +79,16 @@ model-authored executable content are not passed to the renderer. Text
 answers remain usable without the optional script. No UI actions, dynamic
 bindings or model-negotiated rendering are implemented yet. See
 [the native catalog contract](research/rea/contracts/a2ui-native-catalog.md).
+
+## Shared published identity
+
+The parameterless published_site_identity read uses the canonical published
+site profile and existing public phone/WhatsApp configuration. Both agent
+surfaces and the authorized MCP projection use the same versioned schema.
+It excludes admin-only labels, drafts, history, credentials and unrelated
+settings; a missing or invalid canonical profile returns unavailable.
+Explicit public identity/contact/hours questions require actual successful
+tool evidence. Concrete email and international phone claims are checked
+against the observed public values. A2UI projects a literal-only contact
+card from the same fresh result; no writes or profile editor actions are
+exposed. See [the contract](research/rea/contracts/published-site-identity.md).

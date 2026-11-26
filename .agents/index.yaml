@@ -42,12 +42,12 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 348
-  relationships: 295
+  concepts: 349
+  relationships: 297
   by_type:
     blog: 5
     controller: 14
-    doc: 50
+    doc: 51
     image: 40
     route: 110
     schema: 26
@@ -539,6 +539,14 @@ concepts:
     tags:
       - "docs"
     filename: "provider-diagnostics.md"
+    header_image: ""
+  - id: "doc:published-site-identity"
+    type: "doc"
+    title: "published-site-identity"
+    description: ""
+    resource: "docs/research/rea/contracts/published-site-identity.md"
+    tags: []
+    filename: "published-site-identity.md"
     header_image: ""
   - id: "doc:pwa"
     type: "doc"
@@ -1179,6 +1187,7 @@ concepts:
       - "McpReadService"
       - "McpGrantService"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "SettingsService"
       - "RateLimiter"
       - "DatabaseService"
@@ -1985,6 +1994,7 @@ concepts:
       - "McpReadService"
       - "McpGrantService"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "SettingsService"
       - "RateLimiter"
       - "DatabaseService"
@@ -2156,6 +2166,7 @@ concepts:
       - "McpReadService"
       - "McpGrantService"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "SettingsService"
       - "RateLimiter"
       - "DatabaseService"
@@ -2175,6 +2186,7 @@ concepts:
       - "McpReadService"
       - "McpGrantService"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "SettingsService"
       - "RateLimiter"
       - "DatabaseService"
@@ -2194,6 +2206,7 @@ concepts:
       - "McpReadService"
       - "McpGrantService"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "SettingsService"
       - "RateLimiter"
       - "DatabaseService"
@@ -2253,6 +2266,7 @@ concepts:
       - "AgentDraftService"
       - "AgentToolRegistry"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "A2uiCatalogService"
       - "AbilitySchema"
       - "OwnerAbilityService"
@@ -2796,6 +2810,7 @@ concepts:
       - "McpReadService"
       - "McpGrantService"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "SettingsService"
       - "RateLimiter"
       - "DatabaseService"
@@ -2878,6 +2893,7 @@ concepts:
       - "SupportBotService"
       - "AgentToolRegistry"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "A2uiCatalogService"
       - "AbilitySchema"
       - "AgentContextService"
@@ -2903,6 +2919,7 @@ concepts:
       - "McpReadService"
       - "McpGrantService"
       - "NativeAbilityRegistry"
+      - "SiteProfileService"
       - "SettingsService"
       - "RateLimiter"
       - "DatabaseService"
@@ -4152,6 +4169,9 @@ relationships:
   - from: "controller:McpController"
     to: "service:SettingsService"
     relation: "uses"
+  - from: "controller:McpController"
+    to: "service:SiteProfileService"
+    relation: "uses"
   - from: "controller:PublicController"
     to: "service:AuthService"
     relation: "uses"
@@ -4256,6 +4276,9 @@ relationships:
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:SeoService"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:SiteProfileService"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:SupportBotService"

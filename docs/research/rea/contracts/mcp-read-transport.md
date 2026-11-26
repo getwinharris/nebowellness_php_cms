@@ -43,7 +43,7 @@ and uses no browser session. Each request rechecks the presented grant,
 expiry, revocation and scope. Rate limiting is applied before lookup and
 per authorized grant. Missing storage fails closed.
 
-The external registry explicitly permits six existing published clinic
+The external registry explicitly permits seven published site/service
 read names, with native module checks. The session context, all owner-only
 and commerce abilities, arbitrary files, SQL and mutation operations are
 excluded. No second catalogue or domain implementation is created.
@@ -71,7 +71,7 @@ MCP-Protocol-Version; Mcp-Method; and Mcp-Name for tools/call. Request params
 carry the required _meta protocolVersion, clientInfo and clientCapabilities.
 
 The disposable MariaDB HTTP integration creates only synthetic grants,
-published/draft fees, and restores fixture settings. It exercises real
+published/draft fees and site identities, and restores fixture settings. It exercises real
 routing, credential isolation, expiry/revocation, origin, exact discovery,
 typed execution, forbidden names, malformed inputs and no-store behavior.
 Live authenticated acceptance requires an explicitly issued real grant

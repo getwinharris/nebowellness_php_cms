@@ -106,6 +106,19 @@ final class NativeAbilityRegistry
         $dashboard=['registered_users'=>$count,'consultants'=>$count,'historical_appointments'=>$count,
             'support_tickets'=>$count,'shop_enabled'=>['type'=>'boolean','const'=>false],'scope'=>self::string(120,1)];
         return [
+            'published_site_identity'=>self::definition(
+                'Read the current published business/site name, description, public email, address, opening hours, telephone and WhatsApp contact numbers. Empty optional fields mean not published. No owner settings, draft identity, customer records or credentials.',
+                self::object([
+                    'name'=>self::string(100,1),'short_name'=>self::string(24,1),
+                    'tagline'=>self::string(180),'description'=>self::string(500),
+                    'public_email'=>self::string(254),'address'=>self::string(300),
+                    'hours_weekday'=>self::string(120),'hours_weekend'=>self::string(120),
+                    'organization_type'=>self::string(30,1)+['enum'=>['Organization','LocalBusiness','MedicalClinic','ProfessionalService']],
+                    'phones'=>self::listOf(self::string(16,9)+['pattern'=>'^\+[1-9][0-9]{7,14}$'],4),
+                    'whatsapp'=>self::listOf(self::string(16,9)+['pattern'=>'^\+[1-9][0-9]{7,14}$'],4),
+                    'source'=>self::string(20,1)+['const'=>SiteProfileService::IDENTITY_SOURCE],
+                ])
+            ),
             'published_consultation_fees'=>self::definition(
                 'Read current published online consultation fees, currency, duration and included services. Display prices only, not programme package prices, payment offers or confirmed bookings.',
                 self::object([
@@ -235,6 +248,7 @@ final class NativeAbilityRegistry
                 return self::error('ability_not_available','Unknown or unavailable ability.');
             }
             $result=match($name) {
+                'published_site_identity'=>(new SiteProfileService(new SettingsService($this->store)))->identity(),
                 'published_consultation_fees'=>(new ConsultationFeeService($this->store))->published(),
                 'published_practitioners'=>['practitioners'=>(new ClinicKnowledgeService($this->store))->practitioners()],
                 'published_programmes'=>['programmes'=>(new ClinicKnowledgeService($this->store))->programmes()],

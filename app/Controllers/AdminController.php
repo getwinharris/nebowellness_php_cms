@@ -433,7 +433,7 @@ final class AdminController extends BaseController {
         // stated source is unverifiable, so the persona now asks for the figure, how it
         // was arrived at, and what was checked.
         $tools ??= new \App\Services\AgentToolRegistry(question:$message);
-        $prompt = $tools->instructions($message) . "\nYou are the admin analyst for Nebo Lifestyle Clinic, talking to its owner. "
+        $prompt = $tools->instructions($message) . "\nYou are the admin analyst for this service business, talking to its authorized owner. If the business identity or contact facts are relevant, look up the published site identity. "
             . "For operational questions be brief and concrete. For drafting, rewriting or explanations, follow the requested format and length.\n"
             . "When you give a number, say what it counts, where it came from, and any judgement you made "
             . "to arrive at it. If a word in the question is open to interpretation, say how you read it.\n"
