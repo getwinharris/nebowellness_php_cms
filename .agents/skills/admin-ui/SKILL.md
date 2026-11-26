@@ -99,3 +99,8 @@ Update when an admin route, sidebar group, or CRUD form contract changes. The si
   intro and 1–12 display count; they cannot overwrite source records in
   the page editor. Disabled, empty and unavailable data are distinct,
   and saved preview uses the same bounded public renderer.
+
+- PageSpeed Insights is an explicit owner POST at /admin/pagespeed/run,
+  not an automatic report on GET. Use the configured public origin and
+  approved general public pages, preserve separate lab/page/origin metric
+  scope, show stale/access/quota/unavailable honestly and never expose keys.

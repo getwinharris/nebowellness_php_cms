@@ -17,12 +17,12 @@ Implementation coverage counts only complete scoped components with source and t
 |---|---:|---:|---:|---:|---:|---:|
 | WordPress CMS | 4 / 15 | 26.7% | 9 | 2 | 0 / 15 | 0.0% |
 | Service booking and landing pages | 6 / 8 | 75.0% | 2 | 0 | 2 / 8 | 25.0% |
-| Google Site Kit | 3 / 7 | 42.9% | 2 | 2 | 0 / 7 | 0.0% |
+| Google Site Kit | 4 / 7 | 57.1% | 2 | 1 | 0 / 7 | 0.0% |
 | WordPress Abilities and MCP | 3 / 6 | 50.0% | 3 | 0 | 0 / 6 | 0.0% |
 | A2UI v1.0 | 0 / 6 | 0.0% | 5 | 1 | 0 / 6 | 0.0% |
 | OpenAI-compatible Chat Completions | 6 / 9 | 66.7% | 2 | 1 | 0 / 9 | 0.0% |
 | DeepSeek Harness | 4 / 10 | 40.0% | 6 | 0 | 1 / 10 | 10.0% |
-| **Total** | 26 / 61 | 42.6% | 29 | 6 | 3 / 61 | 4.9% |
+| **Total** | 27 / 61 | 44.3% | 29 | 5 | 3 / 61 | 4.9% |
 
 ## Explicit exclusions
 
@@ -80,7 +80,7 @@ Native measurement, reporting and performance.
 | sitekit-02 | GA4 reporting | implemented | Parse scoped metrics/landing pages with explicit freshness/error states. — Synthetic signed-token/report fixture; real property pending. | [#65](https://github.com/getwinharris/nebowellness_php_cms/issues/65) |
 | sitekit-03 | Search Console reporting | implemented | Read scoped property metrics, pages and queries with explicit error states. — Synthetic report fixture; live property pending. | [#65](https://github.com/getwinharris/nebowellness_php_cms/issues/65) |
 | sitekit-04 | Owner connection and property discovery | partial | Owner connects/selects/revokes correct authorized properties independently. — Service-account reporting exists; discovery/owner OAuth incomplete. | [#65](https://github.com/getwinharris/nebowellness_php_cms/issues/65), [#64](https://github.com/getwinharris/nebowellness_php_cms/issues/64) |
-| sitekit-05 | PageSpeed Insights | missing | Explicit mobile/desktop analysis; actual Lighthouse and CrUX availability. — No mapped native PageSpeed route/client. | [#65](https://github.com/getwinharris/nebowellness_php_cms/issues/65) |
+| sitekit-05 | PageSpeed Insights | implemented | Explicit mobile/desktop analysis; actual Lighthouse and CrUX availability. — Native owner-requested mobile/desktop PageSpeed v5 report with verified public target, bounded Lighthouse projection, explicit page/origin CrUX availability, private session cache and quota/access/error states. Synthetic provider, real denial route and responsive template tests; authenticated live Google report remains separate. | [#65](https://github.com/getwinharris/nebowellness_php_cms/issues/65), [#188](https://github.com/getwinharris/nebowellness_php_cms/issues/188) |
 | sitekit-06 | Consent and attribution | partial | Consent before tags, exclude private visits, deduplicate attributed funnel. — Measurement restrictions exist; full attribution pending. | [#58](https://github.com/getwinharris/nebowellness_php_cms/issues/58), [#65](https://github.com/getwinharris/nebowellness_php_cms/issues/65) |
 | sitekit-07 | Reporting schedules and health | missing | Configurable report schedule and connection/delivery diagnostics. — No general scheduled reporting workflow. | [#65](https://github.com/getwinharris/nebowellness_php_cms/issues/65) |
 
@@ -181,6 +181,7 @@ Native retrieval, execution, sessions, observability and recovery.
 
 ## Scope reviews and updates
 
+- 2026-11-27 · `188-native-pagespeed` — Implement source-pinned PageSpeed native mobile/desktop read with fixed public targets, validated Lighthouse and separate real-user scope, explicit error/cache states and owner/CSRF. Synthetic provider and actual denial-route tests plus three responsive fixtures passed. No external paid dependency, new database engine, business schema or customer mutation. Live authorized Google result separate.
 - 2026-11-27 · `186-remote-contract-ci` — Owner-directed storage/testing correction: existing remoteDB business records and JSON-compatible schemas remain authoritative; explicit remote-only development bypasses local SQL probe, rejects self endpoint and invalid remote row envelopes. Default CI no MariaDB container; disposable JSON loopback contract tests for client transport, canonical collection revision writes and native page lifecycle. Historic direct-engine tests retained but not rerun; engine-specific coverage not replaced or claimed. Private flat-file agent archive migration remains separate. No production migration or REA capability promotion.
 - 2026-11-27 · `184-live-service-sections` — Add reusable live programme/team/consultation-fee section types, bounded display counts and shared owner/public rendering from existing typed published abilities. Disabled/empty/unavailable explicit, no private records, no duplicate business catalogue or booking action. Unit, responsive fixture and actual MariaDB route tests; no production publication or coverage increase claim.
 - 2026-11-27 · `182-contact-grounding-phrasing` — Late review of #175 found ordinary business email bypass. Share explicit public contact intent categories between tool evidence and concrete answer validation; reject wrong/missing observed email or international number, preserve private/general model questions. Unit and both agent route fixtures, no new tool grant or provider change.

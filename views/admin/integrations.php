@@ -122,6 +122,10 @@ $configuredCredentials = array_filter($credentialFields, static fn(string $key):
         <p>Use the exact property shown in Search Console. Domain properties use DNS verification. URL-prefix properties can use the HTML verification token on the homepage. Submit <a href="/sitemap.xml">the XML sitemap</a> in Search Console.</p>
         <label>HTML verification token<input name="google_site_verification" value="<?= e($secrets['google_site_verification'] ?? '') ?>" placeholder="Token from the verification meta tag"></label>
 
+        <h2>PageSpeed Insights</h2>
+        <p>Optional Google API key for owner-requested Lighthouse and available real-user metrics. <a href="/admin/pagespeed">Run PageSpeed report</a>. No automatic collection or analysis of private routes.</p>
+        <label>PageSpeed API key<input type="password" name="google_pagespeed_key" autocomplete="new-password" placeholder="<?= empty($secrets['google_pagespeed_key'])?'Optional API key':'Saved · leave blank to keep' ?>"></label>
+
         <h2>Optional audience measurement</h2>
         <p>Visitors can opt into measurement of signed-out homepage and About page visits in Privacy. For general campaign links, Analytics accepts a single <code>utm_source</code> of google, facebook, or instagram. Accounts, therapy details, support conversations and forms are excluded. Enable an advertising destination only after checking the clinic’s eligibility with its provider.</p>
         <div class="admin-form__row">
