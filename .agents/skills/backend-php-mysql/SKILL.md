@@ -49,7 +49,8 @@ Update when a service boundary, remote mutation protocol, consultation product p
 
 - Storage architecture (#186): preserve private JSON/PHP-session agent state,
   MD/YAML knowledge and blog content, and authoritative remoteDB business
-  records. The legacy durable transcript collection is a compatibility
-  boundary; do not delete or duplicate production history during a migration.
+  records. New conversations archive through PrivateAgentJournalStore outside the
+  public root. The legacy v1 collection remains a compatibility boundary;
+  do not delete or duplicate production history during migration.
   Explicit remote mode must refuse a self-referential endpoint. The
   loopback contract fixture is test-only, not a production file database.

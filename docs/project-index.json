@@ -5,7 +5,7 @@
     "summary": {
         "routes": 115,
         "controllers": 14,
-        "services": 74,
+        "services": 75,
         "views": 61,
         "collections": 27
     },
@@ -191,6 +191,7 @@
             "view": "admin/agent-sessions",
             "services": [
                 "AgentSessionService",
+                "PrivateAgentJournalStore",
                 "AuthService"
             ]
         },
@@ -202,6 +203,7 @@
             "view": "admin/agent-sessions",
             "services": [
                 "AgentSessionService",
+                "PrivateAgentJournalStore",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -214,6 +216,7 @@
             "view": "admin/agent-sessions",
             "services": [
                 "AgentSessionService",
+                "PrivateAgentJournalStore",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -226,6 +229,7 @@
             "view": "admin/agent",
             "services": [
                 "AgentSessionService",
+                "PrivateAgentJournalStore",
                 "ConsultationFeeService",
                 "ClinicKnowledgeService",
                 "AgentConversation",
@@ -773,6 +777,7 @@
                 "DatabaseService",
                 "SupportTicketService",
                 "AgentSessionService",
+                "PrivateAgentJournalStore",
                 "CustomerCrmService",
                 "AuthService"
             ]
@@ -1337,6 +1342,7 @@
             "view": "public/support",
             "services": [
                 "AgentSessionService",
+                "PrivateAgentJournalStore",
                 "ConsultationFeeService",
                 "ClinicKnowledgeService",
                 "ClinicContactService",
@@ -1452,6 +1458,7 @@
         "OwnerAbilityService",
         "PasswordResetService",
         "PaymentService",
+        "PrivateAgentJournalStore",
         "ProductService",
         "ProjectMapService",
         "ProviderProbeTools",

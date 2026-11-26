@@ -2344,10 +2344,11 @@
       "title": "Durable execution journal",
       "status": "partial",
       "acceptance": "Append start/step/call/result/end milestones and recover interrupted turns.",
-      "finding": "Private final-event archive exists; full incremental journal absent.",
+      "finding": "Versioned private JSON archive for new conversations, atomic append-preserving snapshots, correlated turn/trace replay deduplication and legacy v1 compatibility. Request-start/step checkpoints and interrupted inference recovery remain absent.",
       "issues": [
         134,
-        128
+        128,
+        192
       ],
       "references": [
         {
@@ -2363,9 +2364,18 @@
         {
           "path": "app/Services/AgentSessionService.php",
           "anchor": "function persist("
+        },
+        {
+          "path": "app/Services/PrivateAgentJournalStore.php",
+          "anchor": "public function persist("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/private-agent-journal.test.cjs",
+          "anchor": "private JSON journals are atomic"
+        }
+      ],
       "production": null
     },
     {
@@ -2461,9 +2471,10 @@
       "title": "Private history and CRM projections",
       "status": "partial",
       "acceptance": "Owner-only bounded history, export, notes, retention and owner live acceptance.",
-      "finding": "Session archive and CRM exist; authenticated acceptance pending.",
+      "finding": "Private file-backed new transcripts, bounded owner metadata/export and explicit expired-file cleanup; historical remoteDB transcripts retained and source outages distinguished. Both actual agent fixtures and loopback legacy read tested; authenticated hosted acceptance remains pending.",
       "issues": [
-        134
+        134,
+        192
       ],
       "references": [
         {
@@ -2479,12 +2490,20 @@
         {
           "path": "app/Services/AgentSessionService.php",
           "anchor": "function get("
+        },
+        {
+          "path": "app/Services/PrivateAgentJournalStore.php",
+          "anchor": "public function persist("
         }
       ],
       "tests": [
         {
           "path": "tests/crm-integration.php",
           "anchor": "Durable session readback"
+        },
+        {
+          "path": "tests/private-agent-journal.test.cjs",
+          "anchor": "private JSON journals are atomic"
         }
       ],
       "production": null
@@ -3000,6 +3019,20 @@
         "cms-05"
       ],
       "summary": "Source-pinned WordPress future publication checks reconstructed as read-time Markdown eligibility, admin and CLI reports, hidden flag preservation, validated atomic saves, private raw source routes, and no scheduled newsletter dispatch. Isolated date boundary/public route/agent article tests. General durable scheduler and timed CMS page publication remain partial; no database engine, production content mutation or completion promotion."
+    },
+    {
+      "id": "192-private-agent-journals",
+      "date": "2026-11-27",
+      "issues": [
+        192,
+        134,
+        186
+      ],
+      "components": [
+        "harness-05",
+        "harness-08"
+      ],
+      "summary": "Private v2 JSON archive outside document root for newly started authorized conversations; bounded event projection, identity binding, lock/atomic write, replay deduplication, expiry and explicit file-only cleanup. Existing in-flight v1 archives retain authority until reset; historic remoteDB records are neither copied nor deleted. Both real chat fixture paths and legacy remoteDB wire contract tested; no local database server. Hosted write permissions, authenticated owner acceptance and incremental interrupted-turn checkpoints remain separate; no coverage promotion."
     }
   ]
 }

@@ -679,7 +679,7 @@ final class AdminController extends BaseController {
         $service = new \App\Services\AgentSessionService();
         $items = []; $selected = null; $unavailable = false;
         try {
-            $items = $service->recent();
+            $report=$service->recentReport();$items=$report['items'];$unavailable=$report['unavailable']!==[];
             if (is_string($_GET['session'] ?? null)) $selected=$service->get($_GET['session']);
         } catch (\Throwable) { $unavailable=true; }
         $this->render('admin/agent-sessions',['pageTitle'=>'Agent sessions','items'=>$items,'selected'=>$selected,'unavailable'=>$unavailable]);
@@ -700,9 +700,10 @@ final class AdminController extends BaseController {
 
     public function purgeAgentSessions(): void {
         try {
+            if (($_POST['confirm']??null)!=='1') throw new \InvalidArgumentException('Confirm cleanup first.');
             $count=(new \App\Services\AgentSessionService())->purgeExpired();
-            (new AuditLogService())->record('purge','agent_sessions','expired',['count'=>$count]);
-            $this->flash($count.' expired session records removed.','success');
+            (new AuditLogService())->record('purge','private_agent_journals','expired',['count'=>$count]);
+            $this->flash($count.' expired private journal files removed. Historical remote records retained.','success');
         } catch (\Throwable) { $this->flash('Could not remove expired sessions.','error'); }
         $this->redirect('/admin/agent-sessions');
     }

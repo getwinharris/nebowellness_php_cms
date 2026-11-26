@@ -29,7 +29,7 @@ final class AgentConversation
 
     public function clear(): void
     {
-        $this->state = ['version'=>self::VERSION, 'id' => bin2hex(random_bytes(16)), 'turns' => [], 'journal'=>[], 'created_at'=>date('c')];
+        $this->state = ['version'=>self::VERSION, 'id' => bin2hex(random_bytes(16)), 'turns' => [], 'journal'=>[], 'archive_version'=>PrivateAgentJournalStore::VERSION, 'created_at'=>date('c')];
         $this->save();
     }
 
@@ -81,6 +81,7 @@ final class AgentConversation
             $this->state['journal'] = [];
         }
         $key = $id . ':' . $trace->id;
+        if (isset($this->state['journal'][$key])) return;
         $event = AgentSessionService::event($question, $response, $status, $trace) + ['turn_id'=>$id];
         if ($status < 400 && $event['ticket_id'] !== null) {
             foreach ($this->state['journal'] as $recorded) {
@@ -99,7 +100,7 @@ final class AgentConversation
     public function journal(): array {
         $user = $_SESSION['user'] ?? [];
         return [
-            'id'=>$this->id(), 'schema_version'=>1, 'surface'=>$this->surface,
+            'id'=>$this->id(), 'schema_version'=>$this->state['archive_version']??1, 'surface'=>$this->surface,
             'actor_type'=>$this->surface === 'admin' ? 'owner' : (empty($user['email']) ? 'guest' : 'signed_in'),
             'customer_email'=>$this->surface === 'support' && ($user['role'] ?? '') === 'customer' ? (string)($user['email'] ?? '') : '',
             'created_at'=>$this->state['created_at'] ?? date('c'),

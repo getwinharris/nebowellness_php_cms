@@ -1,11 +1,11 @@
 <div class="admin-card crm-heading">
-    <div><h2>Agent sessions</h2><p>Private records of visible messages and observed tool/provider activity. Support sessions are saved only when shared; owner sessions are archived automatically. Records older than 30 days are hidden. Use cleanup to remove expired records.</p></div>
-    <form method="post" action="/admin/agent-sessions/purge"><input type="hidden" name="_csrf" value="<?= e($csrf) ?>"><button class="btn btn-outline" type="submit">Clean up expired sessions</button></form>
+    <div><h2>Agent sessions</h2><p>Private records of visible messages and observed tool/provider activity. Support sessions are saved only when shared; owner sessions are archived automatically. Records older than 30 days are hidden. New conversations use private JSON files outside the web root. Legacy remote records remain readable within their retention window.</p></div>
+    <form method="post" action="/admin/agent-sessions/purge"><input type="hidden" name="_csrf" value="<?= e($csrf) ?>"><label><input type="checkbox" name="confirm" value="1" required> Confirm expired private-file cleanup</label> <button class="btn btn-outline" type="submit">Clean up expired files</button></form>
 </div>
-<?php if ($unavailable): ?><div class="admin-card">Session storage is unavailable. Verify the deployed schema.</div><?php endif; ?>
+<?php if ($unavailable): ?><div class="admin-card">One or more session archive sources are unavailable. Any displayed list may be incomplete.</div><?php endif; ?>
 <div class="crm-workspace crm-workspace--two">
     <section class="admin-card crm-queue" aria-label="Archived sessions"><h3>Recent sessions <small>Up to 100</small></h3>
-        <?php if (!$items): ?><p>No shared sessions yet.</p><?php endif; ?>
+        <?php if (!$items&&!$unavailable): ?><p>No shared sessions yet.</p><?php endif; ?>
         <?php foreach ($items as $item): ?>
             <a class="crm-ticket<?= ($selected['id']??'')===$item['id']?' is-selected':'' ?>" href="?session=<?= e((string)$item['id']) ?>"><strong><?= e(ucfirst((string)($item['surface']??'agent'))) ?> · <?= e((string)($item['actor_type']??'')) ?></strong><span><?= (int)($item['turns']??0) ?> recorded turns</span><small><?= e((string)($item['updated_at']??'')) ?></small></a>
         <?php endforeach; ?>

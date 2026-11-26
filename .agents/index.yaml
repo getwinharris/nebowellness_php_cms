@@ -42,16 +42,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 361
-  relationships: 312
+  concepts: 363
+  relationships: 314
   by_type:
     blog: 5
     controller: 14
-    doc: 54
+    doc: 55
     image: 40
     route: 115
     schema: 27
-    service: 74
+    service: 75
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -527,6 +527,14 @@ concepts:
     tags:
       - "module"
     filename: "orders.md"
+    header_image: ""
+  - id: "doc:private-agent-journals"
+    type: "doc"
+    title: "private-agent-journals"
+    description: ""
+    resource: "docs/research/rea/contracts/private-agent-journals.md"
+    tags: []
+    filename: "private-agent-journals.md"
     header_image: ""
   - id: "doc:product-boundary"
     type: "doc"
@@ -1431,6 +1439,7 @@ concepts:
     controller: "AdminController@agentSessions"
     services:
       - "AgentSessionService"
+      - "PrivateAgentJournalStore"
       - "AuthService"
     view: "admin/agent-sessions"
   - id: "route:get__admin_agent_sessions__id__json"
@@ -1446,6 +1455,7 @@ concepts:
     controller: "AdminController@agentSessionJson"
     services:
       - "AgentSessionService"
+      - "PrivateAgentJournalStore"
       - "AuditLogService"
       - "AuthService"
     view: "admin/agent-sessions"
@@ -1747,6 +1757,7 @@ concepts:
       - "DatabaseService"
       - "SupportTicketService"
       - "AgentSessionService"
+      - "PrivateAgentJournalStore"
       - "CustomerCrmService"
       - "AuthService"
     view: "admin/support-inbox"
@@ -2334,6 +2345,7 @@ concepts:
     controller: "AdminController@agentAsk"
     services:
       - "AgentSessionService"
+      - "PrivateAgentJournalStore"
       - "ConsultationFeeService"
       - "ClinicKnowledgeService"
       - "AgentConversation"
@@ -2367,6 +2379,7 @@ concepts:
     controller: "AdminController@purgeAgentSessions"
     services:
       - "AgentSessionService"
+      - "PrivateAgentJournalStore"
       - "AuditLogService"
       - "AuthService"
     view: "admin/agent-sessions"
@@ -3002,6 +3015,7 @@ concepts:
     controller: "SupportController@ask"
     services:
       - "AgentSessionService"
+      - "PrivateAgentJournalStore"
       - "ConsultationFeeService"
       - "ClinicKnowledgeService"
       - "ClinicContactService"
@@ -3742,6 +3756,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:PrivateAgentJournalStore"
+    type: "service"
+    title: "PrivateAgentJournalStore"
+    description: "Service: PrivateAgentJournalStore"
+    resource: "app/Services/PrivateAgentJournalStore.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:ProductService"
     type: "service"
     title: "ProductService"
@@ -4257,6 +4279,9 @@ relationships:
     to: "service:PaymentService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:PrivateAgentJournalStore"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:ProviderProbeTools"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4450,6 +4475,9 @@ relationships:
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:NativeAbilityRegistry"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:PrivateAgentJournalStore"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:SeoService"
