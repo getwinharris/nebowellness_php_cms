@@ -43,7 +43,7 @@ query_examples:
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
   concepts: 356
-  relationships: 305
+  relationships: 307
   by_type:
     blog: 5
     controller: 14
@@ -2630,6 +2630,7 @@ concepts:
     services:
       - "MediaService"
       - "AuditLogService"
+      - "DatabaseService"
       - "AuthService"
     view: "admin/media"
   - id: "route:post__admin_media_upload"
@@ -2664,6 +2665,7 @@ concepts:
       - "CmsSectionRegistry"
       - "AuditLogService"
       - "DatabaseService"
+      - "MediaService"
       - "AuthService"
     view: "admin/cms-pages"
   - id: "route:post__admin_settings_admin_credentials"
@@ -2919,6 +2921,8 @@ concepts:
     services:
       - "DatabaseService"
       - "SecretService"
+      - "CmsPageService"
+      - "MediaService"
     view: "public/404"
   - id: "route:post__reset_password"
     type: "route"
@@ -4323,7 +4327,13 @@ relationships:
     to: "service:SmtpMailer"
     relation: "uses"
   - from: "controller:RemoteDbController"
+    to: "service:CmsPageService"
+    relation: "uses"
+  - from: "controller:RemoteDbController"
     to: "service:DatabaseService"
+    relation: "uses"
+  - from: "controller:RemoteDbController"
+    to: "service:MediaService"
     relation: "uses"
   - from: "controller:RemoteDbController"
     to: "service:SecretService"

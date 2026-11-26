@@ -84,3 +84,12 @@ Update when an admin route, sidebar group, or CRUD form contract changes. The si
   save valid draft fields only. Public /pages/{slug} and sitemap must
   resolve the published snapshot, never drafts. Keep existing clinic
   routes unchanged. See docs/research/rea/contracts/native-pages.md.
+
+- When native page storage is confirmed absent, Pages offers only the
+  owner/CSRF/confirmation-gated initialization of cms_pages. Never run
+  migration from a public read. Distinguish real missing-table errors
+  from permission/schema failures. The configured database path (direct
+  or authenticated bridge) must enforce the same domain operation.
+  Native page draft/publication/restore and media archive share the
+  serving DB lock; new managed references require an active inventory
+  entry, including images promoted from a draft. Preserve archive bytes.

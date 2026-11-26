@@ -48,3 +48,24 @@ setup never replaces existing records. Do not create synthetic content
 in production. No homepage conversion, dynamic service list, reusable
 shared forms, navigation editor, scheduled publish, autosave or agent
 mutation is claimed here. General CMS and revision coverage remain partial.
+
+## Rollout and media boundary hardening (#180)
+
+Readiness uses an actual schema-bound SELECT and recognizes only the
+MySQL missing-table SQLSTATE 42S02 / error 1146 as absence. Other read
+failures remain unavailable. The authenticated bridge projects an explicit
+boolean from the same direct check. Owner-confirmed initialization uses
+the configured database path and the existing canonical initializer.
+No production initialization was attempted by this engineering follow-up.
+
+Native page edit/publication/restore and reversible media archive use
+the same database-scoped advisory lock on the serving database; bridge
+calls dispatch the operation there rather than trying to carry a lock
+across HTTP requests. Newly referenced managed paths and new public
+references must have a unique active inventory record. Reference scans
+retain published, draft and preceding-publication paths. Legacy non-CMS
+writers and explicitly privileged raw DB operators do not participate
+in this lock, so archived files remain at their original URL.
+The loopback bridge and concurrent isolated MariaDB fixtures exercise
+absence, malformed schema, authorization, setup, competing edits and
+archive, and deterministic archive-first/draft-first protection.

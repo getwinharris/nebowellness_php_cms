@@ -74,10 +74,19 @@ final class DatabaseService {
         $schema=require app_path('storage/schema/collections.php');
         if (!isset($schema['collections'][$name]) || !preg_match('/^[a-z_]+$/D',$name)) throw new \InvalidArgumentException('Unknown schema collection.');
         if ($this->isTestMode()) return true;
-        $rows=$this->query('SELECT COUNT(*) AS present FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=? AND table_type=?',[$name,'BASE TABLE']);
-        $count=$rows[0]['present']??null;
-        if (!in_array($count,[0,1,'0','1'],true)) throw new \RuntimeException('Collection readiness could not be determined.');
-        return (int)$count===1;
+        if ($this->isRemote()) {
+            $result=$this->remoteMutation('collection_status',$name,[]);
+            if (!is_bool($result['present']??null)) throw new \RuntimeException('Collection readiness could not be determined.');
+            return $result['present'];
+        }
+        // An invisible table in information_schema is not proof of absence.
+        // Require a real read, and recognize only MySQL's exact missing-table error.
+        try {$this->db()->query("SELECT id, _data FROM ".$name." LIMIT 0");}
+        catch (\PDOException $error) {
+            if (($error->errorInfo[0]??null)==='42S02'&&(int)($error->errorInfo[1]??0)===1146) return false;
+            throw $error;
+        }
+        return true;
     }
 
     /** Explicit deployment migration for a collection already declared in the canonical schema. */
@@ -85,6 +94,12 @@ final class DatabaseService {
         $schema = require app_path('storage/schema/collections.php');
         if (!isset($schema['collections'][$name]) || !preg_match('/^[a-z_]+$/', $name)) {
             throw new \InvalidArgumentException('Unknown schema collection.');
+        }
+        if ($this->isTestMode()) throw new \DomainException('Schema initialization requires a real database.');
+        if ($this->isRemote()) {
+            $result=$this->remoteMutation('init_schema_collections',$name,['collections'=>[$name]]);
+            if (($result['collections']??null)!==[$name]) throw new \RuntimeException('Schema initialization could not be confirmed.');
+            return;
         }
         $this->db()->exec("CREATE TABLE IF NOT EXISTS `{$name}` (
             id VARCHAR(36) PRIMARY KEY,
@@ -326,6 +341,48 @@ final class DatabaseService {
             $release = $pdo->prepare('SELECT RELEASE_LOCK(?)');
             $release->execute([$lock]);
         }
+    }
+
+    /** One DB-side serialization boundary for native CMS authoring and recoverable media archive. */
+    private function withCmsMediaLock(\Closure $operation): mixed {
+        if ($this->isRemote()||$this->isTestMode()) throw new \LogicException('CMS/media operation requires the serving database.');
+        $pdo=$this->db();
+        $key=$pdo->query("SELECT SHA2(CONCAT(DATABASE(), ':cms-media'),256)")->fetchColumn();
+        $lock=$pdo->prepare('SELECT GET_LOCK(?,5)');
+        $lock->execute([$key]);
+        if ((int)$lock->fetchColumn()!==1) throw new \DomainException('Page or media editing is busy. Try again.');
+        try {return $operation();}
+        finally {
+            $release=$pdo->prepare('SELECT RELEASE_LOCK(?)');$release->execute([$key]);
+        }
+    }
+
+    public function saveCmsPage(string $slug,string $revision,string $action,?array $input): void {
+        CmsPageService::slug($slug);
+        if ($this->isRemote()) {
+            $this->remoteMutation('cms_page_save','cms_pages',['slug'=>$slug,'revision'=>$revision,'page_action'=>$action,'document'=>$input]);
+            return;
+        }
+        $this->withCmsMediaLock(function()use($slug,$revision,$action,$input):void {
+            $row=$this->find('cms_pages',$slug);
+            if ($row===null||!preg_match('/^[a-f0-9]{64}$/D',$revision)||!hash_equals(ResourceService::revision($row),$revision)) {
+                throw new \DomainException('Page changed. Reload before saving.');
+            }
+            $next=CmsPageService::transition($row,$action,$input);
+            (new MediaService(store:$this))->assertCmsReferences($row,$next);
+            $this->upsertIfRevision('cms_pages',$next,$revision);
+        });
+    }
+
+    public function archiveMedia(array $ids,bool $archive): array {
+        $ids=MediaService::archiveIds($ids);
+        if ($this->isRemote()) {
+            $result=$this->remoteMutation('media_archive','media_files',['ids'=>$ids,'archive'=>$archive]);
+            $summary=$result['summary']??null;
+            if (!is_array($summary)||!is_array($summary['changed']??null)||!is_int($summary['blocked']??null)||!is_int($summary['failed']??null)) throw new \RuntimeException('Media archive result could not be confirmed.');
+            return $summary;
+        }
+        return $this->withCmsMediaLock(fn()=> (new MediaService(store:$this))->archiveWhileLocked($ids,$archive));
     }
 
     /** Lock the row and compare the same revision shown by the editor before saving. */

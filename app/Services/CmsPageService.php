@@ -107,9 +107,8 @@ final class CmsPageService {
     /** Explicit owner setup on the serving installation; never run from public reads. */
     public function initialize(): void {
         if (getenv('BAPX_TEST_MODE')==='1') throw new \DomainException('Page setup requires a real database.');
-        $direct=new DatabaseService(true);
-        $direct->ensureSchemaCollection('cms_pages');
-        if (!$direct->collectionExists('cms_pages')) throw new \RuntimeException('Page setup could not be confirmed.');
+        $this->store->ensureSchemaCollection('cms_pages');
+        if (!$this->store->collectionExists('cms_pages')) throw new \RuntimeException('Page setup could not be confirmed.');
     }
 
     public function create(string $slug,string $title): array {
@@ -121,10 +120,7 @@ final class CmsPageService {
         return ['revision'=>ResourceService::revision($row),'state'=>self::state($row)];
     }
     public function save(string $slug,string $revision,string $action,?array $input): void {
-        $row=$this->store->find('cms_pages',self::slug($slug));
-        if ($row===null||!preg_match('/^[a-f0-9]{64}$/D',$revision)||!hash_equals(ResourceService::revision($row),$revision)) throw new \DomainException('Page changed. Reload before saving.');
-        $next=self::transition($row,$action,$input);
-        $this->store->upsertIfRevision('cms_pages',$next,$revision);
+        $this->store->saveCmsPage($slug,$revision,$action,$input);
     }
     /** Read only the published snapshot; private draft corruption never changes it. */
     public static function publishedDocument(array $row): ?array {
@@ -135,7 +131,7 @@ final class CmsPageService {
         return self::document($row['published'],true);
     }
     public function published(string $slug): ?array {
-        self::slug($slug);
+        $slug=self::slug($slug);
         if (!$this->ready()) return null;
         $row=$this->store->find('cms_pages',$slug);
         return $row===null?null:self::publishedDocument($row);
