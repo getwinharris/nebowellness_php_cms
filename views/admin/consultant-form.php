@@ -26,6 +26,10 @@
                         <input type="text" name="speciality" id="field-speciality" placeholder="e.g. Lifestyle physician">
                     </label>
                 </div>
+                <label>Professional registration number (optional)
+                    <input type="text" name="registration_number" id="field-registration_number" maxlength="80" placeholder="Registration identifier">
+                    <small>Displayed publicly with the practitioner's qualifications.</small>
+                </label>
                 <div class="admin-form__row admin-form__row--three" style="gap:var(--space-sm);">
                     <label>Experience (years)
                         <input type="number" name="experience_years" id="field-experience_years" placeholder="0" step="any">
@@ -237,6 +241,7 @@ document.querySelectorAll('.edit-item').forEach(button => {
         document.getElementById('field-name').value = item.name || '';
         document.getElementById('field-slug').value = item.slug || '';
         document.getElementById('field-credentials').value = item.credentials || '';
+        document.getElementById('field-registration_number').value = item.registration_number || '';
         document.getElementById('field-speciality').value = item.speciality || '';
         document.getElementById('field-experience_years').value = item.experience_years || '';
         document.getElementById('field-display_order').value = item.display_order || '';

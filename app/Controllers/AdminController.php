@@ -91,7 +91,16 @@ final class AdminController extends BaseController {
     public function consultants(): void{
         $this->render('admin/consultant-form',['pageTitle'=>'Consultants','title'=>'Consultants','collection'=>'consultants','items'=>(new ResourceService('consultants'))->all(),'mediaFiles'=>$this->mediaFor('consultants')]);
     }
-    public function saveConsultant(): void{$this->save('consultants');}
+    public function saveConsultant(): void {
+        if (array_key_exists('registration_number', $_POST)) {
+            try { $_POST['registration_number'] = \App\Services\ConsultantService::registrationNumber($_POST['registration_number']); }
+            catch (\InvalidArgumentException $error) {
+                $this->flash($error->getMessage(), 'error');
+                $this->redirect('/admin/consultants');
+            }
+        }
+        $this->save('consultants');
+    }
     public function deleteConsultant(): void{
         $id=(string)($_POST['id']??'');
         (new ResourceService('consultants'))->delete($id); (new AuditLogService())->record('delete','consultants',$id); $this->flash('Deleted.','info'); $this->redirect('/admin/consultants');
@@ -786,6 +795,7 @@ final class AdminController extends BaseController {
         if(isset($data['languages']))$data['languages']=$this->splitList($data['languages']);
         $uploaded=$this->uploadedMedia($collection);
         if ($collection === 'consultants') {
+            if (array_key_exists('registration_number', $_POST)) $data['registration_number'] = $_POST['registration_number'];
             $photos=$this->splitList((string)($data['photo_urls'] ?? ''));
             if (!empty($data['photo_url'])) array_unshift($photos, (string)$data['photo_url']);
             $uploadedPaths=array_column($uploaded, 'url');

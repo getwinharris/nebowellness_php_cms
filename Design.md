@@ -281,7 +281,7 @@ remain required. Enquiries retain campaign attribution in the existing inbox.
 
 The team module uses a clipped profile track on the left and a selected biography
 column on the right. Previews show practitioner names and their configured photographs.
-Use typographic initials for empty and default photo values. Exactly one profile is
+Use typographic initials for empty and default photo values. Render an optional owner-supplied professional registration number with the selected credentials and role; never manufacture a portrait or registration detail. Exactly one profile is
 large, with its description and consultation action in the detail column. Size that
 column for the longest current biography at each width so profile selection keeps
 the section height steady.
