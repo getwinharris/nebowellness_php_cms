@@ -21,7 +21,7 @@ const write=value=>php('$db->upsert("settings",["id"=>$id]+json_decode($argv[1],
                 assert.ok(payload.tools.some(t=>t.function.name==='published_site_identity'));
                 requests.push({prompt,tools:payload.tools.map(t=>t.function.name)});
                 // Match the fixture question, not the shared instruction mentioning a lookup.
-                if(prompt.includes('question: What is the public email address without a lookup?')||prompt.includes('Question: What is the public email address without a lookup?')){
+                if(/question: What is (?:the public email address|our business email) without a lookup\?/i.test(prompt)){
                     res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'wrong@example.test'}}]}));return;
                 }
                 if(!payload.messages.some(m=>m.role==='tool')){
@@ -63,6 +63,13 @@ const write=value=>php('$db->upsert("settings",["id"=>$id]+json_decode($argv[1],
             }
             const guessed=await ask(surface,'What is the public email address without a lookup?');
             assert.equal(guessed.status,surface==='support'?503:502);assert.ok(!guessed.body[key]);
+            const ordinary=await ask(surface,'What is our business email?');
+            assert.equal(ordinary.status,200,JSON.stringify(ordinary));
+            assert.ok(ordinary.body[key].includes(alpha.public_email));
+            const ordinaryGuess=await ask(surface,'What is our business email without a lookup?');
+            assert.equal(ordinaryGuess.status,surface==='support'?503:502);assert.ok(!ordinaryGuess.body[key]);
+            const ordinaryWrong=await ask(surface,'What is our business email? incorrect value fixture');
+            assert.equal(ordinaryWrong.status,surface==='support'?503:502);assert.ok(!ordinaryWrong.body[key]);
             const wrong=await ask(surface,'What is the public email address? incorrect value fixture');
             assert.equal(wrong.status,surface==='support'?503:502);assert.ok(!wrong.body[key]);
         }

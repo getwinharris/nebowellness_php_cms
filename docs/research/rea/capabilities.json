@@ -2202,10 +2202,11 @@
       "title": "Tool retrieval and discovery",
       "status": "partial",
       "acceptance": "Model-led discovery and role-filtered schemas/skills.",
-      "finding": "Bounded schema ranking; no deferred discovery.",
+      "finding": "Bounded schema ranking; no deferred discovery. Public-contact evidence and claim checks share one explicit intent classification; ordinary business email phrasing and exact contact digits covered.",
       "issues": [
         128,
-        174
+        174,
+        182
       ],
       "references": [
         {
@@ -2223,6 +2224,10 @@
         {
           "path": "tests/site-identity-ability.test.cjs",
           "anchor": "published identity projection and A2UI exclude drafts"
+        },
+        {
+          "path": "tests/site-identity-ability.test.cjs",
+          "anchor": "ordinary business contact wording shares one evidence"
         }
       ],
       "production": null
@@ -2862,6 +2867,19 @@
         "cms-08"
       ],
       "summary": "Address late review with actual schema read and exact missing-table classification, configured owner-confirmed initialization, shared serving DB lock for native page edits and reversible media archive, active managed-reference validation and real existing sitemap/reference assertions. Disposable bridge and concurrent DB integration cover read errors, setup, archival and page revision behavior. No production migration or content mutation; legacy non-CMS writers remain outside lock."
+    },
+    {
+      "id": "182-contact-grounding-phrasing",
+      "date": "2026-11-27",
+      "issues": [
+        182,
+        174,
+        128
+      ],
+      "components": [
+        "harness-03"
+      ],
+      "summary": "Late review of #175 found ordinary business email bypass. Share explicit public contact intent categories between tool evidence and concrete answer validation; reject wrong/missing observed email or international number, preserve private/general model questions. Unit and both agent route fixtures, no new tool grant or provider change."
     }
   ]
 }
