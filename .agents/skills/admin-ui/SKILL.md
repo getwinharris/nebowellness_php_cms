@@ -65,3 +65,5 @@ Update when an admin route, sidebar group, or CRUD form contract changes. The si
 - Keep admin motion brief and limited to workspace section arrival, mobile sidebar and user-expanded groups. Do not animate status values, rows or inputs; change hidden/expanded semantics immediately and preserve focus and reduced motion.
 
 - CRM uses owner-only routes, no-store responses, revision guards, private notes separate from customer-visible replies, and bounded customer context. Test ownership and JSON download authorization. Follow [the native harness contract](../../../docs/agent-harness.md); no fake inference.
+
+- Consultation fee cards use revision-guarded canonical settings, integer minor units and explicit draft/published visibility. Keep published display fees separate from therapy payment offers. Test draft visibility, save/reload, stale edit and the shared tool.

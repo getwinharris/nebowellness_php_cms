@@ -483,3 +483,6 @@ When the owner requests SHA-level composition, compare the same visible landmark
 
 ### Clinic CRM and contact channels
 The owner inbox presents ticket queue, conversation and private note composer, plus related customer context. Mobile stacks regions in reading order. Session archives offer owner-only JSON downloads and observed execution steps. Public support shows actual inference or explicit failure. Telephone and WhatsApp are independently editable, separately labelled controls.
+
+### Consultation catalogue
+Contact shows ordered published fee cards in a two-column ruled editorial section, one column on phones. Display currency, amount, duration, description and approved inclusions with accessible enquiry actions. Drafts and unavailable prices are never displayed as current. Keep enquiry separate from payment and confirmed scheduling.

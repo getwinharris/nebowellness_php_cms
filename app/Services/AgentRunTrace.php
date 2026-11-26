@@ -100,7 +100,7 @@ final class AgentRunTrace
     }
 
     public function source(string $path): void {
-        if (!preg_match('#^/(?:\#(?:team|programs)|campaigns/[a-z0-9-]+|blog/[a-z0-9-]+|contact|admin|admin/(?:support-tickets|contact-submissions|therapy|dashboard|consultants|campaigns|orders|products|blog))$#D',$path)) return;
+        if (!preg_match('#^/(?:\#(?:team|programs)|campaigns/[a-z0-9-]+|blog/[a-z0-9-]+|contact(?:\#consultation-fees)?|admin|admin/(?:support-tickets|contact-submissions|therapy|dashboard|consultants|campaigns|orders|products|blog))$#D',$path)) return;
         if (count($this->sources)<12) $this->sources[$path]=true;
     }
 

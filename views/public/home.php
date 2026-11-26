@@ -347,6 +347,8 @@ $consultationSteps = [
                 <h2>Book Your Consultation</h2>
                 <p>Request a 30-minute discovery call to share your goals, discuss the support you need, and plan your next step with the clinic.</p>
                 <a class="btn btn-primary" href="/contact#contact-form">Request a consultation <span aria-hidden="true">↗</span></a>
+                <?php try { $hasConsultationFees=!empty((new \App\Services\ConsultationFeeService())->published()['fees']); } catch (\Throwable) { $hasConsultationFees=false; } ?>
+                <?php if ($hasConsultationFees): ?><a class="nebo-editorial-action" href="/contact#consultation-fees">View consultation fees <span aria-hidden="true">↗</span></a><?php endif; ?>
                 <address class="consultation-invitation__contact">
                     <span>Kaliyal, Kanyakumari, Tamil Nadu, India 629101</span>
                     <?php foreach ((new \App\Services\ClinicContactService())->channels()['phones'] as $number): ?><a href="tel:<?= e($number) ?>"><?= e($number) ?></a><?php endforeach; ?>

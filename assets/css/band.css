@@ -6949,3 +6949,23 @@ main:has(> :is(.campaign-index, .campaign-page)) { padding-block-start: 0; paddi
 }
 
 .support-source-note { display:block; font-size:.72rem; color:var(--color-text-muted); margin:5px 0 0; }
+
+/* Consultation display catalogue: no payment UI; source is owner-managed. */
+.consultation-fees { padding-block:clamp(28px,5vw,72px); border-bottom:1px solid var(--brand-rule); scroll-margin-top:calc(var(--site-header-height,85px) + 18px); }
+.consultation-fees > header { max-width:70ch; margin-bottom:24px; }
+.consultation-fees h2 { font-weight:350; font-size:clamp(1.8rem,3.2vw,3rem); margin:8px 0; }
+.consultation-fees__grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(16px,3vw,40px); }
+.consultation-fee { min-width:0; padding:24px 0; border-block-start:1px solid var(--brand-rule); display:flex; flex-direction:column; align-items:flex-start; gap:10px; overflow-wrap:anywhere; }
+.consultation-fee__header { display:flex; align-items:baseline; flex-wrap:wrap; gap:12px; justify-content:space-between; width:100%; }
+.consultation-fee h3,.consultation-fees__inclusions h3 { margin:0; font-size:clamp(1.1rem,2vw,1.5rem); font-weight:500; }
+.consultation-fee__price { font-weight:400; font-size:clamp(1.65rem,3vw,2.45rem); font-variant-numeric:tabular-nums; }
+.consultation-fee p { margin:0; }
+.consultation-fee__duration { color:var(--color-text-muted); font-size:.88rem; }
+.consultation-fee > .btn { margin-top:auto; min-height:44px; }
+.consultation-fees__inclusions { padding-top:24px; border-top:1px solid var(--brand-rule); }
+.consultation-fees__inclusions ul { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 30px; padding-inline-start:20px; line-height:1.65; }
+.consultation-fees__notice { padding-block:16px; }
+.fee-editor { border:1px solid var(--color-border); padding:12px 16px; margin:16px 0; border-radius:6px; }
+.fee-editor summary { cursor:pointer; font-weight:600; min-height:44px; padding-block:12px; overflow-wrap:anywhere; }
+.fee-editor > form { padding-top:12px; }
+@media(max-width:743px) { .consultation-fees__grid,.consultation-fees__inclusions ul { grid-template-columns:minmax(0,1fr); } .fee-editor { padding:8px 12px; } }
