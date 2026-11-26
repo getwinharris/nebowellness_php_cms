@@ -44,7 +44,7 @@ Resolve each locator through docs/research/rea/evidence/manifest.json. Read the 
 ## Behavioral verification
 
 - Two differently branded fixture profiles render same templates; explicit clearing and absent values differ; header/footer/navigation and favicon match configuration; preview/publish/rollback, accessible desktop/mobile, no leaked defaults from another client.
-- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXphp update, ./bapXphp rea check, ./bapXphp rea skills-check and ./bapXphp ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
+- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXcms update, ./bapXcms rea check, ./bapXcms rea skills-check and ./bapXcms ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
 
 ## Out of scope
 

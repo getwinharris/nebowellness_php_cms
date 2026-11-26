@@ -34,7 +34,7 @@ test('diagnostics reject a successful HTTP response that does not complete the c
  t.after(()=>new Promise(resolve=>provider.close(resolve)));
  async function probe(mode='text',target='',google=false,model='fixture'){
   const args=['ai:probe',mode];if(target)args.push(target);
-  const proc=spawn('bash',[path.join(__dirname,'..','cli','bapXphp'),...args],{env:{...process.env,BAPX_TEST_MODE:'1',AI_API_KEY:'synthetic-only',BAPX_AI_ENDPOINT:'http://127.0.0.1:'+provider.address().port+(google?'/googleapis':''),AGENT_MODEL:model}});
+  const proc=spawn('bash',[path.join(__dirname,'..','cli','bapXcms'),...args],{env:{...process.env,BAPX_TEST_MODE:'1',AI_API_KEY:'synthetic-only',BAPX_AI_ENDPOINT:'http://127.0.0.1:'+provider.address().port+(google?'/googleapis':''),AGENT_MODEL:model}});
   let stdout='',stderr='';proc.stdout.on('data',c=>stdout+=c);proc.stderr.on('data',c=>stderr+=c);
   const code=await new Promise((resolve,reject)=>{proc.on('error',reject);proc.on('close',resolve)});
   return {code,stdout,stderr,result:()=>JSON.parse(stdout)};

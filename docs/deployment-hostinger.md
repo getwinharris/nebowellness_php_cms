@@ -39,16 +39,16 @@ belong to GitHub Actions and the GitHub web interface.
 One-time Git auto-deploy from `main` is configured — commits to GitHub main deploy automatically. The implementing agent must self-review, verify local and exact-head GitHub validation, merge, perform the release migrations and verify the live result. Optional external reviews must not delay a verified release:
 
 ```bash
-bapXphp update
-bapXphp ci
+bapXcms update
+bapXcms ci
 ```
 
 ## Verify deployed source identity
 
 From a clean, synchronized canonical checkout run:
 
-    ./bapXphp release:identity
-    ./bapXphp release:verify https://nebowellness.com
+    ./bapXcms release:identity
+    ./bapXcms release:verify https://nebowellness.com
 
 GET /is-sha-valid exposes a bounded no-store JSON check. Pass a full sha
 and/or fingerprint query value; matching returns 200, known mismatches 409,
@@ -76,7 +76,7 @@ to `getwinharris/bapXphpAiBackend`.
 
 ## Production Logs
 
-Production operational history belongs in remote MySQL `audit_events`, visible in Admin -> Audit Log and through `bapXphp logs`. Local `server.log` and `storage/logs/` are ignored runtime artifacts and must never be committed. Use `bapXphp logs --local` only when diagnosing the local PHP server. Do not auto-commit hosted request or error logs: they may contain customer data and each log commit would retrigger deployment.
+Production operational history belongs in remote MySQL `audit_events`, visible in Admin -> Audit Log and through `bapXcms logs`. Local `server.log` and `storage/logs/` are ignored runtime artifacts and must never be committed. Use `bapXcms logs --local` only when diagnosing the local PHP server. Do not auto-commit hosted request or error logs: they may contain customer data and each log commit would retrigger deployment.
 
 ## Vercel
 
@@ -118,7 +118,7 @@ This application is built for normal PHP hosting, not Vercel. Vercel's official 
 ## Troubleshooting
 
 - 500 error: check PHP version, `.htaccess`, and PHP error logs.
-- Data not saving: run `bapXphp db status`, then verify the `BAPX_MYSQL_*` values and hosted database permissions.
+- Data not saving: run `bapXcms db status`, then verify the `BAPX_MYSQL_*` values and hosted database permissions.
 - Admin blocked: verify the admin account in remote MySQL and the current Admin -> Settings configuration.
 - Razorpay disabled: add live key ID and secret in admin integrations.
 - Google login not working: register the exact `APP_URL` callback in Google Cloud Console. New Nebo production setup uses `https://www.nebowellness.com/auth/google/callback`. For an apex-to-www change, register both callbacks, wait 10 minutes for active sign-ins to expire, then update `APP_URL` and retain the apex callback until the transition is complete.

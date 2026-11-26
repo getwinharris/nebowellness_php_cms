@@ -42,12 +42,12 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 368
+  concepts: 369
   relationships: 340
   by_type:
     blog: 5
     controller: 14
-    doc: 46
+    doc: 47
     image: 40
     route: 137
     schema: 26
@@ -487,6 +487,15 @@ concepts:
     tags:
       - "module"
     filename: "orders.md"
+    header_image: ""
+  - id: "doc:product-boundary"
+    type: "doc"
+    title: "bapXcms standalone product boundary"
+    description: "Service-first white-label scope and separation from the retail commerce platform."
+    resource: "docs/product-boundary.md"
+    tags:
+      - "docs"
+    filename: "product-boundary.md"
     header_image: ""
   - id: "doc:product-list"
     type: "doc"
@@ -4101,11 +4110,11 @@ concepts:
     resource: ".agents/skills/backend-php-mysql/SKILL.md"
     tags:
       - "skill"
-  - id: "skill:bapxphp-cli"
+  - id: "skill:bapxcms-cli"
     type: "skill"
-    title: "bapxphp-cli"
-    description: "Use when running or changing the repository-owned bapXphp CLI, including orientation, validation, maps, knowledge indexes, schema, database, logs, blogs, images, and development-user commands."
-    resource: ".agents/skills/bapxphp-cli/SKILL.md"
+    title: "bapxcms-cli"
+    description: "Use when running or changing the repository-owned bapXcms CLI, including orientation, validation, maps, knowledge indexes, schema, database, logs, blogs, images, and development-user commands."
+    resource: ".agents/skills/bapxcms-cli/SKILL.md"
     tags:
       - "skill"
   - id: "skill:deployment"
@@ -4286,7 +4295,7 @@ concepts:
   - id: "skill:rea-wp-wpcli-and-ops"
     type: "skill"
     title: "rea-wp-wpcli-and-ops"
-    description: "Adapt safe targeting, backups, dry runs, cron and release verification to bapXphp."
+    description: "Adapt safe targeting, backups, dry runs, cron and release verification to bapXcms."
     resource: ".agents/REA/skills/rea-wp-wpcli-and-ops/SKILL.md"
     tags:
       - "skill"

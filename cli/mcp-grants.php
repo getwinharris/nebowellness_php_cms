@@ -13,6 +13,6 @@ try{
         $result=$service->issue($argv[2],(int)$argv[3]);
         fwrite(STDERR,"Save this one-time token privately. Never paste it into an issue, chat or log.\n");
     }elseif($action==='revoke'&&count($argv)===3)$result=['revoked'=>$service->revoke($argv[2])];
-    else throw new InvalidArgumentException('Usage: bapXphp mcp:grants list | issue LABEL DAYS | revoke ID');
+    else throw new InvalidArgumentException('Usage: bapXcms mcp:grants list | issue LABEL DAYS | revoke ID');
     echo json_encode($result,JSON_PRETTY_PRINT|JSON_THROW_ON_ERROR),PHP_EOL;
 }catch(Throwable){fwrite(STDERR,"MCP grant operation rejected or unavailable. Check the command and authorized database access.\n");exit(1);}

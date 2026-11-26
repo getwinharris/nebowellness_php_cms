@@ -8,7 +8,7 @@ $path = $root . '/docs/map.mmd';
 $expected = (new DocsMapService($root))->generate();
 
 if (!is_file($path) || trim((string)file_get_contents($path)) !== trim($expected)) {
-    fwrite(STDERR, "Generated documentation map is stale. Run bapXphp update and commit docs/map.mmd.\n");
+    fwrite(STDERR, "Generated documentation map is stale. Run bapXcms update and commit docs/map.mmd.\n");
     exit(1);
 }
 

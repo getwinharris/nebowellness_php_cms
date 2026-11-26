@@ -69,7 +69,7 @@ assertion. A known Git mismatch fails even when the selected bytes match.
 
 - app/Services/ReleaseIdentityService.php: validation, optional metadata, bounded source inspection.
 - app/Controllers/ApiController.php and ProjectMapService.php: registered GET endpoint.
-- cli/release-identity.php and bapXphp: local observation and remote comparison.
+- cli/release-identity.php and bapXcms: local observation and remote comparison.
 - tests/run.php: restored red test, loose/packed/detached refs, unknown/malformed expectations, source drift, excluded configuration and upload bytes, unsafe links and missing required files.
 - cli/smoke-local.php: actual local HTTP matching/mismatch/invalid, cache policy and CLI comparison.
 - Production: after merge, compare actual origin to synchronized main and probe affected flows. Record a reported revision only if available and exact source fingerprint separately. Re-test if deployment is still propagating.

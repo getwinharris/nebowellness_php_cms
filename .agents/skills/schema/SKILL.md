@@ -13,13 +13,13 @@ description: Use when changing MySQL database collections, fields, admin forms, 
 - Do not add local product/category/consultant seed catalogues. Use direct MySQL or `<APP_URL>/remotedb` for local testing.
 - `media_files` stores new upload metadata in MySQL. Read legacy YAML as a protected catalogue during transition.
 - Consultant profiles do not have application login access. Authentication or provider-access changes must align users, consultants, appointments, authorization, admin forms, and tests. Treat consultation message and signal collections as retained historical data unless the scheduled-appointment-only product policy is explicitly changed.
-- Run `./bapXphp update` after schema or storage changes so `.agents/index.yaml`, maps and project indexes stay queryable.
+- Run `./bapXcms update` after schema or storage changes so `.agents/index.yaml`, maps and project indexes stay queryable.
 - Follow the affected map edges through services and pages, and distinguish runtime data from genuinely undeclared storage before adding files.
 - Validate with `php tests/run.php`.
 
 ## Testing
 
-`./bapXphp schema list` before and after, and confirm every persisted field is declared. Then `./bapXphp test`.
+`./bapXcms schema list` before and after, and confirm every persisted field is declared. Then `./bapXcms test`.
 
 ## Keeping this skill current
 

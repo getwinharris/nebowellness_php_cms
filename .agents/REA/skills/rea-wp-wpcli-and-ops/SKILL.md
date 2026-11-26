@@ -1,6 +1,6 @@
 ---
 name: rea-wp-wpcli-and-ops
-description: "Adapt safe targeting, backups, dry runs, cron and release verification to bapXphp."
+description: "Adapt safe targeting, backups, dry runs, cron and release verification to bapXcms."
 ---
 
 # Native CLI and deployment operations
@@ -42,17 +42,17 @@ Resolve each locator through docs/research/rea/evidence/manifest.json. Read the 
 
 ## Trace the reference and current native behavior
 
-- Read upstream targeting, automation, safety, search-replace and cron/cache guidance. Trace native cli/bapXphp, schema migration, release verifier, audit events and mail queue. Confirm canonical checkout and deployed origin before running a command.
+- Read upstream targeting, automation, safety, search-replace and cron/cache guidance. Trace native cli/bapXcms, schema migration, release verifier, audit events and mail queue. Confirm canonical checkout and deployed origin before running a command.
 - Separate harmless local reads from production state mutations. Preserve exact source and backup/rollback evidence; do not use copied credentials or raw SQL from a reference skill.
 
 ## Native reconstruction contract
 
-- Use existing bapXphp commands for map/schema/CI/release:verify, provider diagnostics and authorized domain operations. Plan dry-run and affected fields for migrations; recheck schema and revision. Never flush caches or replace arbitrary text on production by default.
+- Use existing bapXcms commands for map/schema/CI/release:verify, provider diagnostics and authorized domain operations. Plan dry-run and affected fields for migrations; recheck schema and revision. Never flush caches or replace arbitrary text on production by default.
 
 ## Behavioral verification
 
 - Verify CLI exit codes and actual output (not HTTP 2xx alone), repeated execution, wrong environment, unavailable source/DB, and post-deploy revision/fingerprint and affected flow. Document no-op/failure honestly.
-- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXphp update, ./bapXphp rea check, ./bapXphp rea skills-check and ./bapXphp ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
+- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXcms update, ./bapXcms rea check, ./bapXcms rea skills-check and ./bapXcms ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
 
 ## Out of scope
 

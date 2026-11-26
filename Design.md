@@ -258,8 +258,8 @@ Use cool paper and deep blue ink across these surfaces. Blue remains the shared 
 
 - Check the affected flow in the built-in Browser before and after editing. Use 1440×1000, 375px wide, and both sides of any affected breakpoint. Check public pages at 390×844 as well. Include `/`, `/shop`, a product, `/cart`, `/login`, and authenticated account pages when changes touch the shared public layout.
 - Confirm image crops, active navigation, focus states, card alignment, and visibility of essential content during reveals. Check that the page stays within the viewport, the primary action is visible on mobile, and the first scroll clearly leads to the next chapter.
-- Use the fixed development customer created by `bapXphp dev:user`; its password must come from `BAPX_TEST_USER_PASSWORD` and must never be committed.
-- Include applicable empty, populated, disabled-module, and error states. Check keyboard focus, touch targets, safe-area spacing, reduced motion, and core content and form fallbacks with JavaScript disabled. Use synthetic data. Redact credentials and personal data from evidence before attaching it to the issue. Identify any unrun checks. Run `./bapXphp ci` before review.
+- Use the fixed development customer created by `bapXcms dev:user`; its password must come from `BAPX_TEST_USER_PASSWORD` and must never be committed.
+- Include applicable empty, populated, disabled-module, and error states. Check keyboard focus, touch targets, safe-area spacing, reduced motion, and core content and form fallbacks with JavaScript disabled. Use synthetic data. Redact credentials and personal data from evidence before attaching it to the issue. Identify any unrun checks. Run `./bapXcms ci` before review.
 
 ## Implementation Notes
 

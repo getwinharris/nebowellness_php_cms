@@ -47,7 +47,7 @@ Resolve each locator through docs/research/rea/evidence/manifest.json. Read the 
 ## Behavioral verification
 
 - Test allowed/denied actors, another customer record, disabled modules, wrong shape, unknown names, empty vs unavailable, bounds, duplicate/reordered IDs, before/after durable records and notification counts. Use real loopback and isolated MariaDB; verify output schema and privacy. Fail if only static proof exists for runtime claims.
-- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXphp update, ./bapXphp rea check, ./bapXphp rea skills-check and ./bapXphp ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
+- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXcms update, ./bapXcms rea check, ./bapXcms rea skills-check and ./bapXcms ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
 
 ## Out of scope
 

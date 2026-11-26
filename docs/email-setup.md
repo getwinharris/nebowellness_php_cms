@@ -21,7 +21,7 @@ auditable record carrying the error rather than disappearing. `deliverNow()` nev
 throws: a mail failure must not break the checkout, signup or password reset that
 triggered it. Failed rows are visible in **Admin → Email Outbox**.
 
-`bapXphp mail:process` retries rows already marked failed. It is optional.
+`bapXcms mail:process` retries rows already marked failed. It is optional.
 
 ## Configuration
 

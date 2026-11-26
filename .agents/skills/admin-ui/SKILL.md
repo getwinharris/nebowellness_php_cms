@@ -50,12 +50,12 @@ Configured in Admin → Integrations with these fields stored in MySQL `secrets`
 ## Testing
 
 Use authorized admin credentials for a development environment to log into `/admin`.
-`bapXphp dev:user` creates a customer account. Record the blocked checks if no
+`bapXcms dev:user` creates a customer account. Record the blocked checks if no
 development admin account is available. Exercise the affected flow in
 the built-in Browser at desktop and 375px. Check applicable breakpoint edges, sidebar
 and dialogs, computed overflow with long field values, keyboard focus, permission
 errors, and save or delete feedback. Confirm that submitting one form preserves
-values in the other forms. Record any unrun browser checks and run `./bapXphp ci`
+values in the other forms. Record any unrun browser checks and run `./bapXcms ci`
 before review.
 
 ## Keeping this skill current

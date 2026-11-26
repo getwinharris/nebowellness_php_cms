@@ -14,7 +14,7 @@ use App\Services\DatabaseService;
 use App\Services\ImageOptimizerService;
 
 if ($source === '' || (!is_file($source) && !is_dir($source))) {
-    fwrite(STDERR, "Usage: bapXphp product:images <archive.zip|folder> [--dry-run]\n");
+    fwrite(STDERR, "Usage: bapXcms product:images <archive.zip|folder> [--dry-run]\n");
     exit(1);
 }
 

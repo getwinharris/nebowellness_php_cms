@@ -47,9 +47,9 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           REA_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: ./bapXphp rea impact "$REA_BASE_SHA"
+        run: ./bapXcms rea impact "$REA_BASE_SHA"
       - name: Validate code, tests, maps, and routes
-        run: ./bapXphp ci
+        run: ./bapXcms ci
 
       - name: Exercise durable clinic workflows in strict MariaDB
         env:
@@ -61,7 +61,7 @@ jobs:
           APP_URL: http://127.0.0.1
           BAPX_REMOTE_DB_URL: http://127.0.0.1/remotedb
         run: |
-          ./bapXphp db init
+          ./bapXcms db init
           php tests/therapy-integration.php
           php tests/identity-media-integration.php
           php tests/agent-audit-integration.php

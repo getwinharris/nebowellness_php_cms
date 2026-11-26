@@ -33,10 +33,10 @@ identifier. This does not change the license of unrelated native product code.
 
 ## Select, inspect and apply
 
-    ./bapXphp rea skills
-    ./bapXphp rea skill rea-wordpress-router
-    ./bapXphp rea skill rea-wp-abilities-audit
-    ./bapXphp rea skills-check
+    ./bapXcms rea skills
+    ./bapXcms rea skill rea-wordpress-router
+    ./bapXcms rea skill rea-wp-abilities-audit
+    ./bapXcms rea skills-check
 
 The list joins each native skill to current component status in capabilities.json.
 Use a native ID, not an arbitrary file path. Load the matching domain skill plus
@@ -104,4 +104,4 @@ component/source locators. Product coverage remains independent of skill count.
 
 For every relevant runtime PR, name the native REA skill(s) used in the issue or
 contract and record which behavioral obligations were actually tested. Use
-./bapXphp rea skills-check and ./bapXphp update before ./bapXphp ci.
+./bapXcms rea skills-check and ./bapXcms update before ./bapXcms ci.

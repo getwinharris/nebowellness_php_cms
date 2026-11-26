@@ -45,7 +45,7 @@ Resolve each locator through docs/research/rea/evidence/manifest.json. Read the 
 ## Behavioral verification
 
 - Run php -l, affected behavioral/type-negative fixtures and full CI; if an existing static analyzer is available, record exact version/config and findings. Check null/array vs scalar/invalid encoding, unsupported schema keywords, exceptional returns. Do not call lint a comprehensive type proof.
-- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXphp update, ./bapXphp rea check, ./bapXphp rea skills-check and ./bapXphp ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
+- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXcms update, ./bapXcms rea check, ./bapXcms rea skills-check and ./bapXcms ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
 
 ## Out of scope
 

@@ -13,7 +13,7 @@ This directory is the source-backed delivery contract for the reusable native ba
 
 - [Native REA skill library](../../../.agents/REA/README.md): 22 individually
   adapted guides, pinned official skill snapshots, source locator and
-  capability routing, license and digest inventory. Use ./bapXphp rea skills.
+  capability routing, license and digest inventory. Use ./bapXcms rea skills.
 - [Progress report](progress.md): generated per-track counts and remaining work.
 - [Canonical capability register](capabilities.json): stable IDs, status, acceptance criteria, source/test anchors, reference locators, issue links and production observations.
 - [Evidence manifest](evidence/manifest.json): archive/commit provenance, digests, analysis boundaries and public documentation.
@@ -34,7 +34,7 @@ Each stable component ID represents one deliberately scoped acceptance unit, wei
 
 Implementation coverage = implemented count / in-scope component count × 100. Production-observation coverage = components with recorded live observation / in-scope component count × 100. No half-credit or estimated percentages. These are scoped capability counts, not effort estimates or percentages of all WordPress/WooCommerce/DeepSeek features. The original denominator is 61 components; changing scope must increment scope_revision, explain why, and preserve historical review entries. Do not quietly remove difficult requirements or reinterpret existing IDs.
 
-**Commerce scope:** do not pursue general WooCommerce parity. Preserve existing shop functionality, but this research track only adapts capabilities needed for service booking, custom enquiry fields/forms, landing pages, approval, fees and necessary payment/receipt lifecycle. No general product/inventory/shipping/marketing expansion. Defer the installer until the reusable core is accepted.
+**Product scope (revision 2):** bapXcms is a standalone service-first CMS/CRM with optional configured ERP extensions. Retail product catalogue, cart, shipping, coupon and retail order functionality is to be retired; no general WooCommerce parity or shop activation. Pinned WooCommerce evidence remains relevant only to service booking, custom enquiry fields/forms, landing pages, approval, fees and necessary payment/receipt lifecycle. Preserve historical business records and prior evidence. Defer installer and new ERP scope until the native service/CMS core is accepted.
 
 ## Engineering contract
 
@@ -92,17 +92,17 @@ additional reference paths only when the archived evidence is insufficient.
 
 ## Mandatory update workflow for every relevant PR
 
-1. Read AGENTS.md, this workflow, the current progress report, applicable capability IDs, reference evidence and matching project skill. Select the native REA adaptation from ./bapXphp rea skills and record it in the issue/contract. Follow its explicit data/permission/state and verification obligations; use vendor originals only as evidence. Search open/closed issues and PR history; inspect exact current source and a relevant reference file/schema. Reuse existing capabilities; do not treat a historical gap as current.
+1. Read AGENTS.md, this workflow, the current progress report, applicable capability IDs, reference evidence and matching project skill. Select the native REA adaptation from ./bapXcms rea skills and record it in the issue/contract. Follow its explicit data/permission/state and verification obligations; use vendor originals only as evidence. Search open/closed issues and PR history; inspect exact current source and a relevant reference file/schema. Reuse existing capabilities; do not treat a historical gap as current.
 2. Identify the scope and issue, then reproduce the failing behavior using an actual boundary test. Record expected behavior and evidence. For newly researched scope, update the manifest with pinned version/hash and limitations; keep original evidence immutable and add a new record.
 3. Implement a focused change in the canonical checkout. Run the relevant real fixtures, local CI, self-review and production tests as applicable. Clearly separate static research, synthetic provider, isolated database, local browser, production browser and actual external provider results.
 4. Update the affected component rows in capabilities.json: status, remaining finding, precise source and test anchors, issue references, and separately dated production observation if actually observed. Append a unique updates entry with date, issue IDs, affected component IDs and concise reason/evidence. If a runtime change does not affect a tracked capability, still append a review entry with empty component list and explain why. Do not edit prior review entries to hide history. Scope changes require a higher scope_revision and a new review entry containing scope_change rationale.
 5. Run:
    ```sh
-   ./bapXphp rea status
-   ./bapXphp update
-   ./bapXphp rea check
-   ./bapXphp rea skills-check
-   ./bapXphp ci
+   ./bapXcms rea status
+   ./bapXcms update
+   ./bapXcms rea check
+   ./bapXcms rea skills-check
+   ./bapXcms ci
    ```
    The update command regenerates the progress report before maps/indexes. The check validates reference digests, exact source/test anchors, stable IDs and report drift. PR CI also checks the base-to-head runtime change against a new register review. The tooling verifies record integrity, not semantic correctness of every acceptance claim: the implementing agent still owns evidence and release review.
 6. Push one PR, verify exact-head checks, merge, deploy and repeat the affected live flow. If deployment/provider/client approval remains unverified, keep the corresponding issue open. When live evidence is acquired, record it in a follow-up registry update without inflating implementation coverage. If a previously accepted behavior regresses, demote it immediately and record the regression; percentages may decrease.

@@ -44,7 +44,7 @@ Resolve each locator through docs/research/rea/evidence/manifest.json. Read the 
 ## Behavioral verification
 
 - Run same scenario against fixture and real deployment where permitted; capture response/status and browser error/overflow, check source fingerprint, exact data state and role denials. Distinguish simulated renderer from actual tool execution.
-- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXphp update, ./bapXphp rea check, ./bapXphp rea skills-check and ./bapXphp ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
+- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXcms update, ./bapXcms rea check, ./bapXcms rea skills-check and ./bapXcms ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
 
 ## Out of scope
 

@@ -24,10 +24,10 @@ category: docs
 1. Select the version and identify its entries under Unreleased. Document any
    migrations, configuration changes, or rollback considerations in the PR.
 2. The implementing agent performs and records a substantive self-review of the
-   exact head, runs `./bapXphp update` and `./bapXphp ci`, checks GitHub validation
+   exact head, runs `./bapXcms update` and `./bapXcms ci`, checks GitHub validation
    and resolves actual review findings. Optional review bots are not required.
    Merge through the normal PR workflow without waiting for another person.
-3. Run ./bapXphp release:verify https://nebowellness.com from synchronized
+3. Run ./bapXcms release:verify https://nebowellness.com from synchronized
    main. Distinguish a known revision match, a source-only match with unknown
    Git metadata, mismatch and unavailable. Check affected
    production flows in the built-in Browser. Record the tested commit and results.

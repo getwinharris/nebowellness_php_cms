@@ -15,7 +15,7 @@ foreach ($argv as $index => $argument) {
 }
 
 if ($slug === '' || $source === '') {
-    fwrite(STDERR, "Usage: bapXphp blog:image <slug> <screenshot-or-image> [--source-url /path] [--alt text] [--dry-run]\n");
+    fwrite(STDERR, "Usage: bapXcms blog:image <slug> <screenshot-or-image> [--source-url /path] [--alt text] [--dry-run]\n");
     exit(1);
 }
 if (!preg_match('/^[a-z0-9-]+$/', $slug) || !is_file($source)) {

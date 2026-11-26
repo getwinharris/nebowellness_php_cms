@@ -82,6 +82,6 @@ controller, service, and view listed in `project-index.json` before updating it.
 ## Regeneration
 
 ```bash
-./bapXphp update
-./bapXphp ci
+./bapXcms update
+./bapXcms ci
 ```

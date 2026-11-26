@@ -47,7 +47,7 @@ app/
   Router.php            Route dispatcher
 assets/
   css/                  Shared stylesheets
-cli/                    bapXphp CLI entry point and helper scripts
+cli/                    bapXcms CLI entry point and helper scripts
 content/blog/posts/     Blog post markdown files
 docs/                   Project, module, and deployment docs
 storage/schema/         MySQL schema contract (collections.php)

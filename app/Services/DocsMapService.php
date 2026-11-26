@@ -14,7 +14,7 @@ final class DocsMapService
     {
         $lines = [
             'mindmap',
-            '  root(("Knowledge Map — bapXphp"))',
+            '  root(("Knowledge Map — bapXcms"))',
             '',
             '    ### Repository Intelligence',
             '    AGENTS_FILES["Root AGENTS.md contract"]',
@@ -74,7 +74,7 @@ final class DocsMapService
 
     private function cliSection(): array
     {
-        $lines = ["    ### CLI (bapXphp)"];
+        $lines = ["    ### CLI (bapXcms)"];
         $cliFiles = $this->phpBasenames($this->root . '/cli');
         foreach ($cliFiles as $f) {
             $lines[] = "    CLI_" . $this->stableId($f) . '["' . $this->label($f) . '"]';

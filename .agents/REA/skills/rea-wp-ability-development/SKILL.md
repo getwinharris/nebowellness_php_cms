@@ -49,7 +49,7 @@ Resolve each locator through docs/research/rea/evidence/manifest.json. Read the 
 ## Behavioral verification
 
 - Exercise zero/one/many results, bad nested properties, null versus omission, stale edits, exact currency/minor units, same receipt on retry, denied access and unavailable data. Check Google/compatible schema support and MCP/A2UI projections without broadening the contract.
-- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXphp update, ./bapXphp rea check, ./bapXphp rea skills-check and ./bapXphp ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
+- Record the actual red/green or comparison evidence, source and fixture revision, expected/observed behavior and failure paths. Update the issue-scoped contract and REA register; run ./bapXcms update, ./bapXcms rea check, ./bapXcms rea skills-check and ./bapXcms ci. Merge only exact-head validated work; verify the deployed source and affected live flow separately.
 
 ## Out of scope
 

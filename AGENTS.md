@@ -8,8 +8,30 @@ Repository instructions for coding agents.
   deployment source. Issues, branches, PRs and releases all live there.
 - The repository is independent and unforked. Do not add an upstream remote or
   synchronise from any other copy.
+- Product identity: **bapXcms** is the standalone service-first white-label CMS
+  and CRM, with optional configurable ERP extensions. Nebo Wellness is its
+  reference deployment, not the generic product identity. The only project CLI
+  is ./bapXcms; do not install or alias the commerce repository's CLI.
+- bapxmediahub/bapXphpAiBackend remains a separate commerce/CMS/CRM product.
+  Earlier pinned comparisons are research evidence only; do not synchronize,
+  vendor its runtime, or treat its backlog, commits or behavior as this
+  repository's requirements.
+- Retail catalogue, stock, cart, product checkout, shipping, coupons and retail
+  order-management are outside bapXcms. Retire their runtime routes, tools,
+  UI and CLI rather than preserving an enableable shop. Keep service enquiries,
+  scheduling, confirmed service payments/receipts, CRM and customer identity.
+  Legacy commerce records and credentials require separately scoped archival
+  and retention work; do not delete production records as a side effect.
+- Framework code owns stable auth, permission, storage, rendering and typed
+  operation contracts. Installation-owned records own business identity,
+  content, design tokens, navigation, page/section/form definitions, service
+  catalogue, CRM fields/stages and optional ERP modules. AI agents can propose
+  and preview validated configuration and UI changes; explicit authorized
+  approval, revision checks, audit and rollback govern writes. No generated
+  executable PHP/JS, arbitrary database schema/SQL or unrestricted model writes.
+
 - Project skills live in `.agents/skills/<name>/SKILL.md`. Git hooks live in
-  `.agents/hooks/`. Activate them with `./bapXphp hooks install`. GitHub Actions
+  `.agents/hooks/`. Activate them with `./bapXcms hooks install`. GitHub Actions
   workflows live in `.github/workflows/`.
 - The product has exactly two PHP agent surfaces: customer support and owner/admin chat.
 - GitHub issues are the sole work backlog. Do not create local TODO/objective
@@ -76,7 +98,7 @@ listings, recursive globs, Git history, or read the whole generated index when n
 queries answer the question. Broaden only when a target is absent, and state that
 absence as a finding.
 
-1. `./bapXphp map` and `./bapXphp schema list` before proposing any change.
+1. `./bapXcms map` and `./bapXcms schema list` before proposing any change.
 2. Read this file.
 3. **Check `docs/project-index.json` before claiming any feature exists.** It is the
    generated, committed inventory of every route, controller, service, view and
@@ -110,7 +132,7 @@ absence as a finding.
   A2UI, compatible model inference and the agent harness. The pinned research manifest
   is a reference, not proof of Nebo behavior. Do not install or copy vendor runtimes.
 - Use the source-backed native skills in .agents/REA/skills/ via
-  ./bapXphp rea skills and ./bapXphp rea skill <native-id>. Read
+  ./bapXcms rea skills and ./bapXcms rea skill <native-id>. Read
   .agents/REA/README.md and .agents/skills/rea-reconstruction/SKILL.md.
   The pinned official WordPress/WooCommerce originals in .agents/REA/reference/
   are inert research data; never execute imported helpers, install vendor
@@ -118,7 +140,7 @@ absence as a finding.
   the issue/contract. For abilities, audit actual backing services and gates,
   define schema/side effects, implement shared domain execution, then verify
   representative data and adversarial permissions before exposing transport.
-  ./bapXphp rea skills-check validates the inventory and source links; CI
+  ./bapXcms rea skills-check validates the inventory and source links; CI
   rejects missing adaptations or modified archival bytes.
 - Before building a multi-layer component, trace the pinned source through
   entry points, dependencies, state and data contracts, permissions, side
@@ -130,9 +152,8 @@ absence as a finding.
   acceptance; append a unique review entry even when coverage does not change.
   Scope changes require a new scope revision and rationale. Do not count partial work
   as complete or use historical bapX progress as Nebo evidence.
-- General WooCommerce parity is excluded: service booking, custom forms, landing pages
-  and necessary payment/receipt lifecycle only. Preserve the existing shop.
-- Run ./bapXphp rea status, ./bapXphp update and ./bapXphp ci; PR CI also
+- Retail commerce and general WooCommerce parity are excluded. Use pinned WooCommerce evidence only for applicable service booking, custom forms, landing pages and necessary payment/receipt lifecycle. Retire legacy shop dependencies in scoped changes; preserve historical data.
+- Run ./bapXcms rea status, ./bapXcms update and ./bapXcms ci; PR CI also
   verifies the capability impact review. Record actual live evidence separately
   after deployment. A successful fixture or merge alone does not establish production
   acceptance. Follow the full workflow in the REA directory.
@@ -150,7 +171,7 @@ Use the scope of the work to decide what to revise. A homepage layout improvemen
 can update `Design.md` and the frontend skill with the new layout contract and
 browser checks. A change with no reusable lesson or contract change can leave
 the existing guidance as written. Regenerate affected indexes and maps with
-`./bapXphp update` and record the guidance changes in the PR.
+`./bapXcms update` and record the guidance changes in the PR.
 
 ### UI workflow
 
@@ -174,7 +195,7 @@ the existing guidance as written. Regenerate affected indexes and maps with
    deferred script under `assets/` for browser behavior. Move affected inline
    behavior into that asset when editing it.
 5. Repeat the baseline scenarios in the Browser, including relevant keyboard,
-   touch, module, and fallback states. Record the results and run `./bapXphp ci`
+   touch, module, and fallback states. Record the results and run `./bapXcms ci`
    before review. Use synthetic data and redact credentials and personal data
    before sharing evidence. Mark unrun checks explicitly.
 6. For a redesign across multiple sections, give each agent explicit ownership of
@@ -193,7 +214,7 @@ the existing guidance as written. Regenerate affected indexes and maps with
 - **Schema:** `storage/schema/collections.php` is canonical. Update it before changing
   any collection shape.
 - **Runtime store:** hosted MySQL only for admin-editable records. Do not create local
-  product, category, consultant, order, user, setting, media-metadata or secret copies.
+  service, consultant, customer, enquiry, setting, media-metadata or secret copies.
   Blog posts are Markdown with YAML frontmatter in `content/blog/posts/`; image
   binaries remain files. Media uploads and usage are stored in MySQL `media_files`.
   The media library also reads legacy YAML and bundled artwork as protected assets.
@@ -245,13 +266,13 @@ computer-use controls for local and live UI verification. Do not use an external
 Playwright CLI, standalone browser driver, or substitute terminal HTTP checks for
 the browser workflow. Keep UI actions grounded in the current browser state.
 
-After route, schema, controller, view or workflow changes, run `./bapXphp update`
+After route, schema, controller, view or workflow changes, run `./bapXcms update`
 to regenerate `.agents/map.mmd`, `docs/systematic-map.mmd`, and the indexes. Fix stale
 expectations to match the agreed behavior; never weaken validation to hide a defect.
 Before every commit, read the affected paths in `docs/systematic-map.mmd` after the
 final regeneration and confirm the generated wiring matches the implemented workflow.
 Repeat this regenerate-and-read check after each logical change set added to that commit.
-Run `./bapXphp ci` before the PR and verify GitHub checks before merging. After
+Run `./bapXcms ci` before the PR and verify GitHub checks before merging. After
 deployment, repeat the affected flows in the live Browser and attach only
 redacted evidence to the original issues. A merge or an SMTP acceptance message alone does not prove
 deployment or inbox delivery.
@@ -263,7 +284,7 @@ test reports or logs.
 
 ```bash
 php -S 127.0.0.1:8811 index.php    # local server
-./bapXphp ci                        # lint, tests, maps, smoke
+./bapXcms ci                        # lint, tests, maps, smoke
 ```
 
 Check computed styles rather than trusting a screenshot: an author rule like
@@ -299,6 +320,6 @@ Check computed styles rather than trusting a screenshot: an author rule like
 - Admin mutations are auditable via `AuditLogService`, which must never break the
   operation it records.
 - Secrets are never committed and never placed in `.env`.
-- Before pushing to `main`: run `./bapXphp ci` and confirm it is green. `main` deploys
+- Before pushing to `main`: run `./bapXcms ci` and confirm it is green. `main` deploys
   to production, so a red build can still ship.
 - Branch, push, open a PR. Never commit directly to `main`.

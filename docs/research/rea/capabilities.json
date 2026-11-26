@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope_revision": 1,
+  "scope_revision": 2,
   "baseline_commit": "6265683cede0ba665a0a6e414b4e2a6504512bc1",
   "baseline_date": "2026-11-26",
   "reference_backend": "c460fe574f8a1c435fd8d7faa3f500200e79c78a",
@@ -43,10 +43,11 @@
   ],
   "excluded": [
     "WordPress/WooCommerce installation, plugin/theme compatibility and arbitrary code editor",
-    "General WooCommerce parity: variants, inventory, shipping, downloads, imports/exports and marketing; retain existing shop, no expansion as REA scope",
+    "Retail product catalogue, stock, cart, product checkout, shipping, coupons and retail order management are out of scope; retire existing retail runtime surfaces without deleting historical data. WooCommerce reference only for native service workflows.",
     "Paid runtime dependencies, vector database, continuous autonomous agents or background server processes",
     "Installer and multi-tenant provisioning until native core accepted",
-    "Copying other customer branding, content or configuration"
+    "Copying other customer branding, content or configuration",
+    "Cross-repository synchronization with bapXphpAiBackend; its pinned snapshots are historical read-only evidence, not an upstream."
   ],
   "components": [
     {
@@ -2476,6 +2477,18 @@
         "mcp-05"
       ],
       "summary": "Add published-read-only external MCP transport and independently revocable expiring bearer grants. Modern pinned protocol subset; no legacy/OAuth/live-client acceptance claim. Existing registry owns tool schemas and execution."
+    },
+    {
+      "id": "164-standalone-cms-identity",
+      "date": "2026-11-26",
+      "issues": [
+        164,
+        121,
+        125
+      ],
+      "components": [],
+      "scope_change": "Owner separates bapXcms service-first CMS/CRM from the commerce-led bapXphpAiBackend; retail runtime retirement replaces preserve-existing-shop direction. Existing 61 scoped acceptance units remain unchanged; configurable ERP extensions need separately scoped contracts.",
+      "summary": "Rename the project-owned CLI, developer skill and all active generator/validation/workflow references to bapXcms. Record repository comparison and independent product boundary. Preserve archived source bytes, historical review entries, service payments and production data. Retail runtime retirement follows in a separate change; no coverage increase."
     }
   ]
 }
