@@ -5,6 +5,8 @@ RewriteRule ^mcp$ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
 # Developer-only skills and archived reference materials.
 RewriteRule ^\.agents(?:/|$) - [F,L,NC]
+# Markdown sources are private; render through the publication gate.
+RewriteRule ^content(?:/|$) - [F,L,NC]
 
 # Block access to .env, .git, and other sensitive dotfiles
 RedirectMatch 403 \.env(\.|$)

@@ -42,12 +42,12 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 360
+  concepts: 361
   relationships: 312
   by_type:
     blog: 5
     controller: 14
-    doc: 53
+    doc: 54
     image: 40
     route: 115
     schema: 27
@@ -476,6 +476,14 @@ concepts:
     tags:
       - "docs"
     filename: "json-storage.md"
+    header_image: ""
+  - id: "doc:markdown-publication"
+    type: "doc"
+    title: "markdown-publication"
+    description: ""
+    resource: "docs/research/rea/contracts/markdown-publication.md"
+    tags: []
+    filename: "markdown-publication.md"
     header_image: ""
   - id: "doc:mcp-read-transport"
     type: "doc"
