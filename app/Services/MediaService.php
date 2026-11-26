@@ -172,6 +172,8 @@ final class MediaService {
         $schema = require app_path('storage/schema/collections.php');
         foreach ($schema['collections'] as $collection => $definition) {
             if (empty($definition['media_fields']) && !in_array($collection, ['settings', 'orders'], true)) continue;
+            // An uninstalled page collection has no media references. Read failures still block archiving.
+            if ($collection==='cms_pages' && !$this->store->collectionExists($collection)) continue;
             foreach ($this->store->read($collection) as $record) {
                 $this->collectReferences($references, $record, $collection, (string)($record['id'] ?? ''));
             }

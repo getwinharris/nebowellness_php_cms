@@ -12,6 +12,9 @@ const revision=()=>php('echo json_encode(App\\Services\\ResourceService::revisio
 (async()=>{
     const dir=await mkdtemp(path.join(os.tmpdir(),'cms-page-route-'));let proc;
     assert.equal(record(),null);
+    // Disposable CI only: exercise the pre-initialization state. Never drop a
+    // nonempty collection, even in this test database.
+    php('$rows=$db->read("cms_pages");if($rows!==[])throw new RuntimeException("Expected empty test collection");$db->connection()->exec("DROP TABLE cms_pages");echo "true";');
     try{
         const listener=net.createServer();await new Promise(r=>listener.listen(0,'127.0.0.1',r));const port=listener.address().port;await new Promise(r=>listener.close(r));
         proc=spawn('php',['-S','127.0.0.1:'+port,path.join(root,'tests/fixtures/brand-appearance-route.php')],{cwd:root,env:{...env,BAPX_BRAND_ROUTE_FIXTURE:'1',BAPX_BRAND_SESSION_DIR:dir},stdio:'ignore'});
@@ -27,6 +30,17 @@ const revision=()=>php('echo json_encode(App\\Services\\ResourceService::revisio
             return {location:r.headers.get('location'),flash:await (await get('/__fixture/flash','admin')).json()};
         }
         assert.equal((await get('/admin/pages')).headers.get('location'),'/login');
+        assert.equal((await live()).status,404);
+        const sitemap=await get('/sitemap.xml');assert.equal(sitemap.status,200);
+        const setup=await (await get('/admin/pages','admin')).text();assert.ok(setup.includes('Initialize page storage'));assert.ok(!setup.includes('Create draft'));
+        assert.equal((await post('initialize','',null,{role:'customer'})).location,'/');
+        assert.equal((await post('initialize','',null,{csrf:'bad'})).flash.type,'error');
+        assert.equal((await post('initialize','',null,{confirm:false})).flash.type,'error');
+        assert.equal(php('echo json_encode($db->collectionExists("cms_pages"));'),false);
+        assert.equal(php('$media=new App\\Services\\MediaService(store:$db);$refs=(new ReflectionMethod($media,"references"))->invoke($media);echo json_encode(is_array($refs));'),true);
+        assert.equal((await post('initialize')).flash.type,'success');
+        assert.equal(php('echo json_encode($db->collectionExists("cms_pages"));'),true);
+        assert.equal((await post('initialize')).flash.type,'success');
         assert.equal((await post('create','',null,{role:'customer'})).location,'/');assert.equal(record(),null);
         assert.equal((await post('create','',null,{csrf:'bad'})).flash.type,'error');assert.equal(record(),null);
         assert.equal((await post('create')).flash.type,'success');const initial=revision();
@@ -42,6 +56,7 @@ const revision=()=>php('echo json_encode(App\\Services\\ResourceService::revisio
         assert.equal((await post('publish',initial)).flash.type,'error');
         assert.equal((await post('publish',revision(),null,{confirm:false})).flash.type,'error');
         assert.equal((await post('publish',revision())).flash.type,'success');
+        const publishedRevision=revision();assert.equal((await post('initialize')).flash.type,'success');assert.equal(revision(),publishedRevision);
         let p=await live();assert.equal(p.status,200);let html=await p.text();assert.ok(html.includes('First public version'));assert.ok(!html.includes('Secret hidden section'));
         assert.ok((await (await get('/sitemap.xml')).text()).includes('/pages/'+slug));
         d=record().published;d.sections[0].content.body='Second private version';
@@ -51,9 +66,9 @@ const revision=()=>php('echo json_encode(App\\Services\\ResourceService::revisio
         assert.equal((await post('restore',revision())).flash.type,'success');assert.ok((await (await live()).text()).includes('First public version'));
         assert.equal((await post('unpublish',revision())).flash.type,'success');assert.equal((await live()).status,404);assert.ok(!(await (await get('/sitemap.xml')).text()).includes('/pages/'+slug));
         assert.equal((await post('restore',revision())).flash.type,'success');assert.equal((await live()).status,200);
-        console.log('PASS real CMS owner routes, duplicate creation, private drafts, role/CSRF, revision guards, hidden sections, publication, sitemap, unpublish and restore');
+        console.log('PASS schema readiness, owner initialization, existing reference scan, real CMS owner routes, duplicate creation, private drafts, role/CSRF, revision guards, hidden sections, publication, sitemap, unpublish and restore');
     }finally{
         if(proc&&proc.exitCode===null){const done=once(proc,'exit');proc.kill();await done;}
-        php('$db->delete("cms_pages",$argv[1]);echo "true";',[slug]);await rm(dir,{recursive:true,force:true});
+        php('$db->ensureSchemaCollection("cms_pages");$db->delete("cms_pages",$argv[1]);echo "true";',[slug]);await rm(dir,{recursive:true,force:true});
     }
 })().catch(e=>{console.error(e);process.exitCode=1});

@@ -206,11 +206,12 @@
       "title": "General page/section builder",
       "status": "partial",
       "acceptance": "Reusable sections, reorder/hide, draft preview/publish without source edits.",
-      "finding": "Independent native page editor and five typed section types with ordering, hiding, saved preview, explicit publication and restore. Existing homepage conversion, navigation, dynamic service sections and shared forms remain pending.",
+      "finding": "Independent native page editor and five typed section types with ordering, hiding, saved preview, explicit publication and restore. Existing homepage conversion, navigation, dynamic service sections and shared forms remain pending. Schema readiness and confirmation-protected owner initialization keep pre-existing pages and sitemap usable before setup.",
       "issues": [
         125,
         123,
-        176
+        176,
+        178
       ],
       "references": [
         {
@@ -247,7 +248,7 @@
         },
         {
           "path": "tests/cms-pages-integration.cjs",
-          "anchor": "PASS real CMS owner routes"
+          "anchor": "real CMS owner routes"
         },
         {
           "path": "tests/browser/cms-pages.cjs",
@@ -333,7 +334,8 @@
       "acceptance": "Protect referenced/bundled files; reversible archive of eligible upload.",
       "finding": "PR #100 local DB/browser evidence.",
       "issues": [
-        85
+        85,
+        178
       ],
       "references": [
         {
@@ -355,6 +357,10 @@
         {
           "path": "tests/identity-media-integration.php",
           "anchor": "verifyIdentityMedia"
+        },
+        {
+          "path": "tests/cms-pages-integration.cjs",
+          "anchor": "existing reference scan"
         }
       ],
       "production": null
@@ -2808,6 +2814,20 @@
         "cms-06"
       ],
       "summary": "Native data-only page and section registry, insert-only slug reservation, locked revision lifecycle, saved owner preview, shared public renderer, sitemap projection and passing adversarial/unit and six Chromium fixture scenarios, and real-route database acceptance fixture. New schema requires explicit deployment initialization. Existing pages, dynamic sections, shared forms, navigation, autosave and agent mutations remain separate; no coverage increase claimed."
+    },
+    {
+      "id": "178-cms-schema-readiness",
+      "date": "2026-11-26",
+      "issues": [
+        178,
+        176,
+        125
+      ],
+      "components": [
+        "cms-06",
+        "cms-08"
+      ],
+      "summary": "Live rollout exposed missing cms_pages schema (sitemap 503). Confirm absence using database metadata; existing sitemap and media reference scan remain usable, unknown authored pages 404; database outages still fail closed. Owner-only CSRF/confirmation-protected idempotent initialization on serving installation, no production content changes. Disposable database tests cover setup, denial, preserved records and existing references."
     }
   ]
 }

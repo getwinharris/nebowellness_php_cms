@@ -28,9 +28,10 @@ The owner-only admin editor uses existing CSRF, locked revision comparison,
 and audit metadata. Publish acts on saved content only. Unpublish removes
 public access; restore swaps the prior publication and clears any draft.
 The same PHP partial renders visible saved sections for preview and public
-pages. Sitemap includes published pages only. A storage/schema failure
-reports temporary unavailability rather than revealing drafts or reporting
-an authoritative incomplete sitemap.
+pages. Sitemap includes published pages only. A confirmed absent page collection contains no authored pages: existing
+sitemap and media reference scanning stay available and unknown authored
+pages return 404. Uncertain storage failure still reports temporary
+unavailability and blocks unsafe archive decisions.
 
 ## Verification and scope
 
@@ -41,7 +42,9 @@ private preview, native submitter serialization, FAQ expansion, overflow
 and browser errors. Disposable MariaDB CI exercises
 actual owner and public routes, duplicate create, stale edits, confirmation,
 authorization and sitemap. Schema installation is an explicit idempotent
-migration, not an anonymous page request. Do not create synthetic content
+migration, not an anonymous page request. On a hosted installation the
+owner can initialize only cms_pages via Pages, with CSRF and confirmation;
+setup never replaces existing records. Do not create synthetic content
 in production. No homepage conversion, dynamic service list, reusable
 shared forms, navigation editor, scheduled publish, autosave or agent
 mutation is claimed here. General CMS and revision coverage remain partial.

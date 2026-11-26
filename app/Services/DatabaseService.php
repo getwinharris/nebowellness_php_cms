@@ -69,6 +69,17 @@ final class DatabaseService {
         return $result;
     }
 
+    /** Distinguish a not-yet-installed canonical collection from a failed database read. */
+    public function collectionExists(string $name): bool {
+        $schema=require app_path('storage/schema/collections.php');
+        if (!isset($schema['collections'][$name]) || !preg_match('/^[a-z_]+$/D',$name)) throw new \InvalidArgumentException('Unknown schema collection.');
+        if ($this->isTestMode()) return true;
+        $rows=$this->query('SELECT COUNT(*) AS present FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name=? AND table_type=?',[$name,'BASE TABLE']);
+        $count=$rows[0]['present']??null;
+        if (!in_array($count,[0,1,'0','1'],true)) throw new \RuntimeException('Collection readiness could not be determined.');
+        return (int)$count===1;
+    }
+
     /** Explicit deployment migration for a collection already declared in the canonical schema. */
     public function ensureSchemaCollection(string $name): void {
         $schema = require app_path('storage/schema/collections.php');
