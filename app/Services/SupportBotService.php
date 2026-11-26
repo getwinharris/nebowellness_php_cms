@@ -60,7 +60,7 @@ final class SupportBotService {
         $result=$this->finishReply($candidate,'model',$startedAt,$evidence['clinic_context']??$context);
         $result['response_mode']=$this->trace->hasNativeToolAnswer()?'model_with_retrieval':'model_direct';
         $result['sources']=$this->trace->hasNativeToolAnswer()?$this->trace->sources():[];
-        if ($this->isPrivateAccountQuestion($message)) $result['memory']='none';
+        if ($this->isPrivateAccountQuestion($message)||preg_match('/\b(?:cart|checkout)\b/i',$message)) $result['memory']='none';
         return $result;
     }
 
@@ -153,42 +153,10 @@ final class SupportBotService {
     }
 
     private function toolContext(?array $user,string $message): array {
-        $context=$this->customerContext($user,$message);
-        $context['site']['programmes']=array_slice(array_map(static fn(array $r):array=>array_intersect_key($r,array_flip(['title','duration','url'])),$context['site']['programmes']??[]),0,30);
-        // Use dedicated profile and article tools for detailed facts. Keep the
-        // catalogue and account fields only where the commerce module permits.
-        unset($context['site']['practitioners']);
-        $context['articles']=array_slice(array_map(static fn(array $r):array=>array_intersect_key($r,array_flip(['title','url'])),$context['articles']??[]),0,12);
-        $context['site']['products']=array_slice($context['site']['products']??[],0,10);
-        foreach ($context['site']['products'] as &$product) {
-            $product['description']=mb_substr((string)($product['description']??''),0,600);
-        }
-        unset($product);
-        $context['contact_channels']=(new ClinicContactService())->channels();
+        $cart=preg_match('/\b(?:cart|checkout)\b/i',$message)?($_SESSION['cart']??[]):[];
+        $context=$this->agentContext->supportContext($user,$this->isPrivateAccountQuestion($message),$cart);
+        if ($context['shop_enabled']) $context['policies']=$this->policies();
         return $context;
-    }
-
-    private function customerContext(?array $user,string $message=''): array {
-        $cart = array_map(fn($item) => [
-            'slug' => $item['slug'] ?? '',
-            'qty' => (int)($item['qty'] ?? 0),
-            'name' => $item['name'] ?? '',
-        ], array_values($_SESSION['cart'] ?? []));
-        $accountQuestion=module_on('shop') && $this->isPrivateAccountQuestion($message) && ($user['role']??'')==='customer';
-        $base=$this->agentContext->forUserEmail($accountQuestion?(string)($user['email']??''):'');
-        unset($base['user']);
-        $base['orders']=array_map(static fn(array $row):array=>array_intersect_key($row,array_flip(['id','status','total','shipped_at','invoice_number','invoice_date'])),array_slice($base['orders']??[],0,10));
-        if (($user['role'] ?? '') === 'customer') $base['site']['pages']['therapy requests'] = '/account/therapy';
-        if (!$accountQuestion && empty($user['email'])) unset($base['site']['pages']['orders']);
-        // Articles let the agent answer "what is this app?" from real content instead of
-        // falling back to a navigation list. BlogService::all() already withholds
-        // unpublished posts and posts whose module is off.
-        return [
-            'signed_in' => !empty($user['email']),
-            'cart' => module_on('shop')?$cart:[],
-            'articles' => module_on('blog')?$this->siteArticles():[],
-            'policies' => module_on('shop') ? $this->policies() : [],
-        ] + $base;
     }
 
     /**
@@ -241,26 +209,6 @@ final class SupportBotService {
             'tracking' => 'A courier name, tracking ID and tracking link are emailed when an order ships, and shown at /account/dashboard/orders.',
             'returns_or_problems' => 'Ask the customer to use the /contact form.',
         ];
-    }
-
-    /** Published articles the agent may quote, filtered exactly as the public site is. */
-    private function siteArticles(int $limit = 12): array {
-        try {
-            $out = [];
-            foreach ((new BlogService())->all() as $post) {
-                $out[] = [
-                    'title' => (string)($post['title'] ?? ''),
-                    'url' => '/blog/' . (string)($post['slug'] ?? ''),
-                    'category' => (string)($post['category'] ?? ''),
-                    'summary' => mb_substr(trim((string)($post['excerpt'] ?? $post['summary'] ?? '')), 0, 180),
-                ];
-                if (count($out) >= $limit) break;
-            }
-            return $out;
-        } catch (\Throwable $e) {
-            error_log('Article context failed: ' . $e->getMessage());
-            return [];
-        }
     }
 
     /**

@@ -5,9 +5,10 @@ use App\Services\{AgentRunTrace, AgentToolRegistry, AiClient, AiReplyCleaner, Su
 
 if (PHP_SAPI!=='cli'||getenv('BAPX_TEST_MODE')!=='1') exit(2);
 require __DIR__.'/../../app/bootstrap.php';
+require __DIR__.'/native-session-context.php';
 $trace=new AgentRunTrace();
 $registry=new AgentToolRegistry(modules:['shop'=>false,'blog'=>false,'campaigns'=>true],scope:'support',
-    contextLoader:static fn():array=>['fixture_value'=>'QA-ORCHID-731','scope'=>'public synthetic record'],question:'fixture value');
+    contextLoader:static fn():array=>nativeSessionFixture('QA-ORCHID-731'),question:'fixture value');
 $answer=(new AiClient(routingScope:'support',trace:$trace))->completeWithTools('Retrieve the synthetic fixture value using clinic_context. Then answer the exact value.',$registry,256,0.1,4);
 $clean=(new AiReplyCleaner())->clean($answer,'');
 $usable=!AiClient::isError($answer)&&$trace->hasNativeToolAnswer()&&(new AiReplyCleaner())->usableAnswer($clean,'What is the fixture value?');

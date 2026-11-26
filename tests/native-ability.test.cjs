@@ -155,3 +155,26 @@ test('existing commerce read abilities are typed and never available to support 
  assert.equal(data.coupon.found,false);assert.equal(data.coupon.usable_now,null);
  assert.equal(data.sales.orders,0);assert.equal(data.sales.confirmed_order_total_minor,0);assert.ok(!('revenue' in data.sales));
 });
+
+test('all eighteen legacy names have typed native definitions with scoped session context',()=>{
+ const data=php(String.raw`
+ require "tests/fixtures/native-session-context.php";
+ $d=new App\Services\DatabaseService();$m=['shop'=>true,'blog'=>true,'campaigns'=>true];
+ $support=new App\Services\NativeAbilityRegistry($d,'support',$m,fn()=>nativeSessionFixture());
+ $admin=new App\Services\NativeAbilityRegistry($d,'admin',$m);
+ $without=new App\Services\NativeAbilityRegistry($d,'support',$m);
+ $bad=new App\Services\NativeAbilityRegistry($d,'support',$m,fn()=>nativeSessionFixture()+['private'=>'unexpected']);
+ $all=[];foreach(array_merge($support->discover(),$admin->discover()) as $item) $all[$item['name']]=$item;
+ echo json_encode(['all'=>$all,'session'=>$support->invoke('clinic_context',[]),'denied'=>$admin->invoke('clinic_context',[]),
+   'without'=>$without->invoke('clinic_context',[]),'input'=>$support->invoke('clinic_context',['email'=>'foreign@example.test']),
+   'bad'=>$bad->invoke('clinic_context',[])]);
+ `);
+ assert.deepEqual(Object.keys(data.all).sort(),['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge','search_articles','clinic_context','owner_dashboard_summary','appointment_summary','recent_orders','catalog_categories','find_order','product_status','sales_summary','support_enquiries','campaign_pages','therapy_enquiry_summary','coupon_status'].sort());
+ for(const definition of Object.values(data.all)){
+  assert.equal(definition.version,1); assert.equal(definition.input_schema.additionalProperties,false);
+  assert.equal(definition.output_schema.additionalProperties,false);assert.equal(definition.annotations.readonly,true);
+ }
+ assert.equal(data.session.account_access,false);assert.deepEqual(data.session.orders,[]);
+ assert.equal(data.denied.code,'ability_not_available');assert.equal(data.without.code,'ability_not_available');
+ assert.equal(data.input.code,'ability_invalid_input');assert.equal(data.bad.code,'ability_invalid_output');
+});

@@ -32,7 +32,7 @@ test('completion harness correlates native calls, rejects non-tool answers and e
         }
         assert.equal(sent.at(-1).tool_call_id,'call_real');
         assert.equal(body.messages.at(-2).tool_calls[0].id,'call_real');
-        assert.equal(JSON.parse(sent.at(-1).content).fixture_value,'QA-ORCHID-731');
+        assert.equal(JSON.parse(sent.at(-1).content).site.campaigns[0].title,'QA-ORCHID-731');
         if(mode==='echo'){send({content:'I am the Nebo Wellness support bot designed to assist you with wellness programs and clinic information. You can find more information about our services at /blog.'});return;}
         send({content:'<final_answer>QA-ORCHID-731</final_answer>'});
     });

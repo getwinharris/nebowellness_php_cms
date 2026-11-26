@@ -8,7 +8,7 @@ namespace App\Services;
  */
 final class NativeAbilityRegistry
 {
-    public function __construct(private DatabaseService $store,private string $scope,private array $modules) {
+    public function __construct(private DatabaseService $store,private string $scope,private array $modules,private ?\Closure $contextLoader=null) {
         if (!in_array($scope,['support','admin'],true)) throw new \InvalidArgumentException('Unknown native ability scope.');
     }
 
@@ -42,6 +42,39 @@ final class NativeAbilityRegistry
         return array_replace(self::definition($description,$output,$input,$module),[
             'category'=>'owner-operations','scopes'=>['admin'],'input_schema'=>self::object($input,$required),
         ]);
+    }
+
+    private static function sessionContextDefinition(): array {
+        $slug=self::string(120,1)+['pattern'=>'^[a-z0-9]+(?:-[a-z0-9]+)*$'];
+        $path=static fn(string $type):array=>self::string(140,1)+['pattern'=>'^/'.$type.'/[a-z0-9]+(?:-[a-z0-9]+)*$'];
+        $pages=[];
+        foreach (['contact'=>'/contact','shop'=>'/shop','cart'=>'/cart','checkout'=>'/checkout','orders'=>'/account/dashboard/orders',
+            'campaigns'=>'/campaigns','blog'=>'/blog','therapy requests'=>'/account/therapy'] as $key=>$url) {
+            $pages[$key]=self::string(80,1)+['const'=>$url];
+        }
+        $money=['type'=>'integer','minimum'=>0];$currency=self::string(3,3)+['const'=>'INR'];
+        $bool=['type'=>'boolean'];$phone=self::string(16,9)+['pattern'=>'^\\+[1-9][0-9]{7,14}$'];
+        $fields=[
+            'signed_in'=>$bool,'account_access'=>$bool,'shop_enabled'=>$bool,
+            'orders'=>self::listOf(self::object(['id'=>self::string(120,1),'status'=>self::string(30,1)+['enum'=>OwnerAbilityService::ORDER_STATES],
+                'total_minor'=>$money,'currency'=>$currency,'shipped_at'=>self::string(80),'invoice_number'=>self::string(120),'invoice_date'=>self::string(80)]),10),
+            'cart'=>self::listOf(self::object(['slug'=>$slug,'name'=>self::string(200),'qty'=>['type'=>'integer','minimum'=>1,'maximum'=>10000]]),20),
+            'articles'=>self::listOf(self::object(['title'=>self::string(200,1),'url'=>$path('blog')]),12),
+            'site'=>self::object(['pages'=>self::object($pages,['contact']),
+                'campaigns'=>self::listOf(self::object(['title'=>self::string(200,1),'summary'=>self::string(400),'url'=>$path('campaigns')]),12),
+                'programmes'=>self::listOf(self::object(['title'=>self::string(200,1),'duration'=>self::string(80),'url'=>$path('campaigns')]),30),
+                'products'=>self::listOf(self::object(['name'=>self::string(200,1),'slug'=>$slug,'url'=>$path('product'),'price_minor'=>$money,'currency'=>$currency,
+                    'stock_status'=>self::string(80),'description'=>self::string(600),'highlights'=>self::listOf(self::string(160),6),
+                    'description_points'=>self::listOf(self::string(160),6),'specifications'=>self::listOf(self::object(['name'=>self::string(100,1),'value'=>self::string(200)]),6)]),10),
+                'support_scope'=>self::string(160,1)]),
+            'contact_channels'=>self::object(['phones'=>self::listOf($phone,4),'whatsapp'=>self::listOf($phone,4)]),
+            'policies'=>self::object(array_fill_keys(['delivery_within_india','delivery_outside_india','shipping_cost','payment_methods','tracking','returns_or_problems'],self::string(400,1))),
+            'settings'=>self::object(['currency'=>self::string(3,3),'timezone'=>self::string(80,1),'shipping_mode'=>self::string(40,1),'flat_rate_minor'=>$money],[]),
+        ];
+        return array_replace(self::definition(
+            'Retrieve permitted public clinic navigation and shop facts, plus the current customer session cart or explicitly requested owned order summaries only. No caller-selected identity; amounts are INR minor units.',
+            self::object($fields,array_values(array_diff(array_keys($fields),['settings','policies'])))
+        ),['category'=>'session-context','scopes'=>['support']]);
     }
 
     private static function definitions(): array {
@@ -122,6 +155,7 @@ final class NativeAbilityRegistry
                         'category'=>self::string(120),'score'=>['type'=>'integer','minimum'=>1,'maximum'=>120]]),5)]),
                 ['query'=>self::string(500,1)+['pattern'=>'\S']],'blog'
             ),
+            'clinic_context'=>self::sessionContextDefinition(),
             'owner_dashboard_summary'=>self::owner(
                 'Read current owner-only operational counts. If shop enabled, report stored confirmed and pending order totals separately, not captured revenue.',
                 self::object($dashboard,array_values(array_diff(array_keys($dashboard),['commerce'])))
@@ -186,6 +220,7 @@ final class NativeAbilityRegistry
 
     private function allowed(array $definition): bool {
         return in_array($this->scope,$definition['scopes'],true)
+            && ($definition['category']!=='session-context'||$this->contextLoader!==null)
             && ($definition['module']===null||!empty($this->modules[$definition['module']]));
     }
 
@@ -215,19 +250,24 @@ final class NativeAbilityRegistry
         return ['error'=>$message,'code'=>$code];
     }
 
-    public function invoke(string $name,array $args): array {
+    public function validateArguments(string $name,array $args): ?array {
         $definition=$this->inspect($name);
-        if ($definition===null) return self::error('ability_not_available','Unknown or unavailable ability.');
-        // Chat Completions strict schemas represent omitted optional scalar fields as null.
-        // Normalize only known optional arguments; unknown or required null is rejected.
+        if ($definition===null) return null;
+        // Only known optional nullable scalar arguments are normalized.
         foreach ($args as $key=>$value) {
             if ($value===null&&isset(((array)$definition['input_schema']['properties'])[$key])&&!in_array($key,$definition['input_schema']['required'],true)) unset($args[$key]);
         }
-        if (!AbilitySchema::valid($args,$definition['input_schema'])) return self::error('ability_invalid_input','Invalid ability input.');
-        if ($name==='find_order'&&empty($args['order_id'])&&empty($args['customer_email'])) return self::error('ability_invalid_input','A reference or customer email is required.');
-        if (in_array($name,['find_order','coupon_status'],true)&&isset($args['customer_email'])&&!filter_var(trim($args['customer_email']),FILTER_VALIDATE_EMAIL)) {
-            return self::error('ability_invalid_input','Invalid customer email.');
-        }
+        if (!AbilitySchema::valid($args,$definition['input_schema'])) return null;
+        if ($name==='find_order'&&empty($args['order_id'])&&empty($args['customer_email'])) return null;
+        if (in_array($name,['find_order','coupon_status'],true)&&isset($args['customer_email'])&&!filter_var(trim($args['customer_email']),FILTER_VALIDATE_EMAIL)) return null;
+        return $args;
+    }
+
+    public function invoke(string $name,array $args): array {
+        $definition=$this->inspect($name);
+        if ($definition===null) return self::error('ability_not_available','Unknown or unavailable ability.');
+        $args=$this->validateArguments($name,$args);
+        if ($args===null) return self::error('ability_invalid_input','Invalid ability input.');
         try {
             // Recheck the native module at execution; discovery alone is not authority.
             if ($definition['module']!==null&&!((new SettingsService($this->store))->strictModules()[$definition['module']]??false)) {
@@ -240,6 +280,7 @@ final class NativeAbilityRegistry
                 'published_programme_detail'=>(new ClinicKnowledgeService($this->store))->programmeDetail($args['slug']),
                 'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
                 'search_articles'=>(new ClinicKnowledgeService($this->store))->searchArticles($args['query']),
+                'clinic_context'=>($this->contextLoader)(),
                 'owner_dashboard_summary'=>(new OwnerAbilityService($this->store))->dashboard(!empty($this->modules['shop'])&&!empty((new SettingsService($this->store))->strictModules()['shop'])),
                 'appointment_summary'=>(new OwnerAbilityService($this->store))->appointments(),
                 'support_enquiries'=>(new OwnerAbilityService($this->store))->supportEnquiries($args),
@@ -254,6 +295,17 @@ final class NativeAbilityRegistry
                 default=>throw new \LogicException('Unmapped native ability.'),
             };
             if ($result===null) return self::error('ability_not_found','Published programme not found.');
+            if ($name==='clinic_context'&&is_array($result)) {
+                $current=(new SettingsService($this->store))->strictModules();
+                if ((!empty($result['account_access'])&&(empty($result['signed_in'])||empty($result['shop_enabled'])))||
+                    (!empty($result['orders'])&&(empty($result['signed_in'])||empty($result['account_access'])))||
+                    (empty($current['shop'])&&(!empty($result['shop_enabled'])||!empty($result['orders'])||!empty($result['cart'])||!empty($result['site']['products'])||isset($result['settings'])||isset($result['policies'])||
+                        array_intersect(['shop','cart','checkout','orders'],array_keys($result['site']['pages']??[]))))||
+                    (empty($current['campaigns'])&&(!empty($result['site']['campaigns'])||!empty($result['site']['programmes'])||isset($result['site']['pages']['campaigns'])))||
+                    (empty($current['blog'])&&(!empty($result['articles'])||isset($result['site']['pages']['blog'])))) {
+                    return self::error('ability_invalid_output','The lookup returned out-of-scope context.');
+                }
+            }
             $encoded=json_encode($result,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
             if (strlen($encoded)>48000||!AbilitySchema::valid($result,$definition['output_schema'])) {
                 return self::error('ability_invalid_output','The lookup did not return a valid bounded result.');

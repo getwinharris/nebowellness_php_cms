@@ -21,7 +21,10 @@ final class ClinicContactService {
     }
 
     public function channels(): array {
-        $s=$this->settings->public();
+        return self::channelsFromSettings($this->settings->public());
+    }
+
+    public static function channelsFromSettings(array $s): array {
         $out=[];
         foreach (['phones'=>'clinic_phones','whatsapp'=>'clinic_whatsapp'] as $key=>$field) {
             $items=is_array($s[$field]??null)?$s[$field]:[];

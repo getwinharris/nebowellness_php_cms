@@ -91,7 +91,7 @@ final class AgentToolRegistry implements ModelToolSet
     ) {
         if (!in_array($scope,['support','admin'],true)) throw new \InvalidArgumentException('Invalid agent scope.');
         $this->modules = $modules ?? (new SettingsService($this->store))->strictModules();
-        $this->nativeAbilities=new NativeAbilityRegistry($this->store,$this->scope,$this->modules);
+        $this->nativeAbilities=new NativeAbilityRegistry($this->store,$this->scope,$this->modules,$this->contextLoader);
     }
 
     /**
@@ -101,23 +101,7 @@ final class AgentToolRegistry implements ModelToolSet
      */
     public function declarations(): array
     {
-        $tools = [
-            ['name'=>'clinic_context','description'=>'Retrieve the current permitted clinic and account information for this session. No other customer records are available.','parameters'=>['type'=>'object']],
-
-        ];
-        $tools = array_merge($this->nativeAbilities->declarations(),$tools);
-        $tools = array_values(array_filter($tools, fn(array $tool): bool => $this->scope === 'support'
-            ? in_array($tool['name'], ['clinic_context','published_consultation_fees','search_clinic_knowledge','published_practitioners','published_programmes','published_programme_detail','search_articles'], true)
-            : $tool['name'] !== 'clinic_context'));
-        if (empty($this->modules['shop'])) {
-            $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], [
-                'find_order', 'product_status', 'sales_summary', 'coupon_status', 'recent_orders', 'catalog_categories',
-            ], true)));
-        }
-        if (empty($this->modules['campaigns'])) {
-            $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], ['campaign_pages', 'therapy_enquiry_summary', 'published_programmes', 'published_programme_detail'], true)));
-        }
-        if (empty($this->modules['blog'])) $tools=array_values(array_filter($tools,static fn(array $t):bool=>$t['name']!=='search_articles'));
+        $tools=$this->nativeAbilities->declarations();
         // A bounded role/module catalogue is small enough to expose eagerly; rank
         // relevant schemas first without making a keyword a permission decision.
         if ($this->question!=='') {
@@ -177,39 +161,16 @@ final class AgentToolRegistry implements ModelToolSet
 
     /** Match the server allowlist and validate values before dispatching any call. */
     public function validateArguments(string $name,array $args): ?array {
-        foreach ($this->declarations() as $tool) {
-            if ($tool['name']!==$name) continue;
-            $properties=$tool['parameters']['properties']??[];
-            $required=$tool['parameters']['required']??[];
-            $clean=[];
-            foreach ($args as $key=>$value) {
-                if (!is_string($key)||!isset($properties[$key])) return null;
-                if ($value===null && !in_array($key,$required,true)) continue;
-                $type=$properties[$key]['type']??'';
-                if ($type==='string' && (!is_string($value)||mb_strlen($value)>500)) return null;
-                if ($type==='integer' && !is_int($value)) return null;
-                if (!in_array($type,['string','integer'],true)) return null;
-                $clean[$key]=$value;
-            }
-            foreach ($required as $key) if (!array_key_exists($key,$clean)) return null;
-            return $clean;
-        }
-        return null;
+        return $this->nativeAbilities->validateArguments($name,$args);
     }
 
     /** Bound tool output without converting truncation into a false empty result. */
     public function executeModelCall(string $name,array $args,?AgentRunTrace $trace,string $callId=''): array {
         $started=microtime(true);
-        $isNative=$this->nativeAbilities->registered($name);
-        $validated=$isNative?$args:$this->validateArguments($name,$args);
-        if ($validated===null) {
-            $trace?->tool($this->has($name)?$name:'rejected','error',$started,'model',$callId);
-            return ['error'=>'Unknown or invalid tool call. Use the declared function schema.'];
-        }
-        $result=$this->run($name,$validated);
+        $result=$this->run($name,$args);
         $encoded=json_encode($result,JSON_INVALID_UTF8_SUBSTITUTE|JSON_UNESCAPED_UNICODE);
         if (!is_string($encoded)||strlen($encoded)>48000) $result=['error'=>'Result exceeds the tool budget. Narrow the lookup.'];
-        $trace?->tool($name,isset($result['error'])?'error':'ok',$started,'model',$callId);
+        $trace?->tool($this->has($name)?$name:'rejected',isset($result['error'])?'error':'ok',$started,'model',$callId);
         if (!isset($result['error'])) $this->modelResults[$name]=$result;
         if (!isset($result['error']) && $trace!==null) {
             if ($name==='published_consultation_fees' && !empty($result['fees'])) $trace->source(ConsultationFeeService::SOURCE);
@@ -249,19 +210,7 @@ final class AgentToolRegistry implements ModelToolSet
      */
     public function run(string $name, array $args): array
     {
-        if ($this->nativeAbilities->registered($name)) return $this->nativeAbilities->invoke($name,$args);
-        if (!$this->has($name)) return ['error' => 'That feature is currently disabled.'];
-        $args=$this->validateArguments($name,$args);
-        if ($args===null) return ['error'=>'Invalid lookup arguments.'];
-        try {
-            return match ($name) {
-                'clinic_context' => $this->contextLoader !== null ? ($this->contextLoader)() : ['error'=>'Context unavailable.'],
-                default => ['error' => 'No such tool: ' . $name],
-            };
-        } catch (\Throwable $e) {
-            error_log('Agent tool ' . $name . ' failed: ' . get_class($e));
-            return ['error' => 'That lookup is unavailable right now.'];
-        }
+        return $this->nativeAbilities->invoke($name,$args);
     }
 
     public function retrieve(string $name, array $args, AgentRunTrace $trace): array {

@@ -981,9 +981,9 @@
       "id": "mcp-01",
       "track": "mcp",
       "title": "Native ability catalogue",
-      "status": "partial",
+      "status": "implemented",
       "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
-      "finding": "Seventeen of 18 internal tools migrated: six public reads, five owner operational reads and six existing owner-only shop reads. Strict role/module/input/output, bounded projections and actual coupon context; stored INR order totals are not captured revenue. Session context and external execution remain incomplete.",
+      "finding": "All 18 existing internal tool names have native v1 metadata, typed bounded input/output, scope/module authorization and read-only annotations. The final session-only context is bound to a trusted support loader and explicitly requested owned records. External transport/authorization remains separate.",
       "issues": [
         121,
         128,
@@ -991,7 +991,8 @@
         150,
         154,
         156,
-        158
+        158,
+        160
       ],
       "references": [
         {
@@ -1047,6 +1048,14 @@
         {
           "path": "app/Services/CouponService.php",
           "anchor": "function diagnosticEligibility("
+        },
+        {
+          "path": "app/Services/NativeAbilityRegistry.php",
+          "anchor": "function sessionContextDefinition("
+        },
+        {
+          "path": "app/Services/AgentContextService.php",
+          "anchor": "function supportContext("
         }
       ],
       "tests": [
@@ -1089,6 +1098,14 @@
         {
           "path": "tests/native-commerce-ability-integration.php",
           "anchor": "Commerce abilities leave business state unchanged"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "all eighteen legacy names have typed native definitions"
+        },
+        {
+          "path": "tests/native-session-ability-integration.php",
+          "anchor": "Session context leaves business state unchanged"
         }
       ],
       "production": null
@@ -1178,14 +1195,15 @@
       "title": "Execution and output validation",
       "status": "partial",
       "acceptance": "Recheck permission and schema on invocation, bound results and structured errors.",
-      "finding": "Seventeen of 18 internal tools migrated: six public reads, five owner operational reads and six existing owner-only shop reads. Strict role/module/input/output, bounded projections and actual coupon context; stored INR order totals are not captured revenue. Session context and external execution remain incomplete.",
+      "finding": "All 18 existing internal tool names have native v1 metadata, typed bounded input/output, scope/module authorization and read-only annotations. The final session-only context is bound to a trusted support loader and explicitly requested owned records. External transport/authorization remains separate.",
       "issues": [
         128,
         148,
         150,
         154,
         156,
-        158
+        158,
+        160
       ],
       "references": [
         {
@@ -1237,6 +1255,14 @@
         {
           "path": "app/Services/CouponService.php",
           "anchor": "function diagnosticEligibility("
+        },
+        {
+          "path": "app/Services/NativeAbilityRegistry.php",
+          "anchor": "function sessionContextDefinition("
+        },
+        {
+          "path": "app/Services/AgentContextService.php",
+          "anchor": "function supportContext("
         }
       ],
       "tests": [
@@ -1279,6 +1305,14 @@
         {
           "path": "tests/native-commerce-ability-integration.php",
           "anchor": "Commerce abilities leave business state unchanged"
+        },
+        {
+          "path": "tests/native-ability.test.cjs",
+          "anchor": "all eighteen legacy names have typed native definitions"
+        },
+        {
+          "path": "tests/native-session-ability-integration.php",
+          "anchor": "Session context leaves business state unchanged"
         }
       ],
       "production": null
@@ -2356,6 +2390,19 @@
         "mcp-05"
       ],
       "summary": "Migrated six existing commerce reads with strict owner/module gates and bounded schemas. Exact stored INR totals and actual coupon diagnostic inputs, no invented cart or new commerce scope. Seventeen of 18 migrated; external execution and session context remain incomplete."
+    },
+    {
+      "id": "160-typed-session-context",
+      "date": "2026-11-26",
+      "issues": [
+        160,
+        128
+      ],
+      "components": [
+        "mcp-01",
+        "mcp-05"
+      ],
+      "summary": "Completed the 18-name internal typed native catalogue, replacing the final legacy dispatch with a trusted support-only session loader and explicit owned/public projections. Scoped discovery and invocation, bounded schemas and isolated cross-account/module verification. External execution acceptance remains partial."
     }
   ]
 }
