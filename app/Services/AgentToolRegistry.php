@@ -28,6 +28,58 @@ final class AgentToolRegistry
     public const SUPPORT_INBOX_PROMPT = 'How many support enquiries are open?';
 
     private array $modules;
+    private array $modelResults = [];
+
+    public function beginInferenceAttempt(): void { $this->modelResults=[]; }
+    /** Request-local, bounded actual tool results; never persisted in trace metadata. */
+    public function modelResults(): array { return $this->modelResults; }
+
+    /**
+     * Known live-fact questions need the appropriate observed evidence, not a dummy
+     * tool. This is an acceptance guard only: the model still chooses its functions
+     * and writes the reply. It is not a deterministic question/answer router.
+     */
+    public function requiredEvidence(string $question): array {
+        $groups=[];
+        // A general writing request is not a clinic lookup. Explicit current
+        // records in that request still require the corresponding evidence.
+        $generalWriting=preg_match('/^\s*(?:please\s+)?(?:draft|write|rewrite|edit|translate|brainstorm|explain)\b/i',$question)
+            && !preg_match('/\b(?:published|our|nebo|this clinic|current clinic|actual|today|this (?:week|month))\b/i',$question);
+        if ($generalWriting) return [];
+        if (ConsultationFeeService::isFeeQuestion($question)) $groups[]=['published_consultation_fees'];
+        if (preg_match('/\b(registration|qualifications?|credentials?|specialit\w*)\b/i',$question)) $groups[]=['published_practitioners','search_clinic_knowledge'];
+        if (preg_match('/\b(programmes?|programs?|fertility|gut|metabolic|maternal|lifestyle)\b/i',$question)
+            && preg_match('/\b(available|published|which|duration|how long|current|offered)\b/i',$question)) $groups[]=['published_programmes','published_programme_detail','search_clinic_knowledge','clinic_context'];
+        if ($this->scope==='admin') {
+            $metric=preg_match('/\b(how many|count|open|status|summary|summari[sz]e|total|current|recent|best|sold|last|this week|this month)\b/i',$question);
+            $therapy=preg_match('/\b(therapy|sessions?)\b/i',$question);
+            if ($metric && (preg_match('/\b(support|tickets?)\b/i',$question) || (!$therapy && preg_match('/\benquir(?:y|ies)\b/i',$question)))) $groups[]=['support_enquiries'];
+            if (preg_match('/\b(historical appointments?)\b/i',$question)) $groups[]=['appointment_summary'];
+            if ($therapy && ($metric || preg_match('/\brequests?\b/i',$question))) $groups[]=['therapy_enquiry_summary'];
+            if ($metric && preg_match('/\b(revenue|sales|sold|best selling)\b/i',$question)) $groups[]=['sales_summary'];
+            if ($metric && preg_match('/\borders?\b/i',$question)) $groups[]=['sales_summary','recent_orders','find_order'];
+            if ($metric && preg_match('/\b(stock|products?)\b/i',$question) && !preg_match('/\b(sales|sold|best selling)\b/i',$question)) $groups[]=['product_status','catalog_categories','owner_dashboard_summary'];
+            if ($metric && preg_match('/\bcoupons?\b/i',$question)) $groups[]=['coupon_status'];
+            if ($metric && preg_match('/\bcustomers?\b/i',$question)) $groups[]=['owner_dashboard_summary'];
+            if (preg_match('/\b(operations|dashboard|report|analytics)\b/i',$question) && preg_match('/\b(summari[sz]e|current|this week|this month|last|report)\b/i',$question)) $groups[]=['owner_dashboard_summary','sales_summary','support_enquiries','therapy_enquiry_summary','appointment_summary'];
+        } else {
+            if (preg_match('/\b(my order|my orders|my cart|order status|delivery|shipping|stock|product price|pack size|materials?|payment status)\b/i',$question)) $groups[]=['clinic_context'];
+        }
+        if (preg_match('/\b(articles?|blogs?|posts?)\b/i',$question) && preg_match('/\b(published|current|available|find|search|list|read|latest)\b/i',$question)) $groups[]=['search_articles','search_clinic_knowledge','clinic_context'];
+        return $groups;
+    }
+
+    public function acceptsEvidence(string $question,string $answer,AgentRunTrace $trace): bool {
+        if (!$trace->hasCompletedInference()) return false;
+        foreach ($this->requiredEvidence($question) as $group) if (!$trace->usedNativeTool($group)) return false;
+        if ($trace->hasNativeToolAnswer()) return true;
+        // A direct answer is not evidence of current records. In addition to the
+        // known requests above, reject concrete clinic claims or dynamic record links
+        // that the model attempts to invent without any lookup.
+        if (preg_match('~(?:₹|\b(?:INR|USD|EUR|GBP)\s*\d|/(?:campaigns|product|blog)/[a-z0-9-]+|\b(?:registration number|registered under|we (?:offer|charge|have)|Nebo (?:offers|charges|has)|the clinic (?:offers|charges|has))\b)~iu',$answer)) return false;
+        return true;
+    }
+
 
     public function __construct(
         private DatabaseService $store = new DatabaseService(),
@@ -259,6 +311,7 @@ final class AgentToolRegistry
         $encoded=json_encode($result,JSON_INVALID_UTF8_SUBSTITUTE|JSON_UNESCAPED_UNICODE);
         if (!is_string($encoded)||strlen($encoded)>48000) $result=['error'=>'Result exceeds the tool budget. Narrow the lookup.'];
         $trace?->tool($name,isset($result['error'])?'error':'ok',$started,'model',$callId);
+        if (!isset($result['error'])) $this->modelResults[$name]=$result;
         if (!isset($result['error']) && $trace!==null) {
             if ($name==='published_consultation_fees' && !empty($result['fees'])) $trace->source(ConsultationFeeService::SOURCE);
             if ($name==='published_practitioners' && !empty($result['practitioners'])) $trace->source('/#team');

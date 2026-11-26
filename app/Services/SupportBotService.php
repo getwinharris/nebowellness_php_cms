@@ -32,50 +32,34 @@ final class SupportBotService {
             return $result;
         }
         $tools=new AgentToolRegistry($this->store,scope:'support',contextLoader:fn()=> $this->toolContext($user,$message),question:$message);
-        $context=$tools->retrieve('clinic_context',[],$this->trace);
-        if (isset($context['error'])) return $this->unavailable($message,$startedAt,'Clinic information is temporarily unavailable.');
+        $context=['signed_in'=>!empty($user['email'])];
         if (!$context['signed_in'] && $this->isPrivateAccountQuestion($message)) {
             return array_replace($this->finishReply('Sign in at /login to access your own account.','private_account',$startedAt,$context),['response_mode'=>'application_action','memory'=>'none']);
         }
-        $destination=$this->destination($message,$context);
-        if ($destination !== null) {
-            $result=$this->finishReply('Open '.$destination['label'].'.','fallback',$startedAt,$context);
-            $result['response_mode']='application_action'; $result['open']=$destination['path'];
-            $result['actions']=[['type'=>'navigate','label'=>$destination['label'],'path'=>$destination['path']]];
-            return $result;
-        }
-        // Pre-execute relevant read-only lookups so plain-compatible providers receive
-        // actual retrieved evidence too. Model-selected function calls remain available.
-        $evidence=[];
-        if (preg_match('/\b(doctor|dr\.?|practitioner|qualification|credentials?|registration|specialit\w*|team)\b/i',$message)) {
-            $evidence['published_practitioners']=$tools->retrieve('published_practitioners',[],$this->trace);
-        }
-        if ($tools->has('published_programmes') && preg_match('/\b(programmes?|programs?|duration|fertility|gut|metabolic|maternal|lifestyle)\b/i',$message)) {
-            $evidence['published_programmes']=$tools->retrieve('published_programmes',[],$this->trace);
-            foreach ($context['site']['programmes']??[] as $row) {
-                if (!empty($row['title']) && str_contains(mb_strtolower($message),mb_strtolower($row['title']))) {
-                    $slug=basename((string)$row['url']);
-                    $evidence['published_programme_detail']=$tools->retrieve('published_programme_detail',['slug'=>$slug],$this->trace);
-                    break;
-                }
+        // Only an explicit navigation command needs the destination catalogue here.
+        // Ordinary dialogue must reach inference before the model chooses a lookup.
+        if (preg_match('/^(?:please )?(?:open|go to|take me to|navigate to)\s+/i',$message)) {
+            $context=$tools->retrieve('clinic_context',[],$this->trace);
+            if (isset($context['error'])) return $this->unavailable($message,$startedAt,'Clinic information is temporarily unavailable.');
+            $destination=$this->destination($message,$context);
+            if ($destination !== null) {
+                $result=$this->finishReply('Open '.$destination['label'].'.','fallback',$startedAt,$context);
+                $result['response_mode']='application_action'; $result['open']=$destination['path'];
+                $result['actions']=[['type'=>'navigate','label'=>$destination['label'],'path'=>$destination['path']]];
+                return $result;
             }
         }
-        if (ConsultationFeeService::isFeeQuestion($message)) $evidence['published_consultation_fees']=$tools->retrieve('published_consultation_fees',[],$this->trace);
-        $context['retrieved_evidence']=$evidence;
         $answer=$this->modelReply($message,$context,$previous,$tools);
         $cleaner=new AiReplyCleaner();
         $candidate=$answer===null?'':$cleaner->clean($answer,'');
-        $rightTool=!isset($evidence['published_consultation_fees'])||$this->trace->usedNativeTool(['published_consultation_fees']);
-        if (isset($evidence['published_practitioners']) && preg_match('/\b(registration|qualifications?|credentials?|specialit\w*)\b/i',$message))
-            $rightTool=$rightTool && $this->trace->usedNativeTool(['published_practitioners','search_clinic_knowledge']);
-        if (isset($evidence['published_programme_detail'])) $rightTool=$rightTool && $this->trace->usedNativeTool(['published_programme_detail','search_clinic_knowledge']);
-        if ($answer===null || !$cleaner->usableAnswer($candidate,$message) || !$this->trace->hasNativeToolAnswer() || !$rightTool || !self::matchesRetrievedFacts($message,$candidate,$evidence)) {
+        $evidence=$tools->modelResults();
+        if ($answer===null || !$cleaner->usableAnswer($candidate,$message) || !$tools->acceptsEvidence($message,$candidate,$this->trace) || !self::matchesRetrievedFacts($message,$candidate,$evidence)) {
             if ($answer!==null) $this->trace->markProviderResponseUnusable();
             return $this->unavailable($message,$startedAt,'The AI could not produce a verified response right now. Please retry or contact the clinic.');
         }
-        $result=$this->finishReply($candidate,'model',$startedAt,$context);
-        $result['response_mode']='model_with_retrieval';
-        $result['sources']=$this->trace->sources();
+        $result=$this->finishReply($candidate,'model',$startedAt,$evidence['clinic_context']??$context);
+        $result['response_mode']=$this->trace->hasNativeToolAnswer()?'model_with_retrieval':'model_direct';
+        $result['sources']=$this->trace->hasNativeToolAnswer()?$this->trace->sources():[];
         if ($this->isPrivateAccountQuestion($message)) $result['memory']='none';
         return $result;
     }
@@ -215,14 +199,14 @@ final class SupportBotService {
      * reply silently fell back to a canned menu.
      */
     private function modelReply(string $message, array $context, string $previous, AgentToolRegistry $tools): ?string {
-        $prompt=$tools->instructions($message)."\nAnswer directly and briefly in the customer's language. "
+        $prompt=$tools->instructions($message)."\nAnswer directly and briefly in the customer's language. Use tools for clinic-specific facts; for a greeting or general explanation, answer naturally without a lookup. "
             ."Use the returned tool evidence, do not introduce yourself or cite an unrelated article. "
             ."No diagnoses, promised results, or invented prices. If the requested data is missing, say so. "
             ."Use actual returned source paths.\n"
             .(module_on('shop')?'Commerce is enabled.':'Commerce is disabled.')
-            ."\nCustomer context JSON: ".json_encode(['signed_in'=>$context['signed_in']??false],JSON_THROW_ON_ERROR)
+            ."\nCustomer context JSON: ".json_encode(['signed_in'=>$context['signed_in']??false,'campaigns'=>module_on('campaigns'),'blog'=>module_on('blog')],JSON_THROW_ON_ERROR)
             .$previous."\nCustomer question: ".AgentSessionService::redact($message);
-        $reply=(new AiClient($this->secrets, routingScope: 'support', trace: $this->trace))->completeWithTools($prompt,$tools,700,0.2,4);
+        $reply=(new AiClient($this->secrets, routingScope: 'support', trace: $this->trace))->completeWithTools($prompt,$tools,700,0.2,4,requireTool:false);
         return AiClient::isError($reply)?null:$reply;
     }
 

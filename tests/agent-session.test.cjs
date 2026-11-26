@@ -18,6 +18,12 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
         const payload = JSON.parse(raw);
         providerPrompts.push(payload.messages[0].content);
         assert.ok(payload.tools.length > 0);
+        const prompt=payload.messages[0].content;
+        if (prompt.includes('Question: Draft a short fictional welcome sentence') || prompt.includes('question: Hello there, good morning') || prompt.includes('How many support enquiries are open?') || prompt.includes('What is the published initial consultation fee?')) {
+            const value=prompt.includes('How many support enquiries')?'There are 999 support enquiries.':prompt.includes('published initial consultation fee')?'The fee is ₹999.':prompt.includes('fictional welcome')?'**Welcome** to a brighter day.':'Good morning! How can I help?';
+            res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:value}}]}));
+            return;
+        }
         const toolName = payload.tools.some(t => t.function.name === 'clinic_context') ? 'clinic_context' : 'owner_dashboard_summary';
         if (!payload.messages.some(m => m.role === 'tool')) {
             res.end(JSON.stringify({ choices: [{ finish_reason: 'tool_calls', message: { tool_calls: [{ id: 'call_fixture', type: 'function', function: { name: toolName, arguments: '{}' } }] } }] }));
@@ -77,6 +83,22 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
         assert.ok(prompt.includes(questions[surface]));
         assert.ok(!prompt.includes(questions[surface === 'support' ? 'admin' : 'support']));
     }
+    // A greeting and creative task genuinely reach the model without an irrelevant
+    // tool; a provider that guesses a current clinic fact must still fail closed.
+    const hello=await request('support',{message:'Hello there, good morning'});
+    assert.equal(hello.status,200);
+    assert.equal(hello.body.reply,'Good morning! How can I help?');
+    assert.equal(hello.body.response_mode,'model_direct');
+    const creative=await request('admin',{_csrf:'fixture-token',message:'Draft a short fictional welcome sentence'});
+    assert.equal(creative.status,200);
+    assert.equal(creative.body.answer,'**Welcome** to a brighter day.');
+    assert.equal(creative.body.response_mode,'model_direct');
+    const guessedFee=await request('support',{message:'What is the published initial consultation fee?'});
+    assert.equal(guessedFee.status,503);
+    assert.ok(!guessedFee.body.reply);
+    const guessedCount=await request('admin',{_csrf:'fixture-token',message:'How many support enquiries are open?'});
+    assert.equal(guessedCount.status,502);
+    assert.ok(!guessedCount.body.answer);
     const fields = { _csrf: 'fixture-token', conversation: support.conversation };
     await request('support', { ...fields, message: 'My support tickets', turn_id: randomBytes(16).toString('hex') });
     assert.equal((await request('support', { ...fields, conversation_action: 'history' })).body.turns.length, 2);

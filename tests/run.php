@@ -106,7 +106,7 @@ $tests['admin unrelated question sends only bounded context to the model'] = fun
         assertTrue(str_contains($response, 'answer') && str_contains($prompt, 'What can you help me with?'), 'Unrelated question must reach the model boundary');
         assertTrue(!str_contains($prompt, 'private@example.test') && !str_contains($prompt, 'Private Person'), 'Model prompt must exclude customer identities');
         if ($mode === 'off') assertTrue(str_contains($prompt, 'Ecommerce is disabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Disabled commerce must not enter the model prompt');
-        else assertTrue(str_contains($prompt, 'Fixture Product') && str_contains($prompt, 'Total orders: 1'), 'Enabled commerce retains bounded aggregates');
+        else assertTrue(str_contains($prompt, 'Ecommerce is enabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Unrelated questions do not dump enabled-commerce records before the model asks for them');
     }
 };
 
@@ -138,7 +138,7 @@ $tests['admin context contains aggregates without customer identities'] = functi
     $disabled = \App\Services\AgentContextService::adminSummary(false, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
     assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product') && !str_contains($disabled, 'Total orders:') && !str_contains($disabled, 'revenue:'), 'Disabled commerce must exclude sales details');
     $controller = fileRead('app/Controllers/AdminController.php');
-    assertTrue(str_contains($controller, 'owner_dashboard_summary') && str_contains($controller, '$this->callAiApi($modelConfig, $message, $context, $trace)'), 'The admin request must pass the service summary to the model');
+    assertTrue(str_contains($controller, '$this->callAiApi($modelConfig, $message, $context, $trace, $tools)') && !str_contains($controller, "retrieve('owner_dashboard_summary'") , 'The admin request lets the model request the bounded service summary');
 };
 
 $tests['database service can connect to MySQL'] = function (): void {
@@ -1288,6 +1288,13 @@ $tests['agent replies never expose the model reasoning scaffold'] = function ():
     assertTrue(str_contains($cleaner->clean($prose, ''), 'role of a consultant'),
         'Prose containing a label word must not be treated as scaffold');
 
+    $markdown = "**Initial Consultation:** ₹500
+- Follow-up: ₹300
+
+1. Open the contact page.";
+    assertSame($markdown, $cleaner->clean($markdown), 'Valid final-answer Markdown must not be damaged');
+    assertSame('', $cleaner->clean('Question: "What is the published consultation fee?"'), 'A quoted prompt echo must not be recovered as an answer');
+
     // Both agents must share this one implementation.
     assertTrue(str_contains(file_get_contents(app_path('app/Services/SupportBotService.php')), 'AiReplyCleaner'),
         'Support bot should delegate to the shared cleaner');
@@ -2436,7 +2443,7 @@ $tests['support product questions retain public specifications and reject unrela
     assertSame(null, $article($question, $context), 'Common question words must not match unrelated legacy articles');
     $sourceBot=file_get_contents(app_path('app/Services/SupportBotService.php'));
     assertTrue(!str_contains($sourceBot,'function fallbackReply(') && !str_contains($sourceBot,'function publicGuestReply('),'No canned answer methods remain');
-    assertTrue(str_contains($sourceBot,'completeWithTools') && str_contains($sourceBot,'hasNativeToolAnswer'),'Conversational answers require observed retrieval and inference');
+    assertTrue(str_contains($sourceBot,'completeWithTools') && str_contains($sourceBot,'acceptsEvidence'),'Conversation requires genuine inference; business facts require observed evidence');
     $source = file_get_contents(app_path('app/Services/AgentContextService.php'));
     foreach (['description', 'highlights', 'description_points', 'specifications'] as $field) {
         assertTrue(str_contains($source, "'" . $field . "' =>"), 'Public product details must reach model context');
@@ -2855,6 +2862,29 @@ $tests['agents reject persona echoes and require observed tools and inference'] 
     $trace->tool('published_practitioners','ok',microtime(true),'model','call-1');
     $trace->provider('google','fixture',200,0,microtime(true),true);
     assertTrue($trace->hasNativeToolAnswer(),'Native model tool and final provider response observed');
+    $trace->source('/#team');
+    $trace->beginInferenceAttempt();
+    $trace->provider('google','fixture-alternate',200,0,microtime(true),true);
+    assertTrue($trace->hasCompletedInference()&&!$trace->hasNativeToolAnswer()&&!$trace->usedNativeTool(['published_practitioners'])&&$trace->sources()===[],'A direct alternate-model response cannot borrow failed exchange evidence');
+    for ($i=0;$i<16;$i++) $trace->provider('google','fixture-alternate',503,0,microtime(true),true);
+    $trace->provider('google','fixture-alternate',200,0,microtime(true),true);
+    $trace->tool('published_practitioners','ok',microtime(true),'model','new-call');
+    $trace->provider('google','fixture-alternate',200,0,microtime(true),true);
+    assertTrue($trace->hasNativeToolAnswer()&&$trace->metadata()['omitted_steps']>0,'Bounded diagnostics must not reject an actually completed native exchange');
+    $trace->markProviderResponseUnusable();
+    assertTrue(!$trace->hasCompletedInference(),'A rejected final output beyond the diagnostic cap is still unusable');
+
+    assertTrue($cleaner->usableAnswer('I am the Nebo support assistant.','Who are you?'),'Identity is an appropriate response to an identity question');
+    $owner=new \App\Services\AgentToolRegistry(modules:['shop'=>true,'blog'=>true,'campaigns'=>true]);
+    assertSame([['support_enquiries']],$owner->requiredEvidence('How many support enquiries are open?'),'An appointment tool is not support inbox evidence');
+    assertSame([['therapy_enquiry_summary']],$owner->requiredEvidence('How many therapy enquiries are open?'),'Therapy enquiries do not require an unrelated support inbox call');
+    assertSame([['sales_summary']],$owner->requiredEvidence('Current revenue this month?'),'Stock data cannot substantiate revenue');
+    assertSame([], $owner->requiredEvidence('Draft a blog explaining registration in general.'),'General creative writing does not require clinic credentials');
+    $trace->beginInferenceAttempt();
+    $trace->provider('google','fixture',200,0,microtime(true),true);
+    $trace->tool('therapy_enquiry_summary','ok',microtime(true),'model','wrong-tool');
+    $trace->provider('google','fixture',200,0,microtime(true),true);
+    assertTrue(!$owner->acceptsEvidence('How many support enquiries are open?','There are 999 open enquiries.',$trace),'An unrelated successful tool is not evidence');
     $public=new \App\Services\AgentToolRegistry(modules:['shop'=>false,'blog'=>false,'campaigns'=>true],scope:'support');
     foreach (['owner_dashboard_summary','support_enquiries','find_order','campaign_pages','search_articles'] as $name) assertTrue(!$public->has($name),'Public scope denies '.$name);
     assertTrue($public->has('published_practitioners')&&$public->has('published_programme_detail'),'Public read-only tools enabled');

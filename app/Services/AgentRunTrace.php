@@ -10,6 +10,23 @@ final class AgentRunTrace
     private ?string $outcome = null;
     private int $omittedSteps = 0;
     private array $sources = [];
+    private ?string $latestProviderOutcome = null;
+    private bool $toolAfterProvider = false;
+    private array $currentSuccessfulTools = [];
+
+    /** A failover starts a fresh model exchange. Keep earlier attempts for diagnostics,
+     * but do not credit their tools or sources to an answer from another exchange. */
+    public function beginInferenceAttempt(): void {
+        $this->latestProviderOutcome = null;
+        $this->toolAfterProvider = false;
+        $this->currentSuccessfulTools = [];
+        $this->sources = [];
+    }
+
+    public function hasCompletedInference(): bool {
+        return $this->latestProviderOutcome === 'http_ok' && !$this->toolAfterProvider;
+    }
+
     public function recordOutcome(string $outcome): void { $this->outcome = $outcome; }
     public function outcome(): ?string { return $this->outcome; }
 
@@ -21,18 +38,20 @@ final class AgentRunTrace
     public function provider(string $provider, string $model, int $status, int $transportError, float $started, bool $withTools = false): void
     {
         $this->lastProviderStep = count($this->steps) < 16 ? count($this->steps) : null;
+        $this->toolAfterProvider = false;
+        $this->latestProviderOutcome = match (true) {
+            $transportError === 28 => 'timeout',
+            $transportError !== 0 => 'transport_error',
+            $status === 200 => 'http_ok',
+            default => 'http_error',
+        };
         $this->add([
             'kind' => 'provider',
             'name' => in_array($provider, ['google', 'openai', 'anthropic'], true) ? $provider : 'compatible',
             'model' => self::modelLabel($model),
             'mode' => $withTools ? 'tools' : 'plain',
             'status' => $status,
-            'outcome' => match (true) {
-                $transportError === 28 => 'timeout',
-                $transportError !== 0 => 'transport_error',
-                $status === 200 => 'http_ok',
-                default => 'http_error',
-            },
+            'outcome' => $this->latestProviderOutcome,
         ], $started);
     }
 
@@ -46,6 +65,7 @@ final class AgentRunTrace
 
     public function markProviderResponseUnusable(): void
     {
+        if ($this->latestProviderOutcome==='http_ok') $this->latestProviderOutcome='unusable_response';
         $last = $this->lastProviderStep;
         if ($last !== null && $this->steps[$last]['kind'] === 'provider' && $this->steps[$last]['outcome'] === 'http_ok') {
             $this->steps[$last]['outcome'] = 'unusable_response';
@@ -59,6 +79,10 @@ final class AgentRunTrace
 
     public function tool(string $name, string $outcome, float $started, string $origin='harness', string $callId=''): void
     {
+        if ($origin==='model') {
+            $this->toolAfterProvider=true;
+            if ($outcome==='ok') $this->currentSuccessfulTools[$name]=true;
+        }
         $step=['kind'=>'tool','name'=>$name,'outcome'=>$outcome,'origin'=>$origin==='model'?'model':'harness'];
         if ($callId!=='') $step['call_ref']=substr(hash('sha256',$callId),0,16);
         $this->add($step,$started);
@@ -82,21 +106,11 @@ final class AgentRunTrace
 
     /** Final visible inference must follow an actual model-requested, successful tool. */
     public function hasNativeToolAnswer(): bool {
-        $tool=false; $lastProvider=null; $toolAfterProvider=false;
-        foreach ($this->steps as $step) {
-            if ($step['kind']==='provider') { $lastProvider=$step; $toolAfterProvider=false; }
-            if ($step['kind']==='tool' && ($step['origin']??'harness')==='model') {
-                $toolAfterProvider=true;
-                if ($step['outcome']==='ok') $tool=true;
-            }
-        }
-        return $tool && !$toolAfterProvider && !$this->omittedSteps && ($lastProvider['outcome']??'')==='http_ok';
+        return $this->hasCompletedInference() && $this->currentSuccessfulTools!==[];
     }
 
     public function usedNativeTool(array $names): bool {
-        foreach ($this->steps as $step) if ($step['kind']==='tool' && ($step['origin']??'')==='model'
-            && $step['outcome']==='ok' && in_array($step['name'],$names,true)) return true;
-        return false;
+        return array_intersect($names,array_keys($this->currentSuccessfulTools))!==[];
     }
 
     public function source(string $path): void {
