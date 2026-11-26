@@ -145,6 +145,23 @@ final class SiteProfileService
             return $profile+['mode'=>$mode,'logo_url'=>$logo,'favicon_url'=>$favicon,'palette'=>BrandAssetService::effectivePalette($settings)];
         } catch (\Throwable) {return self::unavailable();}
     }
+    public const IDENTITY_SOURCE='/contact';
+    /** A semantic read projection, never a raw settings record. */
+    public static function publicIdentity(array $record): array {
+        if (($record['id']??null)!==SettingsService::SETTINGS_ID) throw new \DomainException('Canonical site identity unavailable.');
+        $profile=self::resolve($record);
+        if (!in_array($profile['mode'],['reference','published'],true)) throw new \DomainException('Published site identity unavailable.');
+        $channels=ClinicContactService::channelsFromSettings($record);
+        $keys=['name','short_name','tagline','description','public_email','address','hours_weekday','hours_weekend','organization_type'];
+        return array_intersect_key($profile,array_flip($keys))+
+            ['phones'=>$channels['phones'],'whatsapp'=>$channels['whatsapp'],'source'=>self::IDENTITY_SOURCE];
+    }
+
+    /** Fetch the same canonical record as the publication workflow. */
+    public function identity(): array {
+        return self::publicIdentity($this->settings->appearanceRecord());
+    }
+
     public function published(): array {
         try {return self::resolve($this->settings->strictPublic());}
         catch (\Throwable) {return self::unavailable();}

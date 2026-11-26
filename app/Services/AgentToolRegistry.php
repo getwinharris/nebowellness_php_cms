@@ -52,6 +52,7 @@ final class AgentToolRegistry implements ModelToolSet
         $generalWriting=preg_match('/^\s*(?:please\s+)?(?:draft|write|rewrite|edit|translate|brainstorm|explain)\b/i',$question)
             && !preg_match('/\b(?:published|our|nebo|this clinic|current clinic|actual|today|this (?:week|month))\b/i',$question);
         if ($generalWriting) return [];
+        if (self::identityQuestion($question)) $groups[]=['published_site_identity'];
         if (ConsultationFeeService::isFeeQuestion($question)) $groups[]=['published_consultation_fees'];
         if (preg_match('/\b(registration|qualifications?|credentials?|specialit\w*)\b/i',$question)) $groups[]=['published_practitioners','search_clinic_knowledge'];
         if (preg_match('/\b(programmes?|programs?|fertility|gut|metabolic|maternal|lifestyle)\b/i',$question)
@@ -73,10 +74,34 @@ final class AgentToolRegistry implements ModelToolSet
         return $groups;
     }
 
+    /** Current public contact/identity facts, not customer/private or general writing. */
+    public static function identityQuestion(string $question): bool {
+        if (preg_match('/\b(?:my|customer(?:s|[’\x27]s)?|patient(?:s|[’\x27]s)?|staff|employee|admin|owner|login|password|credential|smtp|account)\b/i',$question)) {
+            if (!preg_match('/\b(?:public|clinic|business|site|website)\s+(?:contact|identity|address|name|email|phone|hours)\b/i',$question)) return false;
+        }
+        return preg_match('/\b(?:opening hours|business hours|clinic hours|working hours|opening times?|public contact(?: details| information)?|site identity|site name|business name|clinic name|contact details|contact information|contact (?:phone|number|email)|phone number|telephone number|whatsapp number|email address|public email|clinic address|business address|where (?:are you|is (?:the|your|our) (?:clinic|business|office)) located|where (?:is|are) (?:the|your|our) (?:clinic|business|office)|how (?:can|do|should) (?:i|we) (?:contact|reach|call|email) (?:you|the clinic|your clinic|our clinic)|when (?:are you|is the clinic) open)\b/i',$question)===1;
+    }
+
+    /** Validate concrete contact claims when an observed identity result is used. */
+    public static function matchesIdentityFacts(string $question,string $answer,array $identity): bool {
+        if (!self::identityQuestion($question)||$identity===[]) return true;
+        $email=$identity['public_email']??'';
+        preg_match_all('/[A-Z0-9.!#$%&\x27*+\/=?^_\x60{|}~-]+@[A-Z0-9.-]+\.[A-Z]{2,63}/i',$answer,$emails);
+        foreach ($emails[0] as $mentioned) if ($email===''||strcasecmp($mentioned,$email)!==0) return false;
+        if ($email!==''&&preg_match('/\b(?:public email|email address|contact email)\b/i',$question)&&$emails[0]===[]) return false;
+        $phones=$identity['phones']??[];$whatsapp=$identity['whatsapp']??[];
+        preg_match_all('/(?<![0-9])\+[1-9](?:[ ()-]*[0-9]){7,14}(?![0-9])/',$answer,$numbers);
+        $actual=array_map(static fn(string $value):string=>preg_replace('/[ ()-]+/','',$value),$numbers[0]);
+        foreach ($actual as $number) if (!in_array($number,array_merge($phones,$whatsapp),true)) return false;
+        if ($whatsapp!==[]&&preg_match('/\bwhatsapp number\b/i',$question)&&!array_intersect($whatsapp,$actual)) return false;
+        if ($phones!==[]&&preg_match('/\b(?:phone number|telephone number|contact phone|contact number)\b/i',$question)&&!array_intersect($phones,$actual)) return false;
+        return true;
+    }
+
     public function acceptsEvidence(string $question,string $answer,AgentRunTrace $trace): bool {
         if (!$trace->hasCompletedInference()) return false;
         foreach ($this->requiredEvidence($question) as $group) if (!$trace->usedNativeTool($group)) return false;
-        if ($trace->hasNativeToolAnswer()) return true;
+        if ($trace->hasNativeToolAnswer()) return self::matchesIdentityFacts($question,$answer,$this->modelResults['published_site_identity']??[]);
         // A direct answer is not evidence of current records. In addition to the
         // known requests above, reject concrete clinic claims or dynamic record links
         // that the model attempts to invent without any lookup.
@@ -176,6 +201,7 @@ final class AgentToolRegistry implements ModelToolSet
         $trace?->tool($this->has($name)?$name:'rejected',isset($result['error'])?'error':'ok',$started,'model',$callId);
         if (!isset($result['error'])) $this->modelResults[$name]=$result;
         if (!isset($result['error']) && $trace!==null) {
+            if ($name==='published_site_identity') $trace->source(SiteProfileService::IDENTITY_SOURCE);
             if ($name==='published_consultation_fees' && !empty($result['fees'])) $trace->source(ConsultationFeeService::SOURCE);
             if ($name==='published_practitioners' && !empty($result['practitioners'])) $trace->source('/#team');
             if ($name==='published_programme_detail') $trace->source((string)($result['url']??''));

@@ -12,7 +12,7 @@ final class McpReadService {
     public const VERSION='2026-07-28';
     public const MAX_BODY=32768;
     public const PUBLIC_NAMES=[
-        'published_consultation_fees','published_practitioners','published_programmes',
+        'published_site_identity','published_consultation_fees','published_practitioners','published_programmes',
         'published_programme_detail','search_clinic_knowledge','search_articles',
     ];
 
@@ -76,8 +76,8 @@ final class McpReadService {
         if($msg->method==='server/discover'){
             if(array_diff(array_keys(get_object_vars($params)),['_meta']))return self::error(400,-32602,'Invalid discovery parameters.',$id);
             return self::result($id,['supportedVersions'=>[self::VERSION],'capabilities'=>['tools'=>(object)[]],
-                '_meta'=>['io.modelcontextprotocol/serverInfo'=>['name'=>'Nebo Clinic','version'=>'1.0.0']],
-                'instructions'=>'Authorized reads of published clinic content only. No owner or customer records, bookings, or mutations.',
+                '_meta'=>['io.modelcontextprotocol/serverInfo'=>['name'=>'bapXcms','version'=>'1.0.0']],
+                'instructions'=>'Authorized reads of published site and service content only. No owner or customer records, bookings, or mutations.',
                 'ttlMs'=>0,'cacheScope'=>'private']);
         }
         try {

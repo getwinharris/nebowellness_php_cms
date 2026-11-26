@@ -1,7 +1,13 @@
 <?php
 declare(strict_types=1);
 
-if (PHP_SAPI !== 'cli' || getenv('BAPX_TEST_MODE') !== '1') exit(2);
+if (PHP_SAPI !== 'cli') exit(2);
+$realFixture=getenv('BAPX_TEST_MODE')!=='1';
+if ($realFixture && (getenv('BAPX_AGENT_DB_FIXTURE')!=='1'||
+    !in_array(getenv('BAPX_MYSQL_HOST'),['localhost','127.0.0.1'],true)||
+    !preg_match('/(?:_test|_fixture)$/D',(string)getenv('BAPX_MYSQL_DB'))||
+    parse_url((string)getenv('BAPX_AI_ENDPOINT'),PHP_URL_HOST)!=='127.0.0.1'||
+    parse_url((string)getenv('BAPX_REMOTE_DB_URL'),PHP_URL_HOST)!=='127.0.0.1')) exit(2);
 $request = json_decode(stream_get_contents(STDIN), true, flags: JSON_THROW_ON_ERROR);
 session_save_path($argv[1]);
 session_id($argv[2]);
@@ -9,6 +15,11 @@ $_SERVER['REQUEST_METHOD'] = 'POST';
 $_SERVER['REMOTE_ADDR'] = 'fixture-' . $argv[2];
 $_SERVER['REQUEST_URI'] = $request['surface'] === 'admin' ? '/admin/agent/ask' : '/support/ask';
 require __DIR__ . '/../../app/bootstrap.php';
+if ($realFixture) {
+    // Abort before any provider request if a DB setting overrides the loopback fixture.
+    $config=(new App\Services\SecretService())->getModelConfig();
+    if ($config['endpoint']!==getenv('BAPX_AI_ENDPOINT')||$config['model']!=='identity-fixture'||$config['apiKey']!=='synthetic-identity-fixture') exit(3);
+}
 $_SESSION['csrf_token'] = 'fixture-token';
 if (isset($request['identity'])) $_SESSION['user'] = ['role' => 'admin', 'email' => $request['identity'] . '@example.test'];
 if (empty($request['fields'])) {

@@ -15,6 +15,14 @@ try{
         ConsultationFeeService::normalize(['title'=>'MCP public fixture','status'=>'published','currency'=>'INR','amount'=>'123.45','min_minutes'=>'30','max_minutes'=>'30'],'mcp-fixture'),
         ConsultationFeeService::normalize(['title'=>'Private draft fixture','status'=>'draft','currency'=>'INR','amount'=>'999.99','min_minutes'=>'30','max_minutes'=>'30'],'mcp-draft')
     ],'consultation_inclusions'=>[]]);
+    $profile=array_fill_keys(array_keys(App\Services\SiteProfileService::FIELDS),'');
+    $published=array_replace($profile,['name'=>'Published MCP Studio','short_name'=>'MCP Studio','admin_name'=>'Private Admin Label',
+        'organization_type'=>'ProfessionalService','public_email'=>'public@example.test','hours_weekday'=>'Weekdays: 9 AM – 5 PM']);
+    $draft=array_replace($published,['name'=>'Draft Never Public','public_email'=>'draft@example.test']);
+    $previous=array_replace($published,['name'=>'Previous Never Public']);
+    $store->upsert('settings',['id'=>SettingsService::SETTINGS_ID,
+        'site_profile'=>['version'=>1,'published'=>$published,'draft'=>$draft,'previous'=>$previous,'can_restore'=>true],
+        'clinic_phones'=>['+12025550101'],'clinic_whatsapp'=>['+12025550102'],'private_fixture'=>'secret fixture']);
     $grants=new McpGrantService($store);
     $grant=$grants->issue('MCP HTTP fixture',1);$ids[]=$grant['id'];
     $token=$grant['token'];
@@ -45,7 +53,7 @@ try{
     $assert($http===200&&$body['result']['supportedVersions']===[McpReadService::VERSION],'Pinned discovery');
     [$http,$body,$responseHeaders]=$call('tools/list',[],$token);
     $names=array_column($body['result']['tools']??[],'name');
-    $assert($http===200&&$names===['published_consultation_fees','published_practitioners','search_clinic_knowledge'],'Exact module-filtered public list: no session or owner access');
+    $assert($http===200&&$names===['published_consultation_fees','published_practitioners','published_site_identity','search_clinic_knowledge'],'Exact module-filtered public list: no session or owner access');
     $assert(str_contains(strtolower($responseHeaders),'no-store')&&!str_contains(strtolower($responseHeaders),'set-cookie:'),'Non-cacheable stateless transport');
     $tools=array_column($body['result']['tools'],null,'name');
     [$http,$body]=$call('tools/call',['name'=>'published_consultation_fees','arguments'=>(object)[]],$token);
@@ -53,6 +61,21 @@ try{
     $assert($http===200&&($body['result']['isError']??true)===false&&count($data['fees']??[])===1,'Real typed published read only');
     $assert($data['fees'][0]['amount_minor']===12345&&$data['fees'][0]['title']==='MCP public fixture','Exact published fee');
     $assert(AbilitySchema::valid($data,$tools['published_consultation_fees']['outputSchema']),'Returned data conforms to advertised schema');
+    $before=$store->find('settings',SettingsService::SETTINGS_ID);
+    [$http,$body]=$call('tools/call',['name'=>'published_site_identity','arguments'=>(object)[]],$token);
+    $identity=$body['result']['structuredContent']??[];
+    $assert($http===200&&($body['result']['isError']??true)===false&&$identity['name']==='Published MCP Studio','Published identity via authenticated HTTP');
+    $assert(AbilitySchema::valid($identity,$tools['published_site_identity']['outputSchema']),'Identity schema matches discovery');
+    $assert($identity['public_email']==='public@example.test'&&$identity['phones']===['+12025550101'],'Canonical public contact values');
+    $json=json_encode($identity,JSON_THROW_ON_ERROR);
+    $assert(!preg_match('/Draft Never Public|Previous Never Public|Private Admin Label|secret fixture|draft@example.test/',$json),'No private identity, history or unrelated settings');
+    $assert($before===$store->find('settings',SettingsService::SETTINGS_ID),'Read leaves settings unchanged');
+    [$http,$body]=$call('tools/call',['name'=>'published_site_identity','arguments'=>['include_draft'=>true]],$token);
+    $assert($http===200&&($body['result']['isError']??false)&&!isset($body['result']['structuredContent']),'Reject draft-seeking arguments');
+    $store->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'site_profile'=>['version'=>99,'published'=>$published]]);
+    [$http,$body]=$call('tools/call',['name'=>'published_site_identity','arguments'=>(object)[]],$token);
+    $assert($http===200&&($body['result']['isError']??false)&&!isset($body['result']['structuredContent']),'Malformed identity fails closed');
+    $store->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'site_profile'=>$before['site_profile']]);
     foreach(['clinic_context','owner_dashboard_summary','published_programmes','find_order'] as $name){
         [$http,$body]=$call('tools/call',['name'=>$name,'arguments'=>(object)[]],$token);
         $assert($http===400&&($body['error']['code']??null)===-32602,'Non-granted tool rejected');

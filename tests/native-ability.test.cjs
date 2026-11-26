@@ -56,8 +56,8 @@ test('published clinic abilities use the native catalogue and recheck scoped inv
    'compatible'=>$tools->completionDeclarations(),
  ]);
  `);
- assert.deepEqual(data.names,['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge']);
- assert.deepEqual(data.disabled,['published_consultation_fees','published_practitioners','search_clinic_knowledge']);
+ assert.deepEqual(data.names,['published_site_identity','published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge']);
+ assert.deepEqual(data.disabled,['published_site_identity','published_consultation_fees','published_practitioners','search_clinic_knowledge']);
  assert.equal(data.invalid.code,'ability_invalid_input');
  assert.equal(data.trace.steps[0].outcome,'error');
  assert.equal(data.missing.code,'ability_not_found');
@@ -153,7 +153,7 @@ test('existing commerce read abilities are retired for every actor and setting',
  for (const result of [data.empty,data.bad,data.period,data.coupon,data.sales]) assert.equal(result.code,'ability_not_available');
 });
 
-test('all twelve remaining service names have typed native definitions with scoped session context',()=>{
+test('all thirteen service names have typed native definitions with scoped session context',()=>{
  const data=php(String.raw`
  require "tests/fixtures/native-session-context.php";
  $d=new App\Services\DatabaseService();$m=['shop'=>true,'blog'=>true,'campaigns'=>true];
@@ -166,7 +166,7 @@ test('all twelve remaining service names have typed native definitions with scop
    'without'=>$without->invoke('clinic_context',[]),'input'=>$support->invoke('clinic_context',['email'=>'foreign@example.test']),
    'bad'=>$bad->invoke('clinic_context',[])]);
  `);
- assert.deepEqual(Object.keys(data.all).sort(),['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge','search_articles','clinic_context','owner_dashboard_summary','appointment_summary','support_enquiries','campaign_pages','therapy_enquiry_summary'].sort());
+ assert.deepEqual(Object.keys(data.all).sort(),['published_site_identity','published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge','search_articles','clinic_context','owner_dashboard_summary','appointment_summary','support_enquiries','campaign_pages','therapy_enquiry_summary'].sort());
  for(const definition of Object.values(data.all)){
   assert.equal(definition.version,1); assert.equal(definition.input_schema.additionalProperties,false);
   assert.equal(definition.output_schema.additionalProperties,false);assert.equal(definition.annotations.readonly,true);

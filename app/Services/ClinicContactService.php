@@ -47,6 +47,6 @@ final class ClinicContactService {
             (bool)preg_match('/\b(ticket|support|issue|problem)\b/i',$question)=>'a support request',
             default=>'a question for the clinic',
         };
-        return ['type'=>'whatsapp','label'=>'Continue on WhatsApp','path'=>self::whatsappUrl($number,'Hello Nebo, I would like help with '.$topic.'.')];
+        return ['type'=>'whatsapp','label'=>'Continue on WhatsApp','path'=>self::whatsappUrl($number,'Hello, I would like help with '.$topic.'.')];
     }
 }

@@ -19,6 +19,10 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
         providerPrompts.push(payload.messages[0].content);
         assert.ok(payload.tools.length > 0);
         const prompt=payload.messages[0].content;
+        if (prompt.includes('What is the public email address without a lookup?')) {
+            res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'wrong@example.test'}}]}));
+            return;
+        }
         if (prompt.includes('Question: Summarise current clinic operations without a lookup')) {
             res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'There are 999 requests.'}}]}));
             return;
@@ -108,6 +112,9 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     const guessedCount=await request('admin',{_csrf:'fixture-token',message:'How many support enquiries are open?'});
     assert.equal(guessedCount.status,502);
     assert.ok(!guessedCount.body.answer);
+    const guessedIdentity=await request('support',{message:'What is the public email address without a lookup?'});
+    assert.equal(guessedIdentity.status,503);
+    assert.ok(!guessedIdentity.body.reply);
     const guessedReport=await request('admin',{_csrf:'fixture-token',message:'Summarise current clinic operations without a lookup'});
     assert.equal(guessedReport.status,502);
     assert.ok(!guessedReport.body.answer);

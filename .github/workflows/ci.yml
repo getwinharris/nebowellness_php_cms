@@ -74,3 +74,4 @@ jobs:
           php tests/mcp-read-integration.php
           node tests/brand-appearance-integration.cjs
           node tests/site-profile-integration.cjs
+          node tests/site-identity-agent-integration.cjs
