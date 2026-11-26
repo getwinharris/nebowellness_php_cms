@@ -63,3 +63,7 @@ Use the saved model configuration with either `./bapXphp ai:probe text [model]` 
 ### Native typed ability migration
 
 All eighteen existing names now use native v1 contracts: six public reads, five owner operational reads, six existing shop reads and one trusted support-session context; both agents retain the existing model tool names and public-domain services. NativeAbilityRegistry owns versioned metadata, scope, bounded input/output validation and safe error codes. Missing canonical fee settings is unavailable, not empty success. The [ability audit](research/rea/contracts/native-abilities-audit.md) maps remaining legacy tools and verification obligations. External MCP transport remains incomplete; the internal catalogue migration is complete.
+
+## External MCP published reads
+
+The scoped /mcp transport uses the native registry for the six published clinic abilities, with current module gates. It is not a third agent surface. Independent expiring/revocable bearer grants are provisioned explicitly through the authorized operator CLI; no browser cookie or provider credential authorizes MCP. See [the pinned transport contract](research/rea/contracts/mcp-read-transport.md). Legacy clients, OAuth onboarding and live authenticated client acceptance remain separate.

@@ -1,5 +1,7 @@
 Options -Indexes
 RewriteEngine On
+# Forward bearer authorization to the dedicated MCP PHP handler.
+RewriteRule ^mcp$ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
 # Developer-only skills and archived reference materials.
 RewriteRule ^\.agents(?:/|$) - [F,L,NC]

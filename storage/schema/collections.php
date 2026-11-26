@@ -255,6 +255,14 @@
                 'updated_at' => ['type' => 'datetime'],
             ],
         ],
+        'mcp_grants' => [
+            'primary_key'=>'id', 'admin_managed'=>false, 'agent_context'=>[],
+            'fields'=>[
+                'id'=>['type'=>'string'], 'label'=>['type'=>'string'], 'scope'=>['type'=>'enum','values'=>['published-clinic:read']],
+                'token_digest'=>['type'=>'string'], 'status'=>['type'=>'enum','values'=>['active','revoked']],
+                'created_at'=>['type'=>'datetime'], 'expires_at'=>['type'=>'datetime'], 'updated_at'=>['type'=>'datetime'],
+            ],
+        ],
         'agent_sessions' => [
             'primary_key'=>'id', 'owner_field'=>'customer_email', 'admin_managed'=>false, 'agent_context'=>[],
             'fields'=>[

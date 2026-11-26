@@ -27,3 +27,5 @@ Run `php -l` on every changed PHP file and then `./bapXphp test`. For storage ch
 ## Keeping this skill current
 
 Update when a service boundary, remote mutation protocol, consultation product policy, or runtime store changes. Read `storage/schema/collections.php` first because it is canonical.
+
+- External MCP reads use the scoped published-only registry projection, independent expiring digest-stored grants, per-request authorization, bounded JSON and no browser session. Do not provision real grants during automated testing or expose owner/session tools. Follow docs/research/rea/contracts/mcp-read-transport.md.

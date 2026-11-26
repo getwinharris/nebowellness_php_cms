@@ -4,7 +4,7 @@ namespace App\Services;
 
 /**
  * Native read-ability catalogue. The scope is supplied by trusted existing
- * agent entry points, never by a model argument. No external transport yet.
+ * agent entry points, never by a model argument. External MCP projects only published clinic abilities.
  */
 final class NativeAbilityRegistry
 {

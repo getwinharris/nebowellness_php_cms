@@ -2,6 +2,8 @@
 declare(strict_types=1);
 
 date_default_timezone_set('Asia/Kolkata');
+// The external MCP transport never starts or reads a browser session.
+if (parse_url($_SERVER['REQUEST_URI']??'',PHP_URL_PATH)!=='/mcp') {
 ini_set('session.gc_maxlifetime', (string)(60 * 60 * 24 * 30));
 session_set_cookie_params([
     'lifetime' => 60 * 60 * 24 * 30,
@@ -11,6 +13,7 @@ session_set_cookie_params([
     'samesite' => 'Lax',
 ]);
 session_start();
+}
 
 spl_autoload_register(function (string $class): void {
     $prefix = 'App\\';

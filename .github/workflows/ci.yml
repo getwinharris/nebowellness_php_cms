@@ -71,3 +71,4 @@ jobs:
           php tests/native-owner-ability-integration.php
           php tests/native-commerce-ability-integration.php
           php tests/native-session-ability-integration.php
+          php tests/mcp-read-integration.php

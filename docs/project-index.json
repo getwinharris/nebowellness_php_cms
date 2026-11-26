@@ -3,11 +3,11 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 130,
-        "controllers": 13,
-        "services": 66,
+        "routes": 137,
+        "controllers": 14,
+        "services": 68,
         "views": 55,
-        "collections": 25
+        "collections": 26
     },
     "routes": [
         {
@@ -1256,6 +1256,111 @@
             ]
         },
         {
+            "method": "DELETE",
+            "path": "/mcp",
+            "name": "mcp.delete",
+            "controller": "McpController@handle",
+            "view": "public/404",
+            "services": [
+                "McpReadService",
+                "McpGrantService",
+                "NativeAbilityRegistry",
+                "SettingsService",
+                "RateLimiter",
+                "DatabaseService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/mcp",
+            "name": "mcp.get",
+            "controller": "McpController@handle",
+            "view": "public/404",
+            "services": [
+                "McpReadService",
+                "McpGrantService",
+                "NativeAbilityRegistry",
+                "SettingsService",
+                "RateLimiter",
+                "DatabaseService"
+            ]
+        },
+        {
+            "method": "HEAD",
+            "path": "/mcp",
+            "name": "mcp.head",
+            "controller": "McpController@handle",
+            "view": "public/404",
+            "services": [
+                "McpReadService",
+                "McpGrantService",
+                "NativeAbilityRegistry",
+                "SettingsService",
+                "RateLimiter",
+                "DatabaseService"
+            ]
+        },
+        {
+            "method": "OPTIONS",
+            "path": "/mcp",
+            "name": "mcp.options",
+            "controller": "McpController@handle",
+            "view": "public/404",
+            "services": [
+                "McpReadService",
+                "McpGrantService",
+                "NativeAbilityRegistry",
+                "SettingsService",
+                "RateLimiter",
+                "DatabaseService"
+            ]
+        },
+        {
+            "method": "PATCH",
+            "path": "/mcp",
+            "name": "mcp.patch",
+            "controller": "McpController@handle",
+            "view": "public/404",
+            "services": [
+                "McpReadService",
+                "McpGrantService",
+                "NativeAbilityRegistry",
+                "SettingsService",
+                "RateLimiter",
+                "DatabaseService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/mcp",
+            "name": "mcp.post",
+            "controller": "McpController@handle",
+            "view": "public/404",
+            "services": [
+                "McpReadService",
+                "McpGrantService",
+                "NativeAbilityRegistry",
+                "SettingsService",
+                "RateLimiter",
+                "DatabaseService"
+            ]
+        },
+        {
+            "method": "PUT",
+            "path": "/mcp",
+            "name": "mcp.put",
+            "controller": "McpController@handle",
+            "view": "public/404",
+            "services": [
+                "McpReadService",
+                "McpGrantService",
+                "NativeAbilityRegistry",
+                "SettingsService",
+                "RateLimiter",
+                "DatabaseService"
+            ]
+        },
+        {
             "method": "GET",
             "path": "/openapi.json",
             "name": "discovery.openapi",
@@ -1506,6 +1611,7 @@
         "BlogController",
         "CommerceController",
         "ConsultationController",
+        "McpController",
         "PublicController",
         "RemoteDbController",
         "ReviewController",
@@ -1553,6 +1659,8 @@
         "MailQueueService",
         "MailStorageService",
         "MarkdownRenderer",
+        "McpGrantService",
+        "McpReadService",
         "MediaService",
         "ModelToolSet",
         "NativeAbilityRegistry",
@@ -1653,6 +1761,7 @@
         "mail_inbox",
         "mail_outbox",
         "mail_queue",
+        "mcp_grants",
         "media_files",
         "orders",
         "products",

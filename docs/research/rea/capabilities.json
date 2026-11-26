@@ -1114,12 +1114,13 @@
       "id": "mcp-02",
       "track": "mcp",
       "title": "Capability discovery and inspection",
-      "status": "missing",
+      "status": "implemented",
       "acceptance": "List and inspect authorized abilities and exact schemas.",
-      "finding": "Internal model declarations are not external MCP.",
+      "finding": "Authorized public ability discovery projects exact input/output schemas and native read-only annotations; explicit allowlist and module gates. Real client acceptance pending.",
       "issues": [
         121,
-        128
+        128,
+        162
       ],
       "references": [
         {
@@ -1129,22 +1130,37 @@
         {
           "source": "wp-abilities",
           "locator": "Input/output schemas and permission callbacks"
+        },
+        {
+          "source": "mcp-protocol-2026-07-28",
+          "locator": "Request metadata, discovery, scoped tool list and invocation"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/McpReadService.php",
+          "anchor": "function handle("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/mcp-read-integration.php",
+          "anchor": "Exact module-filtered public list"
+        }
+      ],
       "production": null
     },
     {
       "id": "mcp-03",
       "track": "mcp",
       "title": "MCP protocol transport",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Version negotiation, initialize, JSON-RPC IDs, tools/list and tools/call.",
-      "finding": "No mapped native MCP endpoint.",
+      "finding": "Pinned 2026-07-28 stateless POST JSON subset implements server/discover, tools/list and tools/call and correlates IDs. Legacy initialize, OAuth client onboarding and live compatible-client acceptance remain unverified.",
       "issues": [
         121,
-        128
+        128,
+        162
       ],
       "references": [
         {
@@ -1158,22 +1174,37 @@
         {
           "source": "mcp-protocol",
           "locator": "Streamable HTTP lifecycle"
+        },
+        {
+          "source": "mcp-protocol-2026-07-28",
+          "locator": "Request metadata, discovery, scoped tool list and invocation"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/McpReadService.php",
+          "anchor": "const VERSION"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/mcp-read-integration.php",
+          "anchor": "Pinned discovery"
+        }
+      ],
       "production": null
     },
     {
       "id": "mcp-04",
       "track": "mcp",
       "title": "Delegated access and session lifecycle",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Revocable scoped client identity, session/actor binding and negative tests.",
-      "finding": "Website sessions are not MCP delegation.",
+      "finding": "Expiring revocable digest-stored bearer grants authorize each request independently of website sessions, scoped to published reads. No OAuth issuance or production client grant; authenticated live acceptance pending.",
       "issues": [
         19,
-        128
+        128,
+        162
       ],
       "references": [
         {
@@ -1183,19 +1214,33 @@
         {
           "source": "wp-abilities",
           "locator": "Input/output schemas and permission callbacks"
+        },
+        {
+          "source": "mcp-protocol-2026-07-28",
+          "locator": "Request metadata, discovery, scoped tool list and invocation"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/McpGrantService.php",
+          "anchor": "function authorize("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/mcp-read-integration.php",
+          "anchor": "Revocation checked at invocation"
+        }
+      ],
       "production": null
     },
     {
       "id": "mcp-05",
       "track": "mcp",
       "title": "Execution and output validation",
-      "status": "partial",
+      "status": "implemented",
       "acceptance": "Recheck permission and schema on invocation, bound results and structured errors.",
-      "finding": "All 18 existing internal tool names have native v1 metadata, typed bounded input/output, scope/module authorization and read-only annotations. The final session-only context is bound to a trusted support loader and explicitly requested owned records. External transport/authorization remains separate.",
+      "finding": "MCP invocation rechecks credential scope and native module/schema constraints; invalid tool calls cannot obtain private data. Authorized published read execution is covered by isolated real HTTP and MariaDB tests; live grant acceptance pending.",
       "issues": [
         128,
         148,
@@ -1203,7 +1248,8 @@
         154,
         156,
         158,
-        160
+        160,
+        162
       ],
       "references": [
         {
@@ -1213,6 +1259,10 @@
         {
           "source": "wp-abilities",
           "locator": "Input/output schemas and permission callbacks"
+        },
+        {
+          "source": "mcp-protocol-2026-07-28",
+          "locator": "Request metadata, discovery, scoped tool list and invocation"
         }
       ],
       "source": [
@@ -1263,6 +1313,10 @@
         {
           "path": "app/Services/AgentContextService.php",
           "anchor": "function supportContext("
+        },
+        {
+          "path": "app/Services/McpReadService.php",
+          "anchor": "function handle("
         }
       ],
       "tests": [
@@ -1313,6 +1367,10 @@
         {
           "path": "tests/native-session-ability-integration.php",
           "anchor": "Session context leaves business state unchanged"
+        },
+        {
+          "path": "tests/mcp-read-integration.php",
+          "anchor": "Real typed published read only"
         }
       ],
       "production": null
@@ -2403,6 +2461,21 @@
         "mcp-05"
       ],
       "summary": "Completed the 18-name internal typed native catalogue, replacing the final legacy dispatch with a trusted support-only session loader and explicit owned/public projections. Scoped discovery and invocation, bounded schemas and isolated cross-account/module verification. External execution acceptance remains partial."
+    },
+    {
+      "id": "162-scoped-mcp-read-transport",
+      "date": "2026-11-26",
+      "issues": [
+        162,
+        128
+      ],
+      "components": [
+        "mcp-02",
+        "mcp-03",
+        "mcp-04",
+        "mcp-05"
+      ],
+      "summary": "Add published-read-only external MCP transport and independently revocable expiring bearer grants. Modern pinned protocol subset; no legacy/OAuth/live-client acceptance claim. Existing registry owns tool schemas and execution."
     }
   ]
 }

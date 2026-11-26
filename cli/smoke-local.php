@@ -66,6 +66,7 @@ try {
         '/.agents/skills/docs/SKILL.md' => 403,
         '/.agents/map.mmd' => 403,
         '/.agents/index.yaml' => 403,
+        '/mcp' => 405,
         '/map.mmd' => 404,
         '/index.yaml' => 404,
         '/TODO.md' => 404,
