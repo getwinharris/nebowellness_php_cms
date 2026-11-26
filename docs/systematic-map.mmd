@@ -7,11 +7,11 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 113 routes, 14 controllers, 73 services, 59 views, 0 data files, 21 tools"]
+  subgraph ARCH["Architecture Overview — 113 routes, 14 controllers, 74 services, 60 views, 0 data files, 21 tools"]
     arch_routes["> Routes: 113 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 14"]:::arch
-    arch_svc["> Services: 73"]:::arch
-    arch_views["> Views: 59"]:::arch
+    arch_svc["> Services: 74"]:::arch
+    arch_views["> Views: 60"]:::arch
     arch_data["> Collections: 27 schema | 0 files"]:::arch
     arch_tools["> Tools: 21"]:::arch
     arch_gaps["> Gaps: 22"]:::arch
@@ -197,6 +197,7 @@ flowchart LR
     service_categoryservice["CategoryService"]:::code
     service_cliniccontactservice["ClinicContactService"]:::code
     service_clinicknowledgeservice["ClinicKnowledgeService"]:::code
+    service_cmsdynamicsectionservice["CmsDynamicSectionService"]:::code
     service_cmspageservice["CmsPageService"]:::code
     service_cmssectionregistry["CmsSectionRegistry"]:::code
     service_commerceabilityservice["CommerceAbilityService"]:::code
@@ -282,6 +283,7 @@ flowchart LR
     view_layouts_admin["layouts/admin"]:::code
     view_layouts_app["layouts/app"]:::code
     view_partials_care_icon["partials/care-icon"]:::code
+    view_partials_cms_dynamic_section["partials/cms-dynamic-section"]:::code
     view_partials_cms_page_document["partials/cms-page-document"]:::code
     view_partials_home_figures["partials/home-figures"]:::code
     view_partials_therapy_products["partials/therapy-products"]:::code
@@ -409,6 +411,8 @@ flowchart LR
   route_get_pages_slug --> controller_publiccontroller
   controller_publiccontroller --> service_cmspageservice
   controller_publiccontroller --> service_cmssectionregistry
+  controller_publiccontroller --> service_cmsdynamicsectionservice
+  controller_publiccontroller --> service_nativeabilityregistry
   controller_publiccontroller --> service_markdownrenderer
   controller_publiccontroller --> service_seoservice
   controller_publiccontroller -. renders .-> view_public_cms_page
@@ -783,6 +787,8 @@ flowchart LR
   route_get_admin_pages --> controller_admincontroller
   controller_admincontroller --> service_cmspageservice
   controller_admincontroller --> service_cmssectionregistry
+  controller_admincontroller --> service_cmsdynamicsectionservice
+  controller_admincontroller --> service_nativeabilityregistry
   controller_admincontroller --> service_markdownrenderer
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_cms_pages

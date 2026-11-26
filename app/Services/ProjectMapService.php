@@ -7,13 +7,13 @@ final class ProjectMapService {
 
     public const SHARED_CONTROLLERS = ['BaseController'];
     public const SHARED_SERVICES = ['SeoService', 'SmtpMailer', 'ImageOptimizerService', 'DocsMapService', 'RateLimiter', 'KnowledgeGraphService'];
-    public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'partials/care-icon', 'partials/home-figures', 'partials/therapy-products', 'partials/cms-page-document', 'public/404', 'admin/environment'];
+    public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'partials/care-icon', 'partials/home-figures', 'partials/therapy-products', 'partials/cms-page-document', 'partials/cms-dynamic-section', 'public/404', 'admin/environment'];
     public const KNOWN_UNWIRED_COLLECTIONS = ['wallet_transactions'];
 
     public static function registry(): array {
         $routes = [
             ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['SiteProfileService','ConsultationFeeService','ClinicContactService','CampaignPageService','ConsultantService','PublicDiscoveryService','SettingsService']],
-            ['method'=>'GET','path'=>'/pages/{slug}','name'=>'cms.page','page'=>'public/cms-page','controller'=>'PublicController@cmsPage','services'=>['CmsPageService','CmsSectionRegistry','MarkdownRenderer','SeoService']],
+            ['method'=>'GET','path'=>'/pages/{slug}','name'=>'cms.page','page'=>'public/cms-page','controller'=>'PublicController@cmsPage','services'=>['CmsPageService','CmsSectionRegistry','CmsDynamicSectionService','NativeAbilityRegistry','MarkdownRenderer','SeoService']],
             ['method'=>'GET','path'=>'/about','name'=>'about','page'=>'public/about','controller'=>'PublicController@about','services'=>[]],
             ['method'=>'GET','path'=>'/sri-panchami-spiritual','name'=>'spiritual','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
             ['method'=>'GET','path'=>'/spiritual','name'=>'spiritual.short','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
@@ -93,7 +93,7 @@ final class ProjectMapService {
             ['method'=>'POST','path'=>'/admin/agent-sessions/purge','name'=>'admin.agent-sessions.purge','page'=>'admin/agent-sessions','controller'=>'AdminController@purgeAgentSessions','services'=>['AgentSessionService','AuditLogService']],
             ['method'=>'GET','path'=>'/admin/support-tickets','name'=>'admin.support-tickets','page'=>'admin/support-inbox','controller'=>'AdminController@supportTickets','services'=>['DatabaseService','SupportTicketService','AgentSessionService','CustomerCrmService']],
             ['method'=>'POST','path'=>'/admin/support-tickets/save','name'=>'admin.support-tickets.save','page'=>'admin/support-inbox','controller'=>'AdminController@saveSupportTicket','services'=>['SupportTicketService','AuditLogService']],
-            ['method'=>'GET','path'=>'/admin/pages','name'=>'admin.pages','page'=>'admin/cms-pages','controller'=>'AdminController@cmsPages','services'=>['CmsPageService','CmsSectionRegistry','MarkdownRenderer']],
+            ['method'=>'GET','path'=>'/admin/pages','name'=>'admin.pages','page'=>'admin/cms-pages','controller'=>'AdminController@cmsPages','services'=>['CmsPageService','CmsSectionRegistry','CmsDynamicSectionService','NativeAbilityRegistry','MarkdownRenderer']],
             ['method'=>'POST','path'=>'/admin/pages/save','name'=>'admin.pages.save','page'=>'admin/cms-pages','controller'=>'AdminController@saveCmsPage','services'=>['CmsPageService','CmsSectionRegistry','AuditLogService','DatabaseService','MediaService']],
             ['method'=>'GET','path'=>'/admin/site-profile','name'=>'admin.site-profile','page'=>'admin/site-profile','controller'=>'AdminController@siteProfile','services'=>['SettingsService','SiteProfileService','BrandAssetService']],
             ['method'=>'POST','path'=>'/admin/site-profile/save','name'=>'admin.site-profile.save','page'=>'admin/site-profile','controller'=>'AdminController@saveSiteProfile','services'=>['SettingsService','SiteProfileService','AuditLogService','DatabaseService']],

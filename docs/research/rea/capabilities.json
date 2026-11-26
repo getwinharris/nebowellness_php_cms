@@ -206,13 +206,14 @@
       "title": "General page/section builder",
       "status": "partial",
       "acceptance": "Reusable sections, reorder/hide, draft preview/publish without source edits.",
-      "finding": "Independent native page editor and five typed section types with ordering, hiding, saved preview, explicit publication and restore. Existing homepage conversion, navigation, dynamic service sections and shared forms remain pending. Schema readiness and confirmation-protected owner initialization keep pre-existing pages and sitemap usable before setup. Actual schema read and configured setup path distinguish absence from unreadable storage. Native page save serializes with media archive.",
+      "finding": "Native page editor with eight bounded section types, including live programmes/team/display fees from the existing typed public abilities; reorder/hide, saved preview, explicit publication/restore. Readiness and native media locking implemented. Existing homepage conversion, shared forms, navigation and other section types remain pending.",
       "issues": [
         125,
         123,
         176,
         178,
-        180
+        180,
+        184
       ],
       "references": [
         {
@@ -244,6 +245,14 @@
         {
           "path": "app/Services/DatabaseService.php",
           "anchor": "function withCmsMediaLock("
+        },
+        {
+          "path": "app/Services/CmsDynamicSectionService.php",
+          "anchor": "function resolve("
+        },
+        {
+          "path": "views/partials/cms-dynamic-section.php",
+          "anchor": "cms-live-grid"
         }
       ],
       "tests": [
@@ -262,6 +271,14 @@
         {
           "path": "tests/cms-media-boundary-integration.cjs",
           "anchor": "PASS loopback configured bridge"
+        },
+        {
+          "path": "tests/cms-pages.test.cjs",
+          "anchor": "live section schema bounds counts"
+        },
+        {
+          "path": "tests/cms-pages-integration.cjs",
+          "anchor": "PASS live native programme/team/fee sections"
         }
       ],
       "production": null
@@ -2880,6 +2897,19 @@
         "harness-03"
       ],
       "summary": "Late review of #175 found ordinary business email bypass. Share explicit public contact intent categories between tool evidence and concrete answer validation; reject wrong/missing observed email or international number, preserve private/general model questions. Unit and both agent route fixtures, no new tool grant or provider change."
+    },
+    {
+      "id": "184-live-service-sections",
+      "date": "2026-11-27",
+      "issues": [
+        184,
+        125,
+        121
+      ],
+      "components": [
+        "cms-06"
+      ],
+      "summary": "Add reusable live programme/team/consultation-fee section types, bounded display counts and shared owner/public rendering from existing typed published abilities. Disabled/empty/unavailable explicit, no private records, no duplicate business catalogue or booking action. Unit, responsive fixture and actual MariaDB route tests; no production publication or coverage increase claim."
     }
   ]
 }

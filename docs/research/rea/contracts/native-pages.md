@@ -69,3 +69,28 @@ in this lock, so archived files remain at their original URL.
 The loopback bridge and concurrent isolated MariaDB fixtures exercise
 absence, malformed schema, authorization, setup, competing edits and
 archive, and deterministic archive-first/draft-first protection.
+
+## Live published service sections (#184)
+
+The page vocabulary adds programmes, team, and fee_table. An authored
+section stores a heading, optional introduction and a display limit of
+1–12 (default six), not copied business records or arbitrary queries.
+CmsDynamicSectionService resolves only the existing public
+published_programmes, published_practitioners and
+published_consultation_fees native abilities under the support scope.
+Output schema is validated again before bounded rendering; repeated
+sections reuse only request-local results. Current module gates apply.
+Disabled programme sections are omitted publicly and labelled in owner
+preview; empty records and unavailable/invalid data have distinct states.
+Fee values use the canonical display amounts, durations, inclusions and
+enquiry-only scope, never a payment or booking action. The common preview
+and public renderer uses escaped fields and native validated source links.
+
+Source-derived block render reference: WordPress 7.1.4 class-wp-block-type.php
+and class-wp-block.php rechecked against the exact pinned hashes in the
+original native-pages contract. Static authored content and live record
+projection stay separate. No existing page or installation data is
+migrated. Database-backed route fixtures exercise current records, limits,
+draft/hidden exclusions, module disable, source edits without republish,
+empty and malformed sources. Responsive no-DB fixtures exercise the
+shared preview/public states; no production page was created to test.

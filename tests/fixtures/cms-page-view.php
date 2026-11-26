@@ -11,6 +11,10 @@ $r=$service::newRecord('fixture','Reusable page fixture');
 $r=$service::transition($r,'add:hero',$r['draft']);
 $d=$r['draft'];$d['sections'][0]['content']=['heading'=>'Visible hero','body'=>'Initial public body'];
 $r=$service::transition($r,'add:faq',$d);$d=$r['draft'];$d['sections'][1]['content']=['heading'=>'Fixture question','body'=>'**Fixture answer**'];
+foreach (['team'=>'Team fixture','programmes'=>'Programmes fixture','fee_table'=>'Fees fixture'] as $type=>$heading) {
+    $r=$service::transition($r,'add:'.$type,$d);$d=$r['draft'];
+    $d['sections'][count($d['sections'])-1]['content']=['heading'=>$heading,'body'=>'Live source introduction','display_limit'=>'2'];
+}
 $r=$service::transition($r,'save',$d);$r=$service::transition($r,'publish');
 $d=$service::editDocument($r);$d['sections'][0]['content']['body']='Private draft body';
 $r=$service::transition($r,'save',$d);

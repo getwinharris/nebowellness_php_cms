@@ -42,8 +42,8 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 356
-  relationships: 307
+  concepts: 357
+  relationships: 310
   by_type:
     blog: 5
     controller: 14
@@ -51,7 +51,7 @@ summary:
     image: 40
     route: 113
     schema: 27
-    service: 73
+    service: 74
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -1648,6 +1648,8 @@ concepts:
     services:
       - "CmsPageService"
       - "CmsSectionRegistry"
+      - "CmsDynamicSectionService"
+      - "NativeAbilityRegistry"
       - "MarkdownRenderer"
       - "AuthService"
     view: "admin/cms-pages"
@@ -2053,6 +2055,8 @@ concepts:
     services:
       - "CmsPageService"
       - "CmsSectionRegistry"
+      - "CmsDynamicSectionService"
+      - "NativeAbilityRegistry"
       - "MarkdownRenderer"
       - "SeoService"
     view: "public/cms-page"
@@ -3451,6 +3455,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:CmsDynamicSectionService"
+    type: "service"
+    title: "CmsDynamicSectionService"
+    description: "Service: CmsDynamicSectionService"
+    resource: "app/Services/CmsDynamicSectionService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:CmsPageService"
     type: "service"
     title: "CmsPageService"
@@ -4147,6 +4159,9 @@ relationships:
     to: "service:ClinicKnowledgeService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:CmsDynamicSectionService"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:CmsPageService"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4282,6 +4297,9 @@ relationships:
     to: "service:ClinicContactService"
     relation: "uses"
   - from: "controller:PublicController"
+    to: "service:CmsDynamicSectionService"
+    relation: "uses"
+  - from: "controller:PublicController"
     to: "service:CmsPageService"
     relation: "uses"
   - from: "controller:PublicController"
@@ -4304,6 +4322,9 @@ relationships:
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:MarkdownRenderer"
+    relation: "uses"
+  - from: "controller:PublicController"
+    to: "service:NativeAbilityRegistry"
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:ProductService"
