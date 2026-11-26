@@ -76,6 +76,37 @@ try {
         }
     }
 
+    // Compare actual deployed-source bytes through the public HTTP route, without MySQL.
+    [$identityStatus,$identity]=(new \App\Services\ReleaseIdentityService())->inspect();
+    $release=httpRequest($base.'/is-sha-valid?fingerprint='.$identity['fingerprint']);
+    $releaseJson=json_decode($release['body'],true);
+    echo "{$release['status']} GET /is-sha-valid\n";
+    if ($identityStatus!==200||$release['status']!==200||($releaseJson['scope']??null)!==$identity['scope']||
+        ($releaseJson['fingerprint_match']??null)!==true||($releaseJson['fingerprint']??null)!==$identity['fingerprint']||
+        !str_contains(strtolower(implode("\n",$release['headers'])),'no-store')) {
+        $failures[]='Release source identity HTTP contract did not match local evidence.';
+    }
+    foreach ([
+        '/is-sha-valid?sha[]=bad'=>422,
+        '/is-sha-valid?fingerprint='.str_repeat('0',64)=>409,
+    ] as $releasePath=>$expected) {
+        $check=httpRequest($base.$releasePath);
+        if ($check['status']!==$expected) $failures[]="Release identity expected {$expected}, got {$check['status']}.";
+    }
+
+    $verify=proc_open([PHP_BINARY,app_path('cli/release-identity.php'),'verify',$base],
+        [0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']],$verifyPipes);
+    if (is_resource($verify)) {
+        fclose($verifyPipes[0]);
+        $verified=json_decode(stream_get_contents($verifyPipes[1]),true);
+        fclose($verifyPipes[1]);fclose($verifyPipes[2]);
+        $verifyExit=proc_close($verify);
+        if ($verifyExit!==0||($verified['fingerprint_match']??null)!==true||
+            !in_array($verified['state']??'', ['source_and_revision_matched','source_matched_revision_unknown'],true)) {
+            $failures[]='Local release verification CLI did not prove the deployed source.';
+        }
+    } else $failures[]='Unable to launch local release verification CLI.';
+
     $post = httpRequest($base . '/admin/orders/test/status', 'POST', 'status=shipped');
     echo "{$post['status']} POST /admin/orders/test/status\n";
     if ($post['status'] !== 302) {

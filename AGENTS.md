@@ -73,6 +73,11 @@ absence as a finding.
   affecting native CMS, service booking/forms/landing pages, Site Kit, Abilities/MCP,
   A2UI, compatible model inference and the agent harness. The pinned research manifest
   is a reference, not proof of Nebo behavior. Do not install or copy vendor runtimes.
+- Before building a multi-layer component, trace the pinned source through
+  entry points, dependencies, state and data contracts, permissions, side
+  effects and failure branches. Record the native adaptation and executable
+  acceptance in docs/research/rea/contracts/ and the issue. A feature label or
+  benchmark alone is not an engineering contract.
 - Maintain docs/research/rea/capabilities.json in the same PR as each relevant
   runtime change. Record exact source/test evidence, truthful status and remaining
   acceptance; append a unique review entry even when coverage does not change.

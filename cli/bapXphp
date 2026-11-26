@@ -31,6 +31,8 @@ set -euo pipefail
 #   bapXphp check                   — alias for bapXphp ci
 #   bapXphp update                  — regenerate REA progress, maps and indexes
 #   bapXphp rea status|update|check   — source-backed capability register
+#   bapXphp release:identity        — observe local deployed-source scope and Git revision
+#   bapXphp release:verify <origin> — compare deployed source bytes and revision
 #   bapXphp serve                   — start dev server on 127.0.0.1:6020
 #   bapXphp smoke                   — run local smoke tests
 #   bapXphp dev:user [--dry-run]   — create/update the fixed remote-DB customer used for browser testing
@@ -344,6 +346,8 @@ cmd_understand() {
   printf "  ${C}bapXphp check${N}       alias for ci\n"
   printf "  ${C}bapXphp update${N}      regenerate REA progress, maps and indexes\n"
   printf "  bapXphp rea status|update|check   inspect or validate research progress\n"
+  printf "  bapXphp release:identity        inspect local source identity\n"
+  printf "  bapXphp release:verify <origin> compare deployed source identity\n"
   printf "  ${C}bapXphp db query <col>${N}  --where 'field=val' --limit 10\n"
   printf "  ${C}bapXphp db init${N}     create MySQL tables from schema\n"
   printf "  ${C}bapXphp db sync${N}     compatibility alias for db init\n"
@@ -2141,6 +2145,10 @@ main() {
       cmd_"$1" ;;
     rea)
       shift; require_php; php "$ROOT/cli/rea-progress.php" "$@" ;;
+    release:identity)
+      require_php; php "$ROOT/cli/release-identity.php" status ;;
+    release:verify)
+      shift; require_php; php "$ROOT/cli/release-identity.php" verify "$@" ;;
     dev:user|dev-user)
       shift; cmd_dev_user "$@" ;;
     map)

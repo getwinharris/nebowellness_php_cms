@@ -30,7 +30,7 @@ description: Use when editing Hostinger deployment, Git auto-deploy, environment
 3. The implementing agent self-reviews, fixes findings, verifies exact-head CI, and merges to deployment `main`; external review bots are optional.
 4. The already-configured Hostinger Git integration pulls deployment `main`; this is
    a one-time hosting setup, not a per-release manual configuration step
-5. Verify the deployed revision and live health; a merge alone is not deployment evidence.
+5. Run ./bapXphp release:verify https://nebowellness.com from synchronized main. Record source fingerprint and optional Git revision separately; unknown metadata never proves the exact SHA. Verify affected live flows independently. A merge or matching source alone is not complete acceptance.
 
 ## Testing
 

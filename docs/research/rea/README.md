@@ -69,6 +69,24 @@ flowchart TD
 
 This diagram is the target contract. The progress register distinguishes implemented and missing elements; it does not assert full parity.
 
+## Reference-to-native component engineering
+
+A feature name or benchmark is not an architecture. Before implementing a
+multi-layer component, follow the archived REA locator into the exact pinned
+source and inspect the owning entry point, dependencies, schemas, operations,
+state transitions, side effects, permissions and failure branches. Verify the
+selected source hash; identify what is observed statically versus tested at
+runtime. Then write a small component contract covering the native design,
+deliberate differences for shared hosting, invariants, error behavior and
+boundary tests. A matching UI, generated map, passing superficial assertion or
+completion percentage is not proof of the reference behavior.
+
+Keep concrete contracts in [contracts/](contracts/); for example the
+[deployed-source identity contract](contracts/release-identity.md).
+Link them from the relevant issue and append-only capability review. Reuse
+existing implementation when it already satisfies the contract. Reconstruct
+additional reference paths only when the archived evidence is insufficient.
+
 ## Mandatory update workflow for every relevant PR
 
 1. Read AGENTS.md, this workflow, the current progress report, applicable capability IDs, reference evidence and matching project skill. Search open/closed issues and PR history; inspect exact current source and a relevant reference file/schema. Reuse existing capabilities; do not treat a historical gap as current.

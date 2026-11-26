@@ -4,6 +4,14 @@ namespace App\Controllers;
 use App\Services\{ProductService,CategoryService};
 
 final class ApiController extends BaseController {
+    public function releaseIdentity(): void {
+        header('Cache-Control: private, no-store, no-cache, must-revalidate, max-age=0');
+        header('X-Robots-Tag: noindex, nofollow');
+        if (session_status()===PHP_SESSION_ACTIVE) session_write_close();
+        [$status,$data]=(new \App\Services\ReleaseIdentityService())->inspect($_GET['sha']??null,$_GET['fingerprint']??null);
+        $this->jsonResponse($data,$status);
+    }
+
     public function index(): void {
         $shopEnabled = module_on('shop');
         $endpoints = [];

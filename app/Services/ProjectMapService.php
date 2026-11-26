@@ -29,6 +29,7 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/shop','name'=>'shop','page'=>'public/shop','controller'=>'PublicController@shop','services'=>['ProductService','CategoryService']],
             ['method'=>'GET','path'=>'/categories','name'=>'categories','page'=>'public/categories','controller'=>'PublicController@categories','services'=>['CategoryService']],
             ['method'=>'GET','path'=>'/product/{slug}','name'=>'product.show','page'=>'public/product','controller'=>'PublicController@product','services'=>['ProductService']],
+            ['method'=>'GET','path'=>'/is-sha-valid','name'=>'release.identity','page'=>'public/404','controller'=>'ApiController@releaseIdentity','services'=>['ReleaseIdentityService']],
             ['method'=>'GET','path'=>'/api','name'=>'api.index','page'=>'public/404','controller'=>'ApiController@index','services'=>[]],
             ['method'=>'GET','path'=>'/api/shop','name'=>'api.shop','page'=>'public/404','controller'=>'ApiController@shop','services'=>['ProductService','CategoryService']],
             ['method'=>'GET','path'=>'/api/categories','name'=>'api.categories','page'=>'public/404','controller'=>'ApiController@categories','services'=>['CategoryService']],

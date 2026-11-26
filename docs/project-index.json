@@ -3,9 +3,9 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 129,
+        "routes": 130,
         "controllers": 13,
-        "services": 59,
+        "services": 60,
         "views": 55,
         "collections": 25
     },
@@ -1213,6 +1213,16 @@
         },
         {
             "method": "GET",
+            "path": "/is-sha-valid",
+            "name": "release.identity",
+            "controller": "ApiController@releaseIdentity",
+            "view": "public/404",
+            "services": [
+                "ReleaseIdentityService"
+            ]
+        },
+        {
+            "method": "GET",
             "path": "/login",
             "name": "login",
             "controller": "PublicController@login",
@@ -1542,6 +1552,7 @@
         "ProjectMapService",
         "PublicDiscoveryService",
         "RateLimiter",
+        "ReleaseIdentityService",
         "ResourceService",
         "ReviewService",
         "SchemaService",

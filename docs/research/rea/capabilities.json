@@ -391,7 +391,7 @@
       "title": "Scheduler and system health",
       "status": "partial",
       "acceptance": "Runtime health, deployed revision and durable scheduled jobs.",
-      "finding": "Mail queue/CLI exist; general scheduler and release identity pending.",
+      "finding": "Bounded native source identity and local verification implemented; generic scheduler, owner health dashboard and production acceptance remain incomplete.",
       "issues": [
         138,
         121
@@ -410,9 +410,30 @@
         {
           "path": "app/Services/MailQueueService.php",
           "anchor": "class MailQueueService"
+        },
+        {
+          "path": "app/Services/ReleaseIdentityService.php",
+          "anchor": "function inspect("
+        },
+        {
+          "path": "cli/release-identity.php",
+          "anchor": "source_matched_revision_unknown"
+        },
+        {
+          "path": "docs/research/rea/contracts/release-identity.md",
+          "anchor": "Reference evidence before design"
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/run.php",
+          "anchor": "release identity proves runtime code separately from optional Git metadata"
+        },
+        {
+          "path": "cli/smoke-local.php",
+          "anchor": "Release source identity HTTP contract did not match local evidence"
+        }
+      ],
       "production": null
     },
     {
@@ -2010,6 +2031,17 @@
         "completion-07"
       ],
       "summary": "Reproduced static draft endpoint with zero provider calls, replaced it with actual completed model responses and reviewed proposals. Loopback route tests cover compatible and Google finish states, auth/CSRF, outage, links/images, Enterprise fields; Chrome synthetic UI at 1440/375/390 verifies apply/discard and stale edit protection. Live owner acceptance remains separate."
+    },
+    {
+      "id": "138-release-identity",
+      "date": "2026-11-26",
+      "issues": [
+        138
+      ],
+      "components": [
+        "cms-13"
+      ],
+      "summary": "Inspected original WordPress Site Health source against archived REA digest; recorded concrete native contract. Implemented bounded deployed-source fingerprint and optional Git metadata, local CLI verification, red/green and actual HTTP fixtures. cms-13 stays partial because scheduler and complete system health are not implemented. Production evidence remains separate."
     }
   ]
 }

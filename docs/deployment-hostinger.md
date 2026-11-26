@@ -43,6 +43,26 @@ bapXphp update
 bapXphp ci
 ```
 
+## Verify deployed source identity
+
+From a clean, synchronized canonical checkout run:
+
+    ./bapXphp release:identity
+    ./bapXphp release:verify https://nebowellness.com
+
+GET /is-sha-valid exposes a bounded no-store JSON check. Pass a full sha
+and/or fingerprint query value; matching returns 200, known mismatches 409,
+malformed input 422, and an unavailable required check 503. Without an
+expected value it reports observed source evidence, not a match assertion.
+
+The verifier compares selected source bytes and optional Git metadata. When
+Git metadata is absent, source_matched_revision_unknown is explicitly not
+exact Git SHA verification. Do not claim the whole application is healthy,
+the complete Git tree is identical, or PHP opcode caches reflect the files.
+Verify affected live workflows independently. See the
+[component contract](research/rea/contracts/release-identity.md) for exact
+fingerprint scope, exclusions and limitations.
+
 ## Repository Architecture
 
 `getwinharris/nebowellness_php_cms` is the independent source repository and the
