@@ -23,5 +23,5 @@ if($path==='/__fixture/flash'){
     unset($_SESSION['flash']);
     exit;
 }
-if(!in_array($path,['/admin/appearance','/admin/appearance/save'],true)){http_response_code(404);exit;}
+if(!in_array($path,['/admin/appearance','/admin/appearance/save','/admin/site-profile','/admin/site-profile/save','/contact','/manifest.json','/admin/manifest.json','/'],true)){http_response_code(404);exit;}
 (new App\Router(require __DIR__.'/../../app/routes.php'))->dispatch($_SERVER['REQUEST_METHOD'],$_SERVER['REQUEST_URI']);

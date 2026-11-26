@@ -3,10 +3,10 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 106,
+        "routes": 110,
         "controllers": 14,
-        "services": 70,
-        "views": 55,
+        "services": 71,
+        "views": 56,
         "collections": 26
     },
     "routes": [
@@ -17,6 +17,7 @@
             "controller": "PublicController@home",
             "view": "public/home",
             "services": [
+                "SiteProfileService",
                 "ConsultationFeeService",
                 "ClinicContactService",
                 "CampaignPageService",
@@ -587,6 +588,17 @@
         },
         {
             "method": "GET",
+            "path": "/admin/manifest.json",
+            "name": "admin.manifest",
+            "controller": "PublicController@manifest",
+            "view": "public/404",
+            "services": [
+                "SettingsService",
+                "SiteProfileService"
+            ]
+        },
+        {
+            "method": "GET",
             "path": "/admin/media",
             "name": "admin.media",
             "controller": "AdminController@media",
@@ -666,6 +678,33 @@
                 "ClinicContactService",
                 "SettingsService",
                 "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/admin/site-profile",
+            "name": "admin.site-profile",
+            "controller": "AdminController@siteProfile",
+            "view": "admin/site-profile",
+            "services": [
+                "SettingsService",
+                "SiteProfileService",
+                "BrandAssetService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/site-profile/save",
+            "name": "admin.site-profile.save",
+            "controller": "AdminController@saveSiteProfile",
+            "view": "admin/site-profile",
+            "services": [
+                "SettingsService",
+                "SiteProfileService",
+                "AuditLogService",
+                "DatabaseService",
                 "AuthService"
             ]
         },
@@ -870,6 +909,7 @@
             "controller": "PublicController@contact",
             "view": "public/contact",
             "services": [
+                "SiteProfileService",
                 "ClinicContactService",
                 "ConsultationFeeService"
             ]
@@ -881,6 +921,7 @@
             "controller": "PublicController@contact",
             "view": "public/contact",
             "services": [
+                "SiteProfileService",
                 "ContactService",
                 "ConsultationFeeService"
             ]
@@ -971,6 +1012,17 @@
             "view": "public/login",
             "services": [
                 "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/manifest.json",
+            "name": "site.manifest",
+            "controller": "PublicController@manifest",
+            "view": "public/404",
+            "services": [
+                "SettingsService",
+                "SiteProfileService"
             ]
         },
         {
@@ -1085,7 +1137,8 @@
             "controller": "PublicController@discoveryContract",
             "view": "public/openapi",
             "services": [
-                "SeoService"
+                "SeoService",
+                "SiteProfileService"
             ]
         },
         {
@@ -1328,6 +1381,7 @@
         "SeoService",
         "SettingsService",
         "ShippingService",
+        "SiteProfileService",
         "SmtpMailer",
         "StoragePermissionService",
         "SupportBotService",
@@ -1361,6 +1415,7 @@
         "admin/resource",
         "admin/search-performance",
         "admin/settings",
+        "admin/site-profile",
         "admin/support-inbox",
         "admin/tax-report",
         "admin/therapy",

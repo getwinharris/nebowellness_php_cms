@@ -1,18 +1,19 @@
 <?php $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); $csrf = $_SESSION['csrf_token'];
-$__modules = (new \App\Services\SettingsService())->modules(); ?>
+$__modules = (new \App\Services\SettingsService())->modules();
+$__profile=(new \App\Services\SiteProfileService())->published(); ?>
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title><?= e($pageTitle ?? 'Admin') ?> — Nebo Wellness</title>
+<title><?= e($pageTitle ?? 'Admin') ?> — <?= e($__profile['admin_name']) ?></title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="manifest" href="/admin/manifest.json">
-<meta name="theme-color" content="#4472C4">
+<meta name="theme-color" content="<?= e($__profile['palette']['palette_primary']) ?>">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Nebo Admin">
-<link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
+<meta name="apple-mobile-web-app-title" content="<?= e($__profile['short_name']) ?> Admin">
+<?php if ($__profile['favicon_url']!==''): ?><link rel="apple-touch-icon" href="<?= e($__profile['favicon_url']) ?>"><?php endif; ?>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__.'/../../assets/css/band.css') ?>">
 <script src="/assets/admin-tables.js?v=<?= filemtime(__DIR__ . '/../../assets/admin-tables.js') ?>" defer></script>
 <script src="/assets/site-motion.js?v=<?= filemtime(app_path('assets/site-motion.js')) ?>" defer></script>
@@ -27,7 +28,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <div class="admin-shell">
     <aside class="admin-sidebar" id="admin-sidebar">
         <div class="admin-sidebar__brand">
-            <span>Nebo Wellness</span>
+            <span><?= e($__profile['admin_name']) ?></span>
             <small>Admin Panel</small>
         </div>
         <a class="admin-nav-close" href="#main-content" data-admin-menu-close>Close navigation</a>
@@ -73,6 +74,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
             </button>
             <div class="admin-submenu" id="menu-appearance">
                 <a href="/admin/media" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/media') === 0 ? 'active' : '') ?>">Media Library</a>
+                <a href="/admin/site-profile" class="<?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/site-profile')?'active':'' ?>">Site profile</a>
                 <a href="/admin/appearance" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/appearance') === 0 ? 'active' : '') ?>">Logo & Favicon</a>
             </div>
             <button type="button" class="admin-nav-toggle" aria-controls="menu-settings" aria-expanded="true">

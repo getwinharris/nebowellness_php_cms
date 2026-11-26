@@ -515,7 +515,10 @@ $tests['private account admin and review endpoints enforce authentication guards
     assertTrue(str_contains($logout, "redirect('/login')"), 'Logout should return to the login page before admin can be revisited');
 
     foreach (ProjectMapService::registry()['routes'] as $route) {
-        if (str_starts_with($route['path'], '/admin')) {
+        if ($route['path']==='/admin/manifest.json') {
+            assertSame('GET',$route['method'],'The existing public PWA manifest is a read-only route');
+            assertSame('PublicController@manifest',$route['controller'],'Public manifest must not invoke an owner controller');
+        } elseif (str_starts_with($route['path'], '/admin')) {
             assertTrue(in_array('AuthService', $route['services'], true), "{$route['path']} should declare AuthService in the project map");
         }
         if (str_starts_with($route['path'], '/reviews')) {
@@ -619,10 +622,11 @@ $tests['contact page exposes general enquiry form and confirmation delivery'] = 
         assertTrue(str_contains($view, $subject), "Contact form should include the {$subject} subject");
     }
     assertTrue(!str_contains($view, 'Astrology Consultation'), 'Contact form should not offer a retired consultation subject');
-    foreach (['ClinicContactService', 'href="tel:', 'mailto:nebolifestyleclinic@gmail.com', 'https://www.google.com/maps/search/'] as $needle) {
+    foreach (['ClinicContactService', 'href="tel:', 'mailto:', 'https://www.google.com/maps/search/'] as $needle) {
         assertTrue(str_contains($view, $needle), "Contact page should expose {$needle}");
     }
-    assertTrue(str_contains($view, 'Kaliyal, Kanyakumari') && str_contains($view, 'Tamil Nadu, India 629101'), 'Contact page should describe the clinic location');
+    assertTrue(str_contains($view, "\$contactProfile['address']") && str_contains($view, 'SiteProfileService'), 'Contact uses the published identity for address');
+    assertSame('Kaliyal, Kanyakumari, Tamil Nadu 629101', App\Services\SiteProfileService::reference()['address'], 'Reference installation location preserved');
     assertTrue(str_contains($view, 'href="#contact-form"') && str_contains($view, 'action="/contact#contact-form"'), 'Contact navigation and confirmation return to the enquiry form');
     assertTrue(str_contains($view, 'role="status">Enquiry received.'), 'Contact success is visible in the form without a toast');
     assertTrue(!str_contains($view, 'Visit Our Store'), 'Contact page should not invite general ecommerce customers to visit the store directly');
@@ -2788,7 +2792,7 @@ $tests['contact falls back to a plain submission when email verification is unav
     $view = file_get_contents(app_path('views/public/contact.php'));
     assertTrue(str_contains($view, 'if (!empty($otpAvailable))'), 'The contact page hides the code field while verification is unavailable');
     assertTrue(str_contains($view, 'Email verification is temporarily unavailable'), 'The fallback notice explains the missing code');
-    assertTrue(str_contains($view, 'href="tel:') && str_contains($view, 'mailto:nebolifestyleclinic@gmail.com'), 'The fallback keeps the direct phone and email path');
+    assertTrue(str_contains($view, 'href="tel:') && str_contains($view, 'mailto:'), 'The fallback keeps the direct phone and email path');
 };
 
 $tests['rate limiter construction is covered by the storage failure handler'] = function (): void {

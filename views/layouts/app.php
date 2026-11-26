@@ -1,50 +1,44 @@
+<?php
+$__settings=(new \App\Services\SettingsService())->public();
+$__profile=(new \App\Services\SiteProfileService())->published();
+$__logo=$__profile['logo_url'];
+$__favicon=$__profile['favicon_url'];
+$__faviconMime=\App\Services\SiteProfileService::faviconMime($__favicon);
+?>
 <!doctype html>
 <html lang="en" class="public-site">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
-<title><?= e($pageTitle ?? 'Nebo Lifestyle Clinic') ?></title>
-<meta name="description" content="<?= e($metaDescription ?? 'Naturopathy, functional medicine, and integrative wellness solutions for sustainable health transformation.') ?>">
+<title><?= e($pageTitle ?? $__profile['name']) ?></title>
+<meta name="description" content="<?= e($metaDescription ?? $__profile['description']) ?>">
 <meta name="robots" content="<?= e($metaRobots ?? 'index, follow') ?>">
 <?php $__seoKeywords = $seo['keywords'] ?? ''; if ($__seoKeywords !== ''): ?><meta name="keywords" content="<?= e($__seoKeywords) ?>"><?php endif; ?>
 <?php
-$__settings = (new \App\Services\SettingsService())->public();
 $__modules = (new \App\Services\SettingsService())->modules();
 $__clinicChannels = (new \App\Services\ClinicContactService())->channels();
-$__logo = (string)($__settings['logo_url'] ?? '');
-if ($__logo === '' || str_contains(strtolower($__logo), 'logo-small.jpeg') || str_contains(strtolower($__logo), 'sripanchami') || str_contains($__logo, 'nebo-symbol.')) {
-    $__logo = '/assets/images/nebo-official-logo.jpg';
-}
-$__favicon = (string)($__settings['favicon_url'] ?? '');
-if ($__favicon === '' || str_contains(strtolower($__favicon), 'sps-') || str_contains(strtolower($__favicon), 'sripanchami')) {
-    $__favicon = '/assets/images/nebo-symbol.png';
-}
-$__faviconMime = match (strtolower(pathinfo(parse_url($__favicon, PHP_URL_PATH)?:'',PATHINFO_EXTENSION))) {
-    'svg'=>'image/svg+xml','ico'=>'image/x-icon','jpg','jpeg'=>'image/jpeg',
-    'webp'=>'image/webp','gif'=>'image/gif',default=>'image/png',
-};
 ?>
-<link rel="icon" type="<?= e($__faviconMime) ?>" href="<?= e($__favicon) ?>">
+<?php if ($__favicon!==''): ?><link rel="icon" type="<?= e($__faviconMime) ?>" href="<?= e($__favicon) ?>"><?php endif; ?>
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#4472C4">
+<meta name="theme-color" content="<?= e($__profile['palette']['palette_primary']) ?>">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Nebo Lifestyle Clinic">
-<link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
+<meta name="apple-mobile-web-app-title" content="<?= e($__profile['name']) ?>">
+<?php if ($__favicon!==''): ?><link rel="apple-touch-icon" href="<?= e($__favicon) ?>"><?php endif; ?>
 <link rel="service-desc" type="application/json" href="/openapi.json">
 <link rel="canonical" href="<?= e($seo['canonical'] ?? \App\Services\SeoService::publicUrl(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/')) ?>">
 <meta property="og:type" content="<?= e($seo['og_type'] ?? 'website') ?>">
-<meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? 'Nebo Lifestyle Clinic') ?>">
+<meta property="og:site_name" content="<?= e($seo['og_site_name'] ?? $__profile['name']) ?>">
 <meta property="og:title" content="<?= e($seo['og_title'] ?? $pageTitle) ?>">
 <meta property="og:description" content="<?= e($seo['og_description'] ?? $metaDescription) ?>">
 <meta property="og:url" content="<?= e($seo['og_url'] ?? \App\Services\SeoService::publicUrl(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/')) ?>">
-<meta property="og:image" content="<?= e($seo['og_image'] ?? \App\Services\SeoService::publicUrl('/assets/images/nebo-clinic-hero.webp')) ?>">
+<?php $__shareImage=$seo['og_image']??($__profile['mode']==='reference'?\App\Services\SeoService::publicUrl('/assets/images/nebo-clinic-hero.webp'):''); if ($__shareImage!==''): ?><meta property="og:image" content="<?= e($__shareImage) ?>"><?php endif; ?>
 <meta property="og:locale" content="en_IN">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="<?= e($seo['twitter_title'] ?? $seo['og_title'] ?? $pageTitle) ?>">
 <meta name="twitter:description" content="<?= e($seo['twitter_description'] ?? $seo['og_description'] ?? $metaDescription) ?>">
-<meta name="twitter:image" content="<?= e($seo['twitter_image'] ?? $seo['og_image'] ?? \App\Services\SeoService::publicUrl('/assets/images/nebo-clinic-hero.webp')) ?>">
+<?php $__twitterImage=$seo['twitter_image']??$__shareImage; if ($__twitterImage!==''): ?><meta name="twitter:image" content="<?= e($__twitterImage) ?>"><?php endif; ?>
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__ . '/../../assets/css/band.css') ?>">
 <script src="/assets/navigation-drawer.js?v=<?= filemtime(__DIR__ . '/../../assets/navigation-drawer.js') ?>" defer></script>
 <?php if (basename($viewFile ?? '') === 'home.php'): ?>
@@ -68,7 +62,7 @@ $__faviconMime = match (strtolower(pathinfo(parse_url($__favicon, PHP_URL_PATH)?
 <script src="/assets/support-chat.js?v=<?= filemtime(__DIR__ . '/../../assets/support-chat.js') ?>" defer></script>
 <style>
 <?php
-$__palette = \App\Services\BrandAssetService::effectivePalette($__settings);
+$__palette = $__profile['palette'];
 $__palette_semantic = [
     '--color-primary' => ['set' => $__palette['palette_primary'], 'alias' => '--color-maroon'],
     '--color-secondary' => ['set' => $__palette['palette_secondary'], 'alias' => '--color-gold'],
@@ -110,8 +104,8 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
 <?php $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/'; ?>
 <?php $_SESSION['csrf_token'] ??= bin2hex(random_bytes(16)); ?>
 <header class="site-header" id="site-header">
-    <a href="/" class="brand" aria-label="Nebo Lifestyle Clinic home">
-        <img src="<?= e($__logo) ?>" width="160" height="88" alt="Nebo Lifestyle Clinic">
+    <a href="/" class="brand" aria-label="<?= e($__profile['name']) ?> home">
+        <?php if ($__logo!==''): ?><img src="<?= e($__logo) ?>" width="160" height="88" alt="<?= e($__profile['name']) ?>"><?php else: ?><span class="brand__text"><?= e($__profile['name']) ?></span><?php endif; ?>
     </a>
 <?php try { $__blogCats = (new \App\Services\BlogService())->categories(); } catch (\Throwable $e) { $__blogCats = []; } ?>
     <details class="navigation-fallback" id="navigation-fallback">
@@ -121,7 +115,7 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
         </summary>
         <nav id="primary-nav" aria-label="Main navigation">
             <div class="navigation-drawer__primary">
-                <p class="nav-section-label">Explore Nebo</p>
+                <p class="nav-section-label">Explore <?= e($__profile['short_name']) ?></p>
                 <details class="nav-branch">
                     <summary class="nav-item"><span class="nav-item__label"><?php $careIcon='program'; require __DIR__.'/../partials/care-icon.php'; ?> Programs</span> <span aria-hidden="true">›</span></summary>
                     <div class="nav-branch__links" id="menu-programs">
@@ -141,7 +135,7 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
                 <a class="nav-item" href="/#focus-areas"><span class="nav-item__label"><?php $careIcon='focus'; require __DIR__.'/../partials/care-icon.php'; ?> Our Focus Areas</span></a>
                 <?php if ($__modules['campaigns']): ?><a class="nav-item" href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='clinician'; require __DIR__.'/../partials/care-icon.php'; ?> Services</span></a><?php endif; ?>
                 <a class="nav-item" href="/#movement-and-sound"><span class="nav-item__label"><?php $careIcon='workplace'; require __DIR__.'/../partials/care-icon.php'; ?> Workplace wellness</span></a>
-                <a class="nav-item" href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='leaf'; require __DIR__.'/../partials/care-icon.php'; ?> About Nebo</span></a>
+                <a class="nav-item" href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='leaf'; require __DIR__.'/../partials/care-icon.php'; ?> About <?= e($__profile['short_name']) ?></span></a>
                 <?php if ($__modules['blog']): ?>
                 <?php if ($__blogCats !== []): ?>
                 <details class="nav-branch">
@@ -184,8 +178,8 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>
                 <span>Close</span>
             </button>
-            <a href="/" class="navigation-drawer__brand" aria-label="Nebo Lifestyle Clinic home">
-                <img src="<?= e($__logo) ?>" width="160" height="88" alt="">
+            <a href="/" class="navigation-drawer__brand" aria-label="<?= e($__profile['name']) ?> home">
+                <?php if ($__logo!==''): ?><img src="<?= e($__logo) ?>" width="160" height="88" alt=""><?php else: ?><span class="brand__text"><?= e($__profile['name']) ?></span><?php endif; ?>
             </a>
         </div>
         <div class="navigation-drawer__panel"></div>
@@ -247,7 +241,7 @@ if ($__flash):
     <div class="support-panel__head">
         <div class="support-panel__identity">
             <span class="support-panel__mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8m-8 4h5"/></svg></span>
-            <div><strong id="support-title">Nebo Support</strong><span>Clinic information assistant</span></div>
+            <div><strong id="support-title"><?= e($__profile['short_name']) ?> Support</strong><span>Clinic information assistant</span></div>
         </div>
         <button type="button" class="btn btn-outline btn-sm" id="support-clear" hidden>New chat</button>
         <button type="button" class="support-panel__close" aria-label="Close support">×</button>
@@ -288,31 +282,33 @@ if ($__flash):
 <?php endif; ?>
 
 <?php if (!in_array($currentPath, ['/login', '/register'])): ?>
-<footer class="site-footer site-footer--contact" role="contentinfo" aria-label="Nebo clinic information">
+<footer class="site-footer site-footer--contact" role="contentinfo" aria-label="<?= e($__profile['name']) ?> information">
     <div class="container">
         <div class="footer-contact">
             <div>
-                <h2>Nebo Lifestyle Clinic</h2>
-                <p class="footer-desc">Personalised naturopathy, functional medicine, and lifestyle care in Kanyakumari.</p>
+                <h2><?= e($__profile['name']) ?></h2>
+                <?php if ($__profile['footer_description']!==''): ?><p class="footer-desc"><?= e($__profile['footer_description']) ?></p><?php endif; ?>
             </div>
             <a class="footer-contact__action" href="/contact#contact-form">Contact the clinic <span aria-hidden="true">↗</span></a>
         </div>
         <div class="footer-grid">
+            <?php if ($__profile['instagram_url']!==''||$__profile['facebook_url']!==''||$__profile['youtube_url']!==''): ?>
             <div>
-                <h3 class="footer-heading">Follow Nebo</h3>
-                <div class="footer-social" aria-label="Nebo social channels">
-                    <a href="https://www.instagram.com/nebolifestyleclinic/" target="_blank" rel="noopener noreferrer">Instagram <span aria-hidden="true">↗</span></a>
-                    <a href="https://www.facebook.com/nebolifestyleclinic" target="_blank" rel="noopener noreferrer">Facebook <span aria-hidden="true">↗</span></a>
-                    <a href="https://www.youtube.com/@nebolifestyleclinic" target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a>
+                <h3 class="footer-heading">Follow <?= e($__profile['short_name']) ?></h3>
+                <div class="footer-social" aria-label="<?= e($__profile['short_name']) ?> social channels">
+                    <?php if ($__profile['instagram_url']!==''): ?><a href="<?= e($__profile['instagram_url']) ?>" target="_blank" rel="noopener noreferrer">Instagram <span aria-hidden="true">↗</span></a><?php endif; ?>
+                    <?php if ($__profile['facebook_url']!==''): ?><a href="<?= e($__profile['facebook_url']) ?>" target="_blank" rel="noopener noreferrer">Facebook <span aria-hidden="true">↗</span></a><?php endif; ?>
+                    <?php if ($__profile['youtube_url']!==''): ?><a href="<?= e($__profile['youtube_url']) ?>" target="_blank" rel="noopener noreferrer">YouTube <span aria-hidden="true">↗</span></a><?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
             <div>
                 <h3 class="footer-heading">Clinic</h3>
                 <ul class="footer-links">
                     <?php if ($__modules['shop']): ?><li><a href="/shop">Shop</a></li><?php endif; ?>
                     <li><a href="/#programs">Programs</a></li>
                     <?php if ($__modules['campaigns']): ?><li><a href="/campaigns">Services</a></li><?php endif; ?>
-                    <li><a href="/about">About Nebo</a></li>
+                    <li><a href="/about">About <?= e($__profile['short_name']) ?></a></li>
                     <?php if ($__modules['blog']): ?><li><a href="/blog">Blog</a></li><?php endif; ?>
                 </ul>
             </div>
@@ -330,13 +326,13 @@ if ($__flash):
                 <h3 class="footer-heading">Visit or call</h3>
                 <ul class="footer-links">
                     <?php foreach (($__clinicChannels['phones']??[]) as $number): ?><li><a href="tel:<?= e($number) ?>"><?= e($number) ?></a></li><?php endforeach; ?>
-                    <li><a href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a></li>
-                    <li>Kaliyal, Kanyakumari, Tamil Nadu 629101</li>
+                    <?php if ($__profile['public_email']!==''): ?><li><a href="mailto:<?= e($__profile['public_email']) ?>"><?= e($__profile['public_email']) ?></a></li><?php endif; ?>
+                    <?php if ($__profile['address']!==''): ?><li><?= e($__profile['address']) ?></li><?php endif; ?>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <span>&copy; <?= date('Y') ?> Nebo Lifestyle Clinic</span>
+            <span>&copy; <?= date('Y') ?> <?= e($__profile['name']) ?></span>
             <div class="footer-legal">
                 <a href="/terms">Terms</a>
                 <a href="/privacy">Privacy</a>

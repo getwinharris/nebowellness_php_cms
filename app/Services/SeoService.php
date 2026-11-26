@@ -5,16 +5,19 @@ final class SeoService {
     private string $defaultOgImage;
     private string $twitterHandle;
     private array $telephone;
+    private array $profile;
 
     public function __construct(array $secrets = []) {
-        $envName = getenv('APP_NAME') ?: 'Nebo Wellness';
-        $this->siteName = $secrets['seo_site_name'] ?? $envName;
-        $configuredOgImage = (string)($secrets['seo_default_og_image'] ?? '');
-        $this->defaultOgImage = $configuredOgImage !== '' && !str_contains(strtolower($configuredOgImage), 'sripanchami')
-            ? $configuredOgImage
-            : self::publicUrl('/assets/images/nebo-clinic-hero.webp');
-        $this->twitterHandle = $secrets['seo_twitter_handle'] ?? '';
-        $this->telephone = (new ClinicContactService())->channels()['phones'];
+        $this->profile=(new SiteProfileService())->published();
+        $legacy=$this->profile['mode']==='reference';
+        $configuredName=is_string($secrets['seo_site_name']??null)?trim($secrets['seo_site_name']):'';
+        $this->siteName=$legacy?($configuredName!==''?$configuredName:$this->profile['name']):$this->profile['name'];
+        $configuredOgImage=(string)($secrets['seo_default_og_image']??'');
+        $this->defaultOgImage=$legacy
+            ? ($configuredOgImage!==''&&!str_contains(strtolower($configuredOgImage),'sripanchami')?$configuredOgImage:self::publicUrl('/assets/images/nebo-clinic-hero.webp'))
+            : ($this->profile['logo_url']!==''?self::publicUrl($this->profile['logo_url']):'');
+        $this->twitterHandle=$legacy?($secrets['seo_twitter_handle']??''):'';
+        $this->telephone=(new ClinicContactService())->channels()['phones'];
     }
 
     public function page(string $key, array $overrides = []): array {
@@ -40,11 +43,24 @@ final class SeoService {
         $meta['twitter_description'] ??= $meta['og_description'] ?? $meta['description'];
         $meta['og_title'] ??= $meta['title'];
         $meta['og_description'] ??= $meta['description'];
+        if (in_array($this->profile['mode'],['unavailable','unconfigured'],true)) $meta['robots']='noindex, nofollow';
 
         return $meta;
     }
 
     private function defaults(string $key): array {
+        if ($this->profile['mode']!=='reference') {
+            $name=$this->profile['name'];$description=$this->profile['description'];
+            $labels=['home'=>'','about'=>'About','contact'=>'Contact','campaigns'=>'Services','campaign'=>'Service',
+                'blog'=>'Blog & updates','blog.post'=>'Article','blog.category'=>'Articles','privacy'=>'Privacy policy','terms'=>'Terms & conditions',
+                'login'=>'Sign in','register'=>'Create account','forgot-password'=>'Forgot password','reset-password'=>'Reset password','account'=>'My account','admin'=>'Admin panel'];
+            $label=$labels[$key]??'';
+            $private=in_array($key,['login','register','forgot-password','reset-password','account','admin'],true);
+            return ['title'=>$label!==''?$label.' – '.$name:($this->profile['tagline']!==''?$name.' – '.$this->profile['tagline']:$name),
+                'description'=>$description,'og_type'=>$key==='blog.post'?'article':'website',
+                'robots'=>$private||$this->profile['mode']==='unavailable'||$this->profile['mode']==='unconfigured'?'noindex, nofollow':'index, follow'];
+        }
+
         $brand = 'Nebo Lifestyle Clinic';
         $desc = 'Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.';
         $maps = [
@@ -196,16 +212,18 @@ final class SeoService {
     }
 
     public function organizationSchema(): array {
-        return [
-            '@context' => 'https://schema.org',
-            '@type' => ['Organization', 'MedicalClinic'],
-            'name' => $this->siteName,
-            'description' => 'Naturopathy, functional medicine, and integrative wellness for sustainable health transformation.',
-            'url' => self::publicUrl(''),
-            'telephone' => $this->telephone,
-            'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Kaliyal, Kanyakumari', 'addressRegion' => 'Tamil Nadu', 'addressCountry' => 'IN'],
-            'email' => 'nebolifestyleclinic@gmail.com',
-        ];
+        $p=$this->profile;
+        if (in_array($p['mode'],['unavailable','unconfigured'],true)) return [];
+        $out=['@context'=>'https://schema.org','@type'=>$p['organization_type']==='Organization'?'Organization':['Organization',$p['organization_type']],
+            'name'=>$this->siteName,'url'=>self::publicUrl('')];
+        if ($p['description']!=='') $out['description']=$p['description'];
+        if ($this->telephone!==[]) $out['telephone']=$this->telephone;
+        $address=array_filter(['addressLocality'=>$p['locality'],'addressRegion'=>$p['region'],'addressCountry'=>$p['country'],'postalCode'=>$p['postal_code']],static fn($v)=>$v!=='');
+        if ($address!==[]) $out['address']=['@type'=>'PostalAddress']+$address;
+        if ($p['public_email']!=='') $out['email']=$p['public_email'];
+        $social=array_values(array_filter([$p['instagram_url'],$p['facebook_url'],$p['youtube_url']]));
+        if ($social!==[]&&$p['mode']==='published') $out['sameAs']=$social;
+        return $out;
     }
 
     public function breadcrumbSchema(array $items): array {
@@ -266,7 +284,7 @@ final class SeoService {
             '@type' => 'AboutPage',
             'name' => 'About ' . $this->siteName,
             'url' => self::publicUrl('/about'),
-            'description' => 'Learn about ' . $this->siteName . ', a naturopathy and functional medicine clinic offering root-cause, personalised wellness care.',
+            'description' => $this->profile['mode']==='reference'?'Learn about ' . $this->siteName . ', a naturopathy and functional medicine clinic offering root-cause, personalised wellness care.':$this->profile['description'],
             'mainEntity' => $this->organizationSchema(),
         ];
     }
@@ -277,7 +295,7 @@ final class SeoService {
             '@type' => 'ContactPage',
             'name' => 'Contact ' . $this->siteName,
             'url' => self::publicUrl('/contact'),
-            'description' => 'Get in touch with ' . $this->siteName . ' to book a consultation or ask about wellness programs and bookings.',
+            'description' => $this->profile['mode']==='reference'?'Get in touch with ' . $this->siteName . ' to book a consultation or ask about wellness programs and bookings.':'Contact '.$this->siteName.'.',
             'mainEntity' => $this->organizationSchema(),
         ];
     }

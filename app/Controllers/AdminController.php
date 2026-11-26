@@ -477,6 +477,46 @@ final class AdminController extends BaseController {
             $question
         );
     }
+    public function siteProfile(): void{
+        $error='';$editor=null;
+        try {$editor=(new \App\Services\SiteProfileService())->editor();}
+        catch (\DomainException | \InvalidArgumentException $e) {$error=$e->getMessage();}
+        catch (\Throwable) {$error='Site profile settings are unavailable. Reload before editing.';}
+        $this->render('admin/site-profile',['pageTitle'=>'Site profile','editor'=>$editor,'profileError'=>$error,
+            'publishedProfile'=>(new \App\Services\SiteProfileService())->published()]);
+    }
+
+    public function saveSiteProfile(): void{
+        $action=is_string($_POST['profile_action']??null)?$_POST['profile_action']:'';
+        $revision=is_string($_POST['profile_revision']??null)?$_POST['profile_revision']:'';
+        try {
+            $input=null;
+            if ($action==='save_draft') {
+                $input=$_POST['profile']??null;
+                if (!is_array($input)) throw new \InvalidArgumentException('Site profile fields are required.');
+            } elseif (!in_array($action,['publish','discard','restore'],true)||($_POST['confirm']??null)!=='1') {
+                throw new \InvalidArgumentException('Confirm the site profile action.');
+            }
+            (new \App\Services\SiteProfileService())->save($action,$revision,$input);
+            $this->flash(match($action){
+                'save_draft'=>'Draft saved. Review it before publishing.',
+                'publish'=>'Site profile published.',
+                'discard'=>'Draft discarded.',
+                'restore'=>'Previous site profile restored.',
+            },'success');
+        } catch (\DomainException | \InvalidArgumentException $error) {
+            $this->flash($error->getMessage(),'error');
+            $this->redirect('/admin/site-profile');
+        } catch (\Throwable $error) {
+            error_log('Site profile write unavailable: '.get_class($error));
+            $this->flash('Site profile change could not be confirmed. Reload before trying again.','error');
+            $this->redirect('/admin/site-profile');
+        }
+        try {(new AuditLogService())->record($action,'site-profile','published-profile');}
+        catch (\Throwable) {error_log('Site profile audit unavailable after confirmed save');}
+        $this->redirect('/admin/site-profile');
+    }
+
     public function appearance(): void{
         $service=new SettingsService();
         $revision='';$appearanceError='';

@@ -46,6 +46,7 @@ final class AccountController extends BaseController {
         if (!$order) { $this->renderNotFound(); return; }
         $justPlaced = false; // Historical detail is not a new payment confirmation.
         $settings = (new SettingsService())->public();
+        unset($settings['site_profile']);
         $this->render('account/order', compact('order', 'justPlaced', 'settings'));
     }
 
@@ -71,6 +72,7 @@ final class AccountController extends BaseController {
         }
         if (!$order) { http_response_code(404); echo 'Invoice not found.'; return; }
         $settings = (new SettingsService())->public();
+        unset($settings['site_profile']);
         $this->render('account/invoice', compact('order', 'settings'));
     }
 

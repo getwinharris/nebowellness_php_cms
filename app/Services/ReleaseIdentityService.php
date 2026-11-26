@@ -13,7 +13,7 @@ final class ReleaseIdentityService
     private const MAX_ENTRIES = 8000;
     private const MAX_BYTES = 64 * 1024 * 1024;
     private const REQUIRED_FILES = ['index.php','.htaccess','storage/schema/collections.php'];
-    private const OPTIONAL_CODE = ['config/agent-instructions.php','config/nebo-foundation-copy.php'];
+    private const OPTIONAL_CODE = ['config/agent-instructions.php','config/nebo-foundation-copy.php','config/reference-site-profile.php'];
     private const DIRECTORIES = [
         'app'=>['php'], 'api'=>['php'], 'views'=>['php'], 'integrations'=>['php'],
         'assets/css'=>['css'], 'assets/pwa'=>['js','json'],

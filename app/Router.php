@@ -8,7 +8,7 @@ final class Router {
     ) {}
     public function dispatch(string $method, string $uri): void {
         $path = parse_url($uri, PHP_URL_PATH) ?: '/';
-        if ($method === 'HEAD' && in_array($path, ['/', '/sitemap.xml', '/openapi.json'], true)) $method = 'GET';
+        if ($method === 'HEAD' && in_array($path, ['/', '/sitemap.xml', '/openapi.json', '/manifest.json', '/admin/manifest.json'], true)) $method = 'GET';
         foreach ($this->routes as $route) {
             if ($route['method'] !== $method) continue;
             $arguments = self::matchPath($route['path'], $path);

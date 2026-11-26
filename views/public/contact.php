@@ -22,6 +22,7 @@ if (!array_key_exists('message', $contactValues) && ($consultant ?? '') !== '') 
 }
 $contactErrors = is_array($formErrors ?? null) ? $formErrors : [];
 $clinicChannels = (new \App\Services\ClinicContactService())->channels();
+$contactProfile=$__profile??(new \App\Services\SiteProfileService())->published();
 try { $consultationCatalogue=(new \App\Services\ConsultationFeeService())->published(); }
 catch (\Throwable) { $consultationCatalogue=null; }
 $feeId=is_string($_GET['fee']??null)?$_GET['fee']:'';
@@ -36,7 +37,7 @@ if ($feeId!==''&&!array_key_exists('message',$contactValues)) {
     <div class="container container--wide">
         <header class="contact-intro">
             <div class="contact-intro__copy">
-                <span class="eyebrow">Nebo Lifestyle Clinic</span>
+                <span class="eyebrow"><?= e($contactProfile['name']) ?></span>
                 <h1 id="contact-title">Contact the <em>clinic</em></h1>
                 <p class="lede">Talk to our team about consultations, wellness programs or a session for your workplace.</p>
                 <div class="contact-intro__actions">
@@ -44,7 +45,7 @@ if ($feeId!==''&&!array_key_exists('message',$contactValues)) {
                     <div class="contact-intro__channels" aria-label="Direct contact">
                         <?php if ($clinicChannels['phones']): ?><a class="contact-text-link" href="tel:<?= e($clinicChannels['phones'][0]) ?>" aria-label="Call the clinic"><?php $careIcon='phone'; require __DIR__.'/../partials/care-icon.php'; ?> Call</a><?php endif; ?>
                         <?php if ($clinicChannels['whatsapp']): ?><a class="contact-text-link" href="<?= e(\App\Services\ClinicContactService::whatsappUrl($clinicChannels['whatsapp'][0])) ?>" aria-label="Message the clinic on WhatsApp"><?php $careIcon='message'; require __DIR__.'/../partials/care-icon.php'; ?> WhatsApp</a><?php endif; ?>
-                        <a class="contact-text-link" href="mailto:nebolifestyleclinic@gmail.com" aria-label="Email the clinic"><?php $careIcon='mail'; require __DIR__.'/../partials/care-icon.php'; ?> Email</a>
+                        <?php if ($contactProfile['public_email']!==''): ?><a class="contact-text-link" href="mailto:<?= e($contactProfile['public_email']) ?>" aria-label="Email the clinic"><?php $careIcon='mail'; require __DIR__.'/../partials/care-icon.php'; ?> Email</a><?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -76,7 +77,7 @@ if ($feeId!==''&&!array_key_exists('message',$contactValues)) {
                 <p class="contact-form-card__lede contact-form-card__lede--general">Tell us what you’d like help with and our team will follow up.</p>
                 <p class="contact-form-card__lede contact-form-card__lede--corporate">To plan a team session, tell us your organisation, approximate team size, preferred location and dates, and which session interests you.</p>
                 <?php if (!empty($success)): ?>
-                    <p class="flash flash--success contact-form__notice" role="status">Enquiry received. Nebo Lifestyle Clinic will contact you using the details you shared.</p>
+                    <p class="flash flash--success contact-form__notice" role="status">Enquiry received. <?= e($contactProfile['name']) ?> will contact you using the details you shared.</p>
                 <?php endif; ?>
                 <?php if ($contactErrors !== []): ?>
                     <div class="flash flash--error contact-form__notice" role="alert">
@@ -137,7 +138,7 @@ if ($feeId!==''&&!array_key_exists('message',$contactValues)) {
                     <h3>Call or email the clinic</h3>
                     <ul class="contact-details__links">
                         <?php foreach ($clinicChannels['phones'] as $number): ?><li><a class="contact-text-link" href="tel:<?= e($number) ?>"><?= e($number) ?></a></li><?php endforeach; ?>
-                        <li><a class="contact-text-link" href="mailto:nebolifestyleclinic@gmail.com">nebolifestyleclinic@gmail.com</a></li>
+                        <?php if ($contactProfile['public_email']!==''): ?><li><a class="contact-text-link" href="mailto:<?= e($contactProfile['public_email']) ?>"><?= e($contactProfile['public_email']) ?></a></li><?php endif; ?>
                     </ul>
                 </div>
                 <?php if ($clinicChannels['whatsapp']): ?><div class="contact-details__group">
@@ -146,18 +147,23 @@ if ($feeId!==''&&!array_key_exists('message',$contactValues)) {
                         <?php foreach ($clinicChannels['whatsapp'] as $number): ?><li><a class="contact-text-link" href="<?= e(\App\Services\ClinicContactService::whatsappUrl($number)) ?>"><?= e($number) ?> <span aria-hidden="true">↗</span></a></li><?php endforeach; ?>
                     </ul>
                 </div><?php endif; ?>
+                <?php if ($contactProfile['hours_weekday']!==''||$contactProfile['hours_weekend']!==''): ?>
                 <div class="contact-details__group">
                     <h3>Clinic hours</h3>
                     <dl class="contact-details__hours">
-                        <div><dt>Monday to Saturday</dt><dd>9:00 AM – 7:00 PM</dd></div>
-                        <div><dt>Sunday</dt><dd>10:00 AM – 5:00 PM</dd></div>
+                        <?php foreach (['hours_weekday','hours_weekend'] as $hoursKey): if ($contactProfile[$hoursKey]==='') continue; $parts=explode(': ',$contactProfile[$hoursKey],2); ?>
+                        <div><dt><?= e(count($parts)===2?$parts[0]:'Hours') ?></dt><dd><?= e(count($parts)===2?$parts[1]:$parts[0]) ?></dd></div>
+                        <?php endforeach; ?>
                     </dl>
                 </div>
+                <?php endif; ?>
+                <?php if ($contactProfile['address']!==''): ?>
                 <div class="contact-details__group">
                     <h3>Visit the clinic</h3>
-                    <address>Kaliyal, Kanyakumari<br>Tamil Nadu, India 629101</address>
-                    <a class="contact-text-link" href="https://www.google.com/maps/search/?api=1&amp;query=Nebo%20Lifestyle%20Clinic%2C%20Kaliyal%2C%20Kanyakumari%2C%20Tamil%20Nadu%20629101">Find us on Google Maps <span aria-hidden="true">↗</span></a>
+                    <address><?= e($contactProfile['address']) ?></address>
+                    <a class="contact-text-link" href="https://www.google.com/maps/search/?api=1&amp;query=<?= e(rawurlencode($contactProfile['name'].', '.$contactProfile['address'])) ?>">Find us on Google Maps <span aria-hidden="true">↗</span></a>
                 </div>
+                <?php endif; ?>
             </aside>
         </div>
     </div>

@@ -410,6 +410,7 @@
                 'foundation_customers_min' => ['type' => 'number'],
                 'clinic_phones'=>['type'=>'array'], 'clinic_whatsapp'=>['type'=>'array'],
                 'logo_url'=>['type'=>'string'], 'favicon_url'=>['type'=>'string'],
+                'site_profile'=>['type'=>'object'],
                 'palette_primary'=>['type'=>'string'], 'palette_secondary'=>['type'=>'string'],
                 'palette_canvas'=>['type'=>'string'], 'palette_text'=>['type'=>'string'], 'palette_link'=>['type'=>'string'],
                 'consultation_fees'=>['type'=>'array'], 'consultation_inclusions'=>['type'=>'array'],
