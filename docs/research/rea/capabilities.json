@@ -984,7 +984,7 @@
       "title": "Native ability catalogue",
       "status": "implemented",
       "acceptance": "Stable ability name, typed input/output, annotations and permissions.",
-      "finding": "All 18 existing internal tool names have native v1 metadata, typed bounded input/output, scope/module authorization and read-only annotations. The final session-only context is bound to a trusted support loader and explicitly requested owned records. External transport/authorization remains separate.",
+      "finding": "Twelve active service/CMS/CRM names have native v1 metadata, bounded typed input/output, scope/module authorization and read-only annotations. Six retail names were retired permanently; trusted session context contains service navigation but no retail records.",
       "issues": [
         121,
         128,
@@ -993,7 +993,8 @@
         154,
         156,
         158,
-        160
+        160,
+        165
       ],
       "references": [
         {
@@ -1094,7 +1095,7 @@
         },
         {
           "path": "tests/native-ability.test.cjs",
-          "anchor": "existing commerce read abilities are typed"
+          "anchor": "existing commerce read abilities are retired"
         },
         {
           "path": "tests/native-commerce-ability-integration.php",
@@ -1102,7 +1103,7 @@
         },
         {
           "path": "tests/native-ability.test.cjs",
-          "anchor": "all eighteen legacy names have typed native definitions"
+          "anchor": "all twelve remaining service names have typed native definitions"
         },
         {
           "path": "tests/native-session-ability-integration.php",
@@ -1250,7 +1251,8 @@
         156,
         158,
         160,
-        162
+        162,
+        165
       ],
       "references": [
         {
@@ -1355,7 +1357,7 @@
         },
         {
           "path": "tests/native-ability.test.cjs",
-          "anchor": "existing commerce read abilities are typed"
+          "anchor": "existing commerce read abilities are retired"
         },
         {
           "path": "tests/native-commerce-ability-integration.php",
@@ -1363,7 +1365,7 @@
         },
         {
           "path": "tests/native-ability.test.cjs",
-          "anchor": "all eighteen legacy names have typed native definitions"
+          "anchor": "all twelve remaining service names have typed native definitions"
         },
         {
           "path": "tests/native-session-ability-integration.php",
@@ -2489,6 +2491,19 @@
       "components": [],
       "scope_change": "Owner separates bapXcms service-first CMS/CRM from the commerce-led bapXphpAiBackend; retail runtime retirement replaces preserve-existing-shop direction. Existing 61 scoped acceptance units remain unchanged; configurable ERP extensions need separately scoped contracts.",
       "summary": "Rename the project-owned CLI, developer skill and all active generator/validation/workflow references to bapXcms. Record repository comparison and independent product boundary. Preserve archived source bytes, historical review entries, service payments and production data. Retail runtime retirement follows in a separate change; no coverage increase."
+    },
+    {
+      "id": "165-retire-retail-runtime",
+      "date": "2026-11-26",
+      "issues": [
+        165,
+        164
+      ],
+      "components": [
+        "mcp-01",
+        "mcp-05"
+      ],
+      "summary": "Remove 31 retail routes, six internal retail ability definitions and retail-specific CLI entrypoints, permanently retire shop module flag, and retain verified service payment paths plus protected historical receipts. Regression fixtures verify stale flags cannot reactivate retail. Historical REA evidence and database collections remain; physical archival cleanup is separate."
     }
   ]
 }

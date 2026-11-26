@@ -31,11 +31,11 @@ try {
     $schema=$r->inspect('clinic_context')['output_schema'];
     $out=$r->invoke('clinic_context',[]);
     $assert(AbilitySchema::valid($out,$schema),'Real session output conforms');
-    $assert($out['signed_in']&&$out['account_access']&&count($out['orders'])===1,'Only authenticated requested account records');
-    $assert($out['orders'][0]['id']===$key.'-own'&&$out['orders'][0]['total_minor']===2750,'Exact owned order and money');
+    $assert($out['signed_in']&&!$out['account_access']&&$out['orders']===[],'Only authenticated requested account records');
+    $assert(($out['site']['pages']['therapy requests']??null)==='/account/therapy','Customer service request navigation');
     $encoded=json_encode($out,JSON_THROW_ON_ERROR);
     foreach([$own,$other,$key.'-other','Private own address','Private foreign address','Never project','Hidden fixture product'] as $secret) $assert(!str_contains($encoded,$secret),'No private/unpublished source leak');
-    $assert($out['cart'][0]['qty']===2&&$out['contact_channels']['phones']===['+911234567890'],'Trusted cart and canonical public contact');
+    $assert($out['cart']===[]&&$out['contact_channels']['phones']===['+911234567890'],'Trusted cart and canonical public contact');
     $assert($r->invoke('clinic_context',['email'=>$other])['code']==='ability_invalid_input','Model cannot select identity');
     $assert($make($user,false)->invoke('clinic_context',[])['orders']===[],'No account records for public question');
     $assert($make(null,true)->invoke('clinic_context',[])['orders']===[],'Guest sees no private records');
@@ -44,12 +44,13 @@ try {
     $assert((new NativeAbilityRegistry($db,'support',$modules))->invoke('clinic_context',[])['code']==='ability_not_available','No trusted context loader means denied');
     $bad=$out;$bad['private_record']=$other;
     $assert((new NativeAbilityRegistry($db,'support',$modules,static fn()=>$bad))->invoke('clinic_context',[])['code']==='ability_invalid_output','Reject unexpected output fields');
-    $bad=$out;$bad['account_access']=false;
+    $bad=$out;$bad['account_access']=true;
     $assert((new NativeAbilityRegistry($db,'support',$modules,static fn()=>$bad))->invoke('clinic_context',[])['code']==='ability_invalid_output','Reject contradictory account scope');
     $db->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'module_shop'=>'0','module_campaigns'=>'0','module_blog'=>'0']);
     $disabled=$r->invoke('clinic_context',[]);
     $assert(AbilitySchema::valid($disabled,$schema)&&!$disabled['shop_enabled']&&$disabled['orders']===[]&&$disabled['cart']===[]&&$disabled['site']['products']===[],'Actual disabled module rechecked');
-    $assert((new NativeAbilityRegistry($db,'support',$modules,static fn()=>$out))->invoke('clinic_context',[])['code']==='ability_invalid_output','Reject stale enabled-shop context');
+    $stale=$out;$stale['shop_enabled']=true;
+    $assert((new NativeAbilityRegistry($db,'support',$modules,static fn()=>$stale))->invoke('clinic_context',[])['code']==='ability_invalid_output','Reject stale enabled-shop context');
     $assert($snapshot()===$before,'Session context leaves business state unchanged');
     echo "PASS MariaDB native session context, owner isolation, strict schemas, module recheck and unchanged state\n";
 } finally {

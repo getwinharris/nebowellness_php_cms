@@ -136,7 +136,7 @@ test('owner operational abilities are typed, role-isolated and stable for empty 
  assert.equal(data.bad_topic.code,'ability_invalid_input');
  assert.equal(data.null_optional.total,0);
 });
-test('existing commerce read abilities are typed and never available to support or disabled shops',()=>{
+test('existing commerce read abilities are retired for every actor and setting',()=>{
  const data=php(String.raw`
  $db=new App\Services\DatabaseService();
  $owner=new App\Services\NativeAbilityRegistry($db,'admin',['shop'=>true,'campaigns'=>false,'blog'=>false]);
@@ -147,16 +147,13 @@ test('existing commerce read abilities are typed and never available to support 
  echo json_encode(['rows'=>$rows,'empty'=>$owner->invoke('find_order',['order_id'=>'fixture']), 'bad'=>$owner->invoke('find_order',[]),'period'=>$owner->invoke('sales_summary',['days'=>367]),'coupon'=>$owner->invoke('coupon_status',['code'=>'fixture-code']), 'sales'=>$owner->invoke('sales_summary',[])]);
  `);
  for(const [name,item] of Object.entries(data.rows)){
-  assert.equal(item.definition.name,name);
+  assert.equal(item.definition,null);
   assert.equal(item.support.code,'ability_not_available');assert.equal(item.disabled.code,'ability_not_available');
  }
- assert.deepEqual(data.empty,{found:0,orders:[]});
- assert.equal(data.bad.code,'ability_invalid_input');assert.equal(data.period.code,'ability_invalid_input');
- assert.equal(data.coupon.found,false);assert.equal(data.coupon.usable_now,null);
- assert.equal(data.sales.orders,0);assert.equal(data.sales.confirmed_order_total_minor,0);assert.ok(!('revenue' in data.sales));
+ for (const result of [data.empty,data.bad,data.period,data.coupon,data.sales]) assert.equal(result.code,'ability_not_available');
 });
 
-test('all eighteen legacy names have typed native definitions with scoped session context',()=>{
+test('all twelve remaining service names have typed native definitions with scoped session context',()=>{
  const data=php(String.raw`
  require "tests/fixtures/native-session-context.php";
  $d=new App\Services\DatabaseService();$m=['shop'=>true,'blog'=>true,'campaigns'=>true];
@@ -169,7 +166,7 @@ test('all eighteen legacy names have typed native definitions with scoped sessio
    'without'=>$without->invoke('clinic_context',[]),'input'=>$support->invoke('clinic_context',['email'=>'foreign@example.test']),
    'bad'=>$bad->invoke('clinic_context',[])]);
  `);
- assert.deepEqual(Object.keys(data.all).sort(),['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge','search_articles','clinic_context','owner_dashboard_summary','appointment_summary','recent_orders','catalog_categories','find_order','product_status','sales_summary','support_enquiries','campaign_pages','therapy_enquiry_summary','coupon_status'].sort());
+ assert.deepEqual(Object.keys(data.all).sort(),['published_consultation_fees','published_practitioners','published_programmes','published_programme_detail','search_clinic_knowledge','search_articles','clinic_context','owner_dashboard_summary','appointment_summary','support_enquiries','campaign_pages','therapy_enquiry_summary'].sort());
  for(const definition of Object.values(data.all)){
   assert.equal(definition.version,1); assert.equal(definition.input_schema.additionalProperties,false);
   assert.equal(definition.output_schema.additionalProperties,false);assert.equal(definition.annotations.readonly,true);

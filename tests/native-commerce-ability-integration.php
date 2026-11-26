@@ -24,40 +24,21 @@ try {
     $db->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'module_shop'=>'1','module_campaigns'=>'0','module_blog'=>'0']);
     $modules=['shop'=>true,'campaigns'=>false,'blog'=>false];
     $r=new NativeAbilityRegistry($db,'admin',$modules);
-    $baseline=$r->invoke('sales_summary',['days'=>7]);
     foreach($records as [$collection,$row]) $db->upsert($collection,$row);
     $snapshot=static fn()=>array_map(static fn($entry)=>$db->find($entry[0],$entry[1]['id']),$records);
     $before=$snapshot();
-    $tools=new AgentToolRegistry($db,modules:$modules,scope:'admin');
-    $support=new NativeAbilityRegistry($db,'support',$modules);
-    $results=[];
-    foreach(['recent_orders'=>[],'catalog_categories'=>[],'find_order'=>['customer_email'=>$email],
-        'product_status'=>['slug'=>$prefix],'sales_summary'=>['days'=>7],'coupon_status'=>['code'=>$code]] as $name=>$args) {
-        $trace=new AgentRunTrace();
-        $result=$tools->executeModelCall($name,$args,$trace,'fixture-'.$name);
-        $assert(AbilitySchema::valid($result,$r->inspect($name)['output_schema']),'Real commerce output conforms: '.$name);
-        $assert($trace->usedNativeTool([$name]),'Native trace succeeds: '.$name);
-        $assert($support->inspect($name)===null&&$support->invoke($name,$args)['code']==='ability_not_available','Support denies '.$name);
-        $encoded=json_encode($result,JSON_THROW_ON_ERROR);
-        $assert(!str_contains($encoded,$email)&&!str_contains($encoded,'Private fixture'),'Customer identity/address never projected');
-        $results[$name]=$result;
+    $assert(!in_array('shop',array_keys(SettingsService::MODULES),true),'No re-enable switch');
+    $assert(!(new SettingsService($db))->strictModules()['shop'],'Stored enabled shop flag cannot restore retirement');
+    foreach(['admin','support'] as $scope) {
+        $registry=new NativeAbilityRegistry($db,$scope,$modules);
+        $tools=new AgentToolRegistry($db,modules:$modules,scope:$scope);
+        foreach(['recent_orders','catalog_categories','find_order','product_status','sales_summary','coupon_status'] as $name) {
+            $assert(!$registry->registered($name)&&$registry->inspect($name)===null,'No definition: '.$name);
+            $assert($registry->invoke($name,[])['code']==='ability_not_available'&&!$tools->has($name),'No invocation: '.$name);
+        }
     }
-    $assert($results['find_order']['found']===1&&$results['find_order']['orders'][0]['total_minor']===2750,'Exact filtered reference and amount');
-    $assert($results['find_order']['orders'][0]['items'][0]['line_total_minor']===2750,'Exact line amount');
-    $products=array_column($results['product_status']['products'],null,'slug');
-    $assert($products[$prefix]['offer_price_minor']===1250&&$products[$prefix.'-hidden']['offer_price_minor']===null&&$products[$prefix.'-hidden']['hidden_from_shop'],'Active offer, expired offer and owner hidden flag');
-    $sales=$results['sales_summary'];
-    $assert($sales['orders']===$baseline['orders']+3&&$sales['confirmed_order_total_minor']===$baseline['confirmed_order_total_minor']+2750&&$sales['pending_order_total_minor']===$baseline['pending_order_total_minor']+1000,'Period excludes old order and separates cancelled/pending');
-    $assert(in_array(['name'=>'Fixture product','units'=>2],$sales['best_sellers'],true),'Only confirmed in-period units counted');
-    $assert($results['coupon_status']['usable_now']===null,'No invented cart eligibility');
-    $assert($r->invoke('coupon_status',['code'=>$code,'cart_total_minor'=>500])['usable_now']===false,'Actual low cart refused');
-    $assert($r->invoke('coupon_status',['code'=>$code,'cart_total_minor'=>2500])['usable_now']===null,'Missing per-customer usage unknown');
-    $assert($r->invoke('coupon_status',['code'=>$code,'cart_total_minor'=>2500,'customer_email'=>$email])['usable_now']===false,'Used coupon refused');
-    $assert($r->invoke('coupon_status',['code'=>$code,'cart_total_minor'=>2500,'customer_email'=>'unused@example.test'])['usable_now']===true,'Eligible supplied cart and customer');
     $assert($snapshot()===$before,'Commerce abilities leave business state unchanged');
-    $db->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'module_shop'=>'0']);
-    foreach(array_keys($results) as $name) $assert($r->invoke($name,match($name){'find_order'=>['order_id'=>$prefix],'coupon_status'=>['code'=>$code],default=>[]})['code']==='ability_not_available','Stale shop capability denied');
-    echo "PASS MariaDB typed commerce reads, exact money and periods, coupon context, actor/module denial and unchanged state\n";
+    echo "PASS MariaDB retired retail tools cannot be enabled and historical state remains unchanged\n";
 } finally {
     foreach($records as [$collection,$row]) $db->delete($collection,$row['id']);
     $db->delete('settings',SettingsService::SETTINGS_ID);

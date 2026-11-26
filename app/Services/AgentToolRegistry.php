@@ -57,14 +57,7 @@ final class AgentToolRegistry implements ModelToolSet
             if ($metric && (preg_match('/\b(support|tickets?)\b/i',$question) || (!$therapy && preg_match('/\benquir(?:y|ies)\b/i',$question)))) $groups[]=['support_enquiries'];
             if (preg_match('/\b(historical appointments?)\b/i',$question)) $groups[]=['appointment_summary'];
             if ($therapy && ($metric || preg_match('/\brequests?\b/i',$question))) $groups[]=['therapy_enquiry_summary'];
-            if ($metric && preg_match('/\b(revenue|sales|sold|best selling)\b/i',$question)) $groups[]=['sales_summary'];
-            if ($metric && preg_match('/\borders?\b/i',$question)) $groups[]=['sales_summary','recent_orders','find_order'];
-            if ($metric && preg_match('/\b(stock|products?)\b/i',$question) && !preg_match('/\b(sales|sold|best selling)\b/i',$question)) $groups[]=['product_status','catalog_categories','owner_dashboard_summary'];
-            if ($metric && preg_match('/\bcoupons?\b/i',$question)) $groups[]=['coupon_status'];
             if ($metric && preg_match('/\bcustomers?\b/i',$question)) $groups[]=['owner_dashboard_summary'];
-            if (preg_match('/\b(operations|dashboard|report|analytics)\b/i',$question) && preg_match('/\b(summari[sz]e|current|this week|this month|last|report)\b/i',$question)) $groups[]=['owner_dashboard_summary','sales_summary','support_enquiries','therapy_enquiry_summary','appointment_summary'];
-        } else {
-            if (preg_match('/\b(my order|my orders|my cart|order status|delivery|shipping|stock|product price|pack size|materials?|payment status)\b/i',$question)) $groups[]=['clinic_context'];
         }
         if (preg_match('/\b(articles?|blogs?|posts?)\b/i',$question) && preg_match('/\b(published|current|available|find|search|list|read|latest)\b/i',$question)) $groups[]=['search_articles','search_clinic_knowledge','clinic_context'];
         return $groups;

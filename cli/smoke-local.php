@@ -37,13 +37,19 @@ try {
     }
     foreach ([
         '/' => 200,
-        '/shop' => 200,
+        '/shop' => 404,
+        '/admin/products' => 404,
+        '/admin/coupons' => 404,
+        '/admin/shipping' => 404,
+        '/admin/orders' => 404,
+        '/cli/product-read.php' => 403,
+        '/bapXcms' => 403,
         // Test mode has no records, so a product slug legitimately resolves to nothing.
         // 404 is the correct answer now that a missing product no longer renders an
         // empty page with HTTP 200 (a soft 404 that search engines indexed).
         '/product/karuppasami-dollar' => 404,
-        '/cart' => 200,
-        '/checkout' => 200,
+        '/cart' => 404,
+        '/checkout' => 404,
         '/contact' => 200,
         '/consult' => 302,
         '/consult/shrikanth-purushothaman' => 302,
@@ -119,8 +125,8 @@ try {
 
     $post = httpRequest($base . '/admin/orders/test/status', 'POST', 'status=shipped');
     echo "{$post['status']} POST /admin/orders/test/status\n";
-    if ($post['status'] !== 302) {
-        $failures[] = "POST /admin/orders/test/status expected 302, got {$post['status']}";
+    if ($post['status'] !== 404) {
+        $failures[] = "POST /admin/orders/test/status expected 404, got {$post['status']}";
     }
 
     $appointmentPost = httpRequest($base . '/consultation/initiate', 'POST', 'consultant_slug=legacy-profile&mode=text_session');
@@ -131,10 +137,10 @@ try {
 
     $paymentPost = httpRequest($base . '/payment/verify', 'POST', 'order_id=&payment_id=&signature=');
     echo "{$paymentPost['status']} POST /payment/verify\n";
-    if ($paymentPost['status'] === 419) {
-        echo "  (CSRF protected, missing token)\n";
-    } elseif ($paymentPost['status'] !== 400 || !str_contains($paymentPost['body'], 'verified')) {
-        $failures[] = "POST /payment/verify should reject missing Razorpay verification fields with JSON";
+    if ($paymentPost['status'] !== 404) $failures[]='Retail payment verification must be unreachable.';
+    foreach (['/cart/add','/checkout/create-order','/create-order','/verify-payment','/reviews/product','/admin/products/save','/admin/coupons/save'] as $retired) {
+        $result=httpRequest($base.$retired,'POST','');
+        if ($result['status']!==404) $failures[]='Retired POST route reachable: '.$retired;
     }
 
     $supportPost = httpRequest($base . '/support/ask', 'POST', 'message=Where%20is%20my%20order%3F');
@@ -160,6 +166,8 @@ try {
         echo ($ok ? 'JSON' : 'BAD') . " {$path}\n";
         if (!$ok) {
             $failures[] = "{$path} did not return valid JSON";
+        } elseif (in_array($path,['/api/shop','/api/categories','/api/product/karuppasami-dollar'],true)&&$response['status']!==404) {
+            $failures[]='Retired retail API must return 404: '.$path;
         } elseif ($response['status'] === 503) {
             echo "  (MySQL unavailable)\n";
         }

@@ -62,7 +62,7 @@ Use the saved model configuration with either `./bapXcms ai:probe text [model]` 
 
 ### Native typed ability migration
 
-All eighteen existing names now use native v1 contracts: six public reads, five owner operational reads, six existing shop reads and one trusted support-session context; both agents retain the existing model tool names and public-domain services. NativeAbilityRegistry owns versioned metadata, scope, bounded input/output validation and safe error codes. Missing canonical fee settings is unavailable, not empty success. The [ability audit](research/rea/contracts/native-abilities-audit.md) maps remaining legacy tools and verification obligations. External MCP transport remains incomplete; the internal catalogue migration is complete.
+Twelve active names use native v1 contracts: six public reads, five owner operational reads and one trusted support-session context. Six former retail names were intentionally retired under the standalone CMS scope; historical evidence is retained. NativeAbilityRegistry owns versioned metadata, scope, bounded input/output validation and safe error codes. Missing canonical fee settings is unavailable, not empty success. The [ability audit](research/rea/contracts/native-abilities-audit.md) maps remaining legacy tools and verification obligations. External MCP transport remains incomplete; the internal catalogue migration is complete.
 
 ## External MCP published reads
 

@@ -58,8 +58,7 @@ try {
     $shop=new NativeAbilityRegistry($db,'admin',['shop'=>true,'campaigns'=>false]);
     $dashboard=$shop->invoke('owner_dashboard_summary',[]);
     $assert(AbilitySchema::valid($dashboard,$shop->inspect('owner_dashboard_summary')['output_schema']),'Commerce counts typed');
-    $assert($dashboard['commerce']['confirmed_order_total_minor']>=2750&&$dashboard['commerce']['pending_order_total_minor']>=1525,'Stored order minor units reported separately');
-    $assert(!isset($dashboard['commerce']['revenue']),'Never label stored order totals as verified revenue');
+    $assert(!isset($dashboard['commerce'])&&!$dashboard['shop_enabled'],'Stored shop flag cannot restore retail aggregates');
     $assert($snapshot()===$before,'No commerce mutation');
     echo "PASS MariaDB owner typed aggregate, role denial, stable status/period counts, draft metadata and read-only state\n";
 } finally {
