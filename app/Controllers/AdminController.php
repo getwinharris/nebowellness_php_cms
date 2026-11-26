@@ -218,7 +218,21 @@ final class AdminController extends BaseController {
         // apply the fields actually submitted. Defaulting absent keys would blank out
         // every field belonging to the other forms (notably the GST configuration).
         $service = new SettingsService();
-        $settings = $service->admin();
+        if (array_key_exists('foundation_customers_min', $_POST)) {
+            try {
+                $revision = is_string($_POST['foundation_revision'] ?? null) ? $_POST['foundation_revision'] : '';
+                $service->saveFoundationCustomersMin($_POST['foundation_customers_min'], $revision);
+                (new AuditLogService())->record('save','settings','public',['fields'=>['foundation_customers_min']]);
+                $this->flash('Foundation figure saved.','success');
+            } catch (\InvalidArgumentException | \DomainException $error) {
+                $this->flash($error->getMessage(),'error');
+            } catch (\Throwable) {
+                $this->flash('The figure could not be saved. Please reload and try again.','error');
+            }
+            $this->redirect('/admin/settings');
+        }
+        // Only patch the submitted fields, so an unrelated settings save cannot overwrite the figure.
+        $settings = [];
         foreach (['shipping_mode','currency','timezone','gstin','gst_legal_name','gst_trade_name','gst_address','gst_state','gst_state_code','default_hsn_code'] as $key) {
             if (array_key_exists($key, $_POST)) $settings[$key] = trim((string)$_POST[$key]);
         }

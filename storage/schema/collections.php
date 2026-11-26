@@ -387,6 +387,7 @@
                 'admin_username' => ['type' => 'string'],
                 'admin_email' => ['type' => 'email'],
                 'admin_password' => ['type' => 'secret'],
+                'foundation_customers_min' => ['type' => 'number'],
             ],
         ],
         'contact_submissions' => [

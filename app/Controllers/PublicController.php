@@ -33,7 +33,7 @@ final class PublicController extends BaseController {
                 error_log('Home programmes unavailable: ' . $error->getMessage());
             }
         }
-        $this->render('public/home', ['consultants' => $consultants, 'teamUnavailable' => $teamUnavailable, 'therapyProducts' => $therapyProducts, 'programs' => $programs, 'programsUnavailable' => $programsUnavailable, 'programsEnabled' => $programsEnabled]);
+        $this->render('public/home', ['consultants' => $consultants, 'teamUnavailable' => $teamUnavailable, 'therapyProducts' => $therapyProducts, 'programs' => $programs, 'programsUnavailable' => $programsUnavailable, 'programsEnabled' => $programsEnabled, 'foundationCustomersMin' => (new SettingsService())->foundationCustomersMin()]);
     }
 
     public function about(): void { 

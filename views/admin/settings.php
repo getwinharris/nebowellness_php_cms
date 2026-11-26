@@ -26,6 +26,17 @@
 </div>
 <?php $__settingsModules = (new \App\Services\SettingsService())->modules(); ?>
 <div class="admin-card">
+    <h2>Homepage Foundation</h2>
+    <p>Publish a clinic-confirmed minimum historical customer count. This is not the number of website accounts, orders or enquiries. Leave blank to hide the figure. Programmes and practitioner totals are calculated from published records.</p>
+    <form class="admin-form" method="post" action="/admin/settings/save">
+        <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
+        <input type="hidden" name="foundation_revision" value="<?= e(\App\Services\ResourceService::revision($settings)) ?>">
+        <label for="foundation-customers-min">Customers served (minimum; displayed with +)</label>
+        <input id="foundation-customers-min" name="foundation_customers_min" type="number" min="1" max="99999999" step="1" inputmode="numeric" value="<?= e((string)($settings['foundation_customers_min'] ?? '')) ?>">
+        <button type="submit" class="btn btn-primary">Save Foundation figure</button>
+    </form>
+</div>
+<div class="admin-card">
     <h2 style="font-size:1rem; margin:0 0 var(--space-sm);">Site Modules</h2>
     <p style="margin:0 0 var(--space-lg); font-size:0.85rem; color:var(--color-text-muted);">
         Switching a module off hides its navigation links and home page section, and makes its

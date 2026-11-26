@@ -29,8 +29,9 @@
             <h2 class="section-title">Our Pillars</h2>
         </div>
         <div class="about-feature-grid">
-            <?php foreach ($foundationPillars as [$title, $description]): ?>
-                <article class="about-feature-card reveal">
+            <?php foreach ($foundationPillars as [$title, $description, $careIcon]): ?>
+                <article class="about-feature-card about-feature-card--pillar reveal">
+                    <?php require __DIR__ . '/../partials/care-icon.php'; ?>
                     <h3><?= e($title) ?></h3>
                     <p><?= e($description) ?></p>
                 </article>

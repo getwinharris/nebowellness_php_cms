@@ -40,10 +40,16 @@ $consultationSteps = [
         </div>
         <?php
         $homeFigures = [];
-        if ($programsEnabled && empty($programsUnavailable)) {
-            $homeFigures[] = [count($programs), 'Program pathways', 'Personalised options to explore before you enquire.'];
+        if (isset($foundationCustomersMin)) {
+            $homeFigures[] = [$foundationCustomersMin, 'Customers served', 'Clinic-reported historical figure.', '+', 'people'];
         }
-        $homeFigures[] = [4, 'Focus areas', 'Explore the health needs our practitioners support.'];
+        if ($programsEnabled && empty($programsUnavailable)) {
+            $homeFigures[] = [count($programs), 'Program pathways', 'Personalised options to explore.', '', 'program'];
+        }
+        $homeFigures[] = [4, 'Focus areas', 'Explore the health needs we support.', '', 'focus'];
+        if (empty($teamUnavailable)) {
+            $homeFigures[] = [count($consultants), 'Practitioners', 'Meet our multidisciplinary team.', '', 'clinician'];
+        }
         require __DIR__ . '/../partials/home-figures.php';
         ?>
         <div class="nebo-intro-copy">
@@ -53,9 +59,12 @@ $consultationSteps = [
             </div>
             <div>
                 <h3>Our Pillars</h3>
-                <ul>
-                    <?php foreach ($foundationPillars as [$title, $description]): ?>
-                        <li><strong><?= e($title) ?></strong>. <?= e($description) ?></li>
+                <ul class="nebo-pillar-list">
+                    <?php foreach ($foundationPillars as [$title, $description, $careIcon]): ?>
+                        <li>
+                            <?php require __DIR__ . '/../partials/care-icon.php'; ?>
+                            <div><h4><?= e($title) ?></h4><p><?= e($description) ?></p></div>
+                        </li>
                     <?php endforeach; ?>
                 </ul>
             </div>

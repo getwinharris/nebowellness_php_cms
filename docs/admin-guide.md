@@ -40,3 +40,7 @@ The GA4 measurement ID configures visitor measurement separately from report acc
 ### Owner-managed programmes
 
 In Campaign pages, use the existing title, summary, body, image and enquiry settings. Enable Show in homepage programmes, enter a stable lowercase category key and label, optional duration, and numerical display order. Only published opted-in campaigns are included; the public cards lead to their own detail pages. Other campaigns remain separate. Draft or uncheck to remove a card. Category links in the menu and homepage filters come from published programmes. Legacy focus-area links fall back to Contact if their category no longer has a published programme.
+
+### Homepage Foundation figure
+
+Admin → Settings → Homepage Foundation accepts the clinic-confirmed minimum historical customer count. A positive integer renders with a plus sign; blank hides it. It does not count accounts, orders, or enquiries. The programme and visible practitioner counts are derived from published records, and the focus-area count reflects the four displayed care areas. Editing the figure uses the settings revision to reject stale writes.

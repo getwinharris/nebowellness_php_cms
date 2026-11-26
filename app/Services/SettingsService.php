@@ -57,6 +57,29 @@ final class SettingsService {
         return $this->modules()[$key] ?? true;
     }
 
+    /** Owner-supplied minimum customer figure. Empty means do not publish it. */
+    public static function normalizeFoundationCustomersMin(mixed $value): ?int {
+        if ($value === null || $value === '') return null;
+        if ((!is_string($value) && !is_int($value)) || !preg_match('/^[1-9][0-9]{0,7}$/D', (string)$value)) {
+            throw new \InvalidArgumentException('Enter a positive whole number up to 99,999,999, or leave blank to hide.');
+        }
+        return (int)$value;
+    }
+
+    public function foundationCustomersMin(): ?int {
+        try { return self::normalizeFoundationCustomersMin($this->load()['foundation_customers_min'] ?? null); }
+        catch (\InvalidArgumentException) { return null; }
+    }
+
+    public function saveFoundationCustomersMin(mixed $value, string $revision): void {
+        $count = self::normalizeFoundationCustomersMin($value);
+        // No read-outage defaults or full-record overwrite on this narrow settings form.
+        $current = $this->store->find('settings', self::SETTINGS_ID);
+        if ($current === null) throw new \DomainException('Save the site settings before publishing a customer figure.');
+        $this->store->upsertIfRevision('settings', ['id'=>self::SETTINGS_ID, 'foundation_customers_min'=>$count], $revision);
+        self::flushCache();
+    }
+
     public function savePublic(array $settings): void {
         $settings['id'] = self::SETTINGS_ID;
         $this->store->upsert('settings', $settings, 'id');
