@@ -20,6 +20,15 @@ GitHub CLI (`gh`) on the hosted server.
   checks, and merges.
 - Never wrap ordinary Git commands in `bapXphp`.
 - Never force-push or discard unrelated or divergent work.
+- Use the owner's single canonical local checkout when requested. Read issue/PR
+  history (including closed issues, reviews and acceptance evidence) before new
+  work; compare dirty files and local commits against main using patch identity
+  and ancestry, including squash merges. Do not replay already merged work.
+- Before removing an obsolete worktree, check its status and whether it is idle,
+  preserve unique changes under a local recovery ref, archive needed ignored QA
+  evidence securely, and verify the branch remains reachable. Use
+  `git worktree remove`, not recursive folder deletion. Keep the common
+  Git directory and owner configuration intact.
 
 ## Local Workflow
 
