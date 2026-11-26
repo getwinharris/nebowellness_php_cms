@@ -58,7 +58,7 @@ Blog editor proposals and Enterprise structured drafts use the same configured A
 
 ### Pinned provider diagnostics
 
-Use the saved model configuration with either `./bapXphp ai:probe text [model]` or `./bapXphp ai:probe tools [model]`, or Admin → Integrations → Verify the AI connection. Text requires the exact fresh challenge and natural finish. Tools mode requires exactly one valid synthetic read-only call followed by the correct hidden challenge. The diagnostic shares the native transport but cannot read business records, switch production model, or change production failover counters. Trace metadata contains observed status, duration, call reference and provider usage only. A diagnostic passing is not agent-surface acceptance. See [the reference-derived contract](research/rea/contracts/provider-diagnostics.md).
+Use the saved model configuration with either `./bapXcms ai:probe text [model]` or `./bapXcms ai:probe tools [model]`, or Admin → Integrations → Verify the AI connection. Text requires the exact fresh challenge and natural finish. Tools mode requires exactly one valid synthetic read-only call followed by the correct hidden challenge. The diagnostic shares the native transport but cannot read business records, switch production model, or change production failover counters. Trace metadata contains observed status, duration, call reference and provider usage only. A diagnostic passing is not agent-surface acceptance. See [the reference-derived contract](research/rea/contracts/provider-diagnostics.md).
 
 ### Native typed ability migration
 

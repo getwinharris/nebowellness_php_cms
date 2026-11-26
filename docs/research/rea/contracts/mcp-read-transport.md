@@ -59,9 +59,9 @@ data. Discovery is private and non-cacheable.
 
 After deploying the schema, an authorized operator may run:
 
-    ./bapXphp mcp:grants list
-    ./bapXphp mcp:grants issue "Trusted client" 30
-    ./bapXphp mcp:grants revoke GRANT_ID
+    ./bapXcms mcp:grants list
+    ./bapXcms mcp:grants issue "Trusted client" 30
+    ./bapXcms mcp:grants revoke GRANT_ID
 
 Do not run issue merely to verify deployment or expose a real token in a
 test report. Clients must support explicitly configured Authorization

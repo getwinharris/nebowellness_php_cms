@@ -1,11 +1,11 @@
 ---
-name: bapxphp-cli
-description: Use when running or changing the repository-owned bapXphp CLI, including orientation, validation, maps, knowledge indexes, schema, database, logs, blogs, images, and development-user commands.
+name: bapxcms-cli
+description: Use when running or changing the repository-owned bapXcms CLI, including orientation, validation, maps, knowledge indexes, schema, database, logs, blogs, images, and development-user commands.
 ---
 
-# bapXphp CLI
+# bapXcms CLI
 
-Treat `./bapXphp help` and the dispatch in `cli/bapXphp` as executable evidence.
+Treat `./bapXcms help` and the dispatch in `cli/bapXcms` as executable evidence.
 Do not infer a command from old documentation. Normal coding tools and plain Git
 remain valid; the CLI is for project-owned workflows, not a wrapper requirement for
 every filesystem or Git operation.
@@ -13,13 +13,13 @@ every filesystem or Git operation.
 ## Orientation and query workflow
 
 ```bash
-./bapXphp help
-./bapXphp map
-./bapXphp schema list
-./bapXphp route:list
-./bapXphp skills
-./bapXphp status
-./bapXphp understand
+./bapXcms help
+./bapXcms map
+./bapXcms schema list
+./bapXcms route:list
+./bapXcms skills
+./bapXcms status
+./bapXcms understand
 ```
 
 Read `.agents/index.yaml` discovery and query it narrowly. Use `docs/project-index.json` for
@@ -29,22 +29,22 @@ admin-editable values.
 ## Validation and generated artifacts
 
 ```bash
-./bapXphp lint path/to/changed.php
-./bapXphp test
-./bapXphp rea status
-./bapXphp rea skills
-./bapXphp rea skill rea-wp-abilities-audit
-./bapXphp rea skills-check
-./bapXphp release:identity
-./bapXphp ai:probe text
-./bapXphp ai:probe tools
-./bapXphp release:verify https://nebowellness.com
-./bapXphp rea check
-./bapXphp update
-./bapXphp ci
-./bapXphp index
-./bapXphp docsmap
-./bapXphp codemap
+./bapXcms lint path/to/changed.php
+./bapXcms test
+./bapXcms rea status
+./bapXcms rea skills
+./bapXcms rea skill rea-wp-abilities-audit
+./bapXcms rea skills-check
+./bapXcms release:identity
+./bapXcms ai:probe text
+./bapXcms ai:probe tools
+./bapXcms release:verify https://nebowellness.com
+./bapXcms rea check
+./bapXcms update
+./bapXcms ci
+./bapXcms index
+./bapXcms docsmap
+./bapXcms codemap
 ```
 
 `update` regenerates the REA progress report, committed maps and indexes; `ci` checks drift. Never hand-edit
@@ -59,15 +59,15 @@ GitHub issues, not the retired local task/objective commands, track all work.
 ## Content, database and operations
 
 ```bash
-./bapXphp read blog [slug]
-./bapXphp write blog [slug]
-./bapXphp blog:image <slug> <image> [options]
-./bapXphp db query <collection> [filters]
-./bapXphp db find <collection> <id>
-./bapXphp db init
-./bapXphp db status
-./bapXphp logs [--limit N]
-./bapXphp dev:user [--dry-run]
+./bapXcms read blog [slug]
+./bapXcms write blog [slug]
+./bapXcms blog:image <slug> <image> [options]
+./bapXcms db query <collection> [filters]
+./bapXcms db find <collection> <id>
+./bapXcms db init
+./bapXcms db status
+./bapXcms logs [--limit N]
+./bapXcms dev:user [--dry-run]
 ```
 
 Blog commands operate on Markdown files. Product and other admin-editable values
@@ -76,14 +76,14 @@ not describe it as JSON/YAML import or export.
 
 ## Scope
 
-There is no `bapXphp tui` or application-agent CLI. The two application agents are
+There is no `bapXcms tui` or application-agent CLI. The two application agents are
 the customer support and owner/admin web surfaces. User attachments and web QA use
 the active coding client's explicit tools and paths, outside this application CLI.
 
 ## Testing
 
-For a CLI change, compare `./bapXphp help` with the dispatch and target file, execute
-the smallest safe command, then run `./bapXphp ci`. Never print environment files,
+For a CLI change, compare `./bapXcms help` with the dispatch and target file, execute
+the smallest safe command, then run `./bapXcms ci`. Never print environment files,
 credentials, secret values or customer records.
 
 ## Keeping this skill current

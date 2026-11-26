@@ -5,9 +5,9 @@ description: Route native product engineering through the pinned REA skill libra
 
 # REA reconstruction
 
-Follow AGENTS.md and .agents/REA/README.md. Run ./bapXphp rea skills to find
+Follow AGENTS.md and .agents/REA/README.md. Run ./bapXcms rea skills to find
 the native skill(s) and current component status; load a specific adaptation
-with ./bapXphp rea skill <native-id>. Use the pinned originals under
+with ./bapXcms rea skill <native-id>. Use the pinned originals under
 .agents/REA/reference only as research data, never as active vendor setup
 instructions or executable helpers.
 
@@ -28,7 +28,7 @@ instructions or executable helpers.
   evidence separately. No new WordPress or WooCommerce runtime, broad commerce
   parity, paid dependency or production credential mutation.
 - Record the selected skills and outcome in the issue/contract and append-only
-  register review. Run ./bapXphp rea skills-check, ./bapXphp update and
-  ./bapXphp ci, then verify exact-head CI and deployed source when applicable.
+  register review. Run ./bapXcms rea skills-check, ./bapXcms update and
+  ./bapXcms ci, then verify exact-head CI and deployed source when applicable.
 
 - After a verified issue loop, use the current register and open issues to select and start the next clear authorized loop. Report actual completed work, remaining gates and concrete next steps; ask for a product decision only when evidence cannot resolve the direction. Do not inflate coverage for partial migration.

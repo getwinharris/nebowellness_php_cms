@@ -306,7 +306,7 @@ $tests['agent workflow diagnoses before issue tracking and stays source grounded
 
 $tests['independent deployment repository and runtime artifacts are properly managed'] = function (): void {
     $ignore = file_get_contents(app_path('.gitignore'));
-    $cli = file_get_contents(app_path('cli/bapXphp'));
+    $cli = file_get_contents(app_path('cli/bapXcms'));
     assertTrue(!is_file(app_path('.github/workflows/sync-upstream.yml')), 'Independent deployment repository should not retain fork-sync automation');
     assertTrue(!is_file(app_path('.github/workflows/notify-fork.yml')), 'Notify-fork was replaced by schedule-based sync');
     foreach (['/server.log', '/storage/logs/'] as $path) {
@@ -359,7 +359,7 @@ $tests['application exposes exactly admin chat and customer support agents'] = f
     assertTrue(!in_array('/api/agent', array_column($routes, 'path'), true), 'Duplicate public agent API must be removed');
     assertTrue(!is_file(app_path('app/Controllers/AgentController.php')), 'Duplicate AgentController must be removed');
     assertTrue(!is_file(app_path('config/agent.yml')), 'Duplicate agent YAML config must be removed');
-    $cli = (string)file_get_contents(app_path('cli/bapXphp'));
+    $cli = (string)file_get_contents(app_path('cli/bapXcms'));
     foreach (['browser-agent', 'cmd_browser_agent', 'cmd_task', 'BAPX_AGENT_URL', 'pma-client.php'] as $removed) {
         assertTrue(!str_contains($cli, $removed), "CLI should not contain removed surface {$removed}");
     }
@@ -379,7 +379,7 @@ $tests['every project skill has portable frontmatter and no empty reference plac
     assertTrue(!(bool)glob(app_path('.agents/skills/*/references/.gitkeep')), 'Skills should not carry empty reference placeholders');
     assertTrue(!is_dir(app_path('.agents/skills/backend-json')), 'Obsolete backend-json skill name should not return');
     assertTrue(!is_dir(app_path('.github/skills')), 'Copilot and Codex should share the canonical project skills');
-    $cliSkills = shell_exec('cd ' . escapeshellarg(app_path()) . ' && ./bapXphp skills 2>&1') ?: '';
+    $cliSkills = shell_exec('cd ' . escapeshellarg(app_path()) . ' && ./bapXcms skills 2>&1') ?: '';
     assertTrue(str_contains($cliSkills, 'backend-php-mysql'), 'CLI skill discovery should include canonical .agents skills');
     assertTrue(!str_contains($cliSkills, 'backend-json'), 'CLI skill discovery should not expose the obsolete backend-json name');
 };
@@ -551,12 +551,12 @@ $tests['customer installation is an account menu workflow'] = function (): void 
 };
 
 $tests['development customer workflow is fixed remote and credential safe'] = function (): void {
-    $cli = file_get_contents(app_path('cli/bapXphp'));
+    $cli = file_get_contents(app_path('cli/bapXcms'));
     $engineering = file_get_contents(app_path('docs/roles/engineering.md'));
     assertTrue(is_string($cli) && is_string($engineering), 'Development customer workflow sources should be readable');
     assertTrue(str_contains($cli, 'dev_test_customer') && str_contains($cli, 'BAPX_TEST_USER_PASSWORD'), 'CLI should provide a fixed credential-safe development customer');
     assertTrue(str_contains($cli, 'cmd_db_upsert users'), 'Development customer should use authenticated remote DB mutation');
-    assertTrue(str_contains($engineering, 'bapXphp dev:user'), 'Engineering guide should document the fixed customer command');
+    assertTrue(str_contains($engineering, 'bapXcms dev:user'), 'Engineering guide should document the fixed customer command');
 };
 
 $tests['public registration never bootstraps admin on a live site'] = function (): void {
@@ -896,7 +896,7 @@ $tests['google oauth callback uses the configured app url'] = function (): void 
 };
 
 $tests['retired GitHub blog-cache command is not exposed'] = function (): void {
-    $cli = file_get_contents(app_path('cli/bapXphp'));
+    $cli = file_get_contents(app_path('cli/bapXcms'));
     assertTrue(!str_contains($cli, 'cmd_bloggen'), 'CLI should not advertise a command backed by the retired GitHub document service');
     assertTrue(!str_contains($cli, 'refresh-blog-cache.php'), 'CLI should not invoke the deleted blog-cache script');
     assertTrue(!is_file(app_path('cli/refresh-blog-cache.php')), 'Retired GitHub blog-cache script should be removed');
@@ -1234,8 +1234,8 @@ $tests['cart quantity controls update progressively and remove at zero'] = funct
     assertTrue(str_contains($controller, 'if ($this->wantsJson()) $this->jsonResponse($this->cartState($slug));'), 'Add-to-cart should support progressive JSON updates');
 };
 
-$tests['bapXphp product media workflow is safe and mapped'] = function (): void {
-    $cli = file_get_contents(app_path('cli/bapXphp'));
+$tests['bapXcms product media workflow is safe and mapped'] = function (): void {
+    $cli = file_get_contents(app_path('cli/bapXcms'));
     $reader = file_get_contents(app_path('cli/product-read.php'));
     $importer = file_get_contents(app_path('cli/import-product-images.php'));
     $map = file_get_contents(app_path('app/Services/ProjectMapService.php'));
@@ -1997,7 +1997,7 @@ $tests['the database bridge never calls the host it is running on'] = function (
 $tests['remote database uses password auth via admin UI or env'] = function (): void {
     $controller = file_get_contents(app_path('app/Controllers/RemoteDbController.php'));
     $database = file_get_contents(app_path('app/Services/DatabaseService.php'));
-    $cli = file_get_contents(app_path('cli/bapXphp'));
+    $cli = file_get_contents(app_path('cli/bapXcms'));
     assertTrue(str_contains($controller, 'requirePassword'), 'Remote controller should have requirePassword');
     assertTrue(str_contains($controller, 'hash_equals'), 'Remote controller should verify password with timing-safe compare');
     // Authentication uses the MySQL password from config, not a separate invented
@@ -2173,7 +2173,7 @@ $tests['php 404 page uses themed template classes'] = function (): void {
 $tests['documentation has deployment agent instructions and no one-line placeholder pages'] = function (): void {
     assertTrue(is_file(app_path('AGENTS.md')), 'Binding agent contract should exist');
     $agent = file_get_contents(app_path('AGENTS.md'));
-    foreach (['Repository', 'docs/systematic-map.mmd', 'bapXphp ci', 'Before pushing to `main`'] as $needle) {
+    foreach (['Repository', 'docs/systematic-map.mmd', 'bapXcms ci', 'Before pushing to `main`'] as $needle) {
         assertTrue(str_contains($agent, $needle), "Agent contract should mention {$needle}");
     }
     foreach (glob(app_path('docs/pages/*.md')) ?: [] as $path) {
@@ -2190,8 +2190,8 @@ $tests['documentation has deployment agent instructions and no one-line placehol
 
 $tests['pull requests use non mutating CI with fresh project and documentation maps'] = function (): void {
     $workflow = file_get_contents(app_path('.github/workflows/ci.yml'));
-    $cli = file_get_contents(app_path('cli/bapXphp'));
-    foreach (['pull_request:', 'branches: [main,', "'feat/**'", './bapXphp ci', 'php tests/therapy-integration.php'] as $needle) assertTrue(str_contains($workflow, $needle), "CI workflow should include {$needle}");
+    $cli = file_get_contents(app_path('cli/bapXcms'));
+    foreach (['pull_request:', 'branches: [main,', "'feat/**'", './bapXcms ci', 'php tests/therapy-integration.php'] as $needle) assertTrue(str_contains($workflow, $needle), "CI workflow should include {$needle}");
     foreach (['cmd_ci()', 'validate-project-map.php', 'validate-docs-map.php', 'cmd_update()', 'cmd_hooks()', 'cmd_ai_probe()'] as $needle) {
         assertTrue(str_contains($cli, str_replace('\\n', "\n", $needle)), "CLI should include {$needle}");
     }
@@ -2214,7 +2214,7 @@ $tests['repository operations use git and GitHub Actions without duplicate agent
     $activeFiles = [
         app_path('AGENTS.md'),
         app_path('README.md'),
-        app_path('cli/bapXphp'),
+        app_path('cli/bapXcms'),
         app_path('.agents/skills/git/SKILL.md'),
         app_path('.agents/skills/deployment/SKILL.md'),
     ];
@@ -2270,7 +2270,7 @@ $tests['generated developer navigation stays private and retired root artifacts 
         assertTrue(str_contains($map, $needle), "Systematic map should include {$needle}");
     }
     $dmap = file_get_contents(app_path('docs/map.mmd'));
-    foreach (['CLI (bapXphp)', 'Agent Skills', 'Blog & Content', 'Application Architecture', 'Data Layer', '.agents/map.mmd', '.agents/index.yaml'] as $needle) {
+    foreach (['CLI (bapXcms)', 'Agent Skills', 'Blog & Content', 'Application Architecture', 'Data Layer', '.agents/map.mmd', '.agents/index.yaml'] as $needle) {
         assertTrue(str_contains($dmap, $needle), "docs/map.mmd should include {$needle}");
     }
     $cmap = file_get_contents(app_path('.agents/map.mmd'));
@@ -2328,7 +2328,7 @@ $tests['Nebo articles share accessible card and article images'] = function (): 
     $admin = file_get_contents(app_path('views/admin/blog.php'));
     $index = file_get_contents(app_path('views/public/blog.php'));
     $article = file_get_contents(app_path('views/public/blog-post.php'));
-    $cli = file_get_contents(app_path('cli/bapXphp'));
+    $cli = file_get_contents(app_path('cli/bapXcms'));
     $crop = file_get_contents(app_path('cli/blog-image.php'));
     foreach (['type', 'summary', 'order', 'og_image', 'image_alt', 'source_url', 'template'] as $field) {
         assertTrue(str_contains($service, "'{$field}'"), "Blog service should persist {$field}");

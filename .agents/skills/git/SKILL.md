@@ -11,14 +11,14 @@ GitHub CLI (`gh`) on the hosted server.
 ## Boundaries
 
 - Use plain `git` for status, diff, branches, commits, fetch, pull, and push.
-- Use `bapXphp` only for project-owned operations such as tests, maps, indexes,
+- Use `bapXcms` only for project-owned operations such as tests, maps, indexes,
   schema, database access, hooks, and AI configuration.
 - In Codex, use the connected GitHub plugin to manage issues and PRs, verify
   checks, and merge. If the plugin is unavailable, record the blocked GitHub
   operations and continue local Git work.
 - Other agents running on a local machine use GitHub CLI (`gh`) for issues, PRs,
   checks, and merges.
-- Never wrap ordinary Git commands in `bapXphp`.
+- Never wrap ordinary Git commands in `bapXcms`.
 - Never force-push or discard unrelated or divergent work.
 - Use the owner's single canonical local checkout when requested. Read issue/PR
   history (including closed issues, reviews and acceptance evidence) before new
@@ -99,7 +99,7 @@ uncertain. Follow AGENTS.md continuous verified delivery.
 
 ## Testing
 
-`./bapXphp ci` before pushing. Branch, push, open a PR; never commit straight to `main`.
+`./bapXcms ci` before pushing. Branch, push, open a PR; never commit straight to `main`.
 
 ## Keeping this skill current
 

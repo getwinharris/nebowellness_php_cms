@@ -13,12 +13,12 @@ hosted MySQL data.
 ## Workflow
 
 ```bash
-./bapXphp map
-./bapXphp schema list
+./bapXcms map
+./bapXcms schema list
 git switch -c fix/issue-number-description
 # make the smallest source-grounded change
-./bapXphp update
-./bapXphp ci
+./bapXcms update
+./bapXcms ci
 git diff --check
 ```
 

@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-# Redirector — resolves symlink, delegates to cli/bapXphp
-SELF="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
-exec "$SELF/cli/bapXphp" "$@"

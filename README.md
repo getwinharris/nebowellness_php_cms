@@ -1,14 +1,24 @@
 ---
-title: Nebo Wellness Web Application
-description: PHP/MySQL wellness clinic platform with consultation booking, blog, customer accounts, and admin panel for shared hosting.
+title: bapXcms — service-first CMS and CRM
+description: Independent PHP/MySQL service-first white-label CMS and CRM, with Nebo Wellness as the reference deployment.
 category: root
 ---
 
-# Nebo Wellness
+# bapXcms — Nebo Wellness reference deployment
 
 PHP 8.2 web application for small PHP hosting with a `public_html` deployment. It uses
 server-rendered PHP templates, hosted MySQL as the primary runtime store, Markdown
 blog posts, and file-based images. There is no SPA or frontend build step.
+
+bapXcms is independently maintained for service-led businesses. Its target is
+an owner-configurable CMS, CRM and extensible operational/ERP system with
+AI-assisted editing through typed, approved operations. The separate
+[bapXphpAiBackend](https://github.com/bapxmediahub/bapXphpAiBackend) is a
+commerce-led CMS/CRM; neither repository is an upstream for the other.
+Retail shop code inherited by this project is being retired, not expanded.
+Service bookings, verified service payments and receipts remain in scope.
+See the [product boundary and comparison](docs/product-boundary.md).
+
 
 ## Start here
 
@@ -20,7 +30,7 @@ blog posts, and file-based images. There is no SPA or frontend build step.
 | Where is a blog or image? | `.agents/index.yaml` narrow concept/filename search | returned Markdown/image path |
 | What is the database shape? | `storage/schema/collections.php` | owning service/admin form |
 | What is a live editable value? | hosted MySQL through `DatabaseService` | lowercase `/remotedb` fallback |
-| Which REA skill should I use? | .agents/REA/README.md | ./bapXphp rea skills and native adaptation routing |
+| Which REA skill should I use? | .agents/REA/README.md | ./bapXcms rea skills and native adaptation routing |
 | What remains from REA research? | docs/research/rea/progress.md | canonical register, pinned evidence and acceptance tests |
 | What controls UI? | `Design.md` | `assets/css/band.css` and PHP view |
 
@@ -29,8 +39,8 @@ query, open the returned original source, and stop when the source answers the q
 
 ```bash
 sed -n '1,/^concepts:$/p' .agents/index.yaml
-rg -n -B4 -A14 'path: "/shop"' .agents/index.yaml
-rg -n -B4 -A14 'id: "schema:products"' .agents/index.yaml
+rg -n -B4 -A14 'path: "/campaigns"' .agents/index.yaml
+rg -n -B4 -A14 'id: "schema:campaign_pages"' .agents/index.yaml
 rg -n -B4 -A12 'filename: "<image-name>"' .agents/index.yaml
 ```
 
@@ -39,10 +49,10 @@ and the [release guide](docs/releases.md) and [changelog](docs/changelog.md) for
 
 ## Source-of-truth boundaries
 
-- Admin-editable products, categories, consultants, campaign pages, orders, users, settings,
+- Admin-editable services, consultants, campaign pages, enquiries, users, settings,
   secrets, and related records live only in hosted MySQL.
 - Local development uses direct hosted MySQL or configured `<APP_URL>/remotedb`; it
-  must not create a local product/catalogue copy.
+  must not create a local customer-data or service catalogue copy.
 - Blog bodies live in `content/blog/posts/*.md` with YAML frontmatter.
 - Image binaries live under `assets/images/` or the writable upload location.
 - `storage/schema/collections.php` is the canonical database schema.
@@ -80,10 +90,10 @@ Use `APP_NAME` and `APP_URL` for installation identity and Admin → Settings fo
 and store behaviour.
 
 ```bash
-./bapXphp help
-./bapXphp map
-./bapXphp schema list
-./bapXphp serve
+./bapXcms help
+./bapXcms map
+./bapXcms schema list
+./bapXcms serve
 ```
 
 The development server runs at `http://127.0.0.1:6020`. Browser-test credentials and
@@ -92,21 +102,21 @@ the fixed customer test ID are in ignored `.env.test-user`; never print or commi
 ## Verified project commands
 
 ```bash
-./bapXphp route:list             # registered routes and owners
-./bapXphp skills                 # tool-compatible project skills
-./bapXphp db status              # direct/remote database readiness
-./bapXphp db query products --limit 5
-./bapXphp read blog [slug]
-./bapXphp write blog [slug]
-./bapXphp blog:image <slug> <image> [options]
-./bapXphp dev:user --dry-run
-./bapXphp logs --limit 20
-./bapXphp rea status             # computed component progress
-./bapXphp update                 # regenerate REA progress, maps and indexes
-./bapXphp ci                     # lint, tests, drift validation, smoke
+./bapXcms route:list             # registered routes and owners
+./bapXcms skills                 # tool-compatible project skills
+./bapXcms db status              # direct/remote database readiness
+./bapXcms db query products --limit 5
+./bapXcms read blog [slug]
+./bapXcms write blog [slug]
+./bapXcms blog:image <slug> <image> [options]
+./bapXcms dev:user --dry-run
+./bapXcms logs --limit 20
+./bapXcms rea status             # computed component progress
+./bapXcms update                 # regenerate REA progress, maps and indexes
+./bapXcms ci                     # lint, tests, drift validation, smoke
 ```
 
-There is no `bapXphp tui` or agent-orchestration CLI. Web QA uses the active coding
+There is no `bapXcms tui` or agent-orchestration CLI. Web QA uses the active coding
 client's browser capability and is not part of the application runtime.
 
 ## Request architecture
@@ -130,8 +140,8 @@ Run the smallest relevant check while working, then the full suite before publis
 
 ```bash
 php -l path/to/changed.php
-./bapXphp update
-./bapXphp ci
+./bapXcms update
+./bapXcms ci
 ```
 
 For UI changes, test the actual route at desktop and 375px mobile. Terminal smoke tests

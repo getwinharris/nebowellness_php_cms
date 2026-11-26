@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PHP polyglot guard — Issue #201. Allows `php cli/bapXphp <cmd>` to work.
+# PHP polyglot guard — Issue #201. Allows `php cli/bapXcms <cmd>` to work.
 : <<'BAP_PHP_GUARD'
 <?php
 if (PHP_SAPI === 'cli') {
@@ -15,142 +15,142 @@ BAP_PHP_GUARD
 set -euo pipefail
 
 # ═══════════════════════════════════════════════════════════════
-# bapXphp — Project management CLI for the PHP/JSON monorepo
+# bapXcms — Project management CLI for the PHP/JSON monorepo
 # ═══════════════════════════════════════════════════════════════
-# Usage: bapXphp <command> [args...]
+# Usage: bapXcms <command> [args...]
 #
 # ── Orientation ─────────────────────────────────────────────────
-#   bapXphp help                    — this message
-#   bapXphp understand              — full project overview (schema, commits, issues, PRs, skills, AGENTS.md)
-#   bapXphp context                 — quick session orientation (branch, status, last test result)
+#   bapXcms help                    — this message
+#   bapXcms understand              — full project overview (schema, commits, issues, PRs, skills, AGENTS.md)
+#   bapXcms context                 — quick session orientation (branch, status, last test result)
 #
 # ── Development ─────────────────────────────────────────────────
-#   bapXphp test                    — run test suite (php tests/run.php)
-#   bapXphp lint [path]             — PHP syntax check (php -l)
-#   bapXphp ci                      — non-mutating validation: lint → test → maps → smoke
-#   bapXphp check                   — alias for bapXphp ci
-#   bapXphp update                  — regenerate REA progress, maps and indexes
-#   bapXphp rea status|update|check   — source-backed capability register
-#   bapXphp rea skills|skills-check  — list or verify pinned native REA skill library
-#   bapXphp rea skill <native-id>    — read native reconstruction guidance
-#   bapXphp release:identity        — observe local deployed-source scope and Git revision
-#   bapXphp mcp:grants list|issue LABEL DAYS|revoke ID — delegate published read access
-#   bapXphp release:verify <origin> — compare deployed source bytes and revision
-#   bapXphp serve                   — start dev server on 127.0.0.1:6020
-#   bapXphp smoke                   — run local smoke tests
-#   bapXphp dev:user [--dry-run]   — create/update the fixed remote-DB customer used for browser testing
+#   bapXcms test                    — run test suite (php tests/run.php)
+#   bapXcms lint [path]             — PHP syntax check (php -l)
+#   bapXcms ci                      — non-mutating validation: lint → test → maps → smoke
+#   bapXcms check                   — alias for bapXcms ci
+#   bapXcms update                  — regenerate REA progress, maps and indexes
+#   bapXcms rea status|update|check   — source-backed capability register
+#   bapXcms rea skills|skills-check  — list or verify pinned native REA skill library
+#   bapXcms rea skill <native-id>    — read native reconstruction guidance
+#   bapXcms release:identity        — observe local deployed-source scope and Git revision
+#   bapXcms mcp:grants list|issue LABEL DAYS|revoke ID — delegate published read access
+#   bapXcms release:verify <origin> — compare deployed source bytes and revision
+#   bapXcms serve                   — start dev server on 127.0.0.1:6020
+#   bapXcms smoke                   — run local smoke tests
+#   bapXcms dev:user [--dry-run]   — create/update the fixed remote-DB customer used for browser testing
 #
 # ── Project Map ─────────────────────────────────────────────────
-#   bapXphp map                     — regenerate + view .agents/map.mmd (deterministic code graph with edges + gaps)
-#   bapXphp map:gen                 — regenerate systematic-map.mmd + .agents/map.mmd from source (AST/regex parsed)
-#   bapXphp map:val                 — validate both maps are up-to-date
+#   bapXcms map                     — regenerate + view .agents/map.mmd (deterministic code graph with edges + gaps)
+#   bapXcms map:gen                 — regenerate systematic-map.mmd + .agents/map.mmd from source (AST/regex parsed)
+#   bapXcms map:val                 — validate both maps are up-to-date
 #
 # ── Schema (collections.php) ───────────────────────────────────
-#   bapXphp schema list             — list all collections with field counts
-#   bapXphp schema show <col>       — show full collection schema (fields, types, constraints)
-#   bapXphp add <field>:<type> [opts] under <collection>
+#   bapXcms schema list             — list all collections with field counts
+#   bapXcms schema show <col>       — show full collection schema (fields, types, constraints)
+#   bapXcms add <field>:<type> [opts] under <collection>
 #                                   — add a field to collection schema
 #                                     opts: required:true values:a,b,c items:string
-#   bapXphp remove <field> under <collection>
+#   bapXcms remove <field> under <collection>
 #                                   — remove a field from collection schema
 #
 # ── Tool Management ─────────────────────────────────────────────
-#   bapXphp tool list               — list all PHP tools in cli/
-#   bapXphp tool add <file>         — create a new PHP tool with nano editor
+#   bapXcms tool list               — list all PHP tools in cli/
+#   bapXcms tool add <file>         — create a new PHP tool with nano editor
 #
 # ── Skills & Routes ─────────────────────────────────────────────
-#   bapXphp skills                  — list available agent skills with descriptions
-#   bapXphp route:list              — list all registered routes with controllers
+#   bapXcms skills                  — list available agent skills with descriptions
+#   bapXcms route:list              — list all registered routes with controllers
 #
 # ── Repository Support ──────────────────────────────────────────
-#   bapXphp status                  — repository status + recent commits
-#   bapXphp logs [--limit N]        — read recent live audit events from remote MySQL
-#   bapXphp logs --local            — tail ignored local development logs
-#   bapXphp artifacts:clean [--dry-run]
+#   bapXcms status                  — repository status + recent commits
+#   bapXcms logs [--limit N]        — read recent live audit events from remote MySQL
+#   bapXcms logs --local            — tail ignored local development logs
+#   bapXcms artifacts:clean [--dry-run]
 #                                   — untrack and ignore runtime/test artifacts
-#   bapXphp hooks install           — install .agents/hooks as this checkout's Git hooks
-#   bapXphp hooks status            — show configured Git hooks path
+#   bapXcms hooks install           — install .agents/hooks as this checkout's Git hooks
+#   bapXcms hooks status            — show configured Git hooks path
 #
 # ── Mail & Images ───────────────────────────────────────────────
-#   bapXphp mail:process            — process pending mail queue
-#   bapXphp images:optimize         — convert/resize images to WebP
-#   bapXphp product:images <source> [--dry-run|--assets-only|--database-only]
+#   bapXcms mail:process            — process pending mail queue
+#   bapXcms images:optimize         — convert/resize images to WebP
+#   bapXcms product:images <source> [--dry-run|--assets-only|--database-only]
 #                                   — import ordered product galleries from a ZIP/folder
-#   bapXphp blog:image <slug> <image> [--source-url /path] [--alt text] [--dry-run]
+#   bapXcms blog:image <slug> <image> [--source-url /path] [--alt text] [--dry-run]
 #                                   — crop a screenshot/image and attach it to a blog post
 #
 # ── Database (MySQL direct) ──────────────────────────────────────
-#   bapXphp db tables               — list all MySQL tables
-#   bapXphp db describe <table>     — describe MySQL table columns
-#   bapXphp db list                 — list all schema collections (from collections.php)
-#   bapXphp db show <collection>    — show schema collection fields & types
-#   bapXphp db query <collection> [--where "field=value"] [--limit N] [--id id] [--owner email]
+#   bapXcms db tables               — list all MySQL tables
+#   bapXcms db describe <table>     — describe MySQL table columns
+#   bapXcms db list                 — list all schema collections (from collections.php)
+#   bapXcms db show <collection>    — show schema collection fields & types
+#   bapXcms db query <collection> [--where "field=value"] [--limit N] [--id id] [--owner email]
 #                                   — query records from MySQL
-#   bapXphp db find <collection> <id>
+#   bapXcms db find <collection> <id>
 #                                   — shorthand: find record by ID
-#   bapXphp db status               — verify DB paths and integration readiness
-#   bapXphp db raw <sql>            — execute raw SQL on MySQL
-#   bapXphp db init                 — create MySQL tables from collections.php schema
-#   bapXphp db sync                 — compatibility alias for db init
+#   bapXcms db status               — verify DB paths and integration readiness
+#   bapXcms db raw <sql>            — execute raw SQL on MySQL
+#   bapXcms db init                 — create MySQL tables from collections.php schema
+#   bapXcms db sync                 — compatibility alias for db init
 #
 # ── AI Configuration ─────────────────────────────────────────────
-#   bapXphp ai:config               — show AI model config from MySQL secrets
-#   bapXphp ai:probe [text|tools] [model] — verify exact response or native diagnostic tool round trip
+#   bapXcms ai:config               — show AI model config from MySQL secrets
+#   bapXcms ai:probe [text|tools] [model] — verify exact response or native diagnostic tool round trip
 # ── Blog & Docs ──────────────────────────────────────────────────
-#       bapXphp docsmap                 — regenerate docs/map.mmd (content: skills, docs, blog, admin, agents)
-#       bapXphp codemap                 — regenerate .agents/map.mmd (developer-only, code dependency graph with edges + gaps)
-#       bapXphp index                   — generate .agents/index.yaml knowledge index (concepts + relationships)
+#       bapXcms docsmap                 — regenerate docs/map.mmd (content: skills, docs, blog, admin, agents)
+#       bapXcms codemap                 — regenerate .agents/map.mmd (developer-only, code dependency graph with edges + gaps)
+#       bapXcms index                   — generate .agents/index.yaml knowledge index (concepts + relationships)
 #
 # ── Issue tracking ─────────────────────────────────────────────
 #   GitHub issues are the sole backlog; use the connected GitHub tool or local gh.
 #
 # ── Question ─────────────────────────────────────────────────────
-#   bapXphp question <text>        — ask the user a question
+#   bapXcms question <text>        — ask the user a question
 #
 # ── Session Memory ───────────────────────────────────────────────
-#   bapXphp memory init            — initialize session.json in .tmp/
+#   bapXcms memory init            — initialize session.json in .tmp/
 #
 # ── Context (extract + search) ────────────────────────────────────
-#   bapXphp context-extract        — extract last 48h conversation + commits to .tmp/context-extract.xml
-#   bapXphp context-extract --hours 72
+#   bapXcms context-extract        — extract last 48h conversation + commits to .tmp/context-extract.xml
+#   bapXcms context-extract --hours 72
 #                                  — custom window (e.g., 72 hours)
-#   bapXphp context-extract --output /path/file.xml
+#   bapXcms context-extract --output /path/file.xml
 #                                  — custom output path (default: .tmp/context-extract.xml)
-#   bapXphp context <query>        — search extracted context for matching messages
-#   bapXphp context "bapXphp opencode compact"
+#   bapXcms context <query>        — search extracted context for matching messages
+#   bapXcms context "bapXcms opencode compact"
 #                                  — find marker commands in conversation history
-#   bapXphp memory add <role> <content> — append entry
-#   bapXphp memory list            — show all entries
-#   bapXphp memory search <text>   — search by content
-#   bapXphp memory last [n]        — show last n entries
-#   bapXphp memory export          — dump full JSON
-#   bapXphp memory info            — session stats
-#   bapXphp memory clear           — erase session memory
+#   bapXcms memory add <role> <content> — append entry
+#   bapXcms memory list            — show all entries
+#   bapXcms memory search <text>   — search by content
+#   bapXcms memory last [n]        — show last n entries
+#   bapXcms memory export          — dump full JSON
+#   bapXcms memory info            — session stats
+#   bapXcms memory clear           — erase session memory
 #
 # ── Skill ────────────────────────────────────────────────────────
-#   bapXphp skill <name>           — load a skill SKILL.md
-#   bapXphp skills                 — list available skills
+#   bapXcms skill <name>           — load a skill SKILL.md
+#   bapXcms skills                 — list available skills
 #
 # ── Read / Write Content ────────────────────────────────────────
-#   bapXphp read blog [slug]        — read blog post (list all if no slug)
-#   bapXphp write blog [slug]       — create/edit blog post with auto-slug/date/URL
-#   bapXphp read docs [slug]        — read customer guide (list all if no slug)
-#   bapXphp write docs [slug]       — create/edit customer guide
-#   bapXphp read product [slug]     — read product (list all if no slug)
-#   bapXphp write product [slug]    — create/edit product interactively
+#   bapXcms read blog [slug]        — read blog post (list all if no slug)
+#   bapXcms write blog [slug]       — create/edit blog post with auto-slug/date/URL
+#   bapXcms read docs [slug]        — read customer guide (list all if no slug)
+#   bapXcms write docs [slug]       — create/edit customer guide
+#   bapXcms read product [slug]     — read product (list all if no slug)
+#   bapXcms write product [slug]    — create/edit product interactively
 #
 # ── Generic File Operations (no direct shell/edit/write) ─────────
-#   bapXphp read file <path>        — read arbitrary file with line numbers
-#   bapXphp write file <path>       — write/create arbitrary file (reads stdin)
-#   bapXphp edit <path> <search> <replace>
+#   bapXcms read file <path>        — read arbitrary file with line numbers
+#   bapXcms write file <path>       — write/create arbitrary file (reads stdin)
+#   bapXcms edit <path> <search> <replace>
 #                                   — search/replace in file (dry-run with --preview)
-#   bapXphp grep <pattern> [path]   — search file contents (ripgrep style)
-#   bapXphp find <glob>             — find files by glob pattern
-#   bapXphp run <command...>        — execute any shell command through the CLI
+#   bapXcms grep <pattern> [path]   — search file contents (ripgrep style)
+#   bapXcms find <glob>             — find files by glob pattern
+#   bapXcms run <command...>        — execute any shell command through the CLI
 #
 # ── Backward compatibility aliases ──────────────────────────────
-#   bapXphp mysql:query   → bapXphp db raw
-#   bapXphp mysql:import  → bapXphp db sync
+#   bapXcms mysql:query   → bapXcms db raw
+#   bapXcms mysql:import  → bapXcms db sync
 # ═══════════════════════════════════════════════════════════════
 
 BAPX_SRC="${BASH_SOURCE[0]}"
@@ -228,7 +228,7 @@ cmd_dev_user() {
     umask 077
     printf 'BAPX_TEST_USER_PASSWORD=%s\n' "$password" > "$ROOT/.env.test-user"
   fi
-  [ -n "$password" ] || die "Set BAPX_TEST_USER_PASSWORD in ignored operator config, or run bapXphp dev:user --generate."
+  [ -n "$password" ] || die "Set BAPX_TEST_USER_PASSWORD in ignored operator config, or run bapXcms dev:user --generate."
 
   local record
   record=$(php -r '
@@ -254,7 +254,7 @@ cmd_help() {
     capturing { sub(/^# ?/, ""); print }
   ' "${BASH_SOURCE[0]}"
   echo ""
-  echo "Run 'bapXphp <command>' for command-specific help."
+  echo "Run 'bapXcms <command>' for command-specific help."
 }
 
 # ── understand ─────────────────────────────────────────────────
@@ -269,7 +269,7 @@ cmd_understand() {
 
   echo ""
   printf "${B}${C}%s${N}${B}%s${N}\n" "╔══════════════════════════════════════════╗" ""
-  printf "${B}${C}%s${N}${B}%s${N}\n" "║" "          bapXphp understand" ""
+  printf "${B}${C}%s${N}${B}%s${N}\n" "║" "          bapXcms understand" ""
   printf "${B}${C}%s${N}${B}%s${N}\n" "╚══════════════════════════════════════════╝" ""
   echo ""
 
@@ -336,21 +336,21 @@ cmd_understand() {
 
   # ── Quick Reference ──
   printf "${B}── Quick Reference ─────────────────────────${N}\n"
-  printf "  ${C}bapXphp test${N}        php tests/run.php\n"
-  printf "  ${C}bapXphp serve${N}       php -S 127.0.0.1:6020 index.php\n"
-  printf "  ${C}bapXphp ci${N}          lint → test → map validation → docs-map validation → smoke\n"
-  printf "  ${C}bapXphp check${N}       alias for ci\n"
-  printf "  ${C}bapXphp update${N}      regenerate REA progress, maps and indexes\n"
-  printf "  bapXphp rea status|update|check   inspect or validate research progress\n"
-  printf "  bapXphp rea skills|skills-check   list or verify native REA skills\n"
-  printf "  bapXphp rea skill <native-id>     read a native reconstruction skill\n"
-  printf "  bapXphp release:identity        inspect local source identity\n"
-  printf "  bapXphp release:verify <origin> compare deployed source identity\n"
-  printf "  ${C}bapXphp db query <col>${N}  --where 'field=val' --limit 10\n"
-  printf "  ${C}bapXphp db init${N}     create MySQL tables from schema\n"
-  printf "  ${C}bapXphp db sync${N}     compatibility alias for db init\n"
-  printf "  ${C}bapXphp understand${N}  Full project overview\n"
-  printf "  ${C}bapXphp help${N}        All commands\n"
+  printf "  ${C}bapXcms test${N}        php tests/run.php\n"
+  printf "  ${C}bapXcms serve${N}       php -S 127.0.0.1:6020 index.php\n"
+  printf "  ${C}bapXcms ci${N}          lint → test → map validation → docs-map validation → smoke\n"
+  printf "  ${C}bapXcms check${N}       alias for ci\n"
+  printf "  ${C}bapXcms update${N}      regenerate REA progress, maps and indexes\n"
+  printf "  bapXcms rea status|update|check   inspect or validate research progress\n"
+  printf "  bapXcms rea skills|skills-check   list or verify native REA skills\n"
+  printf "  bapXcms rea skill <native-id>     read a native reconstruction skill\n"
+  printf "  bapXcms release:identity        inspect local source identity\n"
+  printf "  bapXcms release:verify <origin> compare deployed source identity\n"
+  printf "  ${C}bapXcms db query <col>${N}  --where 'field=val' --limit 10\n"
+  printf "  ${C}bapXcms db init${N}     create MySQL tables from schema\n"
+  printf "  ${C}bapXcms db sync${N}     compatibility alias for db init\n"
+  printf "  ${C}bapXcms understand${N}  Full project overview\n"
+  printf "  ${C}bapXcms help${N}        All commands\n"
   echo ""
 }
 
@@ -360,12 +360,12 @@ cmd_context() {
   echo ""
   local branch
   branch=$(git -C "$ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')
-  printf "${B}${C}── bapXphp context ══ ${branch} ──${N}\n"
+  printf "${B}${C}── bapXcms context ══ ${branch} ──${N}\n"
   git -C "$ROOT" log --oneline -3 2>/dev/null | sed 's/^/  /' || true
   local dirty
   dirty=$(git -C "$ROOT" status --short 2>/dev/null | wc -l | tr -d ' ') || true
   echo "  Status: ${dirty:-0} pending"
-  echo "  bapXphp understand for full overview | bapXphp check for full validation"
+  echo "  bapXcms understand for full overview | bapXcms check for full validation"
   echo ""
 }
 
@@ -394,7 +394,7 @@ cmd_schema_list() {
 
 cmd_schema_show() {
   local collection="$1"
-  [ -z "$collection" ] && die "Usage: bapXphp schema show <collection>"
+  [ -z "$collection" ] && die "Usage: bapXcms schema show <collection>"
   [ -f "$SCHEMA_FILE" ] || die "Schema file not found: $SCHEMA_FILE"
   php -r "
     \$s = require '$SCHEMA_FILE';
@@ -421,7 +421,7 @@ cmd_add() {
   local field_spec="" collection=""
   local args=()
 
-  # Parse: bapXphp add <field>:<type> [opts] under <collection>
+  # Parse: bapXcms add <field>:<type> [opts] under <collection>
   while [ $# -gt 0 ]; do
     case "$1" in
       under) shift; collection="$1" ;;
@@ -430,8 +430,8 @@ cmd_add() {
     shift
   done
 
-  [ -z "$collection" ] && die "Usage: bapXphp add <field>:<type> [modifiers] under <collection>"
-  [ ${#args[@]} -eq 0 ] && die "Missing field spec. Usage: bapXphp add <field>:<type> under <collection>"
+  [ -z "$collection" ] && die "Usage: bapXcms add <field>:<type> [modifiers] under <collection>"
+  [ ${#args[@]} -eq 0 ] && die "Missing field spec. Usage: bapXcms add <field>:<type> under <collection>"
 
   field_spec="${args[0]}"
   local field_name="${field_spec%%:*}"
@@ -485,8 +485,8 @@ cmd_remove() {
     shift
   done
 
-  [ -z "$collection" ] && die "Usage: bapXphp remove <field> under <collection>"
-  [ ${#args[@]} -eq 0 ] && die "Missing field name. Usage: bapXphp remove <field> under <collection>"
+  [ -z "$collection" ] && die "Usage: bapXcms remove <field> under <collection>"
+  [ ${#args[@]} -eq 0 ] && die "Missing field name. Usage: bapXcms remove <field> under <collection>"
 
   field_name="${args[0]}"
   [ -f "$SCHEMA_FILE" ] || die "Schema file not found: $SCHEMA_FILE"
@@ -539,12 +539,12 @@ cmd_tool_list() {
     desc=$(head -3 "$f" | sed -n 's/.*\* *//p' | head -1) || true
     printf "  %s  %s\n" "$name" "$desc"
   done
-  [ -x "$ROOT/bapXphp" ] && printf "  %s  %s\n" "bapXphp" "Project management CLI"
+  [ -x "$ROOT/bapXcms" ] && printf "  %s  %s\n" "bapXcms" "Project management CLI"
 }
 
 cmd_tool_add() {
   local filename="$1"
-  [ -z "$filename" ] && die "Usage: bapXphp tool add <filename.php>"
+  [ -z "$filename" ] && die "Usage: bapXcms tool add <filename.php>"
 
   # Ensure .php extension
   [[ "$filename" == *.php ]] || filename="${filename}.php"
@@ -631,13 +631,13 @@ cmd_ci() {
   php "$ROOT/cli/generate-project-index.php" "$ROOT" "$ROOT/.project-index.tmp.json" >/dev/null 2>&1
   if [ -f "$ROOT/docs/project-index.json" ]; then
     if ! diff -q "$ROOT/docs/project-index.json" "$ROOT/.project-index.tmp.json" >/dev/null 2>&1; then
-      warn "PROJECT INDEX STALE. Run bapXphp update and commit docs/project-index.json."
+      warn "PROJECT INDEX STALE. Run bapXcms update and commit docs/project-index.json."
       failed=1
     else
       ok "Project index is current"
     fi
   else
-    warn "PROJECT INDEX MISSING. Run bapXphp update."
+    warn "PROJECT INDEX MISSING. Run bapXcms update."
     failed=1
   fi
   rm -f "$ROOT/.project-index.tmp.json"
@@ -714,7 +714,7 @@ validate_agent_artifact() {
     return 1
   fi
   if [ ! -f "$committed" ] || ! diff -q "$committed" "$scratch" >/dev/null 2>&1; then
-    warn "$label missing or stale. Run bapXphp update and commit .agents/$artifact."
+    warn "$label missing or stale. Run bapXcms update and commit .agents/$artifact."
     rm -f "$scratch"
     return 1
   fi
@@ -785,7 +785,7 @@ cmd_logs() {
     case "$1" in
       --local) mode="local" ;;
       --limit) shift; limit="${1:-20}" ;;
-      *) die "Usage: bapXphp logs [--limit N|--local]" ;;
+      *) die "Usage: bapXcms logs [--limit N|--local]" ;;
     esac
     shift
   done
@@ -815,7 +815,7 @@ cmd_logs() {
 cmd_artifacts_clean() {
   local dry_run=false
   [ "${1:-}" = "--dry-run" ] && dry_run=true
-  [ $# -gt 1 ] && die "Usage: bapXphp artifacts:clean [--dry-run]"
+  [ $# -gt 1 ] && die "Usage: bapXcms artifacts:clean [--dry-run]"
 
   local tracked
   tracked=$(git -C "$ROOT" ls-files 'server.log' 'storage/logs/**')
@@ -846,7 +846,7 @@ cmd_hooks() {
       configured=$(git -C "$ROOT" config --get core.hooksPath || true)
       echo "Git hooks path: ${configured:-not installed}"
       ;;
-    *) die "Usage: bapXphp hooks <install|status>" ;;
+    *) die "Usage: bapXcms hooks <install|status>" ;;
   esac
 }
 
@@ -882,7 +882,7 @@ cmd_images_optimize() {
 # ═══════════════════════════════════════════════════════════════
 
 # ── db <command> ───────────────────────────────────────────────
-# Entry point: bapXphp db <subcommand> [args]
+# Entry point: bapXcms db <subcommand> [args]
 # Subcommands: tables, describe, list, show, query, find, raw, init, sync
 cmd_db() {
   local action="${1:-help}"
@@ -907,20 +907,20 @@ cmd_db() {
 cmd_db_help() {
   echo "Database commands — query MySQL directly, or via /remotedb web proxy when local MySQL is unavailable."
   echo ""
-  echo "  bapXphp db tables              — list MySQL tables"
-  echo "  bapXphp db describe <table>    — describe MySQL table columns"
-  echo "  bapXphp db list                — list all collections from schema"
-  echo "  bapXphp db show <collection>   — show schema collection fields"
-  echo "  bapXphp db query <collection> [--where 'f=v'] [--limit N] [--id id]"
-  echo "  bapXphp db find <collection> <id>  — find record by ID"
-  echo "  bapXphp db raw <sql>           — execute raw SQL via remote endpoint"
-  echo "  bapXphp db upsert <collection> <json> — upsert record via remote endpoint"
-  echo "  bapXphp db delete <collection> <id>   — delete record via remote endpoint"
-  echo "  bapXphp db status              — verify DB paths and integration readiness"
-  echo "  bapXphp db pma <sql>           — execute SQL via phpMyAdmin web proxy"
-  echo "  bapXphp db hosted <sql>        — execute SQL on hosted MySQL through SSH"
-  echo "  bapXphp db init                — create MySQL tables from collections.php"
-  echo "  bapXphp db sync                — compatibility alias for db init"
+  echo "  bapXcms db tables              — list MySQL tables"
+  echo "  bapXcms db describe <table>    — describe MySQL table columns"
+  echo "  bapXcms db list                — list all collections from schema"
+  echo "  bapXcms db show <collection>   — show schema collection fields"
+  echo "  bapXcms db query <collection> [--where 'f=v'] [--limit N] [--id id]"
+  echo "  bapXcms db find <collection> <id>  — find record by ID"
+  echo "  bapXcms db raw <sql>           — execute raw SQL via remote endpoint"
+  echo "  bapXcms db upsert <collection> <json> — upsert record via remote endpoint"
+  echo "  bapXcms db delete <collection> <id>   — delete record via remote endpoint"
+  echo "  bapXcms db status              — verify DB paths and integration readiness"
+  echo "  bapXcms db pma <sql>           — execute SQL via phpMyAdmin web proxy"
+  echo "  bapXcms db hosted <sql>        — execute SQL on hosted MySQL through SSH"
+  echo "  bapXcms db init                — create MySQL tables from collections.php"
+  echo "  bapXcms db sync                — compatibility alias for db init"
   echo ""
   echo "Config env vars: BAPX_MYSQL_HOST, BAPX_MYSQL_DB, BAPX_MYSQL_USER, BAPX_MYSQL_PASS"
   echo "Remote endpoint: $REMOTE_DB_URL"
@@ -953,7 +953,7 @@ cmd_db_remote_status() {
 
 cmd_db_upsert() {
   local collection="$1" record="$2"
-  [ -n "$collection" ] && [ -n "$record" ] || die "Usage: bapXphp db upsert <collection> '<json record>'"
+  [ -n "$collection" ] && [ -n "$record" ] || die "Usage: bapXcms db upsert <collection> '<json record>'"
   php -r 'json_decode($argv[1], true, 512, JSON_THROW_ON_ERROR);' "$record" >/dev/null 2>&1 || die "Record must be valid JSON."
   local payload
   payload=$(php -r 'echo json_encode(["action"=>"upsert","collection"=>$argv[1],"record"=>json_decode($argv[2],true,512,JSON_THROW_ON_ERROR)]);' "$collection" "$record") || die "Unable to encode record."
@@ -969,7 +969,7 @@ cmd_db_upsert() {
 
 cmd_db_delete() {
   local collection="$1" id="$2"
-  [ -n "$collection" ] && [ -n "$id" ] || die "Usage: bapXphp db delete <collection> <id>"
+  [ -n "$collection" ] && [ -n "$id" ] || die "Usage: bapXcms db delete <collection> <id>"
   local payload
   payload=$(php -r 'echo json_encode(["action"=>"delete","collection"=>$argv[1],"id"=>$argv[2]]);' "$collection" "$id")
   remote_db_curl -sS --max-time 15 -X POST \
@@ -999,7 +999,7 @@ cmd_db_tables() {
 # Shows column names, types, nullability for a given table.
 cmd_db_describe() {
   local table="$1"
-  [ -z "$table" ] && die "Usage: bapXphp db describe <table>"
+  [ -z "$table" ] && die "Usage: bapXcms db describe <table>"
   cmd_db_raw "DESCRIBE \`$table\`" 2>/dev/null || {
     warn "MySQL not reachable — showing schema instead:"
     cmd_schema_show "$table"
@@ -1045,7 +1045,7 @@ cmd_db_query() {
   done
 
   collection="${args[0]:-}"
-  [ -z "$collection" ] && die "Usage: bapXphp db query <collection> [--where 'f=v'] [--id id] [--owner email] [--limit N]"
+  [ -z "$collection" ] && die "Usage: bapXcms db query <collection> [--where 'f=v'] [--id id] [--owner email] [--limit N]"
 
   # ── Query via remote DB endpoint ──
   local sql="SELECT * FROM $collection"
@@ -1082,11 +1082,11 @@ cmd_db_query() {
 }
 
 # ── db find <collection> <id> ───────────────────────────────────
-# Shorthand for bapXphp db query <collection> --id <id>
+# Shorthand for bapXcms db query <collection> --id <id>
 cmd_db_find() {
   local collection="$1" id="$2"
-  [ -z "$collection" ] && die "Usage: bapXphp db find <collection> <id>"
-  [ -z "$id" ] && die "Usage: bapXphp db find <collection> <id>"
+  [ -z "$collection" ] && die "Usage: bapXcms db find <collection> <id>"
+  [ -z "$id" ] && die "Usage: bapXcms db find <collection> <id>"
   cmd_db_query "$collection" --id "$id"
 }
 
@@ -1094,7 +1094,7 @@ cmd_db_find() {
 # POSTs the SQL to the remote DB endpoint and outputs JSON lines.
 cmd_db_raw() {
   local sql="$*"
-  [ -z "$sql" ] && die "Usage: bapXphp db raw \"SELECT ...\""
+  [ -z "$sql" ] && die "Usage: bapXcms db raw \"SELECT ...\""
 
   remote_db_curl -s --max-time 15 -X POST \
     -H "Content-Type: application/json" \
@@ -1119,7 +1119,7 @@ cmd_db_raw() {
 # ── db hosted <sql> — Execute SQL on hosting through SSH ───────
 cmd_db_hosted_sql() {
   local sql="$*"
-  [ -n "$sql" ] || die "Usage: bapXphp db hosted \"SELECT ...\""
+  [ -n "$sql" ] || die "Usage: bapXcms db hosted \"SELECT ...\""
   for name in BAPX_SSH_HOST BAPX_SSH_USER BAPX_SSH_PASS BAPX_MYSQL_DB BAPX_MYSQL_USER BAPX_MYSQL_PASS; do
     [ -n "${!name:-}" ] || die "$name is required in .env.mysql"
   done
@@ -1234,7 +1234,7 @@ cmd_okfgen() {
 cmd_product_images() {
   require_php
   local source="${1:-}"
-  [ -z "$source" ] && die "Usage: bapXphp product:images <archive.zip|folder> [--dry-run|--assets-only|--database-only]"
+  [ -z "$source" ] && die "Usage: bapXcms product:images <archive.zip|folder> [--dry-run|--assets-only|--database-only]"
   shift
   php "$ROOT/cli/import-product-images.php" "$ROOT" "$source" "$@"
 }
@@ -1263,16 +1263,16 @@ cmd_read() {
     product|products)
       php "$ROOT/cli/product-read.php" "$ROOT" "$slug" ;;
     file)
-      [ -z "$slug" ] && die "Usage: bapXphp read file <path>"
+      [ -z "$slug" ] && die "Usage: bapXcms read file <path>"
       [ -f "$slug" ] || die "File not found: $slug"
       echo "── $slug ──"
       awk '{ printf "%d: %s\n", NR, $0 }' "$slug"
       ;;
     *)
-      echo "Usage: bapXphp read blog <slug>"
-      echo "       bapXphp read docs <slug>"
-      echo "       bapXphp read product <slug>"
-      echo "       bapXphp read file <path>"
+      echo "Usage: bapXcms read blog <slug>"
+      echo "       bapXcms read docs <slug>"
+      echo "       bapXcms read product <slug>"
+      echo "       bapXcms read file <path>"
       exit 1 ;;
   esac
 }
@@ -1290,7 +1290,7 @@ cmd_write() {
     product|products)
       php "$ROOT/cli/product-write.php" "$ROOT" "$slug" ;;
     file)
-      [ -z "$slug" ] && die "Usage: bapXphp write file <path>  (provide content via stdin)"
+      [ -z "$slug" ] && die "Usage: bapXcms write file <path>  (provide content via stdin)"
       local tmpdir dir
       tmpdir=$(dirname "$slug")
       [ -d "$tmpdir" ] || mkdir -p "$tmpdir"
@@ -1300,10 +1300,10 @@ cmd_write() {
       ok "Wrote $lines lines to $slug"
       ;;
     *)
-      echo "Usage: bapXphp write blog [slug]     (create new or edit existing)"
-      echo "       bapXphp write docs [slug]     (create new or edit existing)"
-      echo "       bapXphp write product [slug]  (create new or edit existing)"
-      echo "       bapXphp write file <path>     (write file, pipe content via stdin)"
+      echo "Usage: bapXcms write blog [slug]     (create new or edit existing)"
+      echo "       bapXcms write docs [slug]     (create new or edit existing)"
+      echo "       bapXcms write product [slug]  (create new or edit existing)"
+      echo "       bapXcms write file <path>     (write file, pipe content via stdin)"
       exit 1 ;;
   esac
 }
@@ -1321,9 +1321,9 @@ cmd_edit() {
   done
 
   local path="${1:-}" search="${2:-}" replace="${3:-}"
-  [ -z "$path" ] && die "Usage: bapXphp edit <path> <search> <replace>"
+  [ -z "$path" ] && die "Usage: bapXcms edit <path> <search> <replace>"
   [ -f "$path" ] || die "File not found: $path"
-  [ -z "$search" ] && die "Usage: bapXphp edit <path> <search> <replace>"
+  [ -z "$search" ] && die "Usage: bapXcms edit <path> <search> <replace>"
 
   if [ "$preview" = true ]; then
     php -r "
@@ -1361,7 +1361,7 @@ cmd_edit() {
 # ── grep <pattern> [path] — Search file contents ───────────────
 cmd_grep() {
   local pattern="${1:-}" path="${2:-.}"
-  [ -z "$pattern" ] && die "Usage: bapXphp grep <pattern> [path]"
+  [ -z "$pattern" ] && die "Usage: bapXcms grep <pattern> [path]"
 
   if command -v rg >/dev/null 2>&1; then
     rg --line-number --color=auto "$pattern" "$path"
@@ -1375,7 +1375,7 @@ cmd_grep() {
 # ── find <glob> — Find files by glob pattern ───────────────────
 cmd_find() {
   local pattern="${1:-}"
-  [ -z "$pattern" ] && die "Usage: bapXphp find <glob-pattern>"
+  [ -z "$pattern" ] && die "Usage: bapXcms find <glob-pattern>"
 
   # Use php glob for cross-platform consistency
   php -r "
@@ -1399,14 +1399,14 @@ cmd_find() {
 
 # ── run <command...> — Execute any shell command through the CLI ─
 cmd_run() {
-  [ $# -eq 0 ] && die "Usage: bapXphp run <command...>"
+  [ $# -eq 0 ] && die "Usage: bapXcms run <command...>"
   eval "$@"
 }
 
 # ── question — Ask the user a question ───────────────────────────────
 cmd_question() {
   local text="${*:-}"
-  [ -z "$text" ] && die "Usage: bapXphp question <text>"
+  [ -z "$text" ] && die "Usage: bapXcms question <text>"
 
   echo ""
   echo "╔══════════════════════════════════════════╗"
@@ -1476,10 +1476,10 @@ cmd_memory() {
       echo "Session memory initialized at $f" ;;
     add|append)
       local role="${2:-user}" text="${3:-}"
-      shift 2; [ $# -eq 0 ] && die "Usage: bapXphp memory add <role> <content>"
+      shift 2; [ $# -eq 0 ] && die "Usage: bapXcms memory add <role> <content>"
       memory_append "$role" "$*" "" ;;
     list|ls|all)
-      [ -f "$f" ] || die "No session memory. Start with: bapXphp memory init"
+      [ -f "$f" ] || die "No session memory. Start with: bapXcms memory init"
       php -r '
         $data = json_decode(file_get_contents($argv[1]), true);
         $entries = $data["entries"] ?? [];
@@ -1496,7 +1496,7 @@ cmd_memory() {
         }
       ' "$f" ;;
     search|grep)
-      [ -z "$arg" ] && die "Usage: bapXphp memory search <text>"
+      [ -z "$arg" ] && die "Usage: bapXcms memory search <text>"
       [ -f "$f" ] || die "No session memory."
       php -r '
         $q = $argv[1]; $data = json_decode(file_get_contents($argv[2]), true);
@@ -1545,7 +1545,7 @@ cmd_memory() {
       rm -f "$f"
       echo "Session memory cleared." ;;
     *)
-      echo "Usage: bapXphp memory <action> [args]"
+      echo "Usage: bapXcms memory <action> [args]"
       echo ""
       echo "Actions:"
       echo "  init                      Initialize new session memory"
@@ -1852,16 +1852,16 @@ cmd_context_extract() {
 }
 
 # ── context — Search extracted conversation context ──────────────
-# Usage: bapXphp context <query>
+# Usage: bapXcms context <query>
 # Searches .tmp/context-extract.xml for messages matching <query>
 # and shows surrounding context.
 cmd_context() {
-  [ $# -lt 1 ] && err "Usage: bapXphp context <query>" && return 1
+  [ $# -lt 1 ] && err "Usage: bapXcms context <query>" && return 1
 
   local query="$1"
   local file="$ROOT/.tmp/context-extract.xml"
 
-  [ ! -f "$file" ] && err "No context file found. Run 'bapXphp context-extract' first." && return 1
+  [ ! -f "$file" ] && err "No context file found. Run 'bapXcms context-extract' first." && return 1
 
   require_php
 
@@ -2063,10 +2063,10 @@ main() {
       shift; cmd_db "$@" ;;
     # Backward compatibility: mysql:* aliases
     mysql:query|mysql-query)
-      warn "[DEPRECATED] Use 'bapXphp db raw' instead"
+      warn "[DEPRECATED] Use 'bapXcms db raw' instead"
       shift; cmd_db_raw "$@" ;;
     mysql:import|mysql-import)
-      warn "[DEPRECATED] Use 'bapXphp db sync' instead"
+      warn "[DEPRECATED] Use 'bapXcms db sync' instead"
       cmd_db_sync ;;
     docsmap)
       cmd_docsmap ;;

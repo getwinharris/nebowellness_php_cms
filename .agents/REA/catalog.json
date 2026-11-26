@@ -2017,7 +2017,7 @@
       "native": "rea-wp-wpcli-and-ops",
       "path": ".agents/REA/skills/rea-wp-wpcli-and-ops/SKILL.md",
       "title": "Native CLI and deployment operations",
-      "description": "Adapt safe targeting, backups, dry runs, cron and release verification to bapXphp.",
+      "description": "Adapt safe targeting, backups, dry runs, cron and release verification to bapXcms.",
       "components": [
         "cms-07",
         "cms-13",

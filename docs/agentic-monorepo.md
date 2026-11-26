@@ -16,7 +16,7 @@ File-based storage is used only for:
 - Blog posts: `content/blog/posts/*.md` with YAML frontmatter
 - Blog categories: `content/blog/categories.yaml`
 - Media metadata: MySQL `media_files` collection (uploaded via Admin → Media)
-- One-time seeding: JSON files in `storage/data/` synced to MySQL via `bapXphp db sync`
+- One-time seeding: JSON files in `storage/data/` synced to MySQL via `bapXcms db sync`
 
 ## Backend Primitives
 
@@ -58,7 +58,7 @@ not evidence that the provider worked, and a correct count must match the data.
 Do not submit payments or publish drafts during these checks.
 
 Turn confirmed failures into reproducible issue cases and regression checks.
-Regenerate maps with `./bapXphp update`, run `./bapXphp ci`, review PR checks, and
+Regenerate maps with `./bapXcms update`, run `./bapXcms ci`, review PR checks, and
 repeat the affected Browser flows after deployment. Use the same representative
 questions when changing prompts or models so regressions can be compared.
 

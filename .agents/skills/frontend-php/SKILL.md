@@ -7,8 +7,8 @@ description: Use when editing public, account, shop, consultant, temple, cart, c
 - Follow the UI workflow in `AGENTS.md`. Capture the issue, owning files, baseline, and acceptance checks before editing.
 - Read and follow root `Design.md` before changing any customer-facing UI. Treat it as the canonical token, typography, component, and responsive contract.
 - Capture the current desktop and mobile page before editing. Validate the complete customer path from first viewport through primary action and authenticated result, not only isolated markup.
-- Before using a browser capture as blog/help media, wait until every represented image reports `complete` with a non-zero `naturalWidth`, reveal content is visible, and no loading skeleton or empty data state remains. Inspect the saved bitmap before attaching it with `bapXphp blog:image`.
-- Use `bapXphp dev:user` for repeatable authenticated browser checks. Keep `BAPX_TEST_USER_PASSWORD` only in ignored operator configuration.
+- Before using a browser capture as blog/help media, wait until every represented image reports `complete` with a non-zero `naturalWidth`, reveal content is visible, and no loading skeleton or empty data state remains. Inspect the saved bitmap before attaching it with `bapXcms blog:image`.
+- Use `bapXcms dev:user` for repeatable authenticated browser checks. Keep `BAPX_TEST_USER_PASSWORD` only in ignored operator configuration.
 - Render landmarks, links, initial values, and native forms in PHP. Use JavaScript for fragment navigation, client-side filtering, asynchronous cart updates, and interactive controls when they need browser state. Reuse existing scripts or add a focused deferred script under `assets/`. Keep essential content and ordinary navigation and form submissions usable without enhancement.
 - Templates consume controller-provided data and existing services; they never read databases, local YAML catalogues, or generated indexes directly.
 - Use `assets/css/band.css` for shared and component styles. When moving affected rules from inline CSS, preserve the intended cascade and remove the superseded declarations. Use semantic classes and data attributes as JavaScript hooks.
@@ -59,7 +59,7 @@ breakpoint. For shared navigation, test empty and populated carts, enabled and d
 module combinations, support open and closed, direct fragment links, and Back/Forward.
 Check computed visibility and geometry, keyboard focus, touch targets, and native
 fallbacks. If browser controls or data are unavailable, record the missing checks.
-Run `./bapXphp ci` before review.
+Run `./bapXcms ci` before review.
 
 ## Keeping this skill current
 
