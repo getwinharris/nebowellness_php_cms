@@ -1,7 +1,7 @@
 <?php
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 // Match production's developer-only REA boundary in the local PHP server.
-if (preg_match('#^/(?:\.agents|cli|bapXcms)(?:/|$)#i',rawurldecode((string)$uri))) {
+if (preg_match('#^/(?:\.agents|cli|bapXcms|content)(?:/|$)#i',rawurldecode((string)$uri))) {
     http_response_code(403);
     exit;
 }
@@ -12,6 +12,13 @@ if (preg_match('#^/assets/images/brand/#i',$decodedPath) &&
     exit;
 }
 $file = __DIR__ . $uri;
+if (PHP_SAPI === 'cli-server') {
+    $resolved=realpath(__DIR__.$decodedPath);
+    $privateRoot=realpath(__DIR__.'/content');
+    if ($resolved!==false && $privateRoot!==false && ($resolved===$privateRoot||str_starts_with($resolved,$privateRoot.DIRECTORY_SEPARATOR))) {
+        http_response_code(403); exit;
+    }
+}
 
 if (PHP_SAPI === 'cli-server' && is_file($file)) {
     return false;

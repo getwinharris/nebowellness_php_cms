@@ -5,7 +5,7 @@
 
 <form method="post" action="/admin/blog/save" id="blog-form" class="admin-blog-editor" hidden>
     <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
-    <input type="hidden" name="slug" id="edit-slug" value="">
+    <input type="hidden" id="edit-slug" value="">
     <input type="hidden" name="type" id="edit-type" value="blog">
     <div class="admin-blog-editor__grid">
         <label>Title <button type="button" class="btn btn-sm btn-outline be-enhance-inline" id="enhance-title">Enhance</button> <input type="text" name="title" id="edit-title" required style="width:100%"></label>
@@ -40,7 +40,8 @@
         <label class="admin-blog-editor__wide">SEO Keywords <input type="text" name="keywords" id="edit-keywords" placeholder="naturopathy, gut health, lifestyle medicine" style="width:100%"><small>Comma-separated keywords for search engine indexing.</small></label>
         <?php // Both are filled in on save from today's date and the signed-in admin.
               // They stay here for backdating a post or crediting someone else. ?>
-        <label>Published At <input type="date" name="published_at" id="edit-date" style="width:100%"><small>Leave blank for today.</small></label>
+        <label>Published At <input type="date" name="published_at" id="edit-date" style="width:100%"><small>Leave blank for today. Future dates publish at midnight (<?= e(date_default_timezone_get()) ?>) when publication is enabled.</small></label>
+        <label>Publication <select name="published" id="edit-published"><option value="true">Publish when due</option><option value="false">Keep hidden</option></select></label>
         <label>Author <input type="text" name="author" id="edit-author" placeholder="<?= e($currentAuthor ?? 'Admin') ?>" style="width:100%"><small>Leave blank to credit <?= e($currentAuthor ?? 'Admin') ?>.</small></label>
         </div>
     </details>
@@ -113,7 +114,7 @@
         <label class="admin-blog-editor__wide" style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-weight:600">
             <input type="checkbox" name="notify_subscribers" value="1" style="width:16px;height:16px;margin:0">
             Email this article to registered customers
-            <small style="font-weight:400;color:var(--color-text-muted)">Only on a new post, never on an edit.</small>
+            <small style="font-weight:400;color:var(--color-text-muted)">Only for a new post that is public now; scheduled or hidden articles do not send automatically.</small>
         </label>
         <div style="display:flex;gap:var(--space-sm);flex-wrap:wrap">
             <button class="btn btn-primary" type="submit">Save</button>
@@ -122,6 +123,9 @@
     </div>
 </form>
 
+<?php if (isset($publicationReport)): ?>
+<p class="be-hint" role="status">Editorial publication eligibility (<?= e($publicationReport['timezone']) ?>): <?= (int)$publicationReport['counts']['visible'] ?> visible · <?= (int)$publicationReport['counts']['scheduled'] ?> scheduled · <?= (int)$publicationReport['counts']['hidden'] ?> hidden · <?= (int)$publicationReport['counts']['invalid'] ?> invalid. <?= $publicationReport['next_date'] ? 'Next due: '.e($publicationReport['next_date']) : 'No scheduled posts.' ?></p>
+<?php endif; ?>
 <div class="table-wrap" style="background:var(--color-white);border-radius:var(--radius-md);border:1px solid var(--color-border)">
 <table>
     <thead><tr><th>Title</th><th>Category</th><th>Published</th><th>Date</th><th></th></tr></thead>
@@ -130,7 +134,7 @@
     <tr>
         <td><a href="/blog/<?= e($post['slug'] ?? '') ?>" target="_blank"><?= e($post['title'] ?? 'Untitled') ?></a></td>
         <td><?= e($post['category'] ?? '') ?></td>
-        <td><?= !empty($post['published']) ? '✅' : '❌' ?></td>
+        <td><?= e(ucfirst(\App\Services\BlogService::publicationState($post))) ?></td>
         <td><?= e($post['published_at'] ?? '') ?></td>
         <td>
             <button class="btn btn-sm btn-ghost" onclick="editPost(<?= e(json_encode($post)) ?>)">Edit</button>
@@ -160,9 +164,9 @@
 </div>
 
 <script>
-function toggleForm(){var f=document.getElementById('blog-form');f.hidden=!f.hidden;if(f.hidden){f.reset();if(window.beLoadMarkdown)window.beLoadMarkdown('');}}
-function editPost(post){document.getElementById('edit-slug').value=post.slug||'';document.getElementById('edit-slug-display').value=post.slug||'';document.getElementById('edit-type').value=post.type||'blog';document.getElementById('edit-title').value=post.title||'';document.getElementById('edit-category').value=post.category||'';document.getElementById('edit-template').value=post.template||'editorial';document.getElementById('edit-image').value=post.og_image||post.image||'';document.getElementById('edit-image-alt').value=post.image_alt||'';document.getElementById('edit-source-url').value=post.source_url||'';document.getElementById('edit-summary').value=post.summary||post.excerpt||'';document.getElementById('edit-order').value=post.order||'';document.getElementById('edit-excerpt').value=post.excerpt||'';document.getElementById('edit-date').value=post.published_at||'';document.getElementById('edit-author').value=post.author||'Admin';document.getElementById('edit-content').value=post.content||'';if(window.beLoadMarkdown)window.beLoadMarkdown(post.content||'');document.getElementById('blog-form').hidden=false;document.getElementById('blog-form').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('edit-title').focus();}
-document.getElementById('edit-title').addEventListener('input',function(){var slug=this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');document.getElementById('edit-slug').value=slug;document.getElementById('edit-slug-display').value=slug;});
+function toggleForm(){var f=document.getElementById('blog-form');f.hidden=!f.hidden;if(f.hidden){f.reset();document.getElementById('edit-slug-display').readOnly=false;if(window.beLoadMarkdown)window.beLoadMarkdown('');}}
+function editPost(post){document.getElementById('edit-slug').value=post.slug||'';document.getElementById('edit-slug-display').value=post.slug||'';document.getElementById('edit-slug-display').readOnly=true;document.getElementById('edit-type').value=post.type||'blog';document.getElementById('edit-title').value=post.title||'';document.getElementById('edit-category').value=post.category||'';document.getElementById('edit-template').value=post.template||'editorial';document.getElementById('edit-image').value=post.og_image||post.image||'';document.getElementById('edit-image-alt').value=post.image_alt||'';document.getElementById('edit-source-url').value=post.source_url||'';document.getElementById('edit-summary').value=post.summary||post.excerpt||'';document.getElementById('edit-order').value=post.order||'';document.getElementById('edit-excerpt').value=post.excerpt||'';document.getElementById('edit-date').value=post.published_at||'';document.getElementById('edit-published').value=post.published===true?'true':'false';document.getElementById('edit-author').value=post.author||'Admin';document.getElementById('edit-content').value=post.content||'';if(window.beLoadMarkdown)window.beLoadMarkdown(post.content||'');document.getElementById('blog-form').hidden=false;document.getElementById('blog-form').scrollIntoView({behavior:'smooth',block:'start'});document.getElementById('edit-title').focus();}
+document.getElementById('edit-title').addEventListener('input',function(){if(document.getElementById('edit-slug').value&&document.getElementById('edit-slug-display').readOnly)return;var slug=this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');document.getElementById('edit-slug').value=slug;document.getElementById('edit-slug-display').value=slug;});
 function previewArticle(){var f=document.getElementById('blog-form');var fd=new FormData(f);fetch('/admin/blog/preview',{method:'POST',body:fd}).then(function(r){return r.text();}).then(function(html){var w=window.open('','_blank');w.document.write(html);w.document.close();});}
 
 </script>

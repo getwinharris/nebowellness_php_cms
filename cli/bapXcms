@@ -74,6 +74,7 @@ set -euo pipefail
 # ── Mail & Images ───────────────────────────────────────────────
 #   bapXcms mail:process            — process pending mail queue
 #   bapXcms images:optimize         — convert/resize images to WebP
+#   bapXcms blog:publication        — current Markdown publication eligibility (read-only)
 #   bapXcms blog:image <slug> <image> [--source-url /path] [--alt text] [--dry-run]
 #                                   — crop a screenshot/image and attach it to a blog post
 #
@@ -2040,6 +2041,8 @@ main() {
       cmd_images_optimize ;;
     product:images|product-images)
       die "Retail product operations are retired in bapXcms." ;;
+    blog:publication)
+      require_php; php "$ROOT/cli/blog-publication.php" ;;
     blog:image|blog-image)
       shift; cmd_blog_image "$@" ;;
     db)

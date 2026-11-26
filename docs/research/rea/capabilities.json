@@ -184,11 +184,12 @@
       "id": "cms-05",
       "track": "cms",
       "title": "Scheduled publication",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Future publication stays hidden until due; scheduler reports outcomes.",
-      "finding": "Blog published flag does not enforce future date.",
+      "finding": "Date-only Markdown publication eligibility enforced at site-local midnight in public index/detail, sitemap and shared article retrieval; hidden edits retain their flag, raw content protected, current editorial outcomes reported through admin and CLI. General CMS scheduling, durable job/outcome history and exact-time scheduling remain incomplete.",
       "issues": [
-        125
+        125,
+        190
       ],
       "references": [
         {
@@ -196,8 +197,34 @@
           "locator": "wp-includes/cron.php"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/BlogService.php",
+          "anchor": "public static function publicationState"
+        },
+        {
+          "path": "app/Controllers/BlogController.php",
+          "anchor": "!$blogService->isPublic($post)"
+        },
+        {
+          "path": "cli/blog-publication.php",
+          "anchor": "publicationReport()"
+        },
+        {
+          "path": ".htaccess",
+          "anchor": "RewriteRule ^content(?:/|$) - [F,L,NC]"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/blog-publication.test.cjs",
+          "anchor": "Markdown date gate uses site midnight"
+        },
+        {
+          "path": "tests/blog-publication.test.cjs",
+          "anchor": "raw Markdown source is denied"
+        }
+      ],
       "production": null
     },
     {
@@ -2960,6 +2987,19 @@
         "sitekit-05"
       ],
       "summary": "Implement source-pinned PageSpeed native mobile/desktop read with fixed public targets, validated Lighthouse and separate real-user scope, explicit error/cache states and owner/CSRF. Synthetic provider and actual denial-route tests plus three responsive fixtures passed. No external paid dependency, new database engine, business schema or customer mutation. Live authorized Google result separate."
+    },
+    {
+      "id": "190-markdown-publication",
+      "date": "2026-11-27",
+      "issues": [
+        190,
+        125,
+        141
+      ],
+      "components": [
+        "cms-05"
+      ],
+      "summary": "Source-pinned WordPress future publication checks reconstructed as read-time Markdown eligibility, admin and CLI reports, hidden flag preservation, validated atomic saves, private raw source routes, and no scheduled newsletter dispatch. Isolated date boundary/public route/agent article tests. General durable scheduler and timed CMS page publication remain partial; no database engine, production content mutation or completion promotion."
     }
   ]
 }

@@ -825,6 +825,7 @@ final class AdminController extends BaseController {
         $this->render('admin/blog',[
             'pageTitle'=>'Blog','title'=>'Blog Posts',
             'posts'=>$blog->all(true),'categories'=>$blog->categories(),
+            'publicationReport'=>$blog->publicationReport(),
             'mediaFiles'=>(new MediaService())->all('blog'),
             'currentAuthor'=>$this->currentAuthorName(),
         ]);
@@ -861,13 +862,15 @@ final class AdminController extends BaseController {
             $post['author'] = $this->currentAuthorName();
         }
         $post['updated_at'] = date('Y-m-d');
-        $blog->save($post);
-        (new AuditLogService())->record('save','blog',$_POST['slug'] ?? '');
+        try { $saved=$blog->save($post); }
+        catch (\InvalidArgumentException $error) { $this->flash($error->getMessage(),'error'); $this->redirect('/admin/blog'); }
+        catch (\Throwable $error) { $this->flash('Article save failed. No successful publication was recorded.','error'); $this->redirect('/admin/blog'); }
+        (new AuditLogService())->record('save','blog',$saved['slug']);
         $sent = 0;
-        if ($isNew && ($_POST['notify_subscribers'] ?? '') === '1') {
-            $sent = $this->sendBlogNewsletter($_POST);
+        if ($isNew && module_on('blog') && $blog->isPublic($saved) && ($_POST['notify_subscribers'] ?? '') === '1') {
+            $sent = $this->sendBlogNewsletter(array_merge($post,$saved));
         }
-        $this->flash($sent > 0 ? "Blog post saved. Newsletter sent to {$sent} subscriber(s)." : 'Blog post saved.','success');
+        $this->flash($sent > 0 ? "Blog post saved. Newsletter sent to {$sent} subscriber(s)." : 'Blog post saved: '.\App\Services\BlogService::publicationState($saved).'.','success');
         $this->redirect('/admin/blog');
     }
     /** Registered customers only — the owner and consultants are not subscribers. */
@@ -893,9 +896,9 @@ final class AdminController extends BaseController {
         $post = $slug !== '' ? $blog->find($slug) : null;
         if (!$post) { $this->flash('Post not found.','error'); $this->redirect('/admin/blog'); }
         $post['published'] = empty($post['published']);
-        $blog->save($post);
+        try { $saved=$blog->save($post); } catch (\Throwable $error) { $this->flash('Publication could not be changed. Check article metadata.','error'); $this->redirect('/admin/blog'); }
         (new AuditLogService())->record('save','blog.published',$slug,['published'=>$post['published']]);
-        $this->flash($post['published'] ? 'Post is now visible on the site.' : 'Post is now hidden from the site.','success');
+        $this->flash('Publication state: '.\App\Services\BlogService::publicationState($saved).'.','success');
         $this->redirect('/admin/blog');
     }
     public function deleteBlog(): void{

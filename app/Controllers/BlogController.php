@@ -6,13 +6,15 @@ use App\Services\MarkdownRenderer;
 
 final class BlogController extends BaseController
 {
+    public function __construct(private BlogService $blogService=new BlogService()) {}
+
     public function index(): void
     {
         $this->requireModule('blog');
         $this->detectApiRequest();
         $this->seoKey = 'blog';
 
-        $blogService = new BlogService();
+        $blogService = $this->blogService;
         $posts = $blogService->all();
         $categories = $blogService->categories();
 
@@ -27,13 +29,13 @@ final class BlogController extends BaseController
     {
         $this->requireModule('blog');
         $this->detectApiRequest();
-        $blogService = new BlogService();
+        $blogService = $this->blogService;
         $post = $blogService->find($slug);
 
         // `find()` also serves the editor, so an unpublished post must be rejected
         // here as well as omitted from the index. Otherwise a retired article stays
         // publicly available to anyone with its old URL.
-        if ($post === null || empty($post['published']) || $blogService->categoryIsDisabled((string)($post['category'] ?? ''))) {
+        if ($post === null || !$blogService->isPublic($post)) {
             $this->renderNotFound();
             return;
         }
@@ -63,7 +65,7 @@ final class BlogController extends BaseController
         $this->detectApiRequest();
         $this->seoKey = 'blog.category';
 
-        $blogService = new BlogService();
+        $blogService = $this->blogService;
         $posts = $blogService->all();
         $categories = $blogService->categories();
 
