@@ -954,7 +954,7 @@ $tests['support assistant widget uses scoped session memory and shared provider 
     $client = file_get_contents(app_path('app/Services/AiClient.php'));
     assertTrue(str_contains($client, 'getModelConfig'), 'AiClient should resolve endpoint and model from Admin → Integrations');
     assertTrue(!str_contains($client, 'curl_close($ch)'), 'PHP 8.5 transport must not emit obsolete curl_close warnings into JSON');
-    assertTrue(str_contains($client, 'CURLOPT_TIMEOUT => max(1, $timeout)') && str_contains($client, 'min(8, $remaining)'), 'Provider and failover waits must stay inside the PHP request deadline');
+    assertTrue(str_contains($client, 'min(8, $remaining)'), 'Alternate-model fallback must stay inside the PHP request deadline; transport deadline behavior is tested by provider-trace.test.cjs');
     $admin = file_get_contents(app_path('app/Controllers/AdminController.php'));
     assertTrue(str_contains($admin, 'AiClient') && !str_contains($admin, 'x-goog-api-key'),
         'Admin agent should share the same client rather than keep a second provider call');

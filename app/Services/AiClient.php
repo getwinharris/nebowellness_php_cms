@@ -416,27 +416,37 @@ final class AiClient
     /** @return string|false */
     private function post(string $url, string $payload, array $headers, ?int &$status, int $timeout, string $provider, string $model, bool $withTools = false)
     {
-        $started = microtime(true);
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_POSTFIELDS => $payload,
-            // Leave time within the usual 30-second PHP request budget for the
-            // caller's grounded fallback and outcome monitoring.
-            CURLOPT_TIMEOUT => max(1, $timeout),
-            CURLOPT_CONNECTTIMEOUT => min(10, max(1, $timeout)),
-        ]);
-        $body = curl_exec($ch);
-        // Keep a bounded cause, never raw cURL diagnostics which can contain URLs.
-        $this->transportError = curl_errno($ch);
-        $status = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $this->trace?->provider($provider, $model, $status, $this->transportError, $started, $withTools);
-        // CurlHandle is released automatically in PHP 8; curl_close is a no-op
-        // deprecated in 8.5 and its warning can corrupt JSON responses.
-        // https://www.php.net/manual/en/function.curl-close.php
-        unset($ch);
+        // Hosted Gemma can briefly return 503 before accepting a generation.
+        // Retry the identical REST request once, without replaying any PHP tool.
+        // https://ai.google.dev/gemini-api/docs/troubleshooting#retry-strategy
+        $deadline = hrtime(true) + max(1, $timeout) * 1000000000;
+        for ($attempt = 0; $attempt < 2; $attempt++) {
+            $remainingMs = max(1, (int) floor(($deadline - hrtime(true)) / 1000000));
+            $started = microtime(true);
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_HTTPHEADER => $headers,
+                CURLOPT_POSTFIELDS => $payload,
+                // The retry shares the original budget, including its backoff.
+                CURLOPT_TIMEOUT_MS => $remainingMs,
+                CURLOPT_CONNECTTIMEOUT_MS => min(10000, $remainingMs),
+            ]);
+            $body = curl_exec($ch);
+            $this->transportError = curl_errno($ch);
+            $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $this->trace?->provider($provider, $model, $status, $this->transportError, $started, $withTools);
+            unset($ch);
+            // Do not retry configuration errors, quota exhaustion, ambiguous
+            // transport timeouts or unsupported providers. The router still
+            // counts a failed logical turn only after this bounded retry.
+            if ($attempt !== 0 || $provider !== 'google' || $status !== 503 || $this->transportError !== 0) return $body;
+            $delayMs = 1000 + random_int(0, 250);
+            if ($deadline - hrtime(true) <= ($delayMs + 1000) * 1000000) return $body;
+            usleep($delayMs * 1000);
+            if ($deadline - hrtime(true) < 1000000000) return $body;
+        }
         return $body;
     }
 

@@ -10,11 +10,26 @@ const fixture = path.join(__dirname, 'fixtures/provider-trace.php');
 
 test('native tool rounds for both Google models and support outage keep distinct provider measurements', async t => {
     const received = [];
+    const transientAttempts = new Map();
     const server = http.createServer(async (req, res) => {
         let raw = '';
         for await (const chunk of req) raw += chunk;
         const payload = JSON.parse(raw);
         received.push(payload);
+        if (req.url.includes('transient')) {
+            const phase = payload.contents.some(turn => turn.parts.some(part => part.functionResponse)) ? 'continuation' : 'initial';
+            const key = req.url + phase;
+            const count = transientAttempts.get(key) || 0;
+            transientAttempts.set(key, count + 1);
+            if (count === 0) {
+                res.writeHead(503).end(JSON.stringify({error: {message: 'Synthetic confidential diagnostic'}}));
+                return;
+            }
+        }
+        if (req.url.includes('bad-request')) {
+            res.writeHead(400).end(JSON.stringify({error: {message: 'Synthetic confidential diagnostic'}}));
+            return;
+        }
         if (req.url.includes('unavailable')) {
             res.writeHead(503).end(JSON.stringify({error: {message: 'Synthetic confidential diagnostic'}}));
             return;
@@ -69,14 +84,37 @@ test('native tool rounds for both Google models and support outage keep distinct
     assert.equal(received.at(-1).contents.at(-1).parts[0].functionResponse.name,'clinic_context');
     assert.deepEqual(publicGemma.trace.steps.map(step=>step.kind),['provider','tool','provider']);
     assert.ok(!received.at(-1).tools[0].functionDeclarations.some(f=>f.name==='owner_dashboard_summary'));
+    // A retry must preserve the request, including the original native tool result,
+    // and not execute the tool twice. Each transport attempt remains visible.
+    const beforeTransient = received.length;
+    const transient = await exercise('support', 'fixture-transient');
+    const attempts = received.slice(beforeTransient);
+    assert.deepEqual(transient.trace.steps.map(step => step.kind), ['provider','provider','tool','provider','provider']);
+    assert.deepEqual(transient.trace.steps.filter(step=>step.kind==='provider').map(step=>step.status), [503,200,503,200]);
+    assert.equal(transient.report.surfaces.support.model, 1);
+    assert.equal(transient.report.provider_details[0].attempts, 4);
+    assert.equal(transient.report.provider_details[0].failures, 2);
+    assert.deepEqual(attempts[0], attempts[1]);
+    assert.deepEqual(attempts[2], attempts[3]);
+    assert.equal(attempts[3].contents.at(-1).parts[0].functionResponse.name, 'clinic_context');
+    const beforeBad = received.length;
+    const bad = await exercise('admin', 'fixture-bad-request');
+    assert.equal(received.length - beforeBad, 1);
+    assert.deepEqual(bad.report.provider_details[0].failure_types, {'HTTP 400': 1});
     const support = await exercise('support', 'fixture-unavailable');
     const failed = support.report.provider_details[0];
     assert.equal(failed.model, 'fixture-unavailable');
     assert.equal(failed.surface, 'support');
     assert.equal(failed.mode, 'tools');
-    assert.deepEqual(failed.failure_types, {'HTTP 503': 1});
+    assert.deepEqual(failed.failure_types, {'HTTP 503': 2});
     assert.equal(support.report.surfaces.support.fallback, 0);
     assert.equal(support.report.surfaces.support.error, 1);
+    const beforeDeadline = received.length;
+    const deadline = await exercise('support', 'fixture-unavailable', 'short-deadline');
+    assert.equal(deadline.status, 503);
+    assert.equal(received.length - beforeDeadline, 1);
+    assert.equal(deadline.trace.steps.length, 1);
+    assert.ok(deadline.elapsed_ms < 1500);
     const onlyThoughts = await exercise('support', 'fixture-thought-only');
     assert.equal(onlyThoughts.trace.steps[0].outcome, 'unusable_response');
     assert.equal(onlyThoughts.report.surfaces.support.error, 1);
