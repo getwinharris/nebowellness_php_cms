@@ -19,10 +19,10 @@ Implementation coverage counts only complete scoped components with source and t
 | Service booking and landing pages | 6 / 8 | 75.0% | 2 | 0 | 2 / 8 | 25.0% |
 | Google Site Kit | 3 / 7 | 42.9% | 2 | 2 | 0 / 7 | 0.0% |
 | WordPress Abilities and MCP | 3 / 6 | 50.0% | 3 | 0 | 0 / 6 | 0.0% |
-| A2UI v1.0 | 0 / 6 | 0.0% | 2 | 4 | 0 / 6 | 0.0% |
+| A2UI v1.0 | 0 / 6 | 0.0% | 3 | 3 | 0 / 6 | 0.0% |
 | OpenAI-compatible Chat Completions | 6 / 9 | 66.7% | 2 | 1 | 0 / 9 | 0.0% |
 | DeepSeek Harness | 4 / 10 | 40.0% | 6 | 0 | 1 / 10 | 10.0% |
-| **Total** | 26 / 61 | 42.6% | 26 | 9 | 3 / 61 | 4.9% |
+| **Total** | 26 / 61 | 42.6% | 27 | 8 | 3 / 61 | 4.9% |
 
 ## Explicit exclusions
 
@@ -104,7 +104,7 @@ Catalog-constrained generative UI, native PHP/JS.
 | ID | Capability | Status | Acceptance / remaining work | Issues |
 |---|---|---|---|---|
 | a2ui-01 | Native structured UI baseline | partial | Approved cards/forms/navigation, safe rendering and text fallback. — Existing draft forms and navigation; not A2UI protocol. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125) |
-| a2ui-02 | Versioned component and function catalog | missing | Advertise approved components, schemas and authorized functions. — No v1.0 catalog. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125) |
+| a2ui-02 | Versioned component and function catalog | partial | Advertise approved components, schemas and authorized functions. — Versioned native literal-only component catalog, strict local component validation and scoped read-only server ability metadata projection. Renderer functions intentionally empty; live negotiation, surface renderer and callable events not implemented. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#125](https://github.com/getwinharris/nebowellness_php_cms/issues/125), [#167](https://github.com/getwinharris/nebowellness_php_cms/issues/167) |
 | a2ui-03 | Surface lifecycle and bound data | missing | Create/update/delete surfaces and data models with schema validation. — No A2UI lifecycle transport. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 | a2ui-04 | Typed user events and function RPC | missing | Correlated agent/renderer function calls, authorized callers and explicit actions. — Existing action links are not A2UI RPC. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128), [#134](https://github.com/getwinharris/nebowellness_php_cms/issues/134) |
 | a2ui-05 | Validation and recovery | partial | Reject unknown components/unsafe values/duplicate actions; fallback on invalid message. — Existing JS link allowlists; protocol validation absent. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
@@ -181,6 +181,7 @@ Native retrieval, execution, sessions, observability and recovery.
 
 ## Scope reviews and updates
 
+- 2026-11-26 · `167-native-a2ui-catalog` — Native versioned catalog and scoped read ability metadata foundation; strict literal component validation tests. No renderer functions, protocol lifecycle, runtime negotiation or live acceptance yet; partial only.
 - 2026-11-26 · `164-standalone-cms-identity` — Rename the project-owned CLI, developer skill and all active generator/validation/workflow references to bapXcms. Record repository comparison and independent product boundary. Preserve archived source bytes, historical review entries, service payments and production data. Retail runtime retirement follows in a separate change; no coverage increase.
 - 2026-11-26 · `162-scoped-mcp-read-transport` — Add published-read-only external MCP transport and independently revocable expiring bearer grants. Modern pinned protocol subset; no legacy/OAuth/live-client acceptance claim. Existing registry owns tool schemas and execution.
 - 2026-11-26 · `160-typed-session-context` — Completed the 18-name internal typed native catalogue, replacing the final legacy dispatch with a trusted support-only session loader and explicit owned/public projections. Scoped discovery and invocation, bounded schemas and isolated cross-account/module verification. External execution acceptance remains partial.

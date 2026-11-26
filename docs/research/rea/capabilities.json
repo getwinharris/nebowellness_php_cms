@@ -1440,12 +1440,13 @@
       "id": "a2ui-02",
       "track": "a2ui",
       "title": "Versioned component and function catalog",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Advertise approved components, schemas and authorized functions.",
-      "finding": "No v1.0 catalog.",
+      "finding": "Versioned native literal-only component catalog, strict local component validation and scoped read-only server ability metadata projection. Renderer functions intentionally empty; live negotiation, surface renderer and callable events not implemented.",
       "issues": [
         128,
-        125
+        125,
+        167
       ],
       "references": [
         {
@@ -1453,8 +1454,22 @@
           "locator": "docs/a2ui_custom_functions.md"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/A2uiCatalogService.php",
+          "anchor": "function catalog("
+        },
+        {
+          "path": "app/Services/A2uiCatalogService.php",
+          "anchor": "function serverAbilities("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/a2ui-catalog.test.cjs",
+          "anchor": "server ability metadata follows trusted native scope"
+        }
+      ],
       "production": null
     },
     {
@@ -2489,6 +2504,19 @@
       "components": [],
       "scope_change": "Owner separates bapXcms service-first CMS/CRM from the commerce-led bapXphpAiBackend; retail runtime retirement replaces preserve-existing-shop direction. Existing 61 scoped acceptance units remain unchanged; configurable ERP extensions need separately scoped contracts.",
       "summary": "Rename the project-owned CLI, developer skill and all active generator/validation/workflow references to bapXcms. Record repository comparison and independent product boundary. Preserve archived source bytes, historical review entries, service payments and production data. Retail runtime retirement follows in a separate change; no coverage increase."
+    },
+    {
+      "id": "167-native-a2ui-catalog",
+      "date": "2026-11-26",
+      "issues": [
+        167,
+        128,
+        125
+      ],
+      "components": [
+        "a2ui-02"
+      ],
+      "summary": "Native versioned catalog and scoped read ability metadata foundation; strict literal component validation tests. No renderer functions, protocol lifecycle, runtime negotiation or live acceptance yet; partial only."
     }
   ]
 }

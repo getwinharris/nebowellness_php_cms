@@ -5,7 +5,7 @@
     "summary": {
         "routes": 137,
         "controllers": 14,
-        "services": 68,
+        "services": 69,
         "views": 55,
         "collections": 26
     },
@@ -1619,6 +1619,7 @@
         "TherapyController"
     ],
     "services": [
+        "A2uiCatalogService",
         "AbilitySchema",
         "AddressService",
         "AgentAttachmentService",
@@ -1788,6 +1789,7 @@
         "navigation_without_get_route": [],
         "unwired_controllers": [],
         "unwired_services": [
+            "A2uiCatalogService",
             "CourierService",
             "ModelToolSet",
             "ProjectMapService",
