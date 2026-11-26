@@ -5,7 +5,7 @@
     "summary": {
         "routes": 130,
         "controllers": 13,
-        "services": 64,
+        "services": 65,
         "views": 55,
         "collections": 25
     },
@@ -236,6 +236,7 @@
                 "AgentToolRegistry",
                 "NativeAbilityRegistry",
                 "AbilitySchema",
+                "OwnerAbilityService",
                 "AgentRunTrace",
                 "AiReplyCleaner",
                 "AiClient",
@@ -1554,6 +1555,7 @@
         "ModelToolSet",
         "NativeAbilityRegistry",
         "OrderService",
+        "OwnerAbilityService",
         "PasswordResetService",
         "PaymentService",
         "ProductService",

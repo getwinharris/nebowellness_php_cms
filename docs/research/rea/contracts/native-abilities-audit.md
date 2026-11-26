@@ -48,16 +48,16 @@ a tool. Verify each migration against the actual backing path and data.
 | search_clinic_knowledge | support and admin; source-specific module gates | ClinicKnowledgeService::search/rank | Native v1; bounded typed lexical excerpts, strict module snapshot, source failure fails closed |
 | search_articles | support and admin; blog | ClinicKnowledgeService::searchArticles → BlogService::all(false, modules) | Native v1; stable list shape, Unicode terms, actual file slug and module checks |
 | clinic_context | support only | SupportBotService::toolContext → scoped AgentContextService and current session cart | Mixed public and owned data; split scopes and prove field/record ownership before typed exposure |
-| owner_dashboard_summary | admin only | AgentContextService::forAdmin | Free-text aggregate and hardcoded currency; use typed authoritative metrics and source dates, not persona text |
-| appointment_summary | admin only | AgentToolRegistry::summariseAppointments | Historical only; stable count/status map and scope |
+| owner_dashboard_summary | admin only | OwnerAbilityService::dashboard | Native v1; current structured counts, optional shop totals clearly not captured revenue |
+| appointment_summary | admin only | OwnerAbilityService::summariseAppointments | Native v1; historical only, stable count/status map and scope |
 | recent_orders | admin; shop | OrderService::all | Bounded projection; preserve shop, not an expansion |
 | catalog_categories | admin; shop | DatabaseService categories read | Bounded typed list; preserve existing shop |
 | find_order | admin; shop | AgentToolRegistry::findOrder / summariseOrder | Customer email input and shipping city/tracking output; privacy/ownership review, stable empty shape |
 | product_status | admin; shop | ProductService::all | Offer window, stock, hidden records; stable bounded result |
 | sales_summary | admin; shop | AgentToolRegistry::salesSummary | Existing period/date and currency assumptions need correction before typed exposure |
-| support_enquiries | admin only | SupportTicketService::all and topic aggregation | Empty shape differs, topic inference and IDs need bounded stable aggregate |
-| campaign_pages | admin; campaigns | DatabaseService campaign_pages | Draft and published owner projection, strict slug/status/URL |
-| therapy_enquiry_summary | admin; campaigns | AgentToolRegistry::summariseTherapyEnquiries | Aggregate only, explicit date range and valid slug |
+| support_enquiries | admin only | OwnerAbilityService::supportEnquiries → SupportTicketService::all | Native v1; stable counts, explicit overlapping topic inference, no ticket identities or text |
+| campaign_pages | admin; campaigns | OwnerAbilityService::campaigns → DatabaseService campaign_pages | Native v1; bounded draft/published owner projection, strict slug/status/URL |
+| therapy_enquiry_summary | admin; campaigns | OwnerAbilityService::summariseTherapyEnquiries | Native v1; aggregate only, bounded rolling days, valid slug, malformed dates unavailable |
 | coupon_status | admin; shop | AgentToolRegistry::couponStatus | Preserve existing business rules and bounded result; not new commerce |
 
 All legacy tool names stay unchanged until migrated, and no legacy tool
@@ -163,3 +163,42 @@ public ability integration exercises real published programmes and the
 existing article files, module rechecks and draft exclusion. Native
 catalogue coverage is six of 18; owner and session-owned tools remain
 internal legacy until migrated. External transport is not enabled here.
+
+## Fourth implementation: owner operational reads (issue #156)
+
+Read the audited native REA ability design/verification and WooCommerce
+domain-service contracts. Move five owner-only read projections into
+OwnerAbilityService and register through NativeAbilityRegistry. The
+trusted admin surface selects the scope; support cannot discover or
+invoke these names. Campaign/module state is rechecked at execution.
+
+- Dashboard returns current stored counts, never persona text or a claimed
+  period report. Commerce is omitted when disabled. Existing Razorpay
+  checkout uses INR/paise; confirmed and pending order totals are integer
+  minor units, separately labeled and not represented as captured revenue.
+  A stored non-INR currency or malformed amount is unavailable.
+- Historical appointments use a stable zero-filled status map with other
+  for legacy status. Support tickets exclude empty id-only records, return
+  status/count/topic interpretation and awaiting-reply aggregates even for
+  zero rows; topic counts overlap. No identifiers, raw ticket content or
+  personal fields are returned. Unknown topics fail input validation.
+- Owner campaign metadata includes drafts without a public URL, returns
+  total matches and at most 20 summaries, with strict slug/status and a
+  deterministic selection order. Therapy requests count only the matching
+  campaign within a rolling 1–90 days (default 30); invalid stored dates
+  are not silently treated as absent data. These are not confirmed sessions.
+- Native schema adds the limited nullable scalar and finite numeric subset,
+  plus optional argument omission. Compatible provider null for a known
+  optional argument is normalized only at invocation; extra keys or
+  required null remain invalid. Existing names and provider projection
+  stay stable. Successful shapes are deliberately normalized in this
+  migration; no separate legacy fallback for migrated operations.
+
+The red/green test covers owner-only discovery/execution, stable empty
+results, module denial, optional input and invalid bounds. The disposable
+MariaDB integration seeds representative counts and records, verifies
+both roles, exact output, no private fields and no business-state changes.
+Actual configured read-only results were checked separately. Eleven of
+18 internal tools are migrated; shop-specific and session context remain
+legacy. External MCP, A2UI and authenticated live owner acceptance remain
+separate gates.

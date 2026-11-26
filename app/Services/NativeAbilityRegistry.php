@@ -12,9 +12,9 @@ final class NativeAbilityRegistry
         if (!in_array($scope,['support','admin'],true)) throw new \InvalidArgumentException('Unknown native ability scope.');
     }
 
-    private static function object(array $properties): array {
+    private static function object(array $properties,?array $required=null): array {
         return ['type'=>'object','properties'=>$properties===[]?(object)[]:$properties,
-            'required'=>array_keys($properties),'additionalProperties'=>false];
+            'required'=>$required??array_keys($properties),'additionalProperties'=>false];
     }
 
     private static function string(int $max,int $min=0): array {
@@ -30,6 +30,18 @@ final class NativeAbilityRegistry
             'input_schema'=>self::object($input),'output_schema'=>$output,
             'annotations'=>['readonly'=>true,'destructive'=>false,'idempotent'=>true],
             'scopes'=>['support','admin'],'module'=>$module];
+    }
+
+    private static function countSchema(): array { return ['type'=>'integer','minimum'=>0]; }
+
+    private static function counts(array $keys): array {
+        return self::object(array_fill_keys($keys,self::countSchema()));
+    }
+
+    private static function owner(string $description,array $output,array $input=[],?string $module=null,?array $required=null): array {
+        return array_replace(self::definition($description,$output,$input,$module),[
+            'category'=>'owner-operations','scopes'=>['admin'],'input_schema'=>self::object($input,$required),
+        ]);
     }
 
     private static function definitions(): array {
@@ -53,6 +65,16 @@ final class NativeAbilityRegistry
             'duration'=>self::string(80),
             'url'=>self::string(131,1)+['pattern'=>'^/campaigns/[a-z0-9]+(?:-[a-z0-9]+)*$'],
         ];
+        $count=self::countSchema();
+        $topicKeys=array_keys(OwnerAbilityService::ENQUIRY_TOPICS);
+        $topicWords=self::object(array_fill_keys($topicKeys,self::listOf(self::string(40,1),20)));
+        $slug=self::string(120,1)+['pattern'=>'^[a-z0-9]+(?:-[a-z0-9]+)*$'];
+        $campaignUrl=self::string(131,1)+['pattern'=>'^/campaigns/[a-z0-9]+(?:-[a-z0-9]+)*$'];
+        $dashboard=['registered_users'=>$count,'consultants'=>$count,'historical_appointments'=>$count,
+            'support_tickets'=>$count,'shop_enabled'=>['type'=>'boolean'],'scope'=>self::string(120,1),
+            'commerce'=>self::object(['orders'=>$count,'products'=>$count,'by_status'=>self::counts(OwnerAbilityService::ORDER_STATES),
+                'confirmed_order_total_minor'=>$count,'pending_order_total_minor'=>$count,'currency'=>self::string(3,3)+['const'=>'INR'],
+                'scope'=>self::string(120,1)])];
         return [
             'published_consultation_fees'=>self::definition(
                 'Read current published online consultation fees, currency, duration and included services. Display prices only, not programme package prices, payment offers or confirmed bookings.',
@@ -93,6 +115,36 @@ final class NativeAbilityRegistry
                         'category'=>self::string(120),'score'=>['type'=>'integer','minimum'=>1,'maximum'=>120]]),5)]),
                 ['query'=>self::string(500,1)+['pattern'=>'\S']],'blog'
             ),
+            'owner_dashboard_summary'=>self::owner(
+                'Read current owner-only operational counts. If shop enabled, report stored confirmed and pending order totals separately, not captured revenue.',
+                self::object($dashboard,array_values(array_diff(array_keys($dashboard),['commerce'])))
+            ),
+            'appointment_summary'=>self::owner(
+                'Count historical appointments by status. These are not current bookings or therapy enquiries.',
+                self::object(['total'=>$count,'by_status'=>self::counts(OwnerAbilityService::APPOINTMENT_STATES),
+                    'scope'=>self::string(50,1)+['const'=>'Historical appointments only']])
+            ),
+            'support_enquiries'=>self::owner(
+                'Count actual customer support tickets, statuses, unanswered messages and overlapping inferred topic counts; no private ticket text or identity.',
+                self::object(['total'=>$count,'by_status'=>self::counts(OwnerAbilityService::TICKET_STATES),
+                    'by_topic'=>self::counts($topicKeys),'awaiting_reply'=>$count,'topic_words_used'=>$topicWords,
+                    'topic'=>self::string(30)+['enum'=>array_merge([''],$topicKeys)],'matching'=>$count,'message'=>self::string(120)]),
+                ['topic'=>self::string(30,1)+['enum'=>$topicKeys,'description'=>'Optional topic: orders, delivery, payment, refund, product.'] ],null,[]
+            ),
+            'campaign_pages'=>self::owner(
+                'List owner campaign landing pages including drafts; up to 20 records, total matching count, published path only.',
+                self::object(['found'=>$count,'campaigns'=>self::listOf(self::object(['title'=>self::string(200,1),'slug'=>$slug,
+                    'status'=>self::string(10,1)+['enum'=>['draft','published']],
+                    'public_url'=>array_replace($campaignUrl,['type'=>['string','null']]),'summary'=>self::string(300)]),20)]),
+                ['slug'=>$slug+['description'=>'Optional exact campaign slug.']],'campaigns',[]
+            ),
+            'therapy_enquiry_summary'=>self::owner(
+                'Count therapy enquiry requests by status over the last 1–90 rolling days (default 30). Requests are not confirmed appointments.',
+                self::object(['days'=>['type'=>'integer','minimum'=>1,'maximum'=>90],'request_count'=>$count,
+                    'inbox_status'=>self::counts(['new','read','closed','other']),'admin_url'=>self::string(80,1)+['const'=>'/admin/contact-submissions']]),
+                ['days'=>['type'=>'integer','minimum'=>1,'maximum'=>90,'description'=>'Rolling days, defaults to 30.'],
+                    'slug'=>$slug+['description'=>'Optional exact campaign slug.']],'campaigns',[]
+            ),
         ];
     }
 
@@ -132,6 +184,11 @@ final class NativeAbilityRegistry
     public function invoke(string $name,array $args): array {
         $definition=$this->inspect($name);
         if ($definition===null) return self::error('ability_not_available','Unknown or unavailable ability.');
+        // Chat Completions strict schemas represent omitted optional scalar fields as null.
+        // Normalize only known optional arguments; unknown or required null is rejected.
+        foreach ($args as $key=>$value) {
+            if ($value===null&&isset(((array)$definition['input_schema']['properties'])[$key])&&!in_array($key,$definition['input_schema']['required'],true)) unset($args[$key]);
+        }
         if (!AbilitySchema::valid($args,$definition['input_schema'])) return self::error('ability_invalid_input','Invalid ability input.');
         try {
             // Recheck the native module at execution; discovery alone is not authority.
@@ -145,6 +202,11 @@ final class NativeAbilityRegistry
                 'published_programme_detail'=>(new ClinicKnowledgeService($this->store))->programmeDetail($args['slug']),
                 'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
                 'search_articles'=>(new ClinicKnowledgeService($this->store))->searchArticles($args['query']),
+                'owner_dashboard_summary'=>(new OwnerAbilityService($this->store))->dashboard(!empty($this->modules['shop'])&&!empty((new SettingsService($this->store))->strictModules()['shop'])),
+                'appointment_summary'=>(new OwnerAbilityService($this->store))->appointments(),
+                'support_enquiries'=>(new OwnerAbilityService($this->store))->supportEnquiries($args),
+                'campaign_pages'=>(new OwnerAbilityService($this->store))->campaigns($args),
+                'therapy_enquiry_summary'=>(new OwnerAbilityService($this->store))->therapyEnquiries($args),
                 default=>throw new \LogicException('Unmapped native ability.'),
             };
             if ($result===null) return self::error('ability_not_found','Published programme not found.');

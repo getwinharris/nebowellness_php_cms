@@ -109,3 +109,30 @@ test('strict article scan is read only, filters draft and disabled categories an
   assert.equal(unsafe,true);
  }finally{fs.rmSync(tmp,{recursive:true,force:true});}
 });
+test('owner operational abilities are typed, role-isolated and stable for empty collections',()=>{
+ const data=php(String.raw`
+ $db=new App\Services\DatabaseService();
+ $owner=new App\Services\NativeAbilityRegistry($db,'admin',['shop'=>false,'campaigns'=>true,'blog'=>false]);
+ $support=new App\Services\NativeAbilityRegistry($db,'support',['shop'=>false,'campaigns'=>true,'blog'=>false]);
+ $disabled=new App\Services\NativeAbilityRegistry($db,'admin',['shop'=>false,'campaigns'=>false,'blog'=>false]);
+ $names=['owner_dashboard_summary','appointment_summary','support_enquiries','campaign_pages','therapy_enquiry_summary'];
+ $result=[];foreach ($names as $name) {$result[$name]=['schema'=>$owner->inspect($name),'value'=>$owner->invoke($name,[]),'denied'=>$support->invoke($name,[])];}
+ echo json_encode(['results'=>$result,'disabled'=>$disabled->invoke('campaign_pages',[]),'bad_days'=>$owner->invoke('therapy_enquiry_summary',['days'=>91]),'bad_topic'=>$owner->invoke('support_enquiries',['topic'=>'everything']),'null_optional'=>$owner->invoke('support_enquiries',['topic'=>null])]);
+ `);
+ for(const [name,item] of Object.entries(data.results)){
+  assert.equal(item.schema.name,name);assert.equal(item.schema.annotations.readonly,true);
+  assert.ok(!item.value.error,name);assert.equal(item.denied.code,'ability_not_available');
+ }
+ assert.equal(data.results.owner_dashboard_summary.value.registered_users,0);
+ assert.equal(data.results.owner_dashboard_summary.value.shop_enabled,false);
+ assert.ok(!('commerce' in data.results.owner_dashboard_summary.value));
+ assert.equal(data.results.appointment_summary.value.total,0);
+ assert.equal(data.results.support_enquiries.value.total,0);
+ assert.equal(data.results.support_enquiries.value.by_status.open,0);
+ assert.deepEqual(data.results.campaign_pages.value,{found:0,campaigns:[]});
+ assert.equal(data.results.therapy_enquiry_summary.value.request_count,0);
+ assert.equal(data.disabled.code,'ability_not_available');
+ assert.equal(data.bad_days.code,'ability_invalid_input');
+ assert.equal(data.bad_topic.code,'ability_invalid_input');
+ assert.equal(data.null_optional.total,0);
+});
