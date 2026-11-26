@@ -45,8 +45,12 @@ Independent writers append distinct correlated turn/trace pairs without
 discarding the prior snapshot. Successful ticket retries are deduplicated.
 Limits: 100 events, approximately 1 MiB, 16 trace steps, 12 source paths.
 Expired snapshots cannot be updated while retained or recreated from an entirely expired event snapshot after cleanup. The inventory cap is enforced for new files. Owner-triggered
-confirmed cleanup removes at most 100 expired private files; no automatic
-cleanup or legacy remoteDB deletion. Interrupted staging files are
+confirmed cleanup removes at most 100 expired private files; stored
+updated_at is authoritative even after backup copy changes file mtime.
+Inventory scans have a 64 MiB / four-second budget; exceeding it reports
+unavailable rather than presenting an incorrect list or deleting from an
+incomplete candidate scan. Very large inventories need bounded pagination
+or a reviewed metadata index. No automatic cleanup or legacy remoteDB deletion. Interrupted staging files are
 ignored and never replace the committed record.
 
 Existing active v1 conversations keep their original archive authority

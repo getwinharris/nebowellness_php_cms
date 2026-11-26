@@ -7,6 +7,8 @@ final class PrivateAgentJournalStore {
     public const VERSION=2;
     private const MAX_RECORD_BYTES=1064960; // 1 MiB events plus bounded envelope.
     private const MAX_FILES=10000;
+    private const MAX_SCAN_BYTES=67108864;
+    private const SCAN_SECONDS=4.0;
     private string $root;
     public function __construct(?string $directory=null,private ?\Closure $clock=null) {
         $app=realpath(app_path());
@@ -203,32 +205,51 @@ final class PrivateAgentJournalStore {
         }
         arsort($items,SORT_NUMERIC);return $items;
     }
+    /** A backup may change mtime. Validate the stored record before classifying
+     * it, and fail explicitly if a shared-host request cannot finish its scan. */
+    private function scanRecord(string $id,int &$remaining,float $deadline): ?array {
+        $path=$this->path($id);
+        clearstatcache(true,$path);
+        $size=@filesize($path);
+        if($size===false||$size>self::MAX_RECORD_BYTES||$size>$remaining||microtime(true)>=$deadline){
+            throw new \RuntimeException('Private journal inventory scan exceeds budget or source is unavailable.');
+        }
+        $remaining-=$size;
+        return $this->read($id);
+    }
     public function recent(): array {
         if(!$this->root(false))return [];
         return $this->lock(false,function():array{
-            $out=[];
+            $out=[];$remaining=self::MAX_SCAN_BYTES;$deadline=microtime(true)+self::SCAN_SECONDS;
+            $cutoff=$this->cutoff();
             foreach($this->files() as $id=>$mtime){
-                if($mtime<$this->cutoff())continue;
-                $record=$this->read((string)$id);
-                if($record===null||strtotime($record['updated_at'])<$this->cutoff())continue;
+                $record=$this->scanRecord((string)$id,$remaining,$deadline);
+                if($record===null||strtotime($record['updated_at'])<$cutoff)continue;
                 $out[]=['id'=>$record['id'],'updated_at'=>$record['updated_at'],'surface'=>$record['surface'],'actor_type'=>$record['actor_type'],'turns'=>count($record['events'])];
-                if(count($out)>=100)break;
             }
-            return $out;
+            usort($out,static fn(array $a,array $b):int=>(strtotime($b['updated_at'])<=>strtotime($a['updated_at']))?:strcmp($a['id'],$b['id']));
+            return array_slice($out,0,100);
         });
     }
-    /** Explicit owner cleanup only; never touches legacy remoteDB records. */
+    /** Explicit owner cleanup only; never touches legacy remoteDB records.
+     * Select validated candidates before deleting any. mtime is only a scan
+     * ordering hint, never the retention authority. */
     public function purgeExpired(): int {
         if(!$this->root(false))return 0;
         return $this->lock(true,function():int{
-            $count=0;
+            $expired=[];$remaining=self::MAX_SCAN_BYTES;$deadline=microtime(true)+self::SCAN_SECONDS;
+            $cutoff=$this->cutoff();
             foreach(array_reverse($this->files(),true) as $id=>$mtime){
-                if($mtime>=$this->cutoff())continue;
-                $record=$this->read((string)$id);
-                if($record!==null&&strtotime($record['updated_at'])<$this->cutoff()){
-                    if(!unlink($this->path((string)$id)))throw new \RuntimeException('Private journal cleanup failed.');
-                    if(++$count>=100)break;
+                $record=$this->scanRecord((string)$id,$remaining,$deadline);
+                if($record!==null&&strtotime($record['updated_at'])<$cutoff){
+                    $expired[]=(string)$id;
+                    if(count($expired)>=100)break;
                 }
+            }
+            $count=0;
+            foreach($expired as $id){
+                if(!unlink($this->path($id)))throw new \RuntimeException('Private journal cleanup failed after '.$count.' removals.');
+                $count++;
             }
             return $count;
         });

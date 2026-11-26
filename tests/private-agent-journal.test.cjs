@@ -75,9 +75,12 @@ test('expiry is explicit, does not revive a stale archive, and cleanup deletes o
   const time=Math.floor(Date.now()/1000)-31*86400;
   const old=record({created_at:new Date(time*1000).toISOString().replace(/\.\d+Z$/,'Z'),events:[event(turn,'c'.repeat(16),{at:new Date(time*1000).toISOString().replace(/\.\d+Z$/,'Z')})]});
   php('$s=new App\\Services\\PrivateAgentJournalStore($argv[1],static fn()=>(int)$argv[3]);$s->persist(json_decode($argv[2],true,flags:JSON_THROW_ON_ERROR));echo "true";',[dir,JSON.stringify(old),String(time)]);
-  await utimes(path.join(dir,id+'.json'),time,time);
+  // Simulate backup restoration changing an expired record's filesystem timestamp.
+  await utimes(path.join(dir,id+'.json'),new Date(),new Date());
   const current='9'.repeat(32);
   php('$s=new App\\Services\\PrivateAgentJournalStore($argv[1]);$s->persist(json_decode($argv[2],true,flags:JSON_THROW_ON_ERROR));echo "true";',[dir,JSON.stringify(record({id:current,events:[] }))]);
+  // A current record copied with an old mtime must remain visible and retained.
+  await utimes(path.join(dir,current+'.json'),time,time);
   const before=php('$s=new App\\Services\\AgentSessionService(privateStore:new App\\Services\\PrivateAgentJournalStore($argv[1]));echo json_encode(["expired"=>$s->get($argv[2]),"report"=>$s->recentReport()]);',[dir,id]);
   assert.equal(before.expired,null);assert.deepEqual(before.report.items.map(r=>r.id),[current]);
   assert.equal(php('$s=new App\\Services\\PrivateAgentJournalStore($argv[1]);try{$s->persist(json_decode($argv[2],true,flags:JSON_THROW_ON_ERROR));echo "false";}catch(DomainException){echo "true";}',[dir,JSON.stringify(old)]),true);
