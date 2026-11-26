@@ -19,6 +19,10 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
         providerPrompts.push(payload.messages[0].content);
         assert.ok(payload.tools.length > 0);
         const prompt=payload.messages[0].content;
+        if (prompt.includes('Question: Summarise current clinic operations without a lookup')) {
+            res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:'There are 999 requests.'}}]}));
+            return;
+        }
         if (prompt.includes('Question: Draft a short fictional welcome sentence') || prompt.includes('question: Hello there, good morning') || prompt.includes('How many support enquiries are open?') || prompt.includes('What is the published initial consultation fee?')) {
             const value=prompt.includes('How many support enquiries')?'There are 999 support enquiries.':prompt.includes('published initial consultation fee')?'The fee is ₹999.':prompt.includes('fictional welcome')?'**Welcome** to a brighter day.':'Good morning! How can I help?';
             res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:value}}]}));
@@ -104,6 +108,9 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     const guessedCount=await request('admin',{_csrf:'fixture-token',message:'How many support enquiries are open?'});
     assert.equal(guessedCount.status,502);
     assert.ok(!guessedCount.body.answer);
+    const guessedReport=await request('admin',{_csrf:'fixture-token',message:'Summarise current clinic operations without a lookup'});
+    assert.equal(guessedReport.status,502);
+    assert.ok(!guessedReport.body.answer);
     const fields = { _csrf: 'fixture-token', conversation: support.conversation };
     await request('support', { ...fields, message: 'My support tickets', turn_id: randomBytes(16).toString('hex') });
     assert.equal((await request('support', { ...fields, conversation_action: 'history' })).body.turns.length, 2);

@@ -2591,6 +2591,18 @@
       "summary": "Remove 31 retail routes, six internal retail ability definitions and retail-specific CLI entrypoints, permanently retire shop module flag, and retain verified service payment paths plus protected historical receipts. Regression fixtures verify stale flags cannot reactivate retail. Historical REA evidence and database collections remain; physical archival cleanup is separate."
     },
     {
+      "id": "165-preserve-owner-report-grounding",
+      "date": "2026-11-26",
+      "issues": [
+        165,
+        128
+      ],
+      "components": [
+        "mcp-05"
+      ],
+      "summary": "Review correction: retain a service-only native evidence group for owner operational reports and dashboards. Direct guessed counts and unrelated retrieval cannot satisfy the report gate; no retail tools reintroduced. Synthetic trace and loopback route regressions. No capability coverage increase."
+    },
+    {
       "id": "167-native-a2ui-catalog",
       "date": "2026-11-26",
       "issues": [

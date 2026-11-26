@@ -63,6 +63,11 @@ final class AgentToolRegistry implements ModelToolSet
             if (preg_match('/\b(historical appointments?)\b/i',$question)) $groups[]=['appointment_summary'];
             if ($therapy && ($metric || preg_match('/\brequests?\b/i',$question))) $groups[]=['therapy_enquiry_summary'];
             if ($metric && preg_match('/\bcustomers?\b/i',$question)) $groups[]=['owner_dashboard_summary'];
+            // Retail retirement must not remove the general owner reporting gate.
+            if (preg_match('/\b(operations|operational|dashboard|reports?|analytics)\b/i',$question)
+                && ($metric || preg_match('/\b(reports?|analytics)\b/i',$question))) {
+                $groups[]=['owner_dashboard_summary','support_enquiries','therapy_enquiry_summary','appointment_summary'];
+            }
         }
         if (preg_match('/\b(articles?|blogs?|posts?)\b/i',$question) && preg_match('/\b(published|current|available|find|search|list|read|latest)\b/i',$question)) $groups[]=['search_articles','search_clinic_knowledge','clinic_context'];
         return $groups;
