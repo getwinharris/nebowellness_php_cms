@@ -35,6 +35,10 @@ $overview = trim((new \App\Services\MarkdownRenderer())->render((string)($campai
       <img class="campaign-hero__image" src="<?= e(CampaignPageService::editorialImage($campaign)) ?>" alt="" loading="eager" fetchpriority="high" data-therapy-image>
     </div>
   </header>
+  <nav class="container campaign-outline" data-program-outline aria-label="Explore this program" hidden>
+    <p class="campaign-outline__label">Explore this program</p>
+    <ul class="campaign-outline__links"></ul>
+  </nav>
   <div class="container campaign-page__layout<?= $overview === '' ? ' campaign-page__layout--steps-only' : '' ?>" id="campaign-overview">
     <?php if ($overview !== ''): ?><div class="campaign-page__body"><?= $overview ?></div><?php endif; ?>
     <aside class="campaign-page__aside" aria-labelledby="campaign-steps-title">

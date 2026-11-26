@@ -41,12 +41,12 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 307
+  concepts: 308
   relationships: 279
   by_type:
     blog: 5
     controller: 13
-    doc: 37
+    doc: 38
     image: 40
     route: 125
     schema: 24
@@ -506,6 +506,15 @@ concepts:
     tags:
       - "docs"
     filename: "schema.md"
+    header_image: ""
+  - id: "doc:sha-motion-comparison"
+    type: "doc"
+    title: "SHA reference motion and component comparison"
+    description: "Evidence-backed mapping of the saved SHA Wellness homepage to native Nebo page sections and interactions."
+    resource: "docs/sha-motion-comparison.md"
+    tags:
+      - "design"
+    filename: "sha-motion-comparison.md"
     header_image: ""
   - id: "doc:sha-motion-reference"
     type: "doc"
