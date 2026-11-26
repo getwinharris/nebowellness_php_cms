@@ -64,6 +64,12 @@ try {
         '/.agents/REA/catalog.json' => 403,
         '/.agents/REA/reference/wordpress/LICENSE' => 403,
         '/.agents/skills/docs/SKILL.md' => 403,
+        '/.agents/map.mmd' => 403,
+        '/.agents/index.yaml' => 403,
+        '/map.mmd' => 404,
+        '/index.yaml' => 404,
+        '/TODO.md' => 404,
+        '/OBJECTIVE.md' => 404,
     ] as $path => $expected) {
         $response = httpRequest($base . $path);
         if ($response['status'] === 0) {

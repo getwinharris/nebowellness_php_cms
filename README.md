@@ -16,22 +16,22 @@ blog posts, and file-based images. There is no SPA or frontend build step.
 |---|---|---|
 | What are the agent rules? | `AGENTS.md` | matching `.agents/skills/*/SKILL.md` |
 | Does a route/service/view/collection exist? | `docs/project-index.json` | original PHP/schema file |
-| How is a request wired? | `map.mmd` | `app/routes.php` → controller → service → view |
-| Where is a blog or image? | `index.yaml` narrow concept/filename search | returned Markdown/image path |
+| How is a request wired? | `.agents/map.mmd` | `app/routes.php` → controller → service → view |
+| Where is a blog or image? | `.agents/index.yaml` narrow concept/filename search | returned Markdown/image path |
 | What is the database shape? | `storage/schema/collections.php` | owning service/admin form |
 | What is a live editable value? | hosted MySQL through `DatabaseService` | lowercase `/remotedb` fallback |
 | Which REA skill should I use? | .agents/REA/README.md | ./bapXphp rea skills and native adaptation routing |
 | What remains from REA research? | docs/research/rea/progress.md | canonical register, pinned evidence and acceptance tests |
 | What controls UI? | `Design.md` | `assets/css/band.css` and PHP view |
 
-Do not read all of `index.yaml`. Read its discovery header, copy the applicable narrow
+Do not read all of `.agents/index.yaml`. Read its discovery header, copy the applicable narrow
 query, open the returned original source, and stop when the source answers the question.
 
 ```bash
-sed -n '1,/^concepts:$/p' index.yaml
-rg -n -B4 -A14 'path: "/shop"' index.yaml
-rg -n -B4 -A14 'id: "schema:products"' index.yaml
-rg -n -B4 -A12 'filename: "<image-name>"' index.yaml
+sed -n '1,/^concepts:$/p' .agents/index.yaml
+rg -n -B4 -A14 'path: "/shop"' .agents/index.yaml
+rg -n -B4 -A14 'id: "schema:products"' .agents/index.yaml
+rg -n -B4 -A12 'filename: "<image-name>"' .agents/index.yaml
 ```
 
 Use the [feature lookup guide](docs/README.md#feature-lookup) for common workflows
@@ -49,6 +49,10 @@ and the [release guide](docs/releases.md) and [changelog](docs/changelog.md) for
 - `MediaService` stores new upload metadata in MySQL `media_files`; bundled media and legacy YAML are protected compatibility inputs.
 - Generated maps and indexes point to originals; they are navigation artifacts, not
   alternate sources of truth.
+- GitHub issues are the sole backlog; AGENTS.md and Design.md hold durable
+  engineering and product rules. Do not maintain separate local task or
+  objective ledgers. The private generated developer map and knowledge index
+  are in .agents/; the docs inventories stay under docs/.
 
 ## Repository layout
 
@@ -61,8 +65,8 @@ assets/                        CSS, JavaScript, and image binaries
 content/blog/posts/            Markdown blog/help articles
 storage/schema/collections.php canonical MySQL schema
 docs/project-index.json        generated existence inventory
-map.mmd                        generated dependency graph
-index.yaml                     generated concept/relationship router
+.agents/map.mmd                generated dependency graph
+.agents/index.yaml             generated concept/relationship router
 tests/run.php                  application regression suite
 ```
 

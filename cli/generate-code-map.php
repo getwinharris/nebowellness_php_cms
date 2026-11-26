@@ -4,10 +4,13 @@ require __DIR__ . '/../app/bootstrap.php';
 use App\Services\ProjectMapService;
 
 $root = $argv[1] ?? dirname(__DIR__);
-$output = $argv[2] ?? $root . '/map.mmd';
+$output = $argv[2] ?? $root . '/.agents/map.mmd';
 
 $mmd = ProjectMapService::renderSystematicMermaid();
-file_put_contents($output, $mmd);
+if (file_put_contents($output, $mmd) !== strlen($mmd)) {
+    fwrite(STDERR, "Unable to write code map.\n");
+    exit(1);
+}
 
 $scan = ProjectMapService::scan();
 $summary = $scan['summary'] ?? [];
