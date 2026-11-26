@@ -45,8 +45,8 @@ a tool. Verify each migration against the actual backing path and data.
 | published_practitioners | support and admin; independent | ClinicKnowledgeService::practitioners → ConsultantService::all | Native v1; visible-only typed fields, explicit malformed-source error and fixed source URL |
 | published_programmes | support and admin; campaigns | ClinicKnowledgeService::programmes → CampaignPageService::published / homepagePrograms | Native v1; published and eligible homepage cards, bounded typed projection and module recheck |
 | published_programme_detail | support and admin; campaigns | ClinicKnowledgeService::programmeDetail → CampaignPageService::findPublished | Native v1; exact slug, draft/ambiguous miss, bounded body and typed errors |
-| search_clinic_knowledge | support and admin; source-specific module gates | ClinicKnowledgeService::search/rank | Lexical public-only result, source mix and per-source failure handling; bounded typed excerpts pending |
-| search_articles | support and admin; blog | AgentToolRegistry::searchArticles → BlogService::all(false) | Stable list shape for empty/nonempty, Unicode search, URL validation pending |
+| search_clinic_knowledge | support and admin; source-specific module gates | ClinicKnowledgeService::search/rank | Native v1; bounded typed lexical excerpts, strict module snapshot, source failure fails closed |
+| search_articles | support and admin; blog | ClinicKnowledgeService::searchArticles → BlogService::all(false, modules) | Native v1; stable list shape, Unicode terms, actual file slug and module checks |
 | clinic_context | support only | SupportBotService::toolContext → scoped AgentContextService and current session cart | Mixed public and owned data; split scopes and prove field/record ownership before typed exposure |
 | owner_dashboard_summary | admin only | AgentContextService::forAdmin | Free-text aggregate and hardcoded currency; use typed authoritative metrics and source dates, not persona text |
 | appointment_summary | admin only | AgentToolRegistry::summariseAppointments | Historical only; stable count/status map and scope |
@@ -137,3 +137,29 @@ Next migrate public lexical search and blog lookup, then separate public
 clinic context from owned account data and type the owner aggregate
 capabilities. External MCP remains gated on verified catalogue/actor
 contracts. Do not expose legacy untyped functions to external clients.
+
+
+## Third implementation: public knowledge and article search (issue #154)
+
+The same audited WordPress ability execution contract and native
+rea-wp-ability-development / rea-wp-abilities-verify skills govern these
+two read-only migrations. Preserve the model function names. The shared
+ClinicKnowledgeService projects public data; BlogService provides the
+existing publication filter with an optional strict module snapshot.
+The native search path never creates directories on read. A missing,
+unreadable, aliased or oversized article source fails closed. Source URLs
+are canonical local paths; malformed slugs and public text are rejected.
+The lexical ranker accepts bounded Unicode terms and deterministically
+limits returned hits to five. Article search returns found/articles even
+when empty; knowledge search distinguishes an unavailable source from zero
+matches. Required-source errors withhold the whole search result rather
+than present an incomplete corpus as complete. The existing publication
+date/scheduling semantics are not expanded by this migration.
+
+Red/green tests in tests/native-ability.test.cjs exercise unknown/malformed
+input, empty versus unavailable, disabled discovery, actual temporary
+Markdown files and no directory creation on read. The strict MariaDB
+public ability integration exercises real published programmes and the
+existing article files, module rechecks and draft exclusion. Native
+catalogue coverage is six of 18; owner and session-owned tools remain
+internal legacy until migrated. External transport is not enabled here.

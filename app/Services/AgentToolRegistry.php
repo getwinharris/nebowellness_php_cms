@@ -106,7 +106,6 @@ final class AgentToolRegistry implements ModelToolSet
     public function declarations(): array
     {
         $tools = [
-            ['name'=>'search_clinic_knowledge','description'=>'Search current public practitioner profiles, published programme body passages and published articles by a specific query. Return ranked excerpts and real source URLs, never private records.','parameters'=>['type'=>'object','properties'=>['query'=>['type'=>'string']],'required'=>['query']]],
             ['name'=>'clinic_context','description'=>'Retrieve the current permitted clinic and account information for this session. No other customer records are available.','parameters'=>['type'=>'object']],
             ['name'=>'owner_dashboard_summary','description'=>'Retrieve the current owner-only operational summary.','parameters'=>['type'=>'object']],
             ['name' => 'appointment_summary', 'description' => 'Count historical appointment records by status. These are not current bookings or therapy campaign requests.', 'parameters' => ['type' => 'object']],
@@ -158,18 +157,6 @@ final class AgentToolRegistry implements ModelToolSet
                             'description' => 'Narrow to a topic: orders, delivery, payment, refund, product. Omit for all.',
                         ],
                     ],
-                ],
-            ],
-            [
-                'name' => 'search_articles',
-                'description' => 'Search published blog and help articles by keyword. Returns titles and their paths '
-                    . 'so an answer can point at real published content.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'query' => ['type' => 'string', 'description' => 'Words to search for.'],
-                    ],
-                    'required' => ['query'],
                 ],
             ],
             [
@@ -356,7 +343,6 @@ final class AgentToolRegistry implements ModelToolSet
         if ($args===null) return ['error'=>'Invalid lookup arguments.'];
         try {
             return match ($name) {
-                'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
                 'clinic_context' => $this->contextLoader !== null ? ($this->contextLoader)() : ['error'=>'Context unavailable.'],
                 'owner_dashboard_summary'=>['summary'=>(new AgentContextService($this->store))->forAdmin(!empty($this->modules['shop']))],
                 'appointment_summary' => self::summariseAppointments($this->store->read('appointments')),
@@ -366,7 +352,6 @@ final class AgentToolRegistry implements ModelToolSet
                 'product_status' => $this->productStatus($args),
                 'sales_summary' => $this->salesSummary($args),
                 'support_enquiries' => $this->supportEnquiries($args),
-                'search_articles' => $this->searchArticles($args),
                 'campaign_pages' => $this->campaignPages($args),
                 'therapy_enquiry_summary' => self::summariseTherapyEnquiries($this->store->read('contact_submissions'), $args),
                 'coupon_status' => $this->couponStatus($args),
@@ -614,45 +599,6 @@ final class AgentToolRegistry implements ModelToolSet
             $out['matching_tickets'] = array_slice($matched, 0, 20);
         }
         return $out;
-    }
-
-    /**
-     * Published articles matching a query.
-     *
-     * Scored on how many of the query's own words appear in the title and summary, so
-     * an answer can point at real content. BlogService::all() is the public filter, so
-     * an unpublished post or one in a switched-off category cannot be cited.
-     */
-    private function searchArticles(array $args): array
-    {
-        $query = strtolower(trim((string)($args['query'] ?? '')));
-        if ($query === '') return ['error' => 'Give something to search for.'];
-        $words = array_filter(
-            preg_split('/[^a-z0-9]+/', $query) ?: [],
-            fn(string $w): bool => mb_strlen($w) >= 3
-        );
-        if ($words === []) return ['found' => 0, 'message' => 'Nothing specific enough to search for.'];
-
-        $scored = [];
-        foreach ((new BlogService())->all(false) as $post) {
-            $title = strtolower((string)($post['title'] ?? ''));
-            $summary = strtolower((string)($post['excerpt'] ?? $post['summary'] ?? ''));
-            $score = 0;
-            foreach ($words as $word) {
-                if (str_contains($title, $word)) $score += 2;   // a title match is the stronger signal
-                if (str_contains($summary, $word)) $score += 1;
-            }
-            if ($score === 0) continue;
-            $scored[] = [
-                'title' => (string)($post['title'] ?? ''),
-                'path' => '/blog/' . (string)($post['slug'] ?? ''),
-                'category' => (string)($post['category'] ?? ''),
-                'score' => $score,
-            ];
-        }
-        usort($scored, fn(array $a, array $b): int => $b['score'] <=> $a['score']);
-        if ($scored === []) return ['found' => 0, 'message' => 'No published article matched.'];
-        return ['found' => count($scored), 'articles' => array_slice($scored, 0, 5)];
     }
 
     private function couponStatus(array $args): array

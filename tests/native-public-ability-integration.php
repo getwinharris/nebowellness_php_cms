@@ -13,7 +13,7 @@ $prefix='qa-'.bin2hex(random_bytes(6));
 $ids=[$prefix.'-public',$prefix.'-hidden',$prefix.'-draft',$prefix.'-duplicate'];
 $assert=static function(bool $ok,string $message):void {if(!$ok)throw new RuntimeException($message);};
 try {
-    $db->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'module_campaigns'=>'1','module_shop'=>'0']);
+    $db->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'module_campaigns'=>'1','module_shop'=>'0','module_blog'=>'1','consultation_fees'=>[],'consultation_inclusions'=>[]]);
     $public=['id'=>$ids[0],'slug'=>$ids[0],'name'=>'Fixture practitioner','status'=>'visible',
         'credentials'=>'Approved qualification','registration_number'=>'005441','speciality'=>'Fixture speciality',
         'description'=>'Public description','private_note'=>'Must never leave the source'];
@@ -45,7 +45,17 @@ try {
         $assert($legacy->run('published_programme_detail',['slug'=>'../bad'])['code']==='ability_invalid_input','Invalid slug rejected');
         $assert($before===['settings'=>$db->find('settings',SettingsService::SETTINGS_ID),'practitioner'=>$db->find('consultants',$ids[0]),'page'=>$db->find('campaign_pages',$ids[0])],'Read abilities leave durable state unchanged');
     }
-    $native=new NativeAbilityRegistry($db,'support',['campaigns'=>true]);
+    $native=new NativeAbilityRegistry($db,'support',['campaigns'=>true,'blog'=>true,'shop'=>false]);
+    $search=$native->invoke('search_clinic_knowledge',['query'=>'Fixture programme']);
+    $assert(AbilitySchema::valid($search,$native->inspect('search_clinic_knowledge')['output_schema']),'Published knowledge search has a typed result');
+    $assert(in_array('/campaigns/'.$ids[0],array_column($search['matches'],'url'),true),'Find canonical published programme');
+    $assert(!in_array('/campaigns/'.$ids[2],array_column($search['matches'],'url'),true),'Never cite a draft');
+    $articles=$native->invoke('search_articles',['query'=>'Nebo consultation']);
+    $assert(AbilitySchema::valid($articles,$native->inspect('search_articles')['output_schema']),'Actual published Markdown search conforms');
+    $assert(in_array('/blog/your-first-nebo-consultation',array_column($articles['articles'],'path'),true),'Real article link');
+    $db->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'module_blog'=>'0']);
+    $assert($native->invoke('search_articles',['query'=>'Nebo'])['code']==='ability_not_available','Stale blog discovery rechecks module');
+    $db->upsert('settings',['id'=>SettingsService::SETTINGS_ID,'module_blog'=>'1']);
     $db->upsert('campaign_pages',array_replace($page,['id'=>$ids[3],'title'=>'Ambiguous fixture']));
     $assert($native->invoke('published_programme_detail',['slug'=>$ids[0]])['code']==='ability_not_found','Ambiguous published slug does not choose arbitrary record');
     $db->delete('campaign_pages',$ids[3]);

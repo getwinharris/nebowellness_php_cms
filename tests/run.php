@@ -1535,8 +1535,9 @@ $tests['the admin agent grounds a count instead of returning the nearest number'
         'Zero enquiries should be stated plainly, not left for the model to phrase');
     assertTrue(str_contains($source, "'topic_words_used' => self::ENQUIRY_TOPICS"),
         'The words behind an interpretation should travel with the count');
-    assertTrue(str_contains($source, 'blog->all(false)') || str_contains($source, "BlogService())->all(false)"),
-        'Article search must use the public filter so an unpublished post cannot be cited');
+    $knowledge = file_get_contents(app_path('app/Services/ClinicKnowledgeService.php'));
+    assertTrue(str_contains($knowledge, '->all(false,$modules)'),
+        'Article search must use the public filter with a strict module snapshot');
     // Still read-only, now that two more tools exist.
     foreach (['upsert(', '->write(', '->delete(', '->save('] as $mutation) {
         assertTrue(!str_contains($source, $mutation), "Tools must stay read-only: found {$mutation}");
