@@ -24,7 +24,7 @@ The existing AuthService and CSRF gate run before the controller; the
 canonical settings row lock rejects concurrent stale edits. Audit records
 action metadata, not draft values or unrelated settings.
 
-The public resolver projects only a validated published identity. Existing
+The public resolver projects only a validated published identity from the canonical settings row; a legacy fallback row cannot publish a profile. Existing
 Nebo reference copy is isolated in config/reference-site-profile.php and
 only enabled for the configured Nebo host (not the incoming Host header).
 A separate installation without a published profile displays a neutral

@@ -47,11 +47,14 @@ test('strict fields and allowlisted URLs reject malformed or executable input',(
       try{$c::validate($candidate);$bad[]=false;}catch(InvalidArgumentException){$bad[]=true;}
     }
     try{$c::transition([],'publish');$bad[]=false;}catch(DomainException){$bad[]=true;}
-    $unavailable=$c::resolve(['site_profile'=>['version'=>900,'published'=>$in]]);
-    echo json_encode(['bad'=>$bad,'unavailable'=>$unavailable]);
+    $unavailable=$c::resolve(['id'=>'app_settings','site_profile'=>['version'=>900,'published'=>$in]]);
+    $legacy=$c::resolve(['id'=>'old_settings','site_profile'=>['version'=>1,'published'=>$in]]);
+    echo json_encode(['bad'=>$bad,'unavailable'=>$unavailable,'legacy'=>$legacy]);
     `,alpha);
     assert.ok(output.bad.every(Boolean));
     assert.equal(output.unavailable.mode,'unavailable');
+    assert.equal(output.legacy.mode,'unavailable');
+    assert.ok(!JSON.stringify(output.legacy).includes(alpha.name));
     assert.ok(!JSON.stringify(output.unavailable).includes(alpha.name));
 });
 test('two independent synthetic identities render actual templates and public projections',()=>{

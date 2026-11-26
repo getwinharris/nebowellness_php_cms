@@ -120,6 +120,7 @@ final class SiteProfileService
         try {
             $published=null;
             if (array_key_exists('site_profile',$settings)) {
+                if (($settings['id']??null)!==SettingsService::SETTINGS_ID) return self::unavailable();
                 $state=$settings['site_profile'];
                 if (!is_array($state)||($state['version']??null)!==self::VERSION||!array_key_exists('published',$state)) return self::unavailable();
                 if ($state['published']!==null) {
