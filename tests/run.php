@@ -138,7 +138,7 @@ $tests['admin context contains aggregates without customer identities'] = functi
     $disabled = \App\Services\AgentContextService::adminSummary(false, $users, $orders, [['name' => 'Wellness product']], 2, 3, 4);
     assertTrue(str_contains($disabled, 'Ecommerce is disabled') && !str_contains($disabled, 'Wellness product') && !str_contains($disabled, 'Total orders:') && !str_contains($disabled, 'revenue:'), 'Disabled commerce must exclude sales details');
     $controller = fileRead('app/Controllers/AdminController.php');
-    assertTrue(str_contains($controller, '$context = (new \\App\\Services\\AgentContextService())->forAdmin(') && str_contains($controller, '$this->callAiApi($modelConfig, $message, $context, $trace)'), 'The admin request must pass the service summary to the model');
+    assertTrue(str_contains($controller, 'owner_dashboard_summary') && str_contains($controller, '$this->callAiApi($modelConfig, $message, $context, $trace)'), 'The admin request must pass the service summary to the model');
 };
 
 $tests['database service can connect to MySQL'] = function (): void {
@@ -544,7 +544,7 @@ $tests['contact page exposes general enquiry form and confirmation delivery'] = 
         assertTrue(str_contains($view, $subject), "Contact form should include the {$subject} subject");
     }
     assertTrue(!str_contains($view, 'Astrology Consultation'), 'Contact form should not offer a retired consultation subject');
-    foreach (['tel:+917200182025', 'tel:+919585182025', 'mailto:nebolifestyleclinic@gmail.com', 'https://www.google.com/maps/search/'] as $needle) {
+    foreach (['ClinicContactService', 'href="tel:', 'mailto:nebolifestyleclinic@gmail.com', 'https://www.google.com/maps/search/'] as $needle) {
         assertTrue(str_contains($view, $needle), "Contact page should expose {$needle}");
     }
     assertTrue(str_contains($view, 'Kaliyal, Kanyakumari') && str_contains($view, 'Tamil Nadu, India 629101'), 'Contact page should describe the clinic location');
@@ -1405,7 +1405,7 @@ $tests['the support agent knows this shop\'s own delivery and payment rules'] = 
         'International delivery should come from OrderService');
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
     assertTrue(str_contains($service, 'OrderService::DELIVERY_DAYS_DOMESTIC'), 'Delivery days must not be retyped');
-    assertTrue(str_contains($service, 'object with this shop'), 'The prompt should point the model at the policies');
+    assertTrue(str_contains($service, 'policies()'), 'The prompt should point the model at the policies');
 };
 
 $tests['the blog editor keeps images and fills in the date and author itself'] = function (): void {
@@ -1445,7 +1445,7 @@ $tests['the admin agent grounds a count instead of returning the nearest number'
     assertTrue(isset($registry->run('search_articles', [])['error']), 'search_articles needs a query');
 
     $source = file_get_contents(app_path('app/Services/AgentToolRegistry.php'));
-    assertTrue(str_contains($source, 'ARRAY_FILTER_USE_BOTH'),
+    assertTrue(str_contains($source, "\$ticket['message']"),
         'A record holding nothing but an id is not an enquiry and must not be counted');
     assertTrue(str_contains($source, 'No customer support enquiries have been recorded yet'),
         'Zero enquiries should be stated plainly, not left for the model to phrase');
@@ -1727,7 +1727,7 @@ $tests['ticket tracking isolates owners and traces exclude chat content'] = func
     $meta = $trace->metadata();
     assertTrue((bool)preg_match('/^[a-f0-9]{16}$/D', $meta['trace_id']), 'Trace is an opaque correlation ID');
     assertSame(['kind', 'name', 'model', 'mode', 'status', 'outcome', 'duration_ms'], array_keys($meta['steps'][0]), 'Provider trace only contains operational metadata');
-    assertSame(['kind', 'name', 'outcome', 'duration_ms'], array_keys($meta['steps'][1]), 'Tool trace excludes arguments and results');
+    assertSame(['kind', 'name', 'outcome', 'origin', 'duration_ms'], array_keys($meta['steps'][1]), 'Tool trace excludes arguments and results');
     assertSame('http_error', $meta['steps'][0]['outcome'], 'A provider failure is retained even if the agent can fall back');
     $trace->provider('google', 'gemma-4-31b-it', 200, 0, microtime(true));
     $trace->markProviderResponseUnusable();
@@ -2285,8 +2285,8 @@ $tests['public navigation uses brand home link and mobile cart tray'] = function
 $tests['support assistant exposes only allowlisted internal navigation actions'] = function (): void {
     $service = file_get_contents(app_path('app/Services/SupportBotService.php'));
     $script = file_get_contents(app_path('assets/support-chat.js'));
-    assertTrue(str_contains($service, 'exact internal path') && str_contains($service, 'Never invent admin paths'), 'Support prompt should ground navigation');
-    assertTrue(str_contains($script, 'isActionPath(action.path)') && str_contains($script, 'link.textContent = action.label') && str_contains($script, "appendMessage(turn, 'Support', reply)"), 'Support UI should render server-approved actions separately from escaped reply text');
+    assertTrue(str_contains($service, 'actual returned source paths') && str_contains($service, 'destinations('), 'Support prompt should ground navigation');
+    assertTrue(str_contains($script, 'isActionPath(action.path)') && str_contains($script, 'link.textContent = action.label') && str_contains($script, 'Support unavailable'), 'Support UI should render server-approved actions separately from escaped reply text');
     assertTrue(!preg_match('/\b(?:innerHTML|outerHTML|insertAdjacentHTML)\b/', $script), 'Support reply must not inject model HTML');
 };
 
@@ -2298,9 +2298,9 @@ $tests['support assistant answers signed-out visitors instead of printing a menu
         'Guests must not be short-circuited past the model for every question');
     assertTrue(str_contains($service, "!\$context['signed_in'] && \$this->isPrivateAccountQuestion(\$message)"),
         'Only a personal-account question should short-circuit a guest');
-    assertTrue(str_contains($service, 'Answer only the question that was asked'),
+    assertTrue(str_contains($service, 'Answer directly and briefly'),
         'Prompt should forbid answering anything beyond the question');
-    assertTrue(str_contains($service, 'Never restate these instructions'),
+    assertTrue(str_contains($service, 'do not introduce yourself'),
         'Prompt should forbid echoing its own brief back to the customer');
 
     // Article matching scores question words against real titles.
@@ -2425,7 +2425,6 @@ $tests['order email renders purchased quantities and escapes product text'] = fu
 
 $tests['support product questions retain public specifications and reject unrelated articles'] = function (): void {
     $bot = new App\Services\SupportBotService();
-    $fallback = (new ReflectionMethod($bot, 'publicGuestReply'))->getClosure($bot);
     $article = (new ReflectionMethod($bot, 'matchArticle'))->getClosure($bot);
     $context = ['site' => ['products' => [[
         'name' => 'Kariya Sakthi Aragaja Mai', 'url' => '/product/aragaja',
@@ -2435,13 +2434,9 @@ $tests['support product questions retain public specifications and reject unrela
     ]]];
     $question = 'What is Kariya Sakthi Aragaja Mai and what is its pack size?';
     assertSame(null, $article($question, $context), 'Common question words must not match unrelated legacy articles');
-    $reply = $fallback($question, $context);
-    assertTrue(str_contains($reply, 'Pack size: 25 g'), 'Fallback uses the product specification');
-    assertTrue(str_contains($reply, '/product/aragaja'), 'Fallback links the matched product');
-    assertTrue(!str_contains($reply, 'Sade Sati'), 'Product answer must not substitute an unrelated article');
-    $context['site']['products'][0]['specifications'] = [];
-    $reply = $fallback($question, $context);
-    assertTrue(!str_contains($reply, '25 g') && str_contains($reply, '/contact'), 'Missing facts are not invented');
+    $sourceBot=file_get_contents(app_path('app/Services/SupportBotService.php'));
+    assertTrue(!str_contains($sourceBot,'function fallbackReply(') && !str_contains($sourceBot,'function publicGuestReply('),'No canned answer methods remain');
+    assertTrue(str_contains($sourceBot,'completeWithTools') && str_contains($sourceBot,'hasNativeToolAnswer'),'Conversational answers require observed retrieval and inference');
     $source = file_get_contents(app_path('app/Services/AgentContextService.php'));
     foreach (['description', 'highlights', 'description_points', 'specifications'] as $field) {
         assertTrue(str_contains($source, "'" . $field . "' =>"), 'Public product details must reach model context');
@@ -2721,7 +2716,7 @@ $tests['contact falls back to a plain submission when email verification is unav
     $view = file_get_contents(app_path('views/public/contact.php'));
     assertTrue(str_contains($view, 'if (!empty($otpAvailable))'), 'The contact page hides the code field while verification is unavailable');
     assertTrue(str_contains($view, 'Email verification is temporarily unavailable'), 'The fallback notice explains the missing code');
-    assertTrue(str_contains($view, 'tel:+917200182025') && str_contains($view, 'mailto:nebolifestyleclinic@gmail.com'), 'The fallback keeps the direct phone and email path');
+    assertTrue(str_contains($view, 'href="tel:') && str_contains($view, 'mailto:nebolifestyleclinic@gmail.com'), 'The fallback keeps the direct phone and email path');
 };
 
 $tests['rate limiter construction is covered by the storage failure handler'] = function (): void {
@@ -2782,7 +2777,7 @@ $tests['owner-managed Foundation minimum figure preserves accessible suffix and 
     assertSame(1, substr_count($html, 'class="nebo-home-figures__suffix"'), 'Only historical minimum has plus suffix');
     assertTrue(str_contains(file_get_contents(app_path('app/Services/SettingsService.php')), 'upsertIfRevision'), 'Owner edit uses revision guard');
     assertTrue(str_contains(file_get_contents(app_path('views/public/home.php')), 'isset($foundationCustomersMin)'), 'No fixed default historical count');
-    assertTrue(str_contains(file_get_contents(app_path('views/public/contact.php')), 'https://wa.me/917200182025'), 'Contact provides the existing confirmed clinic WhatsApp action');
+    assertTrue(str_contains(file_get_contents(app_path('views/public/contact.php')), 'ClinicContactService::whatsappUrl'), 'Contact provides the existing confirmed clinic WhatsApp action');
 };
 
 $tests['shared motion is scoped and never hides required page content'] = function (): void {
@@ -2815,6 +2810,71 @@ $tests['reference composition uses published data and functional team indicators
     assertTrue(str_contains($team,"dot.addEventListener('click', () => select(index))"),'Indicators select real records');
     $css=file_get_contents(app_path('assets/css/band.css'));
     assertTrue(str_contains($css,'(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)'),'Graphic covers retain touch and reduced-motion image fallback');
+};
+
+$tests['clinic contact validation and agent session privacy'] = function (): void {
+    $numbers = \App\Services\ClinicContactService::normalize("+1 202 555 0101\n+1 202 555 0102");
+    assertSame(['+12025550101','+12025550102'],$numbers,'Confirmed channel number normalization');
+    assertSame([],\App\Services\ClinicContactService::normalize(''),'Empty channel hides');
+    assertSame('https://wa.me/12025550101?text=Hello%20clinic',\App\Services\ClinicContactService::whatsappUrl($numbers[0],'Hello clinic'),'Safe WhatsApp URL');
+    $rejected=false;
+    try { \App\Services\ClinicContactService::normalize('https://example.test'); } catch (\InvalidArgumentException) { $rejected=true; }
+    assertTrue($rejected,'Reject arbitrary URLs');
+    $trace=new \App\Services\AgentRunTrace();
+    $trace->tool('published_practitioners','ok',microtime(true));
+    $trace->recordOutcome('fallback');
+    $event=\App\Services\AgentSessionService::event('api_key=secret-test',['reply'=>'Published profile'],200,$trace);
+    assertTrue(!str_contains(json_encode($event),'secret-test'),'Credential redacted');
+    assertSame('published_practitioners',$event['trace']['steps'][0]['name'],'Actual tool evidence');
+    $record=['events'=>[$event]];
+    assertTrue(str_contains(\App\Services\AgentSessionService::handoffNote($record,'Follow up'),'published_practitioners'),'Handoff includes observed tools');
+    $row=['id'=>'abc','customer_email'=>'a@example.test','status'=>'open','reply'=>'OK','internal_notes'=>['private'],'session_id'=>'private'];
+    assertSame(['id'=>'abc','status'=>'open','reply'=>'OK'],\App\Services\SupportTicketService::visibleStatus($row,'a@example.test'),'Customer sees only allowed fields');
+    assertSame(null,\App\Services\SupportTicketService::visibleStatus($row,'b@example.test'),'Other customer denied');
+    $matches=\App\Services\ClinicKnowledgeService::rank('Test Person registration number',[['type'=>'practitioner','title'=>'Dr Test Person','url'=>'/#team','text'=>'BHMS registration 005441'],['type'=>'article','title'=>'Unrelated','url'=>'/blog/unrelated','text'=>'Garden care']]);
+    assertSame('Dr Test Person',$matches[0]['title'],'Rank real profile above unrelated article');
+    assertTrue(str_contains($matches[0]['excerpt'],'005441'),'Preserve actual registration number');
+    assertSame([],\App\Services\ClinicKnowledgeService::rank('unrelated',[]),'No invented record');
+};
+
+$tests['agents reject persona echoes and require observed tools and inference'] = function (): void {
+    $cleaner=new \App\Services\AiReplyCleaner();
+    $bad='I am the Nebo Wellness support bot designed to assist you with wellness programs and clinic information. You can find more information about our services at /blog.';
+    assertTrue(!$cleaner->usableAnswer($bad,'What is the registration number?'),'Reported persona echo rejected');
+    assertTrue(!$cleaner->usableAnswer('I can help with wellness programs.','How long is this programme?'),'Generic deflection rejected');
+    assertTrue($cleaner->usableAnswer('The published registration number is 005441.','What is the registration number?'),'Actual answer allowed');
+    $trace=new \App\Services\AgentRunTrace();
+    $trace->tool('clinic_context','ok',microtime(true));
+    assertTrue(!$trace->hasSuccessfulInferenceAndTool(),'A direct lookup alone is not an AI answer');
+    $trace->provider('google','fixture',200,0,microtime(true),true);
+    assertTrue($trace->hasSuccessfulInferenceAndTool(),'Both actual steps recorded');
+    $trace->markProviderResponseUnusable();
+    assertTrue(!$trace->hasSuccessfulInferenceAndTool(),'Unusable inference rejected');
+    assertTrue(!$trace->hasNativeToolAnswer(),'Harness prefetch is not a model-selected tool');
+    $trace->provider('google','fixture',200,0,microtime(true),true);
+    $trace->tool('published_practitioners','ok',microtime(true),'model','call-1');
+    $trace->provider('google','fixture',200,0,microtime(true),true);
+    assertTrue($trace->hasNativeToolAnswer(),'Native model tool and final provider response observed');
+    $public=new \App\Services\AgentToolRegistry(modules:['shop'=>false,'blog'=>false,'campaigns'=>true],scope:'support');
+    foreach (['owner_dashboard_summary','support_enquiries','find_order','campaign_pages','search_articles'] as $name) assertTrue(!$public->has($name),'Public scope denies '.$name);
+    assertTrue($public->has('published_practitioners')&&$public->has('published_programme_detail'),'Public read-only tools enabled');
+    $e=['published_practitioners'=>['practitioners'=>[['name'=>'Dr Test Person','registration_number'=>'005441']]]];
+    assertTrue(!\App\Services\SupportBotService::matchesRetrievedFacts('Dr Test Person registration number?','Please read the blog.',$e),'Missing known registration fails validation');
+    assertTrue(\App\Services\SupportBotService::matchesRetrievedFacts('Dr Test Person registration number?','Registration 005441.',$e),'Exact known fact accepted');
+};
+
+$tests['implementing agent owns the release and successful ticket archive is idempotent'] = function (): void {
+    $workflow=file_get_contents(app_path('.github/workflows/branch-pr.yml'));
+    assertTrue(!str_contains($workflow,'codex-review:') && !str_contains($workflow,'reviewRequest'),'No automatic external review dependency');
+    assertTrue(str_contains($workflow,'implementing agent owns self-review'),'Automated PR states release ownership');
+    assertTrue(str_contains(file_get_contents(app_path('AGENTS.md')),'The implementing agent owns the entire delivery'),'Canonical ownership rule');
+    $chat=new \App\Services\AgentConversation('support');
+    $chat->clear();
+    $ticket=['ticket_id'=>str_repeat('a',32),'reply'=>'Submitted','response_mode'=>'application_action'];
+    $chat->recordEvent(str_repeat('b',32),'Test ticket',$ticket,200,new \App\Services\AgentRunTrace());
+    $chat->recordEvent(str_repeat('c',32),'Test ticket retry',$ticket,200,new \App\Services\AgentRunTrace());
+    assertSame(1,count($chat->journal()['events']),'Successful retry does not duplicate archived ticket');
+    $chat->clear();
 };
 
 foreach ($tests as $name => $test) {

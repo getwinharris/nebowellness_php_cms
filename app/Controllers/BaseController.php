@@ -6,6 +6,24 @@ abstract class BaseController {
     protected bool $isApiRequest = false;
     protected string $seoKey = 'home';
     protected array $seoOverrides = [];
+    private ?\Closure $agentJournal = null;
+
+    protected function journalResponse(AgentConversation $chat, ?string $turnId, string $message, \App\Services\AgentRunTrace $trace, bool $archive): void {
+        if ($turnId === null) return;
+        $this->agentJournal = static function(array $data, int $status) use ($chat,$turnId,$message,$trace,$archive): array {
+            try {
+                $chat->recordEvent($turnId,$message,$data,$status,$trace);
+                if ($archive) {
+                    (new \App\Services\AgentSessionService())->persist($chat->journal());
+                    $data['archive_status'] = 'saved';
+                }
+            } catch (\Throwable) {
+                if ($archive) $data['archive_status'] = 'unavailable';
+                error_log('Private agent session journal unavailable');
+            }
+            return $data;
+        };
+    }
     
     protected function redirect(string $path, int $status = 302): never { session_write_close(); header('Location: ' . $path, true, $status); exit; }
     protected function flash(string $message, string $type = 'info'): void { $_SESSION['flash'] = ['message' => $message, 'type' => $type]; }
@@ -100,6 +118,7 @@ abstract class BaseController {
     }
     
     protected function jsonResponse(array $data, int $status = 200): void {
+        if ($this->agentJournal !== null) $data = ($this->agentJournal)($data, $status);
         http_response_code($status);
         header('Content-Type: application/json');
         echo json_encode($data);

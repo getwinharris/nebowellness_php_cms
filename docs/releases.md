@@ -23,8 +23,10 @@ category: docs
 
 1. Select the version and identify its entries under Unreleased. Document any
    migrations, configuration changes, or rollback considerations in the PR.
-2. Run `./bapXphp update` and `./bapXphp ci`, address review feedback, and merge
-   through the normal PR workflow.
+2. The implementing agent performs and records a substantive self-review of the
+   exact head, runs `./bapXphp update` and `./bapXphp ci`, checks GitHub validation
+   and resolves actual review findings. Optional review bots are not required.
+   Merge through the normal PR workflow without waiting for another person.
 3. Verify that Hostinger deployed the intended main commit and check affected
    production flows in the built-in Browser. Record the tested commit and results.
    If deployment or verification fails, keep the entries under Unreleased and

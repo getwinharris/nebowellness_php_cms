@@ -6,6 +6,7 @@ namespace App\Services;
 /** Short-lived conversation memory. Provider calls, tickets and draft forms have their own lifecycles. */
 final class AgentConversation
 {
+    private const VERSION = 2;
     private const MAX_TURNS = 12;
     private const IDLE_SECONDS = 3600;
     private array $state;
@@ -19,7 +20,7 @@ final class AgentConversation
             $_SESSION['agent_conversations'] = ['owner' => $owner];
         }
         $saved = json_decode($_SESSION['agent_conversations'][$surface] ?? 'null', true);
-        if (is_array($saved) && ($saved['updated'] ?? 0) > time() - self::IDLE_SECONDS) {
+        if (is_array($saved) && ($saved['version'] ?? null) === self::VERSION && ($saved['updated'] ?? 0) > time() - self::IDLE_SECONDS) {
             $this->state = $saved;
         } else {
             $this->clear();
@@ -28,7 +29,7 @@ final class AgentConversation
 
     public function clear(): void
     {
-        $this->state = ['id' => bin2hex(random_bytes(16)), 'turns' => []];
+        $this->state = ['version'=>self::VERSION, 'id' => bin2hex(random_bytes(16)), 'turns' => [], 'journal'=>[], 'created_at'=>date('c')];
         $this->save();
     }
 
@@ -63,6 +64,8 @@ final class AgentConversation
         if (!is_string($response[$field] ?? null) || $response[$field] === '') return;
         $saved = [$field => mb_substr($response[$field], 0, 8000)];
         if (isset($response['actions'])) $saved['actions'] = array_slice($response['actions'], 0, 8);
+        if (isset($response['sources'])) $saved['sources']=array_slice($response['sources'],0,12);
+        if (isset($response['response_mode'])) $saved['response_mode'] = $response['response_mode'];
         if (isset($response['missing'])) $saved['missing'] = array_slice($response['missing'], 0, 8);
         $turn = ['question' => $question, 'response' => $saved];
         if (preg_match('/^[a-f0-9]{16}$/D', $traceId)) $turn['trace_id'] = $traceId;
@@ -71,13 +74,49 @@ final class AgentConversation
         $this->save();
     }
 
+    /** The private journal is distinct from the 12-turn replay/prompt window. */
+    public function recordEvent(string $id, string $question, array $response, int $status, AgentRunTrace $trace): void {
+        if (!isset($this->state['journal'])) {
+            $this->state['prior_history_unavailable'] = $this->hasTurns();
+            $this->state['journal'] = [];
+        }
+        $key = $id . ':' . $trace->id;
+        $event = AgentSessionService::event($question, $response, $status, $trace) + ['turn_id'=>$id];
+        if ($status < 400 && $event['ticket_id'] !== null) {
+            foreach ($this->state['journal'] as $recorded) {
+                if (($recorded['ticket_id'] ?? null) === $event['ticket_id'] && ($recorded['http_status'] ?? 500) < 400) return;
+            }
+        }
+        if (count($this->state['journal']) >= AgentSessionService::MAX_TURNS ||
+            strlen(json_encode($this->state['journal'], JSON_INVALID_UTF8_SUBSTITUTE)) + strlen(json_encode($event, JSON_INVALID_UTF8_SUBSTITUTE)) > AgentSessionService::MAX_BYTES) {
+            $this->state['omitted_turns'] = (int)($this->state['omitted_turns'] ?? 0) + 1;
+        } else {
+            $this->state['journal'][$key] = $event;
+        }
+        $this->save();
+    }
+
+    public function journal(): array {
+        $user = $_SESSION['user'] ?? [];
+        return [
+            'id'=>$this->id(), 'schema_version'=>1, 'surface'=>$this->surface,
+            'actor_type'=>$this->surface === 'admin' ? 'owner' : (empty($user['email']) ? 'guest' : 'signed_in'),
+            'customer_email'=>$this->surface === 'support' && ($user['role'] ?? '') === 'customer' ? (string)($user['email'] ?? '') : '',
+            'created_at'=>$this->state['created_at'] ?? date('c'),
+            'events'=>array_values($this->state['journal'] ?? []),
+            'omitted_turns'=>(int)($this->state['omitted_turns'] ?? 0),
+            'prior_history_unavailable'=>(bool)($this->state['prior_history_unavailable'] ?? (!isset($this->state['journal']) && $this->hasTurns())),
+            'scope'=>'Visible messages and observed tool/provider metadata only; credentials best-effort redacted. No private model reasoning, raw tool payloads or attachments.',
+        ];
+    }
+
     public function promptContext(): string
     {
         $previous = [];
         foreach (array_slice($this->state['turns'], -4) as $turn) {
             $previous[] = [
-                'question' => mb_substr($turn['question'], 0, 400),
-                'reply' => mb_substr($turn['response']['answer'] ?? $turn['response']['reply'], 0, 600),
+                'question' => mb_substr(AgentSessionService::redact($turn['question']), 0, 400),
+                'reply' => mb_substr(AgentSessionService::redact($turn['response']['answer'] ?? $turn['response']['reply']), 0, 600),
             ];
         }
         if ($previous === []) return '';

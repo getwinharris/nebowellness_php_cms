@@ -5,6 +5,10 @@
             <h1 class="section-title"><?= e($document['title'] ?? 'Privacy Policy') ?></h1>
             <p class="lede">A clear explanation of how the platform handles personal information.</p>
         </header>
+        <section id="support-privacy" aria-labelledby="support-privacy-title">
+            <h2 id="support-privacy-title">Support conversations</h2>
+            <p>The automated assistant uses temporary conversation memory. If you choose to save a conversation or send a ticket, clinic staff can review the visible chat and recorded tool and provider activity. Please do not enter medical records, passwords or verification codes. Saved session records are available to authorized clinic staff for 30 days; expired records are eligible for owner cleanup. Ticket messages and replies are kept separately for follow-up.</p>
+        </section>
         <?php if (!empty($__measurement)): ?>
         <section id="measurement" class="measurement-preferences" aria-labelledby="measurement-title" hidden>
             <h2 id="measurement-title">Measurement preferences</h2>

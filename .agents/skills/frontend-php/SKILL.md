@@ -70,3 +70,5 @@ When work changes a layout contract or reveals a reusable UI check, update this 
 - When the brief requests reference-level motion, use REA on exact saved reference sources and measure scroll positions at entry, midpoint, completion and reverse. Distinguish timed entrances from continuous effects. Keep a section/asset/control comparison ledger; do not use a passing class-name check as visual parity.
 
 - For stronger reference fidelity, update the canonical visual contract and existing winning CSS rather than layering arbitrary effects over a mismatched composition. Match reference states and measurements; use a native JS interaction when CSS alone cannot express selection. Test hover, keyboard focus, touch, no-JS and reduced motion, using approved Nebo assets/content.
+
+- Support must distinguish genuine model/tool responses, explicit application actions and provider failure. Verify actual native call correlation, scope, consent, and separate telephone/WhatsApp controls. Do not substitute prerecorded answers for unavailable inference.

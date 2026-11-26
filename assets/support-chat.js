@@ -7,7 +7,7 @@
 
     const close = panel.querySelector('.support-panel__close');
     const message = form.elements.message;
-    const controls = form.querySelectorAll('textarea, button');
+    const controls = form.querySelectorAll('textarea, button, input[type=checkbox]');
     const viewport = window.visualViewport;
     const chat = new window.AgentConversation(panel, '/support/ask', form.elements._csrf.value);
     const clear = document.getElementById('support-clear');
@@ -98,8 +98,7 @@
 
     function validActions(actions) {
         return Array.isArray(actions)
-            ? actions.filter(action => action?.type === 'navigate'
-                && typeof action.label === 'string' && isActionPath(action.path))
+            ? actions.filter(action => typeof action?.label === 'string' && ((action.type === 'navigate' && isActionPath(action.path)) || (action.type === 'whatsapp' && typeof action.path === 'string' && /^https:\/\/wa\.me\/[1-9]\d{7,14}\?text=[^#]+$/.test(action.path))))
             : [];
     }
 
@@ -122,8 +121,12 @@
                 const turn = document.createElement('div');
                 turn.className = 'support-turn';
                 appendMessage(turn, 'You', entry.question);
-                appendMessage(turn, 'Support', entry.response.reply);
+                appendMessage(turn, entry.response.response_mode === 'application_action' ? 'Clinic action' : 'Support AI', entry.response.reply);
                 appendActions(turn, validActions(entry.response.actions));
+                if (entry.response.response_mode==='model_with_retrieval') {
+                    appendActions(turn,validActions((entry.response.sources||[]).slice(0,5).map(path=>({type:'navigate',path,label:'Source: '+path}))));
+                }
+
                 log.append(turn);
             }
             log.scrollTop = log.scrollHeight;
@@ -149,6 +152,7 @@
             clear.hidden = true;
             prompts.open = true;
             retry = null;
+            if (form.elements.archive_session) form.elements.archive_session.checked = false;
             message.value = '';
             message.focus();
         } catch {
@@ -189,6 +193,7 @@
         const question = String(data.get('message') || '').trim();
         if (!question) return;
         const isTicket = event.submitter?.value === 'ticket';
+        const archiveConsent = form.elements.archive_session?.checked === true;
         form.dataset.busy = 'true';
         try {
             await restore();
@@ -210,6 +215,7 @@
         data.set('conversation', chat.id);
         data.set('turn_id', id);
         form.reset();
+        if (form.elements.archive_session) form.elements.archive_session.checked = archiveConsent;
         const progress = window.AgentRequestStatus.start(turn);
         log.scrollTop = log.scrollHeight;
 
@@ -233,13 +239,20 @@
             failed = !response.ok || !!result.error;
             actions = validActions(result.actions);
             reply = String(result.reply || result.error || 'Unable to answer right now.');
-            appendMessage(turn, 'Support', reply);
+            appendMessage(turn, failed ? 'Support unavailable' : result.response_mode === 'application_action' ? 'Clinic action' : 'Support AI', reply);
             appendActions(turn, actions);
+            if (result.response_mode === 'model_with_retrieval') {
+                appendActions(turn,validActions((Array.isArray(result.sources)?result.sources:[]).slice(0,5).map(path=>({type:'navigate',path,label:'Source: '+path}))));
+
+                const label=document.createElement('small'); label.className='support-source-note';
+                label.textContent='AI response using retrieved records'; turn.append(label);
+            }
             if (!failed && isTicket) {
                 pendingTicket = null;
                 writeStorage(ticketKey, null);
             }
-            if (!failed && actions.some(action => action.path === result.open)) openPath = result.open;
+            if (result.archive_status === 'unavailable') { const note=document.createElement('small'); note.textContent='The clinic conversation archive is temporarily unavailable.'; turn.append(note); }
+            if (!failed && actions.some(action => action.type === 'navigate' && action.path === result.open)) openPath = result.open;
         } catch {
             failed = true;
             const guidance = isTicket
@@ -248,7 +261,7 @@
                     ? 'Support took too long to respond. Please try again.'
                     : 'Unable to answer right now. Please try again.';
             reply = guidance;
-            appendMessage(turn, 'Support', reply);
+            appendMessage(turn, 'Support unavailable', reply);
         } finally {
             clearTimeout(timeout);
             progress.finish(failed);

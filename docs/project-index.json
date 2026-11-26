@@ -3,11 +3,11 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 125,
+        "routes": 129,
         "controllers": 13,
-        "services": 54,
-        "views": 52,
-        "collections": 24
+        "services": 58,
+        "views": 55,
+        "collections": 25
     },
     "routes": [
         {
@@ -17,6 +17,7 @@
             "controller": "PublicController@home",
             "view": "public/home",
             "services": [
+                "ClinicContactService",
                 "CampaignPageService",
                 "ConsultantService",
                 "PublicDiscoveryService",
@@ -181,12 +182,49 @@
             ]
         },
         {
+            "method": "GET",
+            "path": "/admin/agent-sessions",
+            "name": "admin.agent-sessions",
+            "controller": "AdminController@agentSessions",
+            "view": "admin/agent-sessions",
+            "services": [
+                "AgentSessionService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/agent-sessions/purge",
+            "name": "admin.agent-sessions.purge",
+            "controller": "AdminController@purgeAgentSessions",
+            "view": "admin/agent-sessions",
+            "services": [
+                "AgentSessionService",
+                "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
+            "path": "/admin/agent-sessions/{id}/json",
+            "name": "admin.agent-sessions.json",
+            "controller": "AdminController@agentSessionJson",
+            "view": "admin/agent-sessions",
+            "services": [
+                "AgentSessionService",
+                "AuditLogService",
+                "AuthService"
+            ]
+        },
+        {
             "method": "POST",
             "path": "/admin/agent/ask",
             "name": "admin.agent.ask",
             "controller": "AdminController@agentAsk",
             "view": "admin/agent",
             "services": [
+                "AgentSessionService",
+                "ClinicKnowledgeService",
                 "AgentConversation",
                 "SecretService",
                 "AgentContextService",
@@ -519,6 +557,17 @@
         },
         {
             "method": "GET",
+            "path": "/admin/customers",
+            "name": "admin.customers",
+            "controller": "AdminController@customers",
+            "view": "admin/customers",
+            "services": [
+                "CustomerCrmService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
             "path": "/admin/email-inbox",
             "name": "admin.email-inbox",
             "controller": "AdminController@emailInbox",
@@ -740,6 +789,7 @@
             "controller": "AdminController@saveSettings",
             "view": "admin/settings",
             "services": [
+                "ClinicContactService",
                 "SettingsService",
                 "AuditLogService",
                 "AuthService"
@@ -762,10 +812,12 @@
             "path": "/admin/support-tickets",
             "name": "admin.support-tickets",
             "controller": "AdminController@supportTickets",
-            "view": "admin/list",
+            "view": "admin/support-inbox",
             "services": [
                 "DatabaseService",
                 "SupportTicketService",
+                "AgentSessionService",
+                "CustomerCrmService",
                 "AuthService"
             ]
         },
@@ -774,9 +826,9 @@
             "path": "/admin/support-tickets/save",
             "name": "admin.support-tickets.save",
             "controller": "AdminController@saveSupportTicket",
-            "view": "admin/list",
+            "view": "admin/support-inbox",
             "services": [
-                "ResourceService",
+                "SupportTicketService",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -1075,7 +1127,9 @@
             "name": "contact",
             "controller": "PublicController@contact",
             "view": "public/contact",
-            "services": []
+            "services": [
+                "ClinicContactService"
+            ]
         },
         {
             "method": "POST",
@@ -1361,6 +1415,9 @@
             "controller": "SupportController@ask",
             "view": "public/support",
             "services": [
+                "AgentSessionService",
+                "ClinicKnowledgeService",
+                "ClinicContactService",
                 "AgentConversation",
                 "SupportBotService",
                 "AgentContextService",
@@ -1433,6 +1490,7 @@
         "AgentConversation",
         "AgentDraftService",
         "AgentRunTrace",
+        "AgentSessionService",
         "AgentToolRegistry",
         "AiClient",
         "AiModelRouter",
@@ -1445,11 +1503,14 @@
         "CampaignPageService",
         "CartService",
         "CategoryService",
+        "ClinicContactService",
+        "ClinicKnowledgeService",
         "ConsultantService",
         "ConsultationService",
         "ContactService",
         "CouponService",
         "CourierService",
+        "CustomerCrmService",
         "DatabaseService",
         "DocsMapService",
         "EmailOtpService",
@@ -1492,10 +1553,12 @@
         "account/therapy-checkout",
         "admin/_campaign-fields",
         "admin/agent",
+        "admin/agent-sessions",
         "admin/appearance",
         "admin/blog",
         "admin/consultant-form",
         "admin/consultation-analytics",
+        "admin/customers",
         "admin/dashboard",
         "admin/detail",
         "admin/integrations",
@@ -1506,6 +1569,7 @@
         "admin/resource",
         "admin/search-performance",
         "admin/settings",
+        "admin/support-inbox",
         "admin/tax-report",
         "admin/therapy",
         "layouts/admin",
@@ -1538,6 +1602,7 @@
     ],
     "collections": [
         "addresses",
+        "agent_sessions",
         "ai_model_state",
         "appointments",
         "audit_events",

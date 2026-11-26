@@ -247,9 +247,21 @@
                 'message' => ['type' => 'text'],
                 'reply' => ['type' => 'text'],
                 'context' => ['type' => 'text'],
+                'session_id' => ['type' => 'string'],
+                'agent_note' => ['type' => 'text'],
+                'internal_notes' => ['type' => 'array'],
                 'status' => ['type' => 'enum', 'values' => ['open', 'answered', 'closed']],
                 'created_at' => ['type' => 'datetime'],
                 'updated_at' => ['type' => 'datetime'],
+            ],
+        ],
+        'agent_sessions' => [
+            'primary_key'=>'id', 'owner_field'=>'customer_email', 'admin_managed'=>false, 'agent_context'=>[],
+            'fields'=>[
+                'id'=>['type'=>'string'], 'schema_version'=>['type'=>'number'], 'surface'=>['type'=>'enum','values'=>['support','admin']],
+                'actor_type'=>['type'=>'string'], 'customer_email'=>['type'=>'email'], 'events'=>['type'=>'array'],
+                'omitted_turns'=>['type'=>'number'], 'prior_history_unavailable'=>['type'=>'boolean'],
+                'scope'=>['type'=>'text'], 'created_at'=>['type'=>'datetime'], 'updated_at'=>['type'=>'datetime'],
             ],
         ],
         'categories' => [
@@ -388,6 +400,7 @@
                 'admin_email' => ['type' => 'email'],
                 'admin_password' => ['type' => 'secret'],
                 'foundation_customers_min' => ['type' => 'number'],
+                'clinic_phones'=>['type'=>'array'], 'clinic_whatsapp'=>['type'=>'array'],
             ],
         ],
         'contact_submissions' => [

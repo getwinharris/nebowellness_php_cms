@@ -89,6 +89,15 @@ final class AiReplyCleaner
     }
 
 
+    /** Reject persona echoes, generic deflections and leaked instructions, not just empty text. */
+    public function usableAnswer(string $reply, string $question): bool {
+        if (trim($reply)==='' || $this->looksInternal($reply)) return false;
+        if (preg_match('/^\s*(?:i am|i.m|as)\s+(?:the |an? )?(?:nebo[^.\n]*?(?:bot|assistant)|(?:ai|support|clinic) (?:bot|assistant))\b/i',$reply)) return false;
+        if (!preg_match('/^\s*(?:hi|hello|hey|who are you|what can you do)[?.! ]*$/i',$question)
+            && preg_match('/^\s*(?:i (?:can|am here to) help (?:you )?with|you can find more information about our services at \/blog)\b/i',$reply)) return false;
+        return true;
+    }
+
     /** Removes scaffold sentences from a run-on line. */
     private function stripScaffoldSentences(string $text): string
     {

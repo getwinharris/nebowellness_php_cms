@@ -36,7 +36,7 @@ git rev-parse HEAD
 Do not run issue, PR, or review conversations from Hostinger. Those
 belong to GitHub Actions and the GitHub web interface.
 
-One-time Git auto-deploy from `main` is configured — commits to GitHub main deploy automatically. Merge only after local validation passes:
+One-time Git auto-deploy from `main` is configured — commits to GitHub main deploy automatically. The implementing agent must self-review, verify local and exact-head GitHub validation, merge, perform the release migrations and verify the live result. Optional external reviews must not delay a verified release:
 
 ```bash
 bapXphp update

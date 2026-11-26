@@ -32,6 +32,7 @@ final class SupportController extends BaseController {
                 $this->jsonResponse(['error' => 'Enter a message of 1 to 2,000 characters.'], 422);
                 return;
             }
+            $this->journalResponse($chat, $turnId, $message, $trace, !$isTicket && ($_POST['archive_session'] ?? '') === '1');
             if ($isTicket) {
                 $requestId = $_POST['request_id'] ?? null;
                 if (empty($user['email'])) {
@@ -42,19 +43,21 @@ final class SupportController extends BaseController {
                     $this->jsonResponse(['error' => 'Refresh the page and try again.'], 422);
                     return;
                 }
-                $ticket = (new SupportTicketService())->create((string)$user['email'], $message, 'support chat', $requestId);
+                $this->journalResponse($chat, $turnId, $message, $trace, true);
+                $record = $chat->journal();
+                $ticket = (new SupportTicketService())->create((string)$user['email'], $message, 'support chat', $requestId, $turnId === null ? '' : $chat->id(), \App\Services\AgentSessionService::handoffNote($record,$message));
                 $trace->tool('create_support_ticket', 'ok', $startedAt);
                 (new AuditLogService())->agentRun('support', 'fallback', $startedAt, $trace);
-                $this->jsonResponse(['reply' => 'Sent to the clinic team. Track ticket ' . $ticket['id'] . ' in this chat.', 'ticket_id' => $ticket['id']]);
+                $this->jsonResponse(['reply' => 'Sent to the clinic team. Track ticket ' . $ticket['id'] . ' in this chat.', 'ticket_id' => $ticket['id'], 'response_mode'=>'application_action']);
                 return;
             }
             $answer = (new SupportBotService(trace: $trace))->answer($message, $user, $turnId === null ? '' : $chat->promptContext());
             if ($turnId === null) $answer['memory'] = 'none';
             if ($turnId !== null && ($answer['memory'] ?? '') === 'session') $chat->remember($turnId, $message, $answer, $trace->id);
-            $this->jsonResponse($answer);
+            $this->jsonResponse($answer,isset($answer['error'])?503:200);
         } catch (\Throwable $e) {
             (new AuditLogService())->agentRun('support', 'error', $startedAt, $trace);
-            $this->jsonResponse(['error' => 'Support is temporarily unavailable. Please try again or contact the clinic.'], 503);
+            $this->jsonResponse(['error' => 'Support is temporarily unavailable. Please try again or contact the clinic.', 'response_mode'=>'unavailable','actions'=>[['type'=>'navigate','label'=>'Contact the clinic','path'=>'/contact']]], 503);
         }
     }
 

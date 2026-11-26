@@ -294,6 +294,19 @@
             } else {
                 response.innerHTML = renderMarkdown(data.answer || 'No response.');
             }
+            if (data.archive_status || data.response_mode === 'model_with_retrieval') {
+                const info = document.createElement('small');
+                info.className = 'crm-muted';
+                info.textContent = [data.response_mode === 'model_with_retrieval' ? 'AI response using retrieved records' : '', data.archive_status === 'saved' ? 'Session archived' : data.archive_status === 'unavailable' ? 'Session archive unavailable' : ''].filter(Boolean).join(' · ');
+                response.append(info);
+                if (Array.isArray(data.sources)) for (const path of data.sources.slice(0,5)) {
+                    if (typeof path!=='string'||!/^\/(?!\/)[a-z0-9/#-]*$/i.test(path)) continue;
+                    const source=document.createElement('a');
+                    source.href=path; source.textContent='Source: '+path; source.className='btn btn-outline btn-sm';
+                    response.append(source);
+                }
+
+            }
             if (data.missing && data.missing.length) {
                 addRow('bot', 'I could not find ' + data.missing.map(m => '<code>@' + escapeHtml(m) + '</code>').join(', ')
                     + '. Type <code>@</code> to see what is available.');

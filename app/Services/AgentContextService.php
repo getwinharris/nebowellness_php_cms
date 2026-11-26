@@ -24,7 +24,7 @@ final class AgentContextService {
             $shopEnabled ? $this->store->read('products') : [],
             count($this->store->read('consultants')),
             count($this->store->read('appointments')),
-            count($this->store->read('support_tickets'))
+            count(array_filter($this->store->read('support_tickets'),static fn(array $row):bool=>trim((string)($row['message']??''))!==''))
         );
     }
 
@@ -99,7 +99,7 @@ final class AgentContextService {
     }
 
     private function siteContext(): array {
-        $modules = (new SettingsService($this->store))->modules();
+        $modules = (new SettingsService($this->store))->strictModules();
         $campaigns = empty($modules['campaigns']) ? [] : array_map(static fn(array $page): array => [
             'title' => $page['title'],
             'summary' => mb_substr((string)($page['summary'] ?? ''), 0, 400),
@@ -125,8 +125,10 @@ final class AgentContextService {
         return [
             'pages' => $pages,
             'campaigns' => $campaigns,
+            'practitioners'=>(new ClinicKnowledgeService($this->store))->practitioners(),
+            'programmes'=>(new ClinicKnowledgeService($this->store))->programmes(),
             'products' => $products,
-            'support_scope' => 'Answer only from this JSON context and public site links. Do not access tools, files, admin data, or other users.',
+            'support_scope' => 'Use only permitted public and session-scoped customer tools; no admin data or other users.',
         ];
     }
 }

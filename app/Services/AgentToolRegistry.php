@@ -25,6 +25,7 @@ final class AgentToolRegistry
 {
     public const THERAPY_SUMMARY_PROMPT = 'Summarise therapy session requests in the last 30 days';
     public const APPOINTMENTS_PROMPT = 'Summarise historical appointments';
+    public const SUPPORT_INBOX_PROMPT = 'How many support enquiries are open?';
 
     private array $modules;
 
@@ -32,11 +33,15 @@ final class AgentToolRegistry
         private DatabaseService $store = new DatabaseService(),
         private ?ProductService $products = null,
         private ?OrderService $orders = null,
-        ?array $modules = null
+        ?array $modules = null,
+        private string $scope = 'admin',
+        private ?\Closure $contextLoader = null,
+        private string $question = ''
     ) {
+        if (!in_array($scope,['support','admin'],true)) throw new \InvalidArgumentException('Invalid agent scope.');
         $this->products ??= new ProductService($this->store);
         $this->orders ??= new OrderService($this->store);
-        $this->modules = $modules ?? (new SettingsService($this->store))->modules();
+        $this->modules = $modules ?? (new SettingsService($this->store))->strictModules();
     }
 
     /**
@@ -47,6 +52,12 @@ final class AgentToolRegistry
     public function declarations(): array
     {
         $tools = [
+            ['name'=>'search_clinic_knowledge','description'=>'Search current public practitioner profiles, published programme body passages and published articles by a specific query. Return ranked excerpts and real source URLs, never private records.','parameters'=>['type'=>'object','properties'=>['query'=>['type'=>'string']],'required'=>['query']]],
+            ['name'=>'clinic_context','description'=>'Retrieve the current permitted clinic and account information for this session. No other customer records are available.','parameters'=>['type'=>'object']],
+            ['name'=>'owner_dashboard_summary','description'=>'Retrieve the current owner-only operational summary.','parameters'=>['type'=>'object']],
+            ['name'=>'published_programme_detail','description'=>'Retrieve one published programme detail by its exact slug.','parameters'=>['type'=>'object','properties'=>['slug'=>['type'=>'string']],'required'=>['slug']]],
+            ['name'=>'published_practitioners','description'=>'Read visible clinic practitioner profiles, professional credentials and published registration numbers.','parameters'=>['type'=>'object']],
+            ['name'=>'published_programmes','description'=>'Read published homepage programmes and their durations and detail links.','parameters'=>['type'=>'object']],
             ['name' => 'appointment_summary', 'description' => 'Count historical appointment records by status. These are not current bookings or therapy campaign requests.', 'parameters' => ['type' => 'object']],
             ['name' => 'recent_orders', 'description' => 'List up to 10 recent orders: reference, date, status and total. No customer details.', 'parameters' => ['type' => 'object']],
             ['name' => 'catalog_categories', 'description' => 'List up to 15 ecommerce categories by name and slug.', 'parameters' => ['type' => 'object']],
@@ -144,15 +155,127 @@ final class AgentToolRegistry
                 ],
             ],
         ];
+        $tools = array_values(array_filter($tools, fn(array $tool): bool => $this->scope === 'support'
+            ? in_array($tool['name'], ['clinic_context','search_clinic_knowledge','published_practitioners','published_programmes','published_programme_detail','search_articles'], true)
+            : $tool['name'] !== 'clinic_context'));
         if (empty($this->modules['shop'])) {
             $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], [
                 'find_order', 'product_status', 'sales_summary', 'coupon_status', 'recent_orders', 'catalog_categories',
             ], true)));
         }
         if (empty($this->modules['campaigns'])) {
-            $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], ['campaign_pages', 'therapy_enquiry_summary'], true)));
+            $tools = array_values(array_filter($tools, static fn(array $tool): bool => !in_array($tool['name'], ['campaign_pages', 'therapy_enquiry_summary', 'published_programmes', 'published_programme_detail'], true)));
+        }
+        if (empty($this->modules['blog'])) $tools=array_values(array_filter($tools,static fn(array $t):bool=>$t['name']!=='search_articles'));
+        // A bounded role/module catalogue is small enough to expose eagerly; rank
+        // relevant schemas first without making a keyword a permission decision.
+        if ($this->question!=='') {
+            $query=mb_strtolower($this->question);
+            $words=array_filter(preg_split('/[^\p{L}\p{N}]+/u',$query)?:[],static fn(string $w):bool=>mb_strlen($w)>=4 && !in_array($w,['what','which','about','please','could','would','have','your','with'],true));
+            $score=static function(array $tool)use($words):int {
+                $name=str_replace('_',' ',mb_strtolower($tool['name'])); $description=mb_strtolower($tool['description']); $score=0;
+                foreach (array_unique($words) as $word) $score+=(str_contains($name,$word)?4:0)+(str_contains($description,$word)?1:0);
+                return $score;
+            };
+            usort($tools,static fn(array $a,array $b):int=>($score($b)<=>$score($a))?:strcmp($a['name'],$b['name']));
         }
         return $tools;
+    }
+
+    public function instructions(string $question): string {
+        $policy=require app_path('config/agent-instructions.php');
+        $lines=array_merge($policy['shared'],$policy[$this->scope]);
+        foreach ($policy['topics'] as $topic) if ((!isset($topic['scope'])||$topic['scope']===$this->scope)&&preg_match($topic['pattern'],$question)) $lines[]=$topic['instruction'];
+        return implode("\n",$lines);
+    }
+
+    /** Gemini generateContent REST schema, not OpenAI's strict JSON schema. */
+    public function googleDeclarations(): array {
+        return array_map(static function(array $tool): array {
+            $params=$tool['parameters']??[];
+            $properties=$params['properties']??[];
+            if (!$properties) {
+                // A parameterless function does not need an empty object schema.
+                unset($tool['parameters']);
+                return $tool;
+            }
+            foreach ($properties as &$property) $property['type']=strtoupper($property['type']);
+            unset($property);
+            $tool['parameters']=['type'=>'OBJECT','properties'=>(object)$properties];
+            if (!empty($params['required'])) $tool['parameters']['required']=array_values($params['required']);
+            return $tool;
+        },$this->declarations());
+    }
+
+    public function completionDeclarations(): array {
+        return array_map(static function(array $tool): array {
+            $params=$tool['parameters'];
+            $props=$params['properties']??[];
+            $required=$params['required']??[];
+            foreach ($props as $key=>&$property) {
+                if (!in_array($key,$required,true)) $property['type']=[$property['type'],'null'];
+            }
+            unset($property);
+            $params['properties']=(object)$props;
+            $params['required']=array_keys($props);
+            $params['additionalProperties']=false;
+            $tool['parameters']=$params;
+            return ['type'=>'function','function'=>$tool+['strict'=>true]];
+        },$this->declarations());
+    }
+
+    /** Match the server allowlist and validate values before dispatching any call. */
+    public function validateArguments(string $name,array $args): ?array {
+        foreach ($this->declarations() as $tool) {
+            if ($tool['name']!==$name) continue;
+            $properties=$tool['parameters']['properties']??[];
+            $required=$tool['parameters']['required']??[];
+            $clean=[];
+            foreach ($args as $key=>$value) {
+                if (!is_string($key)||!isset($properties[$key])) return null;
+                if ($value===null && !in_array($key,$required,true)) continue;
+                $type=$properties[$key]['type']??'';
+                if ($type==='string' && (!is_string($value)||mb_strlen($value)>500)) return null;
+                if ($type==='integer' && !is_int($value)) return null;
+                if (!in_array($type,['string','integer'],true)) return null;
+                $clean[$key]=$value;
+            }
+            foreach ($required as $key) if (!array_key_exists($key,$clean)) return null;
+            return $clean;
+        }
+        return null;
+    }
+
+    /** Bound tool output without converting truncation into a false empty result. */
+    public function executeModelCall(string $name,array $args,?AgentRunTrace $trace,string $callId=''): array {
+        $started=microtime(true);
+        $validated=$this->validateArguments($name,$args);
+        if ($validated===null) {
+            $trace?->tool($this->has($name)?$name:'rejected','error',$started,'model',$callId);
+            return ['error'=>'Unknown or invalid tool call. Use the declared function schema.'];
+        }
+        $result=$this->run($name,$validated);
+        $encoded=json_encode($result,JSON_INVALID_UTF8_SUBSTITUTE|JSON_UNESCAPED_UNICODE);
+        if (!is_string($encoded)||strlen($encoded)>48000) $result=['error'=>'Result exceeds the tool budget. Narrow the lookup.'];
+        $trace?->tool($name,isset($result['error'])?'error':'ok',$started,'model',$callId);
+        if (!isset($result['error']) && $trace!==null) {
+            if ($name==='published_practitioners' && !empty($result['practitioners'])) $trace->source('/#team');
+            if ($name==='published_programme_detail') $trace->source((string)($result['url']??''));
+            if ($name==='published_programmes') foreach ($result['programmes']??[] as $item) $trace->source((string)($item['url']??''));
+            if ($name==='search_clinic_knowledge') foreach ($result['matches']??[] as $item) $trace->source((string)($item['url']??''));
+            if ($name==='search_articles') foreach ($result['articles']??[] as $item) $trace->source((string)($item['path']??''));
+            if ($this->scope==='admin') {
+                $path=match($name) {
+                    'support_enquiries'=>'/admin/support-tickets',
+                    'therapy_enquiry_summary'=>'/admin/contact-submissions',
+                    'owner_dashboard_summary'=>'/admin',
+                    'campaign_pages'=>'/admin/campaigns',
+                    default=>'',
+                };
+                if ($path!=='') $trace->source($path);
+            }
+        }
+        return $result;
     }
 
     public function has(string $name): bool
@@ -173,8 +296,16 @@ final class AgentToolRegistry
     public function run(string $name, array $args): array
     {
         if (!$this->has($name)) return ['error' => 'That feature is currently disabled.'];
+        $args=$this->validateArguments($name,$args);
+        if ($args===null) return ['error'=>'Invalid lookup arguments.'];
         try {
             return match ($name) {
+                'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
+                'clinic_context' => $this->contextLoader !== null ? ($this->contextLoader)() : ['error'=>'Context unavailable.'],
+                'owner_dashboard_summary'=>['summary'=>(new AgentContextService($this->store))->forAdmin(!empty($this->modules['shop']))],
+                'published_programme_detail'=>$this->programmeDetail($args),
+                'published_practitioners'=>['practitioners'=>(new ClinicKnowledgeService($this->store))->practitioners()],
+                'published_programmes'=>['programmes'=>(new ClinicKnowledgeService($this->store))->programmes()],
                 'appointment_summary' => self::summariseAppointments($this->store->read('appointments')),
                 'recent_orders' => $this->recentOrders(),
                 'catalog_categories' => ['categories' => array_map(static fn(array $row): array => array_intersect_key($row, ['name' => true, 'slug' => true]), array_slice($this->store->read('categories'), 0, 15))],
@@ -192,6 +323,21 @@ final class AgentToolRegistry
             error_log('Agent tool ' . $name . ' failed: ' . get_class($e));
             return ['error' => 'That lookup is unavailable right now.'];
         }
+    }
+
+    public function retrieve(string $name, array $args, AgentRunTrace $trace): array {
+        $started=microtime(true);
+        $result=$this->run($name,$args);
+        $trace->tool($name,isset($result['error'])?'error':'ok',$started);
+        return $result;
+    }
+
+    private function programmeDetail(array $args): array {
+        $slug=$args['slug']??'';
+        if (!is_string($slug)||!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$slug)||strlen($slug)>120) return ['error'=>'Invalid programme slug.'];
+        $page=(new CampaignPageService($this->store))->findPublished($slug);
+        if (!$page) return ['error'=>'Published programme not found.'];
+        return ['title'=>(string)$page['title'],'summary'=>(string)($page['summary']??''),'duration'=>(string)($page['program_duration']??''),'body'=>mb_substr(strip_tags((string)($page['body']??'')),0,12000),'url'=>'/campaigns/'.$slug];
     }
 
     public static function summariseAppointments(array $rows): array
@@ -380,15 +526,14 @@ final class AgentToolRegistry
         foreach ((new SupportTicketService($this->store))->all() as $ticket) {
             // A record holding nothing but an id is not an enquiry. Production has one,
             // and counting it would overstate a number the owner acts on.
-            if (count(array_filter($ticket, fn($v, $k) => $k !== 'id' && $v !== '' && $v !== null, ARRAY_FILTER_USE_BOTH)) === 0) continue;
+            if (trim((string)($ticket['message']??''))==='') continue;
             $tickets[] = $ticket;
         }
 
         if ($tickets === []) {
             return [
                 'total' => 0,
-                'message' => 'No customer support enquiries have been recorded yet. '
-                    . 'The support_tickets collection is empty apart from one placeholder row holding only an id.',
+                'message' => 'No customer support enquiries have been recorded yet.',
             ];
         }
 
