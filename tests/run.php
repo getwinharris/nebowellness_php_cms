@@ -2177,7 +2177,12 @@ $tests['documentation has deployment agent instructions and no one-line placehol
 $tests['pull requests use non mutating CI with fresh project and documentation maps'] = function (): void {
     $workflow = file_get_contents(app_path('.github/workflows/ci.yml'));
     $cli = file_get_contents(app_path('cli/bapXcms'));
-    foreach (['pull_request:', 'branches: [main,', "'feat/**'", './bapXcms ci', 'php tests/therapy-integration.php'] as $needle) assertTrue(str_contains($workflow, $needle), "CI workflow should include {$needle}");
+    foreach (['pull_request:', 'branches: [main,', "'feat/**'", './bapXcms ci', 'node --test tests/remote-collection-contract.cjs', 'Historical direct-engine integration suites are retained but not run.'] as $needle) assertTrue(str_contains($workflow, $needle), "CI workflow should include {$needle}");
+    assertTrue(!preg_match('/^\s*(?:services:|mariadb:)|\bimage:\s*(?:mariadb|mysql):/mi', $workflow), 'Default CI must not provision a SQL engine');
+    assertTrue(!str_contains($workflow, './bapXcms db init'), 'Default CI must not initialize a SQL database');
+    foreach (['therapy-integration.php','crm-integration.php','identity-media-integration.php','cms-media-boundary-integration.cjs','mcp-read-integration.php'] as $fixture) {
+        assertTrue(is_file(app_path('tests/'.$fixture)), 'Retain historical engine-specific evidence: '.$fixture);
+    }
     foreach (['cmd_ci()', 'validate-project-map.php', 'validate-docs-map.php', 'cmd_update()', 'cmd_hooks()', 'cmd_ai_probe()'] as $needle) {
         assertTrue(str_contains($cli, str_replace('\\n', "\n", $needle)), "CLI should include {$needle}");
     }

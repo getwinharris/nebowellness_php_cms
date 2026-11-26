@@ -139,6 +139,13 @@ final class DatabaseService {
     private function isRemote(): bool {
         if ($this->remoteOnly !== null) return $this->remoteOnly;
         if ($this->forceDirect) return $this->remoteOnly = false;
+        // Explicit development mode uses the existing API without even probing
+        // a local SQL server. The serving /remotedb controller stays direct.
+        if (($this->cfg['mode']??'auto')==='remote') {
+            if (empty($this->cfg['remote_url'])||$this->remoteUrlIsSelf()) throw new \RuntimeException('Remote database mode requires a separate configured endpoint.');
+            return $this->remoteOnly=true;
+        }
+        if (($this->cfg['mode']??'auto')!=='auto') throw new \InvalidArgumentException('Unknown database connection mode.');
         if (empty($this->cfg['remote_url'])) { $this->remoteOnly = false; return false; }
         // The bridge is for instances that have no database of their own. When
         // remote_url points back at the host serving this request, taking it would mean
@@ -161,11 +168,23 @@ final class DatabaseService {
         return $remoteHost === $host || $remoteHost === 'www.' . $host || 'www.' . $remoteHost === $host;
     }
 
+    /** remoteDB row envelopes must contain an actual JSON object, not a silent empty record. */
+    private static function remoteRecord(mixed $row): array {
+        if (!is_array($row)||!is_string($row['id']??null)||$row['id']===''||!is_string($row['_data']??null)) {
+            throw new \RuntimeException('Remote database returned an invalid collection record.');
+        }
+        $decoded=json_decode($row['_data'],true,flags:JSON_THROW_ON_ERROR);
+        if (!is_array($decoded)||!str_starts_with(ltrim($row['_data']),'{')) {
+            throw new \RuntimeException('Remote database returned an invalid JSON collection record.');
+        }
+        return array_replace($decoded,['id'=>$row['id']]);
+    }
+
     public function read(string $table): array {
         if ($this->isTestMode()) return [];
         if ($this->isRemote()) {
             $rows = $this->remoteCall('SELECT * FROM ' . preg_replace('/[^a-z_]/', '', $table));
-            return array_map(fn($r) => array_merge(json_decode($r['_data'] ?? '{}', true) ?: [], ['id' => $r['id']]), $rows);
+            return array_map(self::remoteRecord(...),$rows);
         }
         $stmt = $this->db()->query('SELECT * FROM ' . preg_replace('/[^a-z_]/', '', $table));
         $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -431,7 +450,10 @@ final class DatabaseService {
                 $clean = preg_replace('/[^a-z_]/', '', $table);
                 $rows = $this->remoteCall("SELECT * FROM {$clean} WHERE id = ?", [$value]);
                 if (!empty($rows)) {
-                    return array_merge(json_decode($rows[0]['_data'] ?? '{}', true) ?: [], ['id' => $rows[0]['id']]);
+                    if (count($rows)!==1) throw new \RuntimeException('Remote database returned an ambiguous record.');
+                    $record=self::remoteRecord($rows[0]);
+                    if ($record['id']!==$value) throw new \RuntimeException('Remote database returned a different record.');
+                    return $record;
                 }
                 return null;
             }

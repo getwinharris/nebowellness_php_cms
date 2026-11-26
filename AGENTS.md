@@ -209,18 +209,32 @@ the existing guidance as written. Regenerate affected indexes and maps with
 - **Frontend:** PHP templates in `views/`, browser JavaScript in `assets/`, and
   `assets/css/band.css` as the canonical stylesheet, following `Design.md`. No SPA
   or build step.
-- **Backend:** controllers and services in `app/`. Route → controller → service →
-  MySQL via `DatabaseService`.
-- **Schema:** `storage/schema/collections.php` is canonical. Update it before changing
-  any collection shape.
-- **Runtime store:** hosted MySQL only for admin-editable records. Do not create local
-  service, consultant, customer, enquiry, setting, media-metadata or secret copies.
-  Blog posts are Markdown with YAML frontmatter in `content/blog/posts/`; image
-  binaries remain files. Media uploads and usage are stored in MySQL `media_files`.
-  The media library also reads legacy YAML and bundled artwork as protected assets.
+- **Backend:** controllers and services in app/. Route → controller → service →
+  canonical JSON-compatible collection records via DatabaseService and the existing
+  remoteDB API. The deployed endpoint retains its current backing implementation;
+  do not introduce or provision another database engine.
+- **Schema:** storage/schema/collections.php is canonical. Update it before changing
+  any collection shape. Generated JSON/YAML/Markdown maps describe the same contract.
+- **Runtime records:** users, CMS, CRM, settings, media inventory and business
+  records belong to the existing hosted remoteDB. No local production-data replicas
+  or new database server. Development can explicitly use BAPX_DB_MODE=remote.
+- **Flat-file knowledge:** blog bodies remain Markdown with YAML frontmatter;
+  agent knowledge/instructions use MD/YAML/JSON; active conversation state is
+  private JSON in PHP sessions. The older durable agent_sessions archive still
+  resides in the existing remoteDB. Move new archive persistence to private
+  files only through a reviewed compatibility/retention change; preserve old
+  transcripts, consent, owner access and CRM links.
+- **Verification:** no automatic MariaDB container or local SQL server. Use
+  PHP/JS tests, isolated temporary flat files and a schema-bound loopback
+  remoteDB contract fixture. Historical direct-engine integration suites remain
+  evidence, not rerun acceptance. A fixture never proves production persistence,
+  engine locking, payment settlement or live provider behavior. For storage
+  changes, record the specific unverified serving-side acceptance and use an
+  explicitly authorized isolated endpoint when available, never real customer
+  records as test data.
 - **Agents:** customer support and owner/admin chat are the two agent surfaces.
   PHP handles server requests and JavaScript handles browser interaction. Admin
-  agent context goes through `AgentContextService` and stays aggregate and scoped.
+  context goes through AgentContextService and stays aggregate and scoped.
 
 ## Environment
 
@@ -228,7 +242,8 @@ the existing guidance as written. Regenerate affected indexes and maps with
   must throw on transport, non-2xx and invalid-response failures; never convert a DB
   outage into an empty catalogue.
 - `.env` holds only `APP_NAME`, `APP_URL`, the `BAPX_MYSQL_*` values and
-  `BAPX_REMOTE_DB_URL`. Every other secret belongs in the MySQL `secrets` table via
+  `BAPX_REMOTE_DB_URL`, with optional `BAPX_DB_MODE=remote` for an explicitly separate
+  development endpoint. Other secrets belong in the existing remoteDB secrets collection via
   Admin → Integrations.
 
 ## Model facts you must not guess

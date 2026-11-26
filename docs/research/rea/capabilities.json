@@ -2910,6 +2910,16 @@
         "cms-06"
       ],
       "summary": "Add reusable live programme/team/consultation-fee section types, bounded display counts and shared owner/public rendering from existing typed published abilities. Disabled/empty/unavailable explicit, no private records, no duplicate business catalogue or booking action. Unit, responsive fixture and actual MariaDB route tests; no production publication or coverage increase claim."
+    },
+    {
+      "id": "186-remote-contract-ci",
+      "date": "2026-11-27",
+      "issues": [
+        186,
+        141
+      ],
+      "components": [],
+      "summary": "Owner-directed storage/testing correction: existing remoteDB business records and JSON-compatible schemas remain authoritative; explicit remote-only development bypasses local SQL probe, rejects self endpoint and invalid remote row envelopes. Default CI no MariaDB container; disposable JSON loopback contract tests for client transport, canonical collection revision writes and native page lifecycle. Historic direct-engine tests retained but not rerun; engine-specific coverage not replaced or claimed. Private flat-file agent archive migration remains separate. No production migration or REA capability promotion."
     }
   ]
 }
