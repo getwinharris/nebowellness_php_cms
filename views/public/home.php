@@ -1,34 +1,9 @@
 <?php
 require app_path('config/nebo-foundation-copy.php');
-$programAreas = ['all' => 'All programs', 'gut' => 'Gut health', 'metabolic' => 'Metabolic health', 'fertility' => 'Fertility & maternal care', 'lifestyle' => 'Lifestyle'];
-// Program art is illustrative. Each crop represents the subject of its card.
-$programs = [
-    [
-        'title' => 'Gut Restoration Program', 'duration' => '6–12 weeks', 'area' => 'gut',
-        'copy' => 'A structured dietary reset with lifestyle changes and a review of whether probiotics are appropriate for your digestive needs.',
-        'image' => ['/assets/images/blog/gut-health-food.webp', 1599, 900],
-    ],
-    [
-        'title' => 'Metabolic Reset', 'duration' => 'Personalised duration', 'area' => 'metabolic',
-        'copy' => 'A personalised plan for metabolic health, combining nutrition, yoga or other movement, and a review of supplement needs.',
-        'image' => ['/assets/images/nebo-programs.webp', 1672, 941],
-    ],
-    [
-        'title' => 'Fertility & Preconception Wellness', 'duration' => 'Personalised duration', 'area' => 'fertility',
-        'copy' => 'Preconception support through nutrition, stress management, and a review of cycle history and supplement needs.',
-        'image' => ['/assets/images/editorial/nebo-preconception.webp', 760, 832],
-    ],
-    [
-        'title' => 'Maternal Vitality', 'duration' => 'Stage based', 'area' => 'fertility',
-        'copy' => 'Pregnancy and postpartum support with childbirth preparation, nutrition guidance and a discussion of suitable comfort measures alongside maternity care.',
-        'image' => ['/assets/images/editorial/nebo-maternal-care.webp', 760, 868],
-    ],
-    [
-        'title' => 'Lifestyle Transformation', 'duration' => '90 days', 'area' => 'lifestyle',
-        'copy' => 'Nutrition, movement, stress management and habit coaching help you build routines you can maintain.',
-        'image' => ['/assets/images/blog/wellness-habits.webp', 1599, 900],
-    ],
-];
+$programs = $programs ?? [];
+$programAreas = ['all' => 'All programs'] + \App\Services\CampaignPageService::programAreas($programs);
+$programsEnabled = $programsEnabled ?? module_on('campaigns');
+$programAreaHref = static fn(string $area): string => isset($programAreas[$area]) && $programsEnabled ? '#programs-'.$area : '/contact#contact-form';
 $consultationSteps = [
     ['Tell us what matters', 'Let us know your goals and the support you are looking for.'],
     ['Connect with our team', 'Discuss the relevant program and what a consultation involves.'],
@@ -64,10 +39,11 @@ $consultationSteps = [
             <p class="lede"><?= e($foundationIntro) ?></p>
         </div>
         <?php
-        $homeFigures = [
-            [count($programs), 'Program pathways', 'Personalised options to explore before you enquire.'],
-            [count($programAreas) - 1, 'Focus areas', 'Explore the health needs our practitioners support.'],
-        ];
+        $homeFigures = [];
+        if ($programsEnabled && empty($programsUnavailable)) {
+            $homeFigures[] = [count($programs), 'Program pathways', 'Personalised options to explore before you enquire.'];
+        }
+        $homeFigures[] = [4, 'Focus areas', 'Explore the health needs our practitioners support.'];
         require __DIR__ . '/../partials/home-figures.php';
         ?>
         <div class="nebo-intro-copy">
@@ -89,7 +65,7 @@ $consultationSteps = [
 
 <!-- Programs -->
 <span class="editorial-anchor" id="programs" aria-hidden="true"></span>
-<?php foreach (array_slice($programAreas, 1, null, true) as $area => $label): ?>
+<?php foreach (array_diff_key($programAreas, ['all' => true]) + array_fill_keys(['gut','metabolic','fertility','lifestyle'], '') as $area => $label): ?>
     <span class="editorial-anchor" id="programs-<?= e($area) ?>" aria-hidden="true"></span>
 <?php endforeach; ?>
 <section class="editorial-stack-card section" style="--stack-order:3" data-stack-card data-nebo-chapter="programs">
@@ -100,6 +76,9 @@ $consultationSteps = [
                 <p class="lede">Personalised, practitioner-led pathways designed around your health goals.</p>
             </div>
         </div>
+        <?php if ($programs === []): ?>
+            <p><?= !$programsEnabled || !empty($programsUnavailable) ? 'Programmes are temporarily unavailable.' : 'No programmes are currently published.' ?> <a href="/contact#contact-form">Contact our team</a>.</p>
+        <?php else: ?>
         <div class="program-toolbar">
             <div class="program-filters" role="group" aria-label="Filter programs by care area" data-rail-filters="program-rail" hidden>
                 <?php foreach ($programAreas as $area => $label): ?>
@@ -117,20 +96,21 @@ $consultationSteps = [
                 [$image, $width, $height] = $program['image'];
             ?>
             <article class="program-slide" data-rail-area="<?= e($program['area']) ?>">
-                <a class="program-slide__card-link" href="/contact?subject=<?= e($program['area']) ?>#contact-form" aria-label="Enquire about <?= e($program['title']) ?>">
+                <a class="program-slide__card-link" href="/campaigns/<?= e($program['slug']) ?>" aria-label="Explore <?= e($program['title']) ?>">
                     <div class="program-slide__media">
                         <img src="<?= e($image) ?>" alt="" width="<?= $width ?>" height="<?= $height ?>" loading="lazy" decoding="async">
                     </div>
                     <div class="program-slide__body">
-                        <span class="program-slide__meta"><?= e($program['duration']) ?></span>
+                        <?php if ($program['duration'] !== ''): ?><span class="program-slide__meta"><?= e($program['duration']) ?></span><?php endif; ?>
                         <h3><?= e($program['title']) ?></h3>
                         <p><?= e($program['copy']) ?></p>
-                        <span class="program-slide__link">Enquire about this program <span aria-hidden="true">↗</span></span>
+                        <span class="program-slide__link">Explore program <span aria-hidden="true">↗</span></span>
                     </div>
                 </a>
             </article>
             <?php endforeach; ?>
         </div>
+        <?php endif; ?>
     </div>
 </section>
 
@@ -239,14 +219,14 @@ $consultationSteps = [
                 <div class="nebo-care-mosaic__copy">
                     <h3>Gut Health</h3>
                     <p>Support for digestive concerns such as bloating and IBS, with practical guidance on food, daily habits and tracking symptoms.</p>
-                    <a class="focus-program-link" href="#programs-gut">Explore gut health programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('gut')) ?>"><?= isset($programAreas['gut']) && $programsEnabled ? 'Explore gut health programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card">
                 <div class="nebo-care-mosaic__copy">
                     <h3>Metabolic Diseases</h3>
                     <p>Lifestyle support for concerns such as insulin resistance, PCOS, thyroid conditions and weight management alongside your existing medical care.</p>
-                    <a class="focus-program-link" href="#programs-metabolic">Explore metabolic health programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('metabolic')) ?>"><?= isset($programAreas['metabolic']) && $programsEnabled ? 'Explore metabolic health programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card nebo-care-mosaic__card--photo">
@@ -255,14 +235,14 @@ $consultationSteps = [
                 <div class="nebo-care-mosaic__copy">
                     <h3>Lifestyle Transformation</h3>
                     <p>Build routines you can keep with personalised nutrition, stress management and movement suited to your life stage.</p>
-                    <a class="focus-program-link" href="#programs-lifestyle">Explore lifestyle programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('lifestyle')) ?>"><?= isset($programAreas['lifestyle']) && $programsEnabled ? 'Explore lifestyle programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card">
                 <div class="nebo-care-mosaic__copy">
                     <h3>Maternal &amp; Fertility Wellness</h3>
                     <p>Support for preconception, pregnancy and postpartum recovery, with nutrition and lifestyle guidance coordinated with your maternity care.</p>
-                    <a class="focus-program-link" href="#programs-fertility">Explore fertility and maternal programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('fertility')) ?>"><?= isset($programAreas['fertility']) && $programsEnabled ? 'Explore fertility and maternal programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
         </div>

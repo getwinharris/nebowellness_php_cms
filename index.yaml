@@ -559,18 +559,17 @@ concepts:
   - id: "image:assets/images/blog/gut-health-food.webp"
     type: "image"
     title: "gut-health-food.webp"
-    description: "Image referenced by 3 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/blog/gut-health-food.webp"
     tags:
       - "image"
       - "used"
     filename: "gut-health-food.webp"
     mime: "image/webp"
-    usage_count: 3
+    usage_count: 2
     used_in:
       - "app/Services/CampaignPageService.php"
       - "content/blog/posts/gut-friendly-meals.md"
-      - "views/public/home.php"
   - id: "image:assets/images/blog/how-to-request-a-consultation.webp"
     type: "image"
     title: "how-to-request-a-consultation.webp"
@@ -588,18 +587,17 @@ concepts:
   - id: "image:assets/images/blog/wellness-habits.webp"
     type: "image"
     title: "wellness-habits.webp"
-    description: "Image referenced by 3 project resource(s)."
+    description: "Image referenced by 2 project resource(s)."
     resource: "assets/images/blog/wellness-habits.webp"
     tags:
       - "image"
       - "used"
     filename: "wellness-habits.webp"
     mime: "image/webp"
-    usage_count: 3
+    usage_count: 2
     used_in:
       - "content/blog/posts/how-to-explore-nebo-programs.md"
       - "content/blog/posts/sustainable-wellness-habits.md"
-      - "views/public/home.php"
   - id: "image:assets/images/consultants/default-female.webp"
     type: "image"
     title: "default-female.webp"
@@ -666,30 +664,28 @@ concepts:
   - id: "image:assets/images/editorial/nebo-maternal-care.webp"
     type: "image"
     title: "nebo-maternal-care.webp"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/editorial/nebo-maternal-care.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-maternal-care.webp"
     mime: "image/webp"
-    usage_count: 2
+    usage_count: 1
     used_in:
       - "app/Services/CampaignPageService.php"
-      - "views/public/home.php"
   - id: "image:assets/images/editorial/nebo-preconception.webp"
     type: "image"
     title: "nebo-preconception.webp"
-    description: "Image referenced by 1 project resource(s)."
+    description: "Image with no static repository reference detected."
     resource: "assets/images/editorial/nebo-preconception.webp"
     tags:
       - "image"
-      - "used"
+      - "unreferenced"
     filename: "nebo-preconception.webp"
     mime: "image/webp"
-    usage_count: 1
-    used_in:
-      - "views/public/home.php"
+    usage_count: 0
+    used_in: []
   - id: "image:assets/images/editorial/nebo-stories.webp"
     type: "image"
     title: "nebo-stories.webp"
@@ -958,20 +954,19 @@ concepts:
   - id: "image:assets/images/nebo-programs.webp"
     type: "image"
     title: "nebo-programs.webp"
-    description: "Image referenced by 5 project resource(s)."
+    description: "Image referenced by 4 project resource(s)."
     resource: "assets/images/nebo-programs.webp"
     tags:
       - "image"
       - "used"
     filename: "nebo-programs.webp"
     mime: "image/webp"
-    usage_count: 5
+    usage_count: 4
     used_in:
       - "app/Controllers/PublicController.php"
       - "app/Services/CampaignPageService.php"
       - "views/public/blog-post.php"
       - "views/public/blog.php"
-      - "views/public/home.php"
   - id: "image:assets/images/nebo-symbol.png"
     type: "image"
     title: "nebo-symbol.png"

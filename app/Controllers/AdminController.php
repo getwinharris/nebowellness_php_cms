@@ -171,6 +171,7 @@ final class AdminController extends BaseController {
         foreach (['form_phone', 'form_message'] as $field) {
             $data[$field] = in_array($_POST[$field] ?? '', ['optional','required','hidden'], true) ? $_POST[$field] : 'optional';
         }
+        try { $data += CampaignPageService::programFields($_POST); } catch (\InvalidArgumentException $error) { $this->campaignSaveError($error->getMessage()); }
         $data['form_require_otp'] = !empty($_POST['form_require_otp']);
         $fieldsJson = $_POST['form_fields'] ?? '';
         $decodedFields = is_string($fieldsJson) ? (trim($fieldsJson) === '' ? [] : json_decode($fieldsJson)) : null;

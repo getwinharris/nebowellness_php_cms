@@ -20,11 +20,20 @@ final class PublicController extends BaseController {
             error_log('Home consultant profiles unavailable: ' . $error->getMessage());
         }
         $therapyProducts = [];
-        if (module_on('campaigns')) {
-            try { $therapyProducts = array_slice((new CampaignPageService())->newestPublished(), 0, 3); }
-            catch (\Throwable $error) { error_log('Home therapy products unavailable: ' . $error->getMessage()); }
+        $programs = [];
+        $programsUnavailable = false;
+        $programsEnabled = module_on('campaigns');
+        if ($programsEnabled) {
+            try {
+                $pages = (new CampaignPageService())->newestPublished();
+                $programs = CampaignPageService::homepagePrograms($pages);
+                $therapyProducts = array_slice($pages, 0, 3);
+            } catch (\Throwable $error) {
+                $programsUnavailable = true;
+                error_log('Home programmes unavailable: ' . $error->getMessage());
+            }
         }
-        $this->render('public/home', ['consultants' => $consultants, 'teamUnavailable' => $teamUnavailable, 'therapyProducts' => $therapyProducts]);
+        $this->render('public/home', ['consultants' => $consultants, 'teamUnavailable' => $teamUnavailable, 'therapyProducts' => $therapyProducts, 'programs' => $programs, 'programsUnavailable' => $programsUnavailable, 'programsEnabled' => $programsEnabled]);
     }
 
     public function about(): void { 

@@ -119,10 +119,16 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
                     <summary class="nav-item">Programs <span aria-hidden="true">›</span></summary>
                     <div class="nav-branch__links" id="menu-programs">
                         <a class="nav-item" href="/#programs" data-programs-nav>Our Programs</a>
-                        <a class="nav-item" href="/#programs-gut" data-programs-nav>Gut health</a>
-                        <a class="nav-item" href="/#programs-metabolic" data-programs-nav>Metabolic health</a>
-                        <a class="nav-item" href="/#programs-fertility" data-programs-nav>Fertility &amp; maternal care</a>
-                        <a class="nav-item" href="/#programs-lifestyle" data-programs-nav>Lifestyle</a>
+                        <?php
+                        $__programNav = [];
+                        if ($__modules['campaigns']) {
+                            try {
+                                $__programNav = \App\Services\CampaignPageService::programAreas($programs ?? \App\Services\CampaignPageService::homepagePrograms((new \App\Services\CampaignPageService())->newestPublished()));
+                            } catch (\Throwable $error) { error_log('Programme navigation unavailable: '.$error->getMessage()); }
+                        }
+                        foreach ($__programNav as $__area => $__label): ?>
+                            <a class="nav-item" href="/#programs-<?= e($__area) ?>" data-programs-nav><?= e($__label) ?></a>
+                        <?php endforeach; ?>
                     </div>
                 </details>
                 <a class="nav-item" href="/#focus-areas">Our Focus Areas</a>

@@ -39,6 +39,49 @@ final class CampaignPageService {
         };
     }
 
+    /** Home placement is opt-in; unrelated campaigns never become programmes. */
+    public static function programFields(array $input): array {
+        $enabled = in_array($input['homepage_program'] ?? false, [true, 1, '1', 'on'], true);
+        $result = ['homepage_program' => $enabled];
+        foreach (['program_area' => 40, 'program_area_label' => 80, 'program_duration' => 80] as $field => $limit) {
+            $value = $input[$field] ?? '';
+            if (!is_string($value) || !mb_check_encoding($value, 'UTF-8')) throw new \InvalidArgumentException('Enter valid programme details.');
+            $value = trim($value);
+            if (mb_strlen($value) > $limit || preg_match('/[\x00-\x1f\x7f<>]/u', $value)) throw new \InvalidArgumentException('Programme fields must be bounded plain text.');
+            $result[$field] = $value;
+        }
+        if ($enabled && (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $result['program_area']) || $result['program_area'] === 'all' || $result['program_area_label'] === '')) {
+            throw new \InvalidArgumentException('Enter a programme category key and label. Use lowercase letters, numbers and hyphens for the key.');
+        }
+        $order = $input['program_order'] ?? '';
+        if ($order === '') $order = 999;
+        $order = filter_var($order, FILTER_VALIDATE_INT, ['options'=>['min_range'=>0,'max_range'=>9999]]);
+        if ($order === false) throw new \InvalidArgumentException('Programme order must be a whole number between 0 and 9999.');
+        $result['program_order'] = $order;
+        return $result;
+    }
+
+    public static function homepagePrograms(array $pages): array {
+        $cards = [];
+        foreach ($pages as $page) {
+            if (($page['status'] ?? '') !== 'published' || !in_array($page['homepage_program'] ?? false, [true, 1, '1'], true)) continue;
+            if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', (string)($page['slug'] ?? '')) || trim((string)($page['title'] ?? '')) === '') continue;
+            try { $fields = self::programFields($page); } catch (\InvalidArgumentException) { continue; }
+            $image = self::editorialImage($page);
+            $size = str_starts_with($image, '/assets/images/') ? @getimagesize(app_path(ltrim($image, '/'))) : false;
+            $cards[] = ['title'=>(string)$page['title'], 'slug'=>(string)$page['slug'], 'duration'=>$fields['program_duration'], 'area'=>$fields['program_area'], 'area_label'=>$fields['program_area_label'], 'order'=>$fields['program_order'], 'copy'=>(string)($page['summary'] ?? ''), 'image'=>[$image, (int)($size[0] ?? 1600), (int)($size[1] ?? 900)]];
+        }
+        usort($cards, static fn(array $a, array $b): int => [$a['order'], $a['slug']] <=> [$b['order'], $b['slug']]);
+        return $cards;
+    }
+
+    /** One category label per published key, using the first ordered programme. */
+    public static function programAreas(array $programs): array {
+        $areas = [];
+        foreach ($programs as $program) $areas[$program['area']] ??= $program['area_label'];
+        return $areas;
+    }
+
     /** Return normalized definitions and any validation errors indexed by editor row. */
     public static function validateFields(array $fields): array {
         $normalized = [];
