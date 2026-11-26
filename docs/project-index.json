@@ -3,11 +3,11 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 110,
+        "routes": 113,
         "controllers": 14,
-        "services": 71,
-        "views": 56,
-        "collections": 26
+        "services": 73,
+        "views": 59,
+        "collections": 27
     },
     "routes": [
         {
@@ -635,6 +635,33 @@
         },
         {
             "method": "GET",
+            "path": "/admin/pages",
+            "name": "admin.pages",
+            "controller": "AdminController@cmsPages",
+            "view": "admin/cms-pages",
+            "services": [
+                "CmsPageService",
+                "CmsSectionRegistry",
+                "MarkdownRenderer",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "POST",
+            "path": "/admin/pages/save",
+            "name": "admin.pages.save",
+            "controller": "AdminController@saveCmsPage",
+            "view": "admin/cms-pages",
+            "services": [
+                "CmsPageService",
+                "CmsSectionRegistry",
+                "AuditLogService",
+                "DatabaseService",
+                "AuthService"
+            ]
+        },
+        {
+            "method": "GET",
             "path": "/admin/search-performance",
             "name": "admin.search-performance",
             "controller": "AdminController@searchPerformance",
@@ -1150,6 +1177,19 @@
             ]
         },
         {
+            "method": "GET",
+            "path": "/pages/{slug}",
+            "name": "cms.page",
+            "controller": "PublicController@cmsPage",
+            "view": "public/cms-page",
+            "services": [
+                "CmsPageService",
+                "CmsSectionRegistry",
+                "MarkdownRenderer",
+                "SeoService"
+            ]
+        },
+        {
             "method": "POST",
             "path": "/payment/therapy/webhook/{mode}",
             "name": "therapy.webhook",
@@ -1224,6 +1264,7 @@
             "controller": "PublicController@sitemap",
             "view": "public/sitemap",
             "services": [
+                "CmsPageService",
                 "BlogService",
                 "ProductService",
                 "CampaignPageService",
@@ -1350,6 +1391,8 @@
         "CategoryService",
         "ClinicContactService",
         "ClinicKnowledgeService",
+        "CmsPageService",
+        "CmsSectionRegistry",
         "CommerceAbilityService",
         "ConsultantService",
         "ConsultationFeeService",
@@ -1411,6 +1454,7 @@
         "admin/agent-sessions",
         "admin/appearance",
         "admin/blog",
+        "admin/cms-pages",
         "admin/consultant-form",
         "admin/consultation-analytics",
         "admin/customers",
@@ -1431,6 +1475,7 @@
         "layouts/admin",
         "layouts/app",
         "partials/care-icon",
+        "partials/cms-page-document",
         "partials/home-figures",
         "partials/therapy-products",
         "public/404",
@@ -1442,6 +1487,7 @@
         "public/cart",
         "public/categories",
         "public/checkout",
+        "public/cms-page",
         "public/contact",
         "public/forgot-password",
         "public/home",
@@ -1464,6 +1510,7 @@
         "audit_events",
         "campaign_pages",
         "categories",
+        "cms_pages",
         "consultants",
         "consultation_messages",
         "consultation_signals",

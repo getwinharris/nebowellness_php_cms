@@ -77,3 +77,10 @@ Update when an admin route, sidebar group, or CRUD form contract changes. The si
   projection, not draft/history. Reuse the existing appearance and contact
   channels. See docs/research/rea/contracts/site-profile.md; verify two distinct
   synthetic identities and stale/unauthorized requests.
+
+- Native pages at /admin/pages use a bounded versioned section registry,
+  server-generated section IDs, revision-checked native form operations,
+  and an explicit saved-preview publication workflow. Section operations
+  save valid draft fields only. Public /pages/{slug} and sitemap must
+  resolve the published snapshot, never drafts. Keep existing clinic
+  routes unchanged. See docs/research/rea/contracts/native-pages.md.

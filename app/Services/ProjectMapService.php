@@ -7,12 +7,13 @@ final class ProjectMapService {
 
     public const SHARED_CONTROLLERS = ['BaseController'];
     public const SHARED_SERVICES = ['SeoService', 'SmtpMailer', 'ImageOptimizerService', 'DocsMapService', 'RateLimiter', 'KnowledgeGraphService'];
-    public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'partials/care-icon', 'partials/home-figures', 'partials/therapy-products', 'public/404', 'admin/environment'];
+    public const SHARED_VIEWS = ['account/_nav', 'admin/_campaign-fields', 'layouts/admin', 'layouts/app', 'partials/care-icon', 'partials/home-figures', 'partials/therapy-products', 'partials/cms-page-document', 'public/404', 'admin/environment'];
     public const KNOWN_UNWIRED_COLLECTIONS = ['wallet_transactions'];
 
     public static function registry(): array {
         $routes = [
             ['method'=>'GET','path'=>'/','name'=>'home','page'=>'public/home','controller'=>'PublicController@home','services'=>['SiteProfileService','ConsultationFeeService','ClinicContactService','CampaignPageService','ConsultantService','PublicDiscoveryService','SettingsService']],
+            ['method'=>'GET','path'=>'/pages/{slug}','name'=>'cms.page','page'=>'public/cms-page','controller'=>'PublicController@cmsPage','services'=>['CmsPageService','CmsSectionRegistry','MarkdownRenderer','SeoService']],
             ['method'=>'GET','path'=>'/about','name'=>'about','page'=>'public/about','controller'=>'PublicController@about','services'=>[]],
             ['method'=>'GET','path'=>'/sri-panchami-spiritual','name'=>'spiritual','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
             ['method'=>'GET','path'=>'/spiritual','name'=>'spiritual.short','page'=>'public/about','controller'=>'PublicController@spiritual','services'=>[]],
@@ -39,7 +40,7 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/manifest.json','name'=>'site.manifest','page'=>'public/404','controller'=>'PublicController@manifest','services'=>['SettingsService','SiteProfileService']],
             ['method'=>'GET','path'=>'/admin/manifest.json','name'=>'admin.manifest','page'=>'public/404','controller'=>'PublicController@manifest','services'=>['SettingsService','SiteProfileService']],
             ['method'=>'GET','path'=>'/openapi.json','name'=>'discovery.openapi','page'=>'public/openapi','controller'=>'PublicController@discoveryContract','services'=>['SeoService','SiteProfileService']],
-            ['method'=>'GET','path'=>'/sitemap.xml','name'=>'sitemap','page'=>'public/sitemap','controller'=>'PublicController@sitemap','services'=>['BlogService','ProductService','CampaignPageService','SettingsService','SeoService']],
+            ['method'=>'GET','path'=>'/sitemap.xml','name'=>'sitemap','page'=>'public/sitemap','controller'=>'PublicController@sitemap','services'=>['CmsPageService','BlogService','ProductService','CampaignPageService','SettingsService','SeoService']],
             ['method'=>'GET','path'=>'/contact','name'=>'contact','page'=>'public/contact','controller'=>'PublicController@contact','services'=>['SiteProfileService','ClinicContactService','ConsultationFeeService']],
             ['method'=>'POST','path'=>'/contact','name'=>'contact.post','page'=>'public/contact','controller'=>'PublicController@contact','services'=>['SiteProfileService','ContactService','ConsultationFeeService']],
             ['method'=>'POST','path'=>'/forms/email-otp','name'=>'forms.email-otp','page'=>'public/contact','controller'=>'PublicController@sendEmailOtp','services'=>['EmailOtpService','SmtpMailer','SecretService']],
@@ -92,6 +93,8 @@ final class ProjectMapService {
             ['method'=>'POST','path'=>'/admin/agent-sessions/purge','name'=>'admin.agent-sessions.purge','page'=>'admin/agent-sessions','controller'=>'AdminController@purgeAgentSessions','services'=>['AgentSessionService','AuditLogService']],
             ['method'=>'GET','path'=>'/admin/support-tickets','name'=>'admin.support-tickets','page'=>'admin/support-inbox','controller'=>'AdminController@supportTickets','services'=>['DatabaseService','SupportTicketService','AgentSessionService','CustomerCrmService']],
             ['method'=>'POST','path'=>'/admin/support-tickets/save','name'=>'admin.support-tickets.save','page'=>'admin/support-inbox','controller'=>'AdminController@saveSupportTicket','services'=>['SupportTicketService','AuditLogService']],
+            ['method'=>'GET','path'=>'/admin/pages','name'=>'admin.pages','page'=>'admin/cms-pages','controller'=>'AdminController@cmsPages','services'=>['CmsPageService','CmsSectionRegistry','MarkdownRenderer']],
+            ['method'=>'POST','path'=>'/admin/pages/save','name'=>'admin.pages.save','page'=>'admin/cms-pages','controller'=>'AdminController@saveCmsPage','services'=>['CmsPageService','CmsSectionRegistry','AuditLogService','DatabaseService']],
             ['method'=>'GET','path'=>'/admin/site-profile','name'=>'admin.site-profile','page'=>'admin/site-profile','controller'=>'AdminController@siteProfile','services'=>['SettingsService','SiteProfileService','BrandAssetService']],
             ['method'=>'POST','path'=>'/admin/site-profile/save','name'=>'admin.site-profile.save','page'=>'admin/site-profile','controller'=>'AdminController@saveSiteProfile','services'=>['SettingsService','SiteProfileService','AuditLogService','DatabaseService']],
             ['method'=>'GET','path'=>'/admin/appearance','name'=>'admin.appearance','page'=>'admin/appearance','controller'=>'AdminController@appearance','services'=>['SettingsService','BrandAssetService']],
@@ -296,6 +299,8 @@ final class ProjectMapService {
             '/admin/contact_submissions/save|POST' => 'Admin — save contact submission',
             '/admin/contact_submissions/delete|POST' => 'Admin — delete contact submission',
             '/admin/support-tickets' => 'Admin — support tickets',
+            '/admin/pages' => 'Admin — native pages',
+            '/admin/pages/save|POST' => 'Admin — save/publish page',
             '/admin/site-profile' => 'Admin — site identity profile',
             '/admin/site-profile/save|POST' => 'Admin — save/publish site profile',
             '/admin/appearance' => 'Admin — logo & favicon',

@@ -95,6 +95,16 @@
                 'status' => ['type' => 'enum', 'values' => ['visible', 'hidden']],
             ],
         ],
+        'cms_pages' => [
+            'primary_key'=>'id','admin_managed'=>true,
+            'media_fields'=>['published','draft','previous'],'agent_context'=>[],
+            'fields'=>[
+                'id'=>['type'=>'slug','required'=>true],
+                'version'=>['type'=>'integer'],
+                'published'=>['type'=>'object'],'draft'=>['type'=>'object'],
+                'previous'=>['type'=>'object'],'can_restore'=>['type'=>'boolean'],
+            ],
+        ],
         'campaign_pages' => [
             'primary_key' => 'id',
             'admin_managed' => true,

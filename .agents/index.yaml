@@ -42,16 +42,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 349
-  relationships: 297
+  concepts: 356
+  relationships: 305
   by_type:
     blog: 5
     controller: 14
-    doc: 51
+    doc: 52
     image: 40
-    route: 110
-    schema: 26
-    service: 71
+    route: 113
+    schema: 27
+    service: 73
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -494,6 +494,14 @@ concepts:
     tags:
       - "docs"
     filename: "native-abilities-audit.md"
+    header_image: ""
+  - id: "doc:native-pages"
+    type: "doc"
+    title: "native-pages"
+    description: ""
+    resource: "docs/research/rea/contracts/native-pages.md"
+    tags: []
+    filename: "native-pages.md"
     header_image: ""
   - id: "doc:orders"
     type: "doc"
@@ -1626,6 +1634,23 @@ concepts:
       - "MediaService"
       - "AuthService"
     view: "admin/media"
+  - id: "route:get__admin_pages"
+    type: "route"
+    title: "GET /admin/pages"
+    description: "admin.pages"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/admin/pages"
+    controller: "AdminController@cmsPages"
+    services:
+      - "CmsPageService"
+      - "CmsSectionRegistry"
+      - "MarkdownRenderer"
+      - "AuthService"
+    view: "admin/cms-pages"
   - id: "route:get__admin_search_performance"
     type: "route"
     title: "GET /admin/search-performance"
@@ -2014,6 +2039,23 @@ concepts:
       - "SeoService"
       - "SiteProfileService"
     view: "public/openapi"
+  - id: "route:get__pages__slug"
+    type: "route"
+    title: "GET /pages/{slug}"
+    description: "cms.page"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/pages/{slug}"
+    controller: "PublicController@cmsPage"
+    services:
+      - "CmsPageService"
+      - "CmsSectionRegistry"
+      - "MarkdownRenderer"
+      - "SeoService"
+    view: "public/cms-page"
   - id: "route:get__privacy"
     type: "route"
     title: "GET /privacy"
@@ -2066,6 +2108,7 @@ concepts:
     path: "/sitemap.xml"
     controller: "PublicController@sitemap"
     services:
+      - "CmsPageService"
       - "BlogService"
       - "ProductService"
       - "CampaignPageService"
@@ -2605,6 +2648,24 @@ concepts:
       - "AuditLogService"
       - "AuthService"
     view: "admin/media"
+  - id: "route:post__admin_pages_save"
+    type: "route"
+    title: "POST /admin/pages/save"
+    description: "admin.pages.save"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/admin/pages/save"
+    controller: "AdminController@saveCmsPage"
+    services:
+      - "CmsPageService"
+      - "CmsSectionRegistry"
+      - "AuditLogService"
+      - "DatabaseService"
+      - "AuthService"
+    view: "admin/cms-pages"
   - id: "route:post__admin_settings_admin_credentials"
     type: "route"
     title: "POST /admin/settings/admin-credentials"
@@ -2994,6 +3055,16 @@ concepts:
     data_source: "remotedb"
     collection: "categories"
     schema_file: "storage/schema/collections.php"
+  - id: "schema:cms_pages"
+    type: "schema"
+    title: "cms_pages"
+    description: "Schema collection: cms_pages"
+    resource: "storage/schema/collections.php"
+    tags:
+      - "schema"
+    data_source: "remotedb"
+    collection: "cms_pages"
+    schema_file: "storage/schema/collections.php"
   - id: "schema:consultants"
     type: "schema"
     title: "consultants"
@@ -3373,6 +3444,22 @@ concepts:
     title: "ClinicKnowledgeService"
     description: "Service: ClinicKnowledgeService"
     resource: "app/Services/ClinicKnowledgeService.php"
+    tags:
+      - "code"
+      - "service"
+  - id: "service:CmsPageService"
+    type: "service"
+    title: "CmsPageService"
+    description: "Service: CmsPageService"
+    resource: "app/Services/CmsPageService.php"
+    tags:
+      - "code"
+      - "service"
+  - id: "service:CmsSectionRegistry"
+    type: "service"
+    title: "CmsSectionRegistry"
+    description: "Service: CmsSectionRegistry"
+    resource: "app/Services/CmsSectionRegistry.php"
     tags:
       - "code"
       - "service"
@@ -4056,6 +4143,12 @@ relationships:
     to: "service:ClinicKnowledgeService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:CmsPageService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:CmsSectionRegistry"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:ConsultantService"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4183,6 +4276,12 @@ relationships:
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:ClinicContactService"
+    relation: "uses"
+  - from: "controller:PublicController"
+    to: "service:CmsPageService"
+    relation: "uses"
+  - from: "controller:PublicController"
+    to: "service:CmsSectionRegistry"
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:ConsultantService"
@@ -4400,6 +4499,9 @@ relationships:
   - from: "route:get__admin_media"
     to: "controller:AdminController"
     relation: "handled_by"
+  - from: "route:get__admin_pages"
+    to: "controller:AdminController"
+    relation: "handled_by"
   - from: "route:get__admin_search_performance"
     to: "controller:AdminController"
     relation: "handled_by"
@@ -4476,6 +4578,9 @@ relationships:
     to: "controller:McpController"
     relation: "handled_by"
   - from: "route:get__openapi_json"
+    to: "controller:PublicController"
+    relation: "handled_by"
+  - from: "route:get__pages__slug"
     to: "controller:PublicController"
     relation: "handled_by"
   - from: "route:get__privacy"
@@ -4584,6 +4689,9 @@ relationships:
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_media_upload"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:post__admin_pages_save"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_settings_admin_credentials"
@@ -4696,6 +4804,9 @@ relationships:
     relation: "stores"
   - from: "service:ClinicKnowledgeService"
     to: "schema:settings"
+    relation: "stores"
+  - from: "service:CmsPageService"
+    to: "schema:cms_pages"
     relation: "stores"
   - from: "service:CommerceAbilityService"
     to: "schema:categories"

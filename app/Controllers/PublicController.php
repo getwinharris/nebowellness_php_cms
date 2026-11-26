@@ -364,6 +364,25 @@ final class PublicController extends BaseController {
         $this->renderNotFound();
     }
 
+    public function cmsPage(string $slug): void {
+        try {\App\Services\CmsPageService::slug($slug);}
+        catch (\InvalidArgumentException $e) {$this->renderNotFound();return;}
+        try {$document=(new \App\Services\CmsPageService())->published($slug);}
+        catch (\Throwable $e) {
+            error_log('CMS public page unavailable: '.get_class($e));
+            http_response_code(503);
+            header('Retry-After: 60');
+            header('X-Robots-Tag: noindex');
+            $this->seoKey='404';
+            $this->seoOverrides=['title'=>'Page temporarily unavailable','robots'=>'noindex, follow'];
+            $this->render('public/cms-page',['document'=>null]);return;
+        }
+        if ($document===null) {$this->renderNotFound();return;}
+        $this->seoKey='cms-page';
+        $this->seoOverrides=['title'=>$document['title'],'description'=>$document['description']];
+        $this->render('public/cms-page',['document'=>$document]);
+    }
+
     public function sitemap(): void {
         $modules = (new SettingsService())->modules();
         $urls = array_fill_keys(['/', '/about', '/contact', '/terms', '/privacy'], null);
@@ -385,6 +404,13 @@ final class PublicController extends BaseController {
             foreach ((new CampaignPageService())->published() as $page) {
                 $urls['/campaigns/' . rawurlencode($page['slug'])] = null;
             }
+        }
+        try {
+            foreach ((new \App\Services\CmsPageService())->listing(true) as $page) $urls['/pages/'.$page['slug']]=null;
+        } catch (\Throwable $e) {
+            // Never expose draft paths or pretend an incomplete sitemap is authoritative.
+            error_log('CMS sitemap unavailable: '.get_class($e));
+            http_response_code(503);header('Retry-After: 60');
         }
         header('Content-Type: application/xml; charset=utf-8');
         require app_path('views/public/sitemap.php');
