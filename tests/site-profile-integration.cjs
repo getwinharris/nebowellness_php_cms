@@ -1,0 +1,91 @@
+const assert=require('node:assert/strict');
+const {spawn,execFileSync}=require('node:child_process');
+const {once}=require('node:events');
+const {mkdtemp,rm}=require('node:fs/promises');
+const net=require('node:net'),path=require('node:path'),os=require('node:os');
+if(!['localhost','127.0.0.1'].includes(process.env.BAPX_MYSQL_HOST)||!/(?:_test|_fixture)$/.test(process.env.BAPX_MYSQL_DB||'')||process.env.BAPX_TEST_MODE==='1')throw Error('Use a disposable local test database.');
+const {root,alpha,beta}=require('./fixtures/site-profile-data.cjs');
+const env={...process.env,BAPX_TEST_MODE:'0',APP_URL:'http://127.0.0.1',BAPX_REMOTE_DB_URL:'http://127.0.0.1/remotedb'};
+const preamble='require "app/bootstrap.php"; $db=new App\\Services\\DatabaseService(true); $id=App\\Services\\SettingsService::SETTINGS_ID; ';
+const php=(code,args=[])=>JSON.parse(execFileSync('php',['-r',preamble+code,...args],{cwd:root,env,encoding:'utf8'}));
+const record=()=>php('echo json_encode($db->find("settings",$id),JSON_THROW_ON_ERROR);');
+const revision=()=>php('echo json_encode(App\\Services\\ResourceService::revision($db->find("settings",$id)));');
+const patch=value=>php('$db->upsert("settings",["id"=>$id]+json_decode($argv[1],true,flags:JSON_THROW_ON_ERROR));echo "true";',[JSON.stringify(value)]);
+(async()=>{
+    const original=record(),dir=await mkdtemp(path.join(os.tmpdir(),'site-profile-route-'));
+    let proc;
+    try{
+        const listener=net.createServer();await new Promise(r=>listener.listen(0,'127.0.0.1',r));const port=listener.address().port;await new Promise(r=>listener.close(r));
+        proc=spawn('php',['-S','127.0.0.1:'+port,path.join(root,'tests/fixtures/brand-appearance-route.php')],{cwd:root,env:{...env,BAPX_BRAND_ROUTE_FIXTURE:'1',BAPX_BRAND_SESSION_DIR:dir},stdio:'ignore'});
+        const origin='http://127.0.0.1:'+port;
+        for(let i=0;;i++){try{await fetch(origin+'/__fixture/flash');break;}catch(e){if(i>=60)throw e;await new Promise(r=>setTimeout(r,50));}}
+        const get=(p,role='guest',accept='text/html')=>fetch(origin+p,{headers:{'X-Fixture-Role':role,Accept:accept},redirect:'manual'});
+        const manifest=async()=>{const r=await get('/manifest.json');assert.equal(r.status,200);return r.json();};
+        async function post(action,rev,profile=null,opts={}){
+            const form=new FormData();
+            form.append('_csrf',opts.csrf??'brand-fixture-csrf');form.append('profile_revision',rev);
+            form.append('profile_action',action);
+            if(opts.confirm!==false)form.append('confirm','1');
+            if(profile)for(const [k,v] of Object.entries(profile))form.append('profile['+k+']',v);
+            const r=await fetch(origin+'/admin/site-profile/save',{method:'POST',body:form,headers:{'X-Fixture-Role':opts.role??'admin',referer:origin+'/admin/site-profile'},redirect:'manual'});
+            const flash=await (await get('/__fixture/flash','admin')).json();
+            return {status:r.status,location:r.headers.get('location'),flash};
+        }
+        php('$db->delete("settings",$id);echo "true";');
+        patch({fixture_keep:'preserved',palette_primary:'#123456',module_blog:'0'});
+        assert.equal((await get('/admin/site-profile','customer')).headers.get('location'),'/');
+        assert.equal((await get('/admin/site-profile')).headers.get('location'),'/login');
+        const editor=await get('/admin/site-profile','admin');
+        const initial=revision();
+        assert.ok((await editor.text()).includes('name="profile_revision" value="'+initial+'"'));
+        assert.equal((await manifest()).name,'Service website');
+        let r=await post('save_draft',initial,alpha,{role:'customer'});
+        assert.equal(r.location,'/');assert.equal(revision(),initial);
+        r=await post('save_draft',initial,alpha,{csrf:'bad'});
+        assert.equal(r.flash.type,'error');assert.equal(revision(),initial);
+        r=await post('publish',initial);
+        assert.equal(r.flash.type,'error');assert.equal(revision(),initial);
+        r=await post('save_draft',initial,alpha);
+        assert.equal(r.flash.type,'success',JSON.stringify(r.flash));
+        assert.equal((await manifest()).name,'Service website');
+        const draftPage=await (await get('/admin/site-profile','admin')).text();
+        assert.ok(draftPage.includes('Saved draft preview')&&draftPage.includes(alpha.name));
+        assert.ok(!(await (await get('/contact')).text()).includes(alpha.public_email));
+        r=await post('publish',initial);
+        assert.equal(r.flash.type,'error');assert.match(r.flash.message,/changed/i);
+        r=await post('publish',revision(),null,{confirm:false});
+        assert.equal(r.flash.type,'error');
+        r=await post('publish',revision());
+        assert.equal(r.flash.type,'success');
+        assert.equal((await manifest()).name,alpha.name);
+        const publishedContact=await (await get('/contact')).text();
+        assert.ok(publishedContact.includes('mailto:'+alpha.public_email));
+        assert.ok(!(await (await get('/','guest','text/markdown')).text()).includes(beta.name));
+        assert.equal((await (await get('/admin/manifest.json')).json()).name,alpha.short_name+' Admin');
+        r=await post('save_draft',revision(),beta);
+        assert.equal(r.flash.type,'success');
+        assert.equal((await manifest()).name,alpha.name);
+        const stale=revision();
+        patch({fixture_other:'concurrent update'});
+        r=await post('publish',stale);
+        assert.equal(r.flash.type,'error');
+        r=await post('publish',revision());
+        assert.equal(r.flash.type,'success');
+        assert.equal((await manifest()).name,beta.name);
+        const currentContact=await (await get('/contact')).text();
+        assert.ok(currentContact.includes('mailto:'+beta.public_email));
+        assert.ok(!currentContact.includes(alpha.public_email));
+        assert.ok(!currentContact.includes('Find us on Google Maps'));
+        r=await post('restore',revision());
+        assert.equal(r.flash.type,'success');assert.equal((await manifest()).name,alpha.name);
+        assert.equal(record().fixture_keep,'preserved');assert.equal(record().fixture_other,'concurrent update');
+        assert.equal(record().module_blog,'0');
+        r=await post('save_draft',revision(),{...alpha,instagram_url:'https://instagram.com@unsafe.example.test/profile'});
+        assert.equal(r.flash.type,'error');assert.equal((await manifest()).name,alpha.name);
+        console.log('PASS real owner site-profile route, private drafts, CSRF/role checks, revision conflicts, publish/restore, independent identities, and preserved settings.');
+    }finally{
+        if(proc&&proc.exitCode===null){const done=once(proc,'exit');proc.kill();await done;}
+        php('$db->delete("settings",$id);$old=json_decode($argv[1],true,flags:JSON_THROW_ON_ERROR);if($old!==null)$db->upsert("settings",$old);echo "true";',[JSON.stringify(original)]);
+        await rm(dir,{recursive:true,force:true});
+    }
+})().catch(e=>{console.error(e.message);process.exitCode=1});

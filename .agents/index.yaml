@@ -42,16 +42,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 342
-  relationships: 289
+  concepts: 348
+  relationships: 295
   by_type:
     blog: 5
     controller: 14
-    doc: 49
+    doc: 50
     image: 40
-    route: 106
+    route: 110
     schema: 26
-    service: 70
+    service: 71
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -638,6 +638,14 @@ concepts:
       - "page"
     filename: "shop.md"
     header_image: ""
+  - id: "doc:site-profile"
+    type: "doc"
+    title: "site-profile"
+    description: ""
+    resource: "docs/research/rea/contracts/site-profile.md"
+    tags: []
+    filename: "site-profile.md"
+    header_image: ""
   - id: "doc:support-agent-comparison"
     type: "doc"
     title: "Support agent comparison and model routing"
@@ -855,27 +863,29 @@ concepts:
   - id: "image:assets/images/logo-192.png"
     type: "image"
     title: "logo-192.png"
-    description: "Image with no static repository reference detected."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/logo-192.png"
     tags:
       - "image"
-      - "unreferenced"
+      - "used"
     filename: "logo-192.png"
     mime: "image/png"
-    usage_count: 0
-    used_in: []
+    usage_count: 1
+    used_in:
+      - "app/Services/SiteProfileService.php"
   - id: "image:assets/images/logo-512.png"
     type: "image"
     title: "logo-512.png"
-    description: "Image with no static repository reference detected."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/logo-512.png"
     tags:
       - "image"
-      - "unreferenced"
+      - "used"
     filename: "logo-512.png"
     mime: "image/png"
-    usage_count: 0
-    used_in: []
+    usage_count: 1
+    used_in:
+      - "app/Services/SiteProfileService.php"
   - id: "image:assets/images/logo-small.jpg"
     type: "image"
     title: "logo-small.jpg"
@@ -1051,7 +1061,7 @@ concepts:
     mime: "image/jpeg"
     usage_count: 1
     used_in:
-      - "views/layouts/app.php"
+      - "app/Services/SiteProfileService.php"
   - id: "image:assets/images/nebo-programs.png"
     type: "image"
     title: "nebo-programs.png"
@@ -1084,17 +1094,16 @@ concepts:
   - id: "image:assets/images/nebo-symbol.png"
     type: "image"
     title: "nebo-symbol.png"
-    description: "Image referenced by 2 project resource(s)."
+    description: "Image referenced by 1 project resource(s)."
     resource: "assets/images/nebo-symbol.png"
     tags:
       - "image"
       - "used"
     filename: "nebo-symbol.png"
     mime: "image/png"
-    usage_count: 2
+    usage_count: 1
     used_in:
-      - "views/layouts/admin.php"
-      - "views/layouts/app.php"
+      - "app/Services/SiteProfileService.php"
   - id: "image:assets/images/nebo-symbol.svg"
     type: "image"
     title: "nebo-symbol.svg"
@@ -1186,6 +1195,7 @@ concepts:
     path: "/"
     controller: "PublicController@home"
     services:
+      - "SiteProfileService"
       - "ConsultationFeeService"
       - "ClinicContactService"
       - "CampaignPageService"
@@ -1577,6 +1587,21 @@ concepts:
       - "GoogleCustomerAuthService"
       - "AuthService"
     view: "admin/integrations"
+  - id: "route:get__admin_manifest_json"
+    type: "route"
+    title: "GET /admin/manifest.json"
+    description: "admin.manifest"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/admin/manifest.json"
+    controller: "PublicController@manifest"
+    services:
+      - "SettingsService"
+      - "SiteProfileService"
+    view: "public/404"
   - id: "route:get__admin_media"
     type: "route"
     title: "GET /admin/media"
@@ -1623,6 +1648,23 @@ concepts:
       - "ConsultationFeeService"
       - "AuthService"
     view: "admin/settings"
+  - id: "route:get__admin_site_profile"
+    type: "route"
+    title: "GET /admin/site-profile"
+    description: "admin.site-profile"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/admin/site-profile"
+    controller: "AdminController@siteProfile"
+    services:
+      - "SettingsService"
+      - "SiteProfileService"
+      - "BrandAssetService"
+      - "AuthService"
+    view: "admin/site-profile"
   - id: "route:get__admin_support_tickets"
     type: "route"
     title: "GET /admin/support-tickets"
@@ -1827,6 +1869,7 @@ concepts:
     path: "/contact"
     controller: "PublicController@contact"
     services:
+      - "SiteProfileService"
       - "ClinicContactService"
       - "ConsultationFeeService"
     view: "public/contact"
@@ -1912,6 +1955,21 @@ concepts:
     services:
       - "AuthService"
     view: "public/login"
+  - id: "route:get__manifest_json"
+    type: "route"
+    title: "GET /manifest.json"
+    description: "site.manifest"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/manifest.json"
+    controller: "PublicController@manifest"
+    services:
+      - "SettingsService"
+      - "SiteProfileService"
+    view: "public/404"
   - id: "route:get__mcp"
     type: "route"
     title: "GET /mcp"
@@ -1944,6 +2002,7 @@ concepts:
     controller: "PublicController@discoveryContract"
     services:
       - "SeoService"
+      - "SiteProfileService"
     view: "public/openapi"
   - id: "route:get__privacy"
     type: "route"
@@ -2566,6 +2625,24 @@ concepts:
       - "AuditLogService"
       - "AuthService"
     view: "admin/settings"
+  - id: "route:post__admin_site_profile_save"
+    type: "route"
+    title: "POST /admin/site-profile/save"
+    description: "admin.site-profile.save"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "POST"
+    path: "/admin/site-profile/save"
+    controller: "AdminController@saveSiteProfile"
+    services:
+      - "SettingsService"
+      - "SiteProfileService"
+      - "AuditLogService"
+      - "DatabaseService"
+      - "AuthService"
+    view: "admin/site-profile"
   - id: "route:post__admin_support_tickets_save"
     type: "route"
     title: "POST /admin/support-tickets/save"
@@ -2656,6 +2733,7 @@ concepts:
     path: "/contact"
     controller: "PublicController@contact"
     services:
+      - "SiteProfileService"
       - "ContactService"
       - "ConsultationFeeService"
     view: "public/contact"
@@ -3601,6 +3679,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:SiteProfileService"
+    type: "service"
+    title: "SiteProfileService"
+    description: "Service: SiteProfileService"
+    resource: "app/Services/SiteProfileService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:SmtpMailer"
     type: "service"
     title: "SmtpMailer"
@@ -4010,6 +4096,9 @@ relationships:
     to: "service:SettingsService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:SiteProfileService"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:SmtpMailer"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4107,6 +4196,9 @@ relationships:
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:SettingsService"
+    relation: "uses"
+  - from: "controller:PublicController"
+    to: "service:SiteProfileService"
     relation: "uses"
   - from: "controller:PublicController"
     to: "service:SmtpMailer"
@@ -4279,6 +4371,9 @@ relationships:
   - from: "route:get__admin_integrations"
     to: "controller:AdminController"
     relation: "handled_by"
+  - from: "route:get__admin_manifest_json"
+    to: "controller:PublicController"
+    relation: "handled_by"
   - from: "route:get__admin_media"
     to: "controller:AdminController"
     relation: "handled_by"
@@ -4286,6 +4381,9 @@ relationships:
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:get__admin_settings"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:get__admin_site_profile"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:get__admin_support_tickets"
@@ -4347,6 +4445,9 @@ relationships:
     relation: "handled_by"
   - from: "route:get__logout"
     to: "controller:AuthController"
+    relation: "handled_by"
+  - from: "route:get__manifest_json"
+    to: "controller:PublicController"
     relation: "handled_by"
   - from: "route:get__mcp"
     to: "controller:McpController"
@@ -4466,6 +4567,9 @@ relationships:
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_settings_save"
+    to: "controller:AdminController"
+    relation: "handled_by"
+  - from: "route:post__admin_site_profile_save"
     to: "controller:AdminController"
     relation: "handled_by"
   - from: "route:post__admin_support_tickets_save"

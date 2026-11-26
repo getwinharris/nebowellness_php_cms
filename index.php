@@ -36,7 +36,6 @@ if (PHP_SAPI === 'cli-server' && preg_match('#^/(assets|storage)/#', $uri) === 1
 
 // PWA static files
 $pwaFiles = [
-    '/manifest.json' => 'assets/pwa/manifest-user.json',
     '/sw.js' => 'assets/pwa/sw-user.js',
     '/admin/sw.js' => 'assets/pwa/sw-user.js',
 ];
@@ -49,26 +48,6 @@ if (isset($pwaFiles[$uri])) {
         readfile($pwaAsset);
         exit;
     }
-}
-if ($uri === '/admin/manifest.json') {
-    $manifest = [
-        'name' => 'Nebo Admin',
-        'short_name' => 'Nebo Admin',
-        'description' => 'Admin panel for Nebo Wellness.',
-        'start_url' => '/admin',
-        'scope' => '/admin/',
-        'display' => 'standalone',
-        'background_color' => '#222222',
-        'theme_color' => '#4472C4',
-        'icons' => [
-            ['src' => '/assets/images/logo-192.png', 'sizes' => '192x192', 'type' => 'image/png'],
-            ['src' => '/assets/images/logo-512.png', 'sizes' => '512x512', 'type' => 'image/png'],
-        ],
-    ];
-    header('Content-Type: application/json; charset=utf-8');
-    header('Cache-Control: public, max-age=86400');
-    echo json_encode($manifest, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    exit;
 }
 // Remote DB query endpoint
 if ($uri === '/remotedb') {

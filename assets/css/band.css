@@ -7000,3 +7000,18 @@ main:has(> :is(.campaign-index, .campaign-page)) { padding-block-start: 0; paddi
     .agent-row--bot:has(.a2ui-readonly) { flex-direction:column; gap:4px; }
     .agent-bubble:has(.a2ui-readonly) { flex:none; padding:10px 8px; }
 }
+
+/* Shared site profile editor: native forms, no script required. */
+.site-profile-workspace { display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:var(--space-lg);align-items:start; }
+.site-profile-workspace > * { min-width:0;overflow-wrap:anywhere; }
+.site-profile-fields { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-md); }
+.site-profile-fields label { min-width:0; }
+.site-profile-fields textarea,.site-profile-fields input,.site-profile-fields select { width:100%;min-width:0; }
+.site-profile-preview dl { display:grid;gap:4px;margin:12px 0; }
+.site-profile-preview dt { font-weight:600; }
+.site-profile-preview dd { margin:0 0 8px; }
+.site-profile-preview__sample { border:1px solid var(--color-border);border-radius:8px;padding:12px;margin-block:12px; }
+.site-profile-preview form { margin-block-start:16px; }
+.brand__text { display:block;font-size:clamp(.9rem,2vw,1.2rem);font-weight:600;max-width:180px;overflow-wrap:anywhere;line-height:1.2; }
+@media(max-width:900px){.site-profile-workspace{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:580px){.site-profile-fields{grid-template-columns:minmax(0,1fr)}}

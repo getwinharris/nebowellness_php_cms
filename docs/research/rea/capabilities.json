@@ -222,11 +222,12 @@
       "title": "Site profile and appearance",
       "status": "partial",
       "acceptance": "Single owner-managed identity, contacts, branding, policies and navigation.",
-      "finding": "Appearance hardened with complete bounded raster decoding, immutable media inventory, canonical settings revision checks, row-locked partial saves, palette validation and preserved legacy artwork. General site identity/navigation/profile editor and draft/preview publishing remain pending.",
+      "finding": "Versioned owner site identity with private draft, saved preview, explicit publish and previous-version restore; canonical revision-checked settings, shared shell/contact/default SEO/discovery/manifests; existing validated appearance and contact-channel settings reused. Generic install does not inherit Nebo reference copy. Full configurable navigation/policies/page bodies and second-client end-to-end installation remain pending.",
       "issues": [
         121,
         125,
-        170
+        170,
+        172
       ],
       "references": [
         {
@@ -246,6 +247,18 @@
         {
           "path": "app/Services/BrandAssetService.php",
           "anchor": "function inspect("
+        },
+        {
+          "path": "app/Services/SiteProfileService.php",
+          "anchor": "function transition("
+        },
+        {
+          "path": "app/Services/SiteProfileService.php",
+          "anchor": "function resolve("
+        },
+        {
+          "path": "app/Controllers/AdminController.php",
+          "anchor": "function saveSiteProfile("
         }
       ],
       "tests": [
@@ -256,6 +269,18 @@
         {
           "path": "tests/brand-appearance-integration.cjs",
           "anchor": "PASS real admin appearance routes"
+        },
+        {
+          "path": "tests/site-profile.test.cjs",
+          "anchor": "two independent synthetic identities render actual templates"
+        },
+        {
+          "path": "tests/site-profile-integration.cjs",
+          "anchor": "PASS real owner site-profile route"
+        },
+        {
+          "path": "tests/browser/site-profile.cjs",
+          "anchor": "overflow:false"
         }
       ],
       "production": null
@@ -2671,6 +2696,20 @@
         "cms-07"
       ],
       "summary": "Address PR #171 review findings: canonical revision guard, row-locked settings patches, full image decoding including each accepted ICO frame, transactional staging cleanup, media inventory and reference-aware archive, accurate persistence feedback, and real-route disposable database integration. Preserve old files by design; reject new SVG/DIB and fail closed without GD. No capability completion claim."
+    },
+    {
+      "id": "172-versioned-site-profile",
+      "date": "2026-11-26",
+      "issues": [
+        172,
+        125,
+        121
+      ],
+      "components": [
+        "cms-07",
+        "cms-11"
+      ],
+      "summary": "Native reference-derived owner identity contract with saved private draft, preview, explicit publish and previous-version restore; current revision gates, validated complete public projection, contact/SEO/discovery/manifest wiring, existing appearance/phone settings reused. Two synthetic identity and 12 Chromium fixture scenarios. Actual owner route MariaDB test in CI; navigation ordering, policies/page content, PWA icon generation and generic installer remain separate. No live business settings mutation or coverage completion claim."
     }
   ]
 }

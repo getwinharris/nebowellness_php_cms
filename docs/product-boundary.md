@@ -75,3 +75,14 @@ service payment/booking/CRM behavior and exact deployed-source verification.
 ## Retail runtime retirement (#165)
 
 The service application now registers 106 routes, down from 137. Retail public/API/admin routes, product drafting, product CLI executables and six retail abilities are removed from the active surface. A legacy shop setting is always false and is not configurable. The remaining twelve typed internal abilities and the six published MCP reads remain available according to their existing permission and module gates. Historic receipt access stays owner-scoped and read-only. Historical source files and schema collections remain for separately reviewed archival cleanup; no production table, credential or record is deleted by this change.
+
+## Native site identity (#172)
+
+The canonical settings record supports a versioned site identity with a
+private saved draft, field preview, confirmed publication and prior-version
+restore. The published projection supplies public/admin shells, contact
+identity, default SEO, discovery and manifests. The Nebo reference profile
+is deployment-specific; unconfigured independent installations remain
+neutral. Existing appearance and phone/WhatsApp contracts remain in place.
+General page content, navigation ordering, policies, form builder and
+installation packaging are separate acceptance work.

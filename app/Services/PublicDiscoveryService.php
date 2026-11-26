@@ -29,7 +29,19 @@ final class PublicDiscoveryService {
         if ($modules['blog']) $links['Wellness journal'] = '/blog';
         $links['Public sitemap'] = '/sitemap.xml';
         $links['Public discovery API (OpenAPI)'] = '/openapi.json';
-        echo "# Nebo Lifestyle Clinic\n\nNaturopathy, functional medicine, and maternal and fertility wellness in Kanyakumari, Tamil Nadu. Nebo offers personalised care for gut health, metabolic diseases, and sustainable lifestyle transformation.\n\n";
+        $profile=(new SiteProfileService())->published();
+        if ($profile['mode']==='unavailable') {
+            http_response_code(503);
+            echo "# Site information unavailable\n\nPlease try again later.\n";
+            return;
+        }
+        if ($profile['mode']==='reference') {
+            echo "# Nebo Lifestyle Clinic\n\nNaturopathy, functional medicine, and maternal and fertility wellness in Kanyakumari, Tamil Nadu. Nebo offers personalised care for gut health, metabolic diseases, and sustainable lifestyle transformation.\n\n";
+        } else {
+            // Owner-provided plain text stays literal in the Markdown representation.
+            $literal=static fn(string $value):string=>strtr($value,['\\'=>'\\\\','['=>'\\[',']'=>'\\]','*'=>'\\*','_'=>'\\_',chr(96)=>'\\'.chr(96),'#'=>'\\#','!'=>'\\!','|'=>'\\|']);
+            echo '# '.$literal($profile['name'])."\n\n".$literal($profile['description'])."\n\n";
+        }
         foreach ($links as $label => $path) echo '- [' . $label . '](' . SeoService::publicUrl($path) . ")\n";
     }
 }

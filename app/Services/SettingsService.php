@@ -12,6 +12,7 @@ final class SettingsService {
 
     /** Request-level memo. DatabaseService has no caching and every read is a full table scan. */
     private static ?array $cache = null;
+    private static bool $cacheFailed=false;
 
     public function __construct(private DatabaseService $store = new DatabaseService()) {}
 
@@ -20,6 +21,7 @@ final class SettingsService {
         try {
             $rows = $this->store->read('settings');
         } catch (\Throwable) {
+            self::$cacheFailed=true;
             return self::$cache = [];
         }
         // Always prefer the canonical record. `read()` returns an unordered SELECT *,
@@ -30,7 +32,7 @@ final class SettingsService {
         return self::$cache = ($rows[0] ?? []);
     }
 
-    public static function flushCache(): void { self::$cache = null; }
+    public static function flushCache(): void { self::$cache = null; self::$cacheFailed=false; }
 
     public function public(): array {
         $settings = $this->load();
@@ -38,6 +40,21 @@ final class SettingsService {
     }
 
     public function admin(): array { return $this->load(); }
+
+    /** The public profile must distinguish missing content from storage failure. */
+    public function strictPublic(): array {
+        $record=$this->load();
+        if (self::$cacheFailed) throw new \RuntimeException('Site settings unavailable.');
+        return $record;
+    }
+
+    public function saveSiteProfileState(array $state,string $revision): void {
+        $this->appearanceForRevision($revision);
+        $validated=SiteProfileService::state(['site_profile'=>$state]);
+        $this->store->upsertIfRevision('settings',['id'=>self::SETTINGS_ID,'site_profile'=>$validated],$revision);
+        self::flushCache();
+    }
+
 
     /**
      * Module on/off flags. Absent means enabled, so existing installs are unaffected.

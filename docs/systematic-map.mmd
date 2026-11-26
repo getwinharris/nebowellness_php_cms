@@ -7,11 +7,11 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 106 routes, 14 controllers, 70 services, 55 views, 0 data files, 21 tools"]
-    arch_routes["> Routes: 106 (Public + Auth + Payment + Admin + Support)"]:::arch
+  subgraph ARCH["Architecture Overview — 110 routes, 14 controllers, 71 services, 56 views, 0 data files, 21 tools"]
+    arch_routes["> Routes: 110 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 14"]:::arch
-    arch_svc["> Services: 70"]:::arch
-    arch_views["> Views: 55"]:::arch
+    arch_svc["> Services: 71"]:::arch
+    arch_views["> Views: 56"]:::arch
     arch_data["> Collections: 26 schema | 0 files"]:::arch
     arch_tools["> Tools: 21"]:::arch
     arch_gaps["> Gaps: 22"]:::arch
@@ -43,6 +43,7 @@ flowchart LR
     route_get_is_sha_valid["GET /is-sha-valid"]:::route
     route_get_api["GET /api"]:::route
     route_get_api_temples["GET /api/temples"]:::route
+    route_get_manifest_json["GET /manifest.json"]:::route
     route_get_openapi_json["GET /openapi.json"]:::route
     route_get_sitemap_xml["GET /sitemap.xml"]:::route
     route_get_contact["GET /contact — Contact form GET"]:::route
@@ -93,6 +94,7 @@ flowchart LR
   end
 
   subgraph ROUTES_ADMIN["ADMIN Routes"]
+    route_get_admin_manifest_json["GET /admin/manifest.json"]:::route
     route_get_admin_therapy["GET /admin/therapy"]:::route
     route_post_admin_therapy_id["POST /admin/therapy/{id}"]:::route
     route_get_admin["GET /admin — Admin dashboard — counts overview"]:::route
@@ -118,6 +120,8 @@ flowchart LR
     route_post_admin_agent_sessions_purge["POST /admin/agent-sessions/purge"]:::route
     route_get_admin_support_tickets["GET /admin/support-tickets — Admin — support tickets"]:::route
     route_post_admin_support_tickets_save["POST /admin/support-tickets/save"]:::route
+    route_get_admin_site_profile["GET /admin/site-profile — Admin — site identity profile"]:::route
+    route_post_admin_site_profile_save["POST /admin/site-profile/save — Admin — save/publish site profile"]:::route
     route_get_admin_appearance["GET /admin/appearance — Admin — logo & favicon"]:::route
     route_post_admin_appearance_save["POST /admin/appearance/save — Admin — save logo/favicon"]:::route
     route_get_admin_media["GET /admin/media — Admin — media library"]:::route
@@ -230,6 +234,7 @@ flowchart LR
     service_seoservice["SeoService"]:::code
     service_settingsservice["SettingsService"]:::code
     service_shippingservice["ShippingService"]:::code
+    service_siteprofileservice["SiteProfileService"]:::code
     service_smtpmailer["SmtpMailer"]:::code
     service_storagepermissionservice["StoragePermissionService"]:::code
     service_supportbotservice["SupportBotService"]:::code
@@ -264,6 +269,7 @@ flowchart LR
     view_admin_resource["admin/resource"]:::code
     view_admin_search_performance["admin/search-performance"]:::code
     view_admin_settings["admin/settings"]:::code
+    view_admin_site_profile["admin/site-profile"]:::code
     view_admin_support_inbox["admin/support-inbox"]:::code
     view_admin_tax_report["admin/tax-report"]:::code
     view_admin_therapy["admin/therapy"]:::code
@@ -383,6 +389,7 @@ flowchart LR
   end
 
   route_get --> controller_publiccontroller
+  controller_publiccontroller --> service_siteprofileservice
   controller_publiccontroller --> service_consultationfeeservice
   controller_publiccontroller --> service_cliniccontactservice
   controller_publiccontroller --> service_campaignpageservice
@@ -484,8 +491,17 @@ flowchart LR
   controller_apicontroller -. renders .-> view_public_404
   route_get_api_temples --> controller_apicontroller
   controller_apicontroller -. renders .-> view_public_404
+  route_get_manifest_json --> controller_publiccontroller
+  controller_publiccontroller --> service_settingsservice
+  controller_publiccontroller --> service_siteprofileservice
+  controller_publiccontroller -. renders .-> view_public_404
+  route_get_admin_manifest_json --> controller_publiccontroller
+  controller_publiccontroller --> service_settingsservice
+  controller_publiccontroller --> service_siteprofileservice
+  controller_publiccontroller -. renders .-> view_public_404
   route_get_openapi_json --> controller_publiccontroller
   controller_publiccontroller --> service_seoservice
+  controller_publiccontroller --> service_siteprofileservice
   controller_publiccontroller -. renders .-> view_public_openapi
   route_get_sitemap_xml --> controller_publiccontroller
   controller_publiccontroller --> service_blogservice
@@ -495,10 +511,12 @@ flowchart LR
   controller_publiccontroller --> service_seoservice
   controller_publiccontroller -. renders .-> view_public_sitemap
   route_get_contact --> controller_publiccontroller
+  controller_publiccontroller --> service_siteprofileservice
   controller_publiccontroller --> service_cliniccontactservice
   controller_publiccontroller --> service_consultationfeeservice
   controller_publiccontroller -. renders .-> view_public_contact
   route_post_contact --> controller_publiccontroller
+  controller_publiccontroller --> service_siteprofileservice
   controller_publiccontroller --> service_contactservice
   controller_publiccontroller --> service_consultationfeeservice
   controller_publiccontroller -. renders .-> view_public_contact
@@ -738,6 +756,19 @@ flowchart LR
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_support_inbox
+  route_get_admin_site_profile --> controller_admincontroller
+  controller_admincontroller --> service_settingsservice
+  controller_admincontroller --> service_siteprofileservice
+  controller_admincontroller --> service_brandassetservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_site_profile
+  route_post_admin_site_profile_save --> controller_admincontroller
+  controller_admincontroller --> service_settingsservice
+  controller_admincontroller --> service_siteprofileservice
+  controller_admincontroller --> service_auditlogservice
+  controller_admincontroller --> service_databaseservice
+  controller_admincontroller --> service_authservice
+  controller_admincontroller -. renders .-> view_admin_site_profile
   route_get_admin_appearance --> controller_admincontroller
   controller_admincontroller --> service_settingsservice
   controller_admincontroller --> service_brandassetservice

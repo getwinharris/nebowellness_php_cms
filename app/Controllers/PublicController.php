@@ -345,6 +345,16 @@ final class PublicController extends BaseController {
         $this->render('public/checkout', ['items' => $items, 'total' => $this->cartTotal($items), 'secrets' => $secrets, 'addresses' => $addresses, 'razorpayReady' => $razorpayReady, 'settings' => $settings]);
     }
     
+    public function manifest(): void {
+        $admin=parse_url($_SERVER['REQUEST_URI']??'/',PHP_URL_PATH)==='/admin/manifest.json';
+        $profile=(new \App\Services\SiteProfileService())->published();
+        if (session_status()===PHP_SESSION_ACTIVE) session_write_close();
+        header('Content-Type: application/manifest+json; charset=utf-8');
+        header('Cache-Control: no-cache, must-revalidate');
+        if ($profile['mode']==='unavailable') http_response_code(503);
+        echo json_encode(\App\Services\SiteProfileService::manifest($profile,$admin),JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
+    }
+
     public function discoveryContract(): void {
         header('Content-Type: application/json; charset=utf-8');
         require app_path('views/public/openapi.php');
