@@ -196,7 +196,28 @@ final class DatabaseService {
         }
         $clean = preg_replace('/[^a-z_]/', '', $table);
         $id = $record[$key] ?? bin2hex(random_bytes(8));
-        $existing = $this->find($table, $id, $key);
+        // All settings patches, including bridge requests and unversioned
+        // legacy forms, must merge with the current locked row.
+        if ($table==='settings' && $key==='id') {
+            $pdo=$this->db();
+            if (!$pdo->inTransaction()) {
+                $pdo->beginTransaction();
+                try {
+                    $saved=$this->upsert($table,$record+['id'=>$id],$key);
+                    $pdo->commit();
+                    return $saved;
+                } catch (\Throwable $error) {
+                    if ($pdo->inTransaction()) $pdo->rollBack();
+                    throw $error;
+                }
+            }
+            $locked=$pdo->prepare('SELECT id, _data FROM settings WHERE id = ? FOR UPDATE');
+            $locked->execute([$id]);
+            $row=$locked->fetch(\PDO::FETCH_ASSOC);
+            $existing=$row?array_merge(json_decode($row['_data'],true,flags:JSON_THROW_ON_ERROR),['id'=>$row['id']]):null;
+        } else {
+            $existing = $this->find($table, $id, $key);
+        }
         if ($existing) {
             $merged = array_merge($existing, $record);
             $owner = $merged['customer_email'] ?? $merged['email'] ?? $merged['user_id'] ?? null;

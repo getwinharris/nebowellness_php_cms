@@ -263,12 +263,21 @@ final class AdminController extends BaseController {
             $settings[$field] = ((string)$_POST[$field] === '1') ? '1' : '0';
             $changedModules[] = $field;
         }
-        $service->savePublic($settings);
+        try {$service->savePublic($settings);}
+        catch (\DomainException $error) {$this->flash($error->getMessage(),'error');$this->redirect('/admin/settings');}
+        catch (\Throwable) {$this->flash('Could not save site settings.','error');$this->redirect('/admin/settings');}
         (new AuditLogService())->record('save','settings','public',['fields'=>array_merge(array_values(array_intersect(['shipping_mode','flat_rate','currency','timezone','gstin'], array_keys($_POST))), $changedModules)]);
         $this->flash('Settings saved.','success');
         $this->redirect('/admin/settings');
     }
-    public function saveAdminCredentials(): void{(new EnvService())->saveAdminCredentials($_POST); (new AuditLogService())->record('save','admin-credentials','env'); $this->flash('Admin credentials saved.','success'); $this->redirect('/admin/settings');}
+    public function saveAdminCredentials(): void{
+        try {(new EnvService())->saveAdminCredentials($_POST);}
+        catch (\DomainException $error) {$this->flash($error->getMessage(),'error');$this->redirect('/admin/settings');}
+        catch (\Throwable) {$this->flash('Could not save administrator settings.','error');$this->redirect('/admin/settings');}
+        (new AuditLogService())->record('save','admin-credentials','env');
+        $this->flash('Admin credentials saved.','success');
+        $this->redirect('/admin/settings');
+    }
     public function integrations(): void {
         $secrets=new SecretService();
         $config=$secrets->getModelConfig();
@@ -469,60 +478,41 @@ final class AdminController extends BaseController {
         );
     }
     public function appearance(): void{
-        $s=(new SettingsService())->public();
-        $d = ['#4472C4','#70AD47','#F7F9FA','#222222','#4472C4'];
-        $this->render('admin/appearance',['pageTitle'=>'Logo & Favicon','logo_url'=>$s['logo_url']??'','favicon_url'=>$s['favicon_url']??'','palette_primary'=>$s['palette_primary']??$d[0],'palette_secondary'=>$s['palette_secondary']??$d[1],'palette_canvas'=>$s['palette_canvas']??$d[2],'palette_text'=>$s['palette_text']??$d[3],'palette_link'=>$s['palette_link']??$d[4]]);
+        $service=new SettingsService();
+        $revision='';$appearanceError='';
+        try {$s=$service->appearanceRecord();$revision=ResourceService::revision($s);}
+        catch (\DomainException $error) {$s=$service->public();$appearanceError=$error->getMessage();}
+        catch (\Throwable) {$s=$service->public();$appearanceError='Site settings are unavailable. Reload before editing.';}
+        $this->render('admin/appearance',['pageTitle'=>'Logo & Favicon','logo_url'=>$s['logo_url']??'','favicon_url'=>$s['favicon_url']??'','appearance_revision'=>$revision,'appearance_error'=>$appearanceError]+\App\Services\BrandAssetService::effectivePalette($s));
     }
     public function saveAppearance(): void{
-        $s=(new SettingsService())->public(); $d=app_path('assets/images/brand'); if(!is_dir($d)) mkdir($d,0775,true); $e='';
-        if(!empty($_POST['logo_remove'])){$s['logo_url']='';}
-        if(!empty($_FILES['logo_file']['name'])&&$_FILES['logo_file']['error']===UPLOAD_ERR_OK){
-            $i=getimagesize($_FILES['logo_file']['tmp_name']);$w=$i[0]??0;$h=$i[1]??0;$sz=$_FILES['logo_file']['size'];
-            if($w>512||$h>512)$e='Logo exceeds 512×512 px.';
-            elseif($sz>102400)$e='Logo exceeds 100 KB.';
-            else{$x=strtolower(pathinfo($_FILES['logo_file']['name'],PATHINFO_EXTENSION));move_uploaded_file($_FILES['logo_file']['tmp_name'],$d.'/logo.'.$x);$s['logo_url']='/assets/images/brand/logo.'.$x;}
+        $service=new SettingsService();
+        $assets=new \App\Services\BrandAssetService();
+        try {
+            $revision=is_string($_POST['appearance_revision']??null)?$_POST['appearance_revision']:'';
+            $current=$service->appearanceForRevision($revision);
+            $prepared=\App\Services\BrandAssetService::prepare($current,$_POST,$_FILES);
+            $created=$assets->storeBatch($prepared['pending']);
+            $patch=array_replace($prepared['patch'],$created);
+            // Keep immutable assets and inventory records after any uncertain DB outcome.
+            $store=new \App\Services\DatabaseService();
+            foreach ($created as $url) $store->upsert('media_files',\App\Services\BrandAssetService::mediaRecord($url));
+            $service->saveAppearancePatch($patch,$revision);
+            $this->flash($patch===[]?'No appearance changes.':'Appearance saved.','success');
+        } catch (\InvalidArgumentException | \DomainException $error) {
+            $this->flash($error->getMessage(),'error');
+            $this->redirect('/admin/appearance');
+        } catch (\Throwable $error) {
+            error_log('Appearance update failed: '.get_class($error));
+            $this->flash('Appearance could not be confirmed. Reload the settings before trying again.','error');
+            $this->redirect('/admin/appearance');
         }
-        if(!empty($_POST['favicon_remove'])){$s['favicon_url']='';}
-        if(!empty($_FILES['favicon_file']['name'])&&$_FILES['favicon_file']['error']===UPLOAD_ERR_OK){
-            $i=getimagesize($_FILES['favicon_file']['tmp_name']);$w=$i[0]??0;$h=$i[1]??0;$sz=$_FILES['favicon_file']['size'];
-            if($w>64||$h>64)$e='Favicon exceeds 64×64 px.';
-            elseif($sz>51200)$e='Favicon exceeds 50 KB.';
-            else{$x=strtolower(pathinfo($_FILES['favicon_file']['name'],PATHINFO_EXTENSION));move_uploaded_file($_FILES['favicon_file']['tmp_name'],$d.'/favicon.'.$x);$s['favicon_url']='/assets/images/brand/favicon.'.$x;}
+        // Keep any unexpected audit failure separate from the confirmed persistence outcome.
+        if ($patch!==[]) {
+            try {(new AuditLogService())->record('save','appearance','brand',['changed_fields'=>array_keys($patch),'reset'=>!empty($_POST['reset_palette'])]);}
+            catch (\Throwable) {error_log('Appearance audit unavailable after successful save');}
         }
-        $paletteBefore = array_intersect_key($s, array_flip(['palette_primary','palette_secondary','palette_canvas','palette_text','palette_link']));
-        if (!empty($_POST['reset_palette'])) {
-            foreach (['palette_primary','palette_secondary','palette_canvas','palette_text','palette_link'] as $k) unset($s[$k]);
-        } else {
-            $defaults = ['#4472C4','#70AD47','#F7F9FA','#222222','#4472C4'];
-            $keys = ['palette_primary','palette_secondary','palette_canvas','palette_text','palette_link'];
-            $vals = [];
-            $errs = [];
-            foreach ($keys as $i => $k) {
-                $v = strtoupper(trim((string)($_POST[$k] ?? '')));
-                if ($v === '') continue;
-                if (!preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $v)) {
-                    $errs[] = 'Invalid hex color for ' . str_replace('_', ' ', $k) . '.';
-                    continue;
-                }
-                if (strlen($v) === 4) $v = '#' . $v[1] . $v[1] . $v[2] . $v[2] . $v[3] . $v[3];
-                $vals[$k] = $v;
-            }
-            if (empty($errs) && !empty($vals)) {
-                $canvas = $vals['palette_canvas'] ?? $s['palette_canvas'] ?? $defaults[2];
-                $text = $vals['palette_text'] ?? $s['palette_text'] ?? $defaults[3];
-                $link = $vals['palette_link'] ?? $s['palette_link'] ?? $defaults[4];
-                $tc = self::contrast($text, $canvas);
-                if ($tc < 4.5) $errs[] = 'Text contrast ratio ' . number_format($tc,2) . ':1 is below 4.5:1 minimum against canvas.';
-                else { $lc = self::contrast($link, $canvas); if ($lc < 4.5) $errs[] = 'Link contrast ratio ' . number_format($lc,2) . ':1 is below 4.5:1 minimum against canvas.'; }
-            }
-            if ($errs) { $e = implode(' ', $errs); }
-            else { foreach ($vals as $k => $v) $s[$k] = $v; }
-        }
-        $paletteAfter = array_intersect_key($s, array_flip(['palette_primary','palette_secondary','palette_canvas','palette_text','palette_link']));
-        $changed = array_keys(array_diff_assoc($paletteAfter, $paletteBefore));
-        (new SettingsService())->savePublic($s);
-        if ($changed) (new AuditLogService())->record('save','appearance','palette',['changed_fields'=>$changed,'reset'=>!empty($_POST['reset_palette'])]);
-        $this->flash($e ?: 'Appearance saved.','success'); $this->redirect('/admin/appearance');
+        $this->redirect('/admin/appearance');
     }
     public function contactSubmissions(): void{
         // Campaign enquiries store their custom answers in form_data, which the generic
@@ -971,17 +961,5 @@ final class AdminController extends BaseController {
     private function mediaFor(string $collection): array { return in_array($collection, ['products','campaign_pages','consultants'], true) ? (new MediaService())->all($this->mediaContext($collection)) : []; }
     private function mediaContext(string $collection): string { return match($collection){'products'=>'products','campaign_pages'=>'campaigns','consultants'=>'consultants',default=>'shared'}; }
     private function schemaFields(string $collection, array $fallback): array { return (new SchemaService())->adminFields($collection, $fallback); }
-    private static function contrast(string $hex1, string $hex2): float {
-        $l1 = self::luminance($hex1); $l2 = self::luminance($hex2);
-        return (max($l1,$l2) + 0.05) / (min($l1,$l2) + 0.05);
-    }
-    private static function luminance(string $hex): float {
-        $hex = ltrim($hex, '#');
-        if (strlen($hex) === 3) $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
-        $rgb = [hexdec($hex[0].$hex[1]), hexdec($hex[2].$hex[3]), hexdec($hex[4].$hex[5])];
-        $vals = [];
-        foreach ($rgb as $c) { $s = $c / 255; $vals[] = $s <= 0.03928 ? $s / 12.92 : (($s + 0.055) / 1.055) ** 2.4; }
-        return 0.2126 * $vals[0] + 0.7152 * $vals[1] + 0.0722 * $vals[2];
-    }
 
 }

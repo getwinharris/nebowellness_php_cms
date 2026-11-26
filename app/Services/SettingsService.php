@@ -95,8 +95,50 @@ final class SettingsService {
         $this->store->upsertIfRevision('settings',['id'=>self::SETTINGS_ID,'clinic_phones'=>$numbers,'clinic_whatsapp'=>$messages],$revision);
         self::flushCache();
     }
+    /** Strict edit snapshot. Never create a new partial canonical row from legacy fallback data. */
+    public function appearanceRecord(): array {
+        $row=$this->store->find('settings',self::SETTINGS_ID);
+        if ($row===null) throw new \DomainException('Canonical site settings are not initialized. Contact the site administrator before editing appearance.');
+        return $row;
+    }
+
+    public function appearanceForRevision(string $revision): array {
+        $row=$this->appearanceRecord();
+        if (!preg_match('/^[a-f0-9]{64}$/D',$revision)||!hash_equals(ResourceService::revision($row),$revision)) {
+            throw new \DomainException('Appearance changed. Reload the latest settings before saving.');
+        }
+        return $row;
+    }
+
+    /** Revalidate against the same snapshot protected by the database row lock. */
+    public function saveAppearancePatch(array $patch,string $revision): void {
+        $current=$this->appearanceForRevision($revision);
+        $keys=array_merge(array_keys(BrandAssetService::PALETTE),['logo_url','favicon_url']);
+        if (array_diff(array_keys($patch),$keys)) throw new \InvalidArgumentException('Unknown appearance field.');
+        $palette=array_intersect_key($patch,BrandAssetService::PALETTE);
+        BrandAssetService::palettePatch($current,$palette);
+        foreach (['logo','favicon'] as $kind) {
+            $key=$kind.'_url';
+            if (!array_key_exists($key,$patch)) continue;
+            if ($patch[$key]!==''&&(!is_string($patch[$key])||!BrandAssetService::isManagedUrl($patch[$key],$kind))) {
+                throw new \InvalidArgumentException('Invalid managed brand asset.');
+            }
+        }
+        if ($patch!==[]) {
+            $this->store->upsertIfRevision('settings',['id'=>self::SETTINGS_ID]+$patch,$revision);
+            self::flushCache();
+        }
+    }
+
     public function savePublic(array $settings): void {
         unset($settings['module_shop'], $settings['shipping_mode'], $settings['flat_rate']);
+        unset($settings['id']);
+        if ($settings===[]) return;
+        // An existing legacy row must be migrated explicitly, not shadowed by
+        // a new partial canonical record.
+        if ($this->store->find('settings',self::SETTINGS_ID)===null && $this->store->read('settings')!==[]) {
+            throw new \DomainException('Legacy site settings require migration before saving.');
+        }
         $settings['id'] = self::SETTINGS_ID;
         $this->store->upsert('settings', $settings, 'id');
         self::flushCache();

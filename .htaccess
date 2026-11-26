@@ -17,6 +17,9 @@ RewriteRule ^(app|integrations|storage|tools|tests|docs|cli)/ - [F,L]
 # Developer CLI executable is not a web resource.
 RewriteRule ^bapXcms$ - [F,L,NC]
 
+# Brand files are public images, never executable or nested paths.
+RewriteRule ^assets/images/brand/(?![A-Za-z0-9_-]+\.(?:png|jpe?g|ico|svg|webp|gif)$) - [F,L,NC]
+
 # API routes
 RewriteRule ^api/(.*)$ api/index.php [QSA,L]
 

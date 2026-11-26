@@ -29,3 +29,13 @@ Run `php -l` on every changed PHP file and then `./bapXcms test`. For storage ch
 Update when a service boundary, remote mutation protocol, consultation product policy, or runtime store changes. Read `storage/schema/collections.php` first because it is canonical.
 
 - External MCP reads use the scoped published-only registry projection, independent expiring digest-stored grants, per-request authorization, bounded JSON and no browser session. Do not provision real grants during automated testing or expose owner/session tools. Follow docs/research/rea/contracts/mcp-read-transport.md.
+
+- Appearance uses the canonical settings row and a revision-guarded narrow
+  patch. Reject missing/legacy-only settings rather than shadowing them with
+  a partial canonical row. Merge all ordinary settings patches under the
+  database row lock; do not replay full stale records. Decode each accepted
+  brand image before storage, register immutable uploads in media_files,
+  and preserve old assets through the reference-aware archive workflow.
+  See docs/research/rea/contracts/brand-asset-safety.md and the disposable
+  real-route integration suite; do not test owner mutations on production
+  without an authorized test plan.

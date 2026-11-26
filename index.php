@@ -5,6 +5,12 @@ if (preg_match('#^/(?:\.agents|cli|bapXcms)(?:/|$)#i',rawurldecode((string)$uri)
     http_response_code(403);
     exit;
 }
+$decodedPath=rawurldecode((string)$uri);
+if (preg_match('#^/assets/images/brand/#i',$decodedPath) &&
+    !preg_match('#^/assets/images/brand/[A-Za-z0-9_-]+\.(?:png|jpe?g|ico|svg|webp|gif)$#iD',$decodedPath)) {
+    http_response_code(403);
+    exit;
+}
 $file = __DIR__ . $uri;
 
 if (PHP_SAPI === 'cli-server' && is_file($file)) {
