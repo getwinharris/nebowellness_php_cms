@@ -57,7 +57,7 @@ final class SupportController extends BaseController {
             $this->jsonResponse($answer,isset($answer['error'])?503:200);
         } catch (\Throwable $e) {
             (new AuditLogService())->agentRun('support', 'error', $startedAt, $trace);
-            $this->jsonResponse(['error' => 'Support is temporarily unavailable. Please try again or contact the clinic.'], 503);
+            $this->jsonResponse(['error' => 'Support is temporarily unavailable. Please try again or contact the clinic.', 'response_mode'=>'unavailable','actions'=>[['type'=>'navigate','label'=>'Contact the clinic','path'=>'/contact']]], 503);
         }
     }
 

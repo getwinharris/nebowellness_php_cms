@@ -2863,6 +2863,20 @@ $tests['agents reject persona echoes and require observed tools and inference'] 
     assertTrue(\App\Services\SupportBotService::matchesRetrievedFacts('Dr Test Person registration number?','Registration 005441.',$e),'Exact known fact accepted');
 };
 
+$tests['implementing agent owns the release and successful ticket archive is idempotent'] = function (): void {
+    $workflow=file_get_contents(app_path('.github/workflows/branch-pr.yml'));
+    assertTrue(!str_contains($workflow,'codex-review:') && !str_contains($workflow,'reviewRequest'),'No automatic external review dependency');
+    assertTrue(str_contains($workflow,'implementing agent owns self-review'),'Automated PR states release ownership');
+    assertTrue(str_contains(file_get_contents(app_path('AGENTS.md')),'The implementing agent owns the entire delivery'),'Canonical ownership rule');
+    $chat=new \App\Services\AgentConversation('support');
+    $chat->clear();
+    $ticket=['ticket_id'=>str_repeat('a',32),'reply'=>'Submitted','response_mode'=>'application_action'];
+    $chat->recordEvent(str_repeat('b',32),'Test ticket',$ticket,200,new \App\Services\AgentRunTrace());
+    $chat->recordEvent(str_repeat('c',32),'Test ticket retry',$ticket,200,new \App\Services\AgentRunTrace());
+    assertSame(1,count($chat->journal()['events']),'Successful retry does not duplicate archived ticket');
+    $chat->clear();
+};
+
 foreach ($tests as $name => $test) {
     try {
         $test();

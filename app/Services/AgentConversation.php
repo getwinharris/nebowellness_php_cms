@@ -82,6 +82,11 @@ final class AgentConversation
         }
         $key = $id . ':' . $trace->id;
         $event = AgentSessionService::event($question, $response, $status, $trace) + ['turn_id'=>$id];
+        if ($status < 400 && $event['ticket_id'] !== null) {
+            foreach ($this->state['journal'] as $recorded) {
+                if (($recorded['ticket_id'] ?? null) === $event['ticket_id'] && ($recorded['http_status'] ?? 500) < 400) return;
+            }
+        }
         if (count($this->state['journal']) >= AgentSessionService::MAX_TURNS ||
             strlen(json_encode($this->state['journal'], JSON_INVALID_UTF8_SUBSTITUTE)) + strlen(json_encode($event, JSON_INVALID_UTF8_SUBSTITUTE)) > AgentSessionService::MAX_BYTES) {
             $this->state['omitted_turns'] = (int)($this->state['omitted_turns'] ?? 0) + 1;

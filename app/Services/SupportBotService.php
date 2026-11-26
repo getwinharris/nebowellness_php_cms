@@ -31,7 +31,7 @@ final class SupportBotService {
             }
             return $result;
         }
-        $tools=new AgentToolRegistry($this->store,scope:'support',contextLoader:fn()=> $this->customerContext($user,$message),question:$message);
+        $tools=new AgentToolRegistry($this->store,scope:'support',contextLoader:fn()=> $this->toolContext($user,$message),question:$message);
         $context=$tools->retrieve('clinic_context',[],$this->trace);
         if (isset($context['error'])) return $this->unavailable($message,$startedAt,'Clinic information is temporarily unavailable.');
         if (!$context['signed_in'] && $this->isPrivateAccountQuestion($message)) {
@@ -165,6 +165,22 @@ final class SupportBotService {
             }
         }
         return $pages;
+    }
+
+    private function toolContext(?array $user,string $message): array {
+        $context=$this->customerContext($user,$message);
+        $context['site']['programmes']=array_slice(array_map(static fn(array $r):array=>array_intersect_key($r,array_flip(['title','duration','url'])),$context['site']['programmes']??[]),0,30);
+        // Use dedicated profile and article tools for detailed facts. Keep the
+        // catalogue and account fields only where the commerce module permits.
+        unset($context['site']['practitioners']);
+        $context['articles']=array_slice(array_map(static fn(array $r):array=>array_intersect_key($r,array_flip(['title','url'])),$context['articles']??[]),0,12);
+        $context['site']['products']=array_slice($context['site']['products']??[],0,10);
+        foreach ($context['site']['products'] as &$product) {
+            $product['description']=mb_substr((string)($product['description']??''),0,600);
+        }
+        unset($product);
+        $context['contact_channels']=(new ClinicContactService())->channels();
+        return $context;
     }
 
     private function customerContext(?array $user,string $message=''): array {

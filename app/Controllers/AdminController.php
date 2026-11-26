@@ -413,7 +413,7 @@ final class AdminController extends BaseController {
         // the statistics blob, not enquiries, of which there are none. A number with no
         // stated source is unverifiable, so the persona now asks for the figure, how it
         // was arrived at, and what was checked.
-         $tools = new \App\Services\AgentToolRegistry(question:$message);
+        $tools = new \App\Services\AgentToolRegistry(question:$message);
         $prompt = $tools->instructions($message) . "\nYou are the admin analyst for Nebo Lifestyle Clinic, talking to its owner. "
             . "Be brief and concrete: two to five sentences, or a short Markdown list.\n"
             . "When you give a number, say what it counts, where it came from, and any judgement you made "
@@ -427,7 +427,7 @@ final class AdminController extends BaseController {
             . "support enquiry, article or campaign page, or for sales over a period, instead of saying you do not have the "
             . "information. Only report what a tool returned; never invent an order id, a tracking number or a "
             . "figure.\n"
-            . "\n{$context}\n\nQuestion: {$message}";
+            . "\n" . \App\Services\AgentSessionService::redact($context) . "\n\nQuestion: " . \App\Services\AgentSessionService::redact($message);
         // With tools the agent can answer "where is order 9426" — the data was always
         // there, but nothing let the model ask for it.
         $client = new \App\Services\AiClient(trace: $trace);

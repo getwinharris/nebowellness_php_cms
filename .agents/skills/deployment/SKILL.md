@@ -27,7 +27,7 @@ description: Use when editing Hostinger deployment, Git auto-deploy, environment
 
 1. Developer / Agent pushes a branch to `getwinharris/nebowellness_php_cms`
 2. The branch/PR workflow runs repository checks and may create/update an eligible PR according to `.github/workflows/branch-pr.yml`
-3. Merge to deployment `main` after CI and review evidence pass
+3. The implementing agent self-reviews, fixes findings, verifies exact-head CI, and merges to deployment `main`; external review bots are optional.
 4. The already-configured Hostinger Git integration pulls deployment `main`; this is
    a one-time hosting setup, not a per-release manual configuration step
 5. Verify the deployed revision and live health; a merge alone is not deployment evidence.
