@@ -222,10 +222,11 @@
       "title": "Site profile and appearance",
       "status": "partial",
       "acceptance": "Single owner-managed identity, contacts, branding, policies and navigation.",
-      "finding": "Settings and appearance exist; fixed content remains.",
+      "finding": "Existing appearance workflow hardened with bounded image/MIME/dimension validation, canonical immutable brand filenames, explicit palette patches and validated CSS output. Existing assets preserved; general site identity/navigation/profile editor and revision-safe publishing remain pending.",
       "issues": [
         121,
-        125
+        125,
+        170
       ],
       "references": [
         {
@@ -241,9 +242,18 @@
         {
           "path": "app/Controllers/AdminController.php",
           "anchor": "function saveAppearance("
+        },
+        {
+          "path": "app/Services/BrandAssetService.php",
+          "anchor": "function inspect("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/brand-assets.test.cjs",
+          "anchor": "real multipart upload uses server-selected image names"
+        }
+      ],
       "production": null
     },
     {
@@ -2631,6 +2641,19 @@
         "a2ui-06"
       ],
       "summary": "Both chat routes project actual successful scoped native read results into one bounded A2UI 1.0 literal createSurface snapshot, validated again by shared DOM renderer. Text remains visible; no persistence/replay, mutation, dynamic binding, negotiation or production claim. Synthetic route, adversarial renderer and six desktop/mobile Chromium fixture scenarios passed; coverage remains partial."
+    },
+    {
+      "id": "170-safe-brand-assets",
+      "date": "2026-11-26",
+      "issues": [
+        170,
+        125,
+        121
+      ],
+      "components": [
+        "cms-07"
+      ],
+      "summary": "Harden existing appearance editing before reusable CMS profile work. Validate actual bounded raster uploads before storage, immutable image names, local/public path restrictions, stored color validation, contrast-safe explicit reset, narrow settings patch. New SVG uploads intentionally unsupported; existing artwork remains unchanged. Synthetic real multipart and palette tests; no production mutation or coverage increase."
     }
   ]
 }

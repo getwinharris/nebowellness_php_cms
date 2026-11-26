@@ -42,16 +42,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 340
-  relationships: 288
+  concepts: 342
+  relationships: 289
   by_type:
     blog: 5
     controller: 14
-    doc: 48
+    doc: 49
     image: 40
     route: 106
     schema: 26
-    service: 69
+    service: 70
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -317,6 +317,14 @@ concepts:
     tags:
       - "module"
     filename: "booking.md"
+    header_image: ""
+  - id: "doc:brand-asset-safety"
+    type: "doc"
+    title: "brand-asset-safety"
+    description: ""
+    resource: "docs/research/rea/contracts/brand-asset-safety.md"
+    tags: []
+    filename: "brand-asset-safety.md"
     header_image: ""
   - id: "doc:catalog"
     type: "doc"
@@ -1411,6 +1419,7 @@ concepts:
     controller: "AdminController@appearance"
     services:
       - "SettingsService"
+      - "BrandAssetService"
       - "AuthService"
     view: "admin/appearance"
   - id: "route:get__admin_appointments"
@@ -2223,6 +2232,7 @@ concepts:
     controller: "AdminController@saveAppearance"
     services:
       - "SettingsService"
+      - "BrandAssetService"
       - "AuditLogService"
       - "AuthService"
     view: "admin/appearance"
@@ -3222,6 +3232,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:BrandAssetService"
+    type: "service"
+    title: "BrandAssetService"
+    description: "Service: BrandAssetService"
+    resource: "app/Services/BrandAssetService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:CampaignPageService"
     type: "service"
     title: "CampaignPageService"
@@ -3920,6 +3938,9 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:BlogService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:BrandAssetService"
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:CampaignPageService"

@@ -20,7 +20,10 @@ $__favicon = (string)($__settings['favicon_url'] ?? '');
 if ($__favicon === '' || str_contains(strtolower($__favicon), 'sps-') || str_contains(strtolower($__favicon), 'sripanchami')) {
     $__favicon = '/assets/images/nebo-symbol.png';
 }
-$__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png';
+$__faviconMime = match (strtolower(pathinfo(parse_url($__favicon, PHP_URL_PATH)?:'',PATHINFO_EXTENSION))) {
+    'svg'=>'image/svg+xml','ico'=>'image/x-icon','jpg','jpeg'=>'image/jpeg',
+    'webp'=>'image/webp','gif'=>'image/gif',default=>'image/png',
+};
 ?>
 <link rel="icon" type="<?= e($__faviconMime) ?>" href="<?= e($__favicon) ?>">
 <link rel="manifest" href="/manifest.json">
@@ -65,12 +68,13 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <script src="/assets/support-chat.js?v=<?= filemtime(__DIR__ . '/../../assets/support-chat.js') ?>" defer></script>
 <style>
 <?php
+$__palette = \App\Services\BrandAssetService::effectivePalette($__settings);
 $__palette_semantic = [
-    '--color-primary' => ['set' => ($__settings['palette_primary'] ?? '#4472C4'), 'alias' => '--color-maroon'],
-    '--color-secondary' => ['set' => ($__settings['palette_secondary'] ?? '#70AD47'), 'alias' => '--color-gold'],
-    '--color-canvas' => ['set' => ($__settings['palette_canvas'] ?? '#F7F9FA'), 'alias' => '--color-bg'],
-    '--color-text-primary' => ['set' => ($__settings['palette_text'] ?? '#222222'), 'alias' => '--color-ink'],
-    '--color-link' => ['set' => ($__settings['palette_link'] ?? '#4472C4'), 'alias' => ''],
+    '--color-primary' => ['set' => $__palette['palette_primary'], 'alias' => '--color-maroon'],
+    '--color-secondary' => ['set' => $__palette['palette_secondary'], 'alias' => '--color-gold'],
+    '--color-canvas' => ['set' => $__palette['palette_canvas'], 'alias' => '--color-bg'],
+    '--color-text-primary' => ['set' => $__palette['palette_text'], 'alias' => '--color-ink'],
+    '--color-link' => ['set' => $__palette['palette_link'], 'alias' => ''],
 ];
 $__palette_css = ':root{';
 foreach ($__palette_semantic as $__n => $__c) {

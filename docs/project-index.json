@@ -5,7 +5,7 @@
     "summary": {
         "routes": 106,
         "controllers": 14,
-        "services": 69,
+        "services": 70,
         "views": 55,
         "collections": 26
     },
@@ -253,6 +253,7 @@
             "view": "admin/appearance",
             "services": [
                 "SettingsService",
+                "BrandAssetService",
                 "AuthService"
             ]
         },
@@ -264,6 +265,7 @@
             "view": "admin/appearance",
             "services": [
                 "SettingsService",
+                "BrandAssetService",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -1279,6 +1281,7 @@
         "AuthService",
         "BlogDraftService",
         "BlogService",
+        "BrandAssetService",
         "CampaignPageService",
         "CartService",
         "CategoryService",

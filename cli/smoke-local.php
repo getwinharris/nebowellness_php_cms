@@ -44,6 +44,7 @@ try {
         '/admin/orders' => 404,
         '/cli/product-read.php' => 403,
         '/bapXcms' => 403,
+        '/assets/images/brand/not-an-image.txt' => 403,
         // Test mode has no records, so a product slug legitimately resolves to nothing.
         // 404 is the correct answer now that a missing product no longer renders an
         // empty page with HTTP 200 (a soft 404 that search engines indexed).

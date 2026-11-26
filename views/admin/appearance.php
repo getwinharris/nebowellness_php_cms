@@ -12,10 +12,10 @@
                 <label>Upload Logo</label>
                 <div style="background:var(--color-bg-alt); border:2px dashed var(--color-border); border-radius:var(--radius-md); padding:var(--space-lg); text-align:center; margin-bottom:var(--space-sm);">
                     <input type="file" name="logo_file" accept="image/png,image/jpeg,image/jpg" style="margin:0 auto var(--space-sm); display:block;">
-                    <p style="margin:0; font-size:0.8rem; color:var(--color-text-muted);"><strong>Required:</strong> 512×512 px · Max 100 KB · PNG or JPEG</p>
+                    <p style="margin:0; font-size:0.8rem; color:var(--color-text-muted);"><strong>Maximum:</strong> 512×512 px · Max 100 KB · PNG or JPEG</p>
                 </div>
                 <label style="flex-direction:row; align-items:center; gap:var(--space-xs); font-weight:400; font-size:0.85rem;">
-                    <input type="checkbox" name="logo_remove" value="1"> Remove logo (use site name text only)
+                    <input type="checkbox" name="logo_remove" value="1"> Restore default logo
                 </label>
             </div>
             <div>
@@ -35,11 +35,11 @@
             <div>
                 <label>Upload Favicon</label>
                 <div style="background:var(--color-bg-alt); border:2px dashed var(--color-border); border-radius:var(--radius-md); padding:var(--space-lg); text-align:center; margin-bottom:var(--space-sm);">
-                    <input type="file" name="favicon_file" accept="image/png,image/svg+xml,image/x-icon" style="margin:0 auto var(--space-sm); display:block;">
-                    <p style="margin:0; font-size:0.8rem; color:var(--color-text-muted);"><strong>Required:</strong> 64×64 px · Max 50 KB · PNG or SVG</p>
+                    <input type="file" name="favicon_file" accept="image/png,image/x-icon,image/vnd.microsoft.icon" style="margin:0 auto var(--space-sm); display:block;">
+                    <p style="margin:0; font-size:0.8rem; color:var(--color-text-muted);"><strong>Maximum:</strong> 64×64 px · Max 50 KB · PNG or ICO</p>
                 </div>
                 <label style="flex-direction:row; align-items:center; gap:var(--space-xs); font-weight:400; font-size:0.85rem;">
-                    <input type="checkbox" name="favicon_remove" value="1"> Remove favicon (use default)
+                    <input type="checkbox" name="favicon_remove" value="1"> Restore default favicon
                 </label>
             </div>
             <div>
