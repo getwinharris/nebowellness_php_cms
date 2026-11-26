@@ -116,6 +116,17 @@
                 for (const filter of buttons) filter.setAttribute('aria-pressed', String(filter === button));
                 rail.scrollTo({left: 0, behavior: 'instant'});
                 sync();
+                if (!reducedMotion.matches) {
+                    cards.slice(0, 4).forEach((card, index) => {
+                        const body = card.querySelector('.program-slide__body');
+                        if (body && typeof body.animate === 'function') {
+                            body.getAnimations().filter(animation => animation.id === 'program-filter').forEach(animation => animation.cancel());
+                            const animation = body.animate([{opacity: .72, translate: '0 9px'}, {opacity: 1, translate: '0 0'}],
+                                {duration: 360, delay: index * 35, easing: 'cubic-bezier(.22,1,.36,1)'});
+                            animation.id = 'program-filter';
+                        }
+                    });
+                }
                 if (status) status.textContent = cards.length === 1 ? '1 program shown' : `${cards.length} programs shown`;
             }
 

@@ -68,3 +68,5 @@ When work changes a layout contract or reveals a reusable UI check, update this 
 - For shared page motion, use the existing stack observer on Home and the bounded site-motion observer on internal pages. Keep content readable before intersection, verify single entrance, reverse native scrolling, keyboard focus and reduced motion. Do not animate a whole page or add a scroll hijacker.
 
 - When the brief requests reference-level motion, use REA on exact saved reference sources and measure scroll positions at entry, midpoint, completion and reverse. Distinguish timed entrances from continuous effects. Keep a section/asset/control comparison ledger; do not use a passing class-name check as visual parity.
+
+- For stronger reference fidelity, update the canonical visual contract and existing winning CSS rather than layering arbitrary effects over a mismatched composition. Match reference states and measurements; use a native JS interaction when CSS alone cannot express selection. Test hover, keyboard focus, touch, no-JS and reduced motion, using approved Nebo assets/content.

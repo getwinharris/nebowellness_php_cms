@@ -2799,12 +2799,22 @@ $tests['shared motion is scoped and never hides required page content'] = functi
 
 $tests['editorial scroll choreography preserves content and owner headings'] = function (): void {
     $layout = file_get_contents(app_path('views/layouts/app.php'));
-    assertTrue(str_contains($layout,'Developed With ♥️ by <a href="https://mediahub.bapx.in/"'), 'Exact footer attribution');
+    assertTrue(str_contains($layout,'Developed with ♥️ by <a href="https://mediahub.bapx.in/"'), 'Exact footer attribution');
     $css = file_get_contents(app_path('assets/css/band.css'));
     foreach (['nebo-media-unveil','nebo-media-depth','animation-timeline: view(block)','nebo-rule-draw','prefers-reduced-motion: no-preference','nebo-profile-settle'] as $needle) assertTrue(str_contains($css,$needle),'Motion contract '.$needle);
     $script = file_get_contents(app_path('assets/site-motion.js'));
     foreach (["body.querySelectorAll('h2')","link.textContent = heading.textContent.trim()","link.href = '#' + heading.id","outline.hidden = false","slice(0, 12)"] as $needle) assertTrue(str_contains($script,$needle),'Outline uses bounded published headings: '.$needle);
     assertTrue(str_contains(file_get_contents(app_path('views/public/campaign.php')), 'data-program-outline'), 'Programme outline is progressive enhancement');
+};
+
+$tests['reference composition uses published data and functional team indicators'] = function (): void {
+    $home = file_get_contents(app_path('views/public/home.php'));
+    assertTrue(str_contains($home,'program-slide__cover') && str_contains($home,"match (\$program"), 'Program cover derives from existing category');
+    assertTrue(str_contains($home,'data-team-index') && str_contains($home,'data-team-position'), 'Team pagination is rendered from practitioners');
+    $team = file_get_contents(app_path('assets/team-showcase.js'));
+    assertTrue(str_contains($team,"dot.addEventListener('click', () => select(index))"),'Indicators select real records');
+    $css=file_get_contents(app_path('assets/css/band.css'));
+    assertTrue(str_contains($css,'(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)'),'Graphic covers retain touch and reduced-motion image fallback');
 };
 
 foreach ($tests as $name => $test) {
