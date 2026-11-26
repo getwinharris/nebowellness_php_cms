@@ -21,6 +21,9 @@ abstract class BaseController {
                 if ($archive) $data['archive_status'] = 'unavailable';
                 error_log('Private agent session journal unavailable');
             }
+            // The accepted answer was cached before archival. Preserve the
+            // real outcome even when no subsequent model turn occurs.
+            if ($archive) $chat->rememberArchiveStatus($turnId,$data['archive_status']);
             return $data;
         };
     }
@@ -108,7 +111,20 @@ abstract class BaseController {
         }
         if ($turn !== null) {
             if (isset($turn['trace_id'])) header('X-Agent-Trace: ' . $turn['trace_id']);
-            $this->jsonResponse($turn['response']);
+            $response=$turn['response'];
+            // Retry only a server-recorded failed, authorized archive. Do not
+            // turn a previously unshared Support message into a shared one
+            // merely because a replay supplies a different archive flag.
+            if (($response['archive_status']??null)==='unavailable') {
+                try {
+                    (new \App\Services\AgentSessionService())->persist($chat->journal());
+                    $response['archive_status']='saved';
+                    $chat->rememberArchiveStatus($turnId,'saved');
+                } catch (\Throwable) {
+                    error_log('Private agent session archive retry unavailable');
+                }
+            }
+            $this->jsonResponse($response);
         }
         return $turnId;
     }

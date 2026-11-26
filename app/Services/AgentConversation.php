@@ -74,6 +74,15 @@ final class AgentConversation
         $this->save();
     }
 
+    /** Only server-confirmed archival outcomes are attached to a cached turn. */
+    public function rememberArchiveStatus(string $id,string $status): void
+    {
+        if (!isset($this->state['turns'][$id])) return;
+        if (!in_array($status,['saved','unavailable'],true)) throw new \InvalidArgumentException('Invalid archive status.');
+        $this->state['turns'][$id]['response']['archive_status']=$status;
+        $this->save();
+    }
+
     /** The private journal is distinct from the 12-turn replay/prompt window. */
     public function recordEvent(string $id, string $question, array $response, int $status, AgentRunTrace $trace): void {
         if (!isset($this->state['journal'])) {

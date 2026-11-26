@@ -30,6 +30,12 @@ best-effort credential redaction, and bounded trace metadata. Visible
 messages may still contain personal data; protect the directory and
 backups. The archive is not a clinical anonymization mechanism.
 
+A cached accepted answer retains its server-confirmed archive status.
+If the authorized archive failed, replay retries only persistence, not
+inference or a business action. It preserves unavailable until storage
+recovers and then reports saved. Changing the archive flag on a replay
+cannot newly authorize an originally unshared Support message.
+
 Per-session JSON is validated, locked, staged and atomically replaced.
 A repeated event cannot change its recorded content or extend retention.
 Independent writers append distinct correlated turn/trace pairs without

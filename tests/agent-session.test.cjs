@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const { spawn } = require('node:child_process');
 const { randomBytes } = require('node:crypto');
-const { mkdtemp, rm, readFile } = require('node:fs/promises');
+const { mkdtemp, rm, readFile, chmod } = require('node:fs/promises');
 const http = require('node:http');
 const os = require('node:os');
 const path = require('node:path');
@@ -90,6 +90,7 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
         const calls = providerPrompts.length;
         const replay = await request(surface, turn);
         assert.equal(replay.body[key], first.body[key]);
+        assert.equal(replay.body.archive_status,'saved');
         assert.equal(providerPrompts.length, calls);
         assert.deepEqual(JSON.parse(await readFile(file,'utf8')),archived,'Replay does not rewrite the journal');
         assert.equal((await request(surface, { ...turn, message: 'different message' })).status, 409);
@@ -156,6 +157,36 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     assert.ok(!(await request('admin',oldOwner)).body.turns.some(t=>'a2ui' in t.response));
     assert.ok(!('a2ui' in hello.body));
     assert.ok(!('a2ui' in guessedCount.body));
+
+    // Force a real filesystem failure, without losing the accepted model turn.
+    // Retry while unavailable, then recover the exact same turn with no new inference.
+    const archiveDir=path.join(dir,'private-journal');
+    for (const surface of ['admin','support']) {
+        const initial=await request(surface);
+        const fields={_csrf:'fixture-token',conversation:initial.conversation,turn_id:randomBytes(16).toString('hex'),
+            message:surface==='admin'?'Draft a short fictional welcome sentence':'Hello there, good morning',
+            ...(surface==='support'?{archive_session:'1'}:{})};
+        const file=path.join(archiveDir,initial.conversation+'.json');
+        const key=surface==='admin'?'answer':'reply';
+        let first;
+        await chmod(archiveDir,0o755);
+        try {
+            first=await request(surface,fields);
+            assert.equal(first.status,200);assert.equal(first.body.archive_status,'unavailable');
+            const calls=providerPrompts.length;
+            const replay=await request(surface,fields);
+            assert.equal(replay.body[key],first.body[key]);assert.equal(replay.body.archive_status,'unavailable');
+            assert.equal(providerPrompts.length,calls);
+        } finally {await chmod(archiveDir,0o700);}
+        const calls=providerPrompts.length;
+        const recovered=await request(surface,fields);
+        assert.equal(recovered.body[key],first.body[key]);assert.equal(recovered.body.archive_status,'saved');
+        assert.equal(providerPrompts.length,calls);
+        const saved=JSON.parse(await readFile(file,'utf8'));
+        assert.equal(saved.events.filter(e=>e.turn_id===fields.turn_id).length,1);
+        assert.equal((await request(surface,fields)).body.archive_status,'saved');
+        assert.deepEqual(JSON.parse(await readFile(file,'utf8')),saved);
+    }
 
     assert.equal((await request('admin', oldOwner, 'second-owner')).status, 409);
 });
