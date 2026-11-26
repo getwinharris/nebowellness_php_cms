@@ -1414,10 +1414,11 @@
       "title": "Native structured UI baseline",
       "status": "partial",
       "acceptance": "Approved cards/forms/navigation, safe rendering and text fallback.",
-      "finding": "Existing draft forms and navigation; not A2UI protocol.",
+      "finding": "Native read-only structured cards and text fallback are wired into both actual chat endpoints; existing draft/navigation flows remain separate. Interactive form UI still outstanding.",
       "issues": [
         128,
-        125
+        125,
+        167
       ],
       "references": [
         {
@@ -1427,27 +1428,37 @@
       ],
       "source": [
         {
-          "path": "assets/admin-agent.js",
-          "anchor": "buildDraftForm"
+          "path": "app/Services/A2uiCatalogService.php",
+          "anchor": "function observedSurface("
         },
         {
-          "path": "assets/support-chat.js",
-          "anchor": "validActions"
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function observedUi("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/a2ui-catalog.test.cjs",
+          "anchor": "shared browser renderer validates the entire snapshot"
+        },
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "Actual provider-selected native reads generate fresh server-projected UI"
+        }
+      ],
       "production": null
     },
     {
       "id": "a2ui-02",
       "track": "a2ui",
       "title": "Versioned component and function catalog",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Advertise approved components, schemas and authorized functions.",
-      "finding": "No v1.0 catalog.",
+      "finding": "Versioned native catalog and scoped read-only metadata; shared browser renderer consumes the agreed explicit catalog ID. Negotiation and renderer functions remain unimplemented.",
       "issues": [
         128,
-        125
+        125,
+        167
       ],
       "references": [
         {
@@ -1455,19 +1466,38 @@
           "locator": "docs/a2ui_custom_functions.md"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/A2uiCatalogService.php",
+          "anchor": "function catalog("
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function observedUi("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/a2ui-catalog.test.cjs",
+          "anchor": "shared browser renderer validates the entire snapshot"
+        },
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "Actual provider-selected native reads generate fresh server-projected UI"
+        }
+      ],
       "production": null
     },
     {
       "id": "a2ui-03",
       "track": "a2ui",
       "title": "Surface lifecycle and bound data",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Create/update/delete surfaces and data models with schema validation.",
-      "finding": "No A2UI lifecycle transport.",
+      "finding": "Atomic createSurface snapshot with bounded validated component tree on both surfaces. Incremental updates, deletion messages and bound data still missing.",
       "issues": [
-        128
+        128,
+        167
       ],
       "references": [
         {
@@ -1475,8 +1505,26 @@
           "locator": "docs/a2ui_protocol.md"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "app/Services/A2uiCatalogService.php",
+          "anchor": "function validTree("
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function observedUi("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/a2ui-catalog.test.cjs",
+          "anchor": "shared browser renderer validates the entire snapshot"
+        },
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "Actual provider-selected native reads generate fresh server-projected UI"
+        }
+      ],
       "production": null
     },
     {
@@ -1506,9 +1554,10 @@
       "title": "Validation and recovery",
       "status": "partial",
       "acceptance": "Reject unknown components/unsafe values/duplicate actions; fallback on invalid message.",
-      "finding": "Existing JS link allowlists; protocol validation absent.",
+      "finding": "Strict PHP and JS snapshot validators, rejects malformed tree/component/function envelopes and uses text-only DOM; normal response remains when optional UI fails. Broader action/recovery lifecycle remains pending.",
       "issues": [
-        128
+        128,
+        167
       ],
       "references": [
         {
@@ -1518,23 +1567,37 @@
       ],
       "source": [
         {
-          "path": "assets/support-chat.js",
-          "anchor": "isActionPath"
+          "path": "assets/a2ui-readonly.js",
+          "anchor": "function validatedSnapshot("
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function observedUi("
         }
       ],
-      "tests": [],
+      "tests": [
+        {
+          "path": "tests/a2ui-catalog.test.cjs",
+          "anchor": "shared browser renderer validates the entire snapshot"
+        },
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "Actual provider-selected native reads generate fresh server-projected UI"
+        }
+      ],
       "production": null
     },
     {
       "id": "a2ui-06",
       "track": "a2ui",
       "title": "Responsive renderer acceptance",
-      "status": "missing",
+      "status": "partial",
       "acceptance": "Golden component/action fixtures and desktop/mobile both agent surfaces.",
-      "finding": "Current UI tests do not prove A2UI.",
+      "finding": "Both real PHP chat templates and actual browser scripts passed six Chromium fixture scenarios (1440, 375, 390px each) for structured cards, malformed fallback, literal text and no overflow; provider-loop acceptance tested separately. Interactive components and live authenticated acceptance remain unverified.",
       "issues": [
         128,
-        125
+        125,
+        167
       ],
       "references": [
         {
@@ -1542,8 +1605,30 @@
           "locator": "docs/sdks_spec.md"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "assets/a2ui-readonly.js",
+          "anchor": "function append("
+        },
+        {
+          "path": "app/Services/AgentToolRegistry.php",
+          "anchor": "function observedUi("
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/a2ui-catalog.test.cjs",
+          "anchor": "shared browser renderer validates the entire snapshot"
+        },
+        {
+          "path": "tests/agent-session.test.cjs",
+          "anchor": "Actual provider-selected native reads generate fresh server-projected UI"
+        },
+        {
+          "path": "tests/browser/a2ui-readonly.cjs",
+          "anchor": "malformedFallback"
+        }
+      ],
       "production": null
     },
     {
@@ -2516,6 +2601,36 @@
         "mcp-05"
       ],
       "summary": "Review correction: retain a service-only native evidence group for owner operational reports and dashboards. Direct guessed counts and unrelated retrieval cannot satisfy the report gate; no retail tools reintroduced. Synthetic trace and loopback route regressions. No capability coverage increase."
+    },
+    {
+      "id": "167-native-a2ui-catalog",
+      "date": "2026-11-26",
+      "issues": [
+        167,
+        128,
+        125
+      ],
+      "components": [
+        "a2ui-02"
+      ],
+      "summary": "Native versioned catalog and scoped read ability metadata foundation; strict literal component validation tests. No renderer functions, protocol lifecycle, runtime negotiation or live acceptance yet; partial only."
+    },
+    {
+      "id": "167-native-a2ui-readonly-snapshot",
+      "date": "2026-11-26",
+      "issues": [
+        167,
+        128,
+        125
+      ],
+      "components": [
+        "a2ui-01",
+        "a2ui-02",
+        "a2ui-03",
+        "a2ui-05",
+        "a2ui-06"
+      ],
+      "summary": "Both chat routes project actual successful scoped native read results into one bounded A2UI 1.0 literal createSurface snapshot, validated again by shared DOM renderer. Text remains visible; no persistence/replay, mutation, dynamic binding, negotiation or production claim. Synthetic route, adversarial renderer and six desktop/mobile Chromium fixture scenarios passed; coverage remains partial."
     }
   ]
 }

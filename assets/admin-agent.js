@@ -293,6 +293,7 @@
                 response.appendChild(buildDraftForm(data.draft));
             } else {
                 response.innerHTML = renderMarkdown(data.answer || 'No response.');
+                if (data.response_mode === 'model_with_retrieval') window.BapxA2ui?.append(response, data.a2ui);
             }
             if (data.archive_status || data.response_mode === 'model_with_retrieval') {
                 const info = document.createElement('small');

@@ -486,3 +486,14 @@ The owner inbox presents ticket queue, conversation and private note composer, p
 
 ### Consultation catalogue
 Contact shows ordered published fee cards in a two-column ruled editorial section, one column on phones. Display currency, amount, duration, description and approved inclusions with accessible enquiry actions. Drafts and unavailable prices are never displayed as current. Keep enquiry separate from payment and confirmed scheduling.
+
+### Agent result surfaces
+
+Both chat agents use the same restrained read-only result cards from observed
+native tools. Cards have a clear source label, a compact heading, plain-text
+content and tabular numeric values. Structured owner replies take the available
+conversation width; on small screens stack the bot marker above the full-width
+bubble. Never render model HTML, add horizontal scrolling to ordinary result
+text, hide the existing answer, or use visual styling to imply that an enquiry
+is a confirmed appointment. Use the shared catalog and verify both real chat
+templates at desktop and narrow mobile widths with malformed-surface fallback.

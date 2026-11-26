@@ -5,7 +5,7 @@
     "summary": {
         "routes": 106,
         "controllers": 14,
-        "services": 68,
+        "services": 69,
         "views": 55,
         "collections": 26
     },
@@ -235,6 +235,7 @@
                 "AgentDraftService",
                 "AgentToolRegistry",
                 "NativeAbilityRegistry",
+                "A2uiCatalogService",
                 "AbilitySchema",
                 "OwnerAbilityService",
                 "AgentRunTrace",
@@ -1207,6 +1208,7 @@
                 "SupportBotService",
                 "AgentToolRegistry",
                 "NativeAbilityRegistry",
+                "A2uiCatalogService",
                 "AbilitySchema",
                 "AgentContextService",
                 "SupportTicketService",
@@ -1259,6 +1261,7 @@
         "TherapyController"
     ],
     "services": [
+        "A2uiCatalogService",
         "AbilitySchema",
         "AddressService",
         "AgentAttachmentService",

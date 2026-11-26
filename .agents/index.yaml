@@ -42,16 +42,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 338
-  relationships: 286
+  concepts: 340
+  relationships: 288
   by_type:
     blog: 5
     controller: 14
-    doc: 47
+    doc: 48
     image: 40
     route: 106
     schema: 26
-    service: 68
+    service: 69
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -219,6 +219,14 @@ concepts:
     tags:
       - "docs"
     filename: "README.md"
+    header_image: ""
+  - id: "doc:a2ui-native-catalog"
+    type: "doc"
+    title: "a2ui-native-catalog"
+    description: ""
+    resource: "docs/research/rea/contracts/a2ui-native-catalog.md"
+    tags: []
+    filename: "a2ui-native-catalog.md"
     header_image: ""
   - id: "doc:about"
     type: "doc"
@@ -2177,6 +2185,7 @@ concepts:
       - "AgentDraftService"
       - "AgentToolRegistry"
       - "NativeAbilityRegistry"
+      - "A2uiCatalogService"
       - "AbilitySchema"
       - "OwnerAbilityService"
       - "AgentRunTrace"
@@ -2780,6 +2789,7 @@ concepts:
       - "SupportBotService"
       - "AgentToolRegistry"
       - "NativeAbilityRegistry"
+      - "A2uiCatalogService"
       - "AbilitySchema"
       - "AgentContextService"
       - "SupportTicketService"
@@ -3068,6 +3078,14 @@ concepts:
     data_source: "remotedb"
     collection: "wallet_transactions"
     schema_file: "storage/schema/collections.php"
+  - id: "service:A2uiCatalogService"
+    type: "service"
+    title: "A2uiCatalogService"
+    description: "Service: A2uiCatalogService"
+    resource: "app/Services/A2uiCatalogService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:AbilitySchema"
     type: "service"
     title: "AbilitySchema"
@@ -3853,6 +3871,9 @@ relationships:
     to: "service:TaxService"
     relation: "uses"
   - from: "controller:AdminController"
+    to: "service:A2uiCatalogService"
+    relation: "uses"
+  - from: "controller:AdminController"
     to: "service:AbilitySchema"
     relation: "uses"
   - from: "controller:AdminController"
@@ -4073,6 +4094,9 @@ relationships:
     relation: "uses"
   - from: "controller:RemoteDbController"
     to: "service:SecretService"
+    relation: "uses"
+  - from: "controller:SupportController"
+    to: "service:A2uiCatalogService"
     relation: "uses"
   - from: "controller:SupportController"
     to: "service:AbilitySchema"

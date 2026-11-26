@@ -28,14 +28,19 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
             res.end(JSON.stringify({choices:[{finish_reason:'stop',message:{content:value}}]}));
             return;
         }
-        const toolName = payload.tools.some(t => t.function.name === 'clinic_context') ? 'clinic_context' : 'owner_dashboard_summary';
+        const articleQuery=prompt.includes('Find published blog articles about sleep');
+        const appointmentQuery=prompt.includes('Summarise historical appointments');
+        const toolName=articleQuery?'search_articles':appointmentQuery?'appointment_summary':
+            payload.tools.some(t => t.function.name === 'clinic_context') ? 'clinic_context' : 'owner_dashboard_summary';
+        const args=articleQuery?JSON.stringify({query:'sleep'}):'{}';
+        const answer=articleQuery?'See the retrieved published articles.':appointmentQuery?'Historical appointments: 0.':'The fixture clinic offers programmes.';
         if (!payload.messages.some(m => m.role === 'tool')) {
-            res.end(JSON.stringify({ choices: [{ finish_reason: 'tool_calls', message: { tool_calls: [{ id: 'call_fixture', type: 'function', function: { name: toolName, arguments: '{}' } }] } }] }));
+            res.end(JSON.stringify({ choices: [{ finish_reason: 'tool_calls', message: { tool_calls: [{ id: 'call_fixture', type: 'function', function: { name: toolName, arguments: args } }] } }] }));
         } else {
             assert.equal(payload.messages.at(-1).tool_call_id, 'call_fixture');
             assert.equal(payload.messages.at(-2).tool_calls[0].id,'call_fixture');
             assert.ok(!JSON.parse(payload.messages.at(-1).content).error);
-            res.end(JSON.stringify({ choices: [{ finish_reason: 'stop', message: { content: 'The fixture clinic offers programmes.' } }] }));
+            res.end(JSON.stringify({ choices: [{ finish_reason: 'stop', message: { content: answer } }] }));
         }
     });
     await new Promise(resolve => provider.listen(0, '127.0.0.1', resolve));
@@ -117,5 +122,23 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
     assert.equal((await request('support', { ...fields, conversation_action: 'history' })).status, 409);
     const oldOwner = { _csrf: 'fixture-token', conversation: owner.conversation, conversation_action: 'history' };
     assert.equal((await request('admin', oldOwner)).body.turns.length, 2);
+    // Actual provider-selected native reads generate fresh server-projected UI.
+    const articleTurn=await request('support',{message:'Find published blog articles about sleep'});
+    assert.equal(articleTurn.status,200);
+    assert.equal(articleTurn.body.response_mode,'model_with_retrieval');
+    assert.equal(articleTurn.body.a2ui.version,'1.0');
+    assert.ok(articleTurn.body.a2ui.createSurface.components.some(c=>c.title==='Published article search'));
+    const appointmentFields={_csrf:'fixture-token',conversation:owner.conversation,
+        turn_id:randomBytes(16).toString('hex'),message:'Summarise historical appointments'};
+    const appointmentTurn=await request('admin',appointmentFields);
+    assert.equal(appointmentTurn.status,200);
+    assert.ok(appointmentTurn.body.a2ui.createSurface.components.some(c=>c.label==='Total historical appointments'&&c.value==='0'));
+    const restoredAppointment=await request('admin',appointmentFields);
+    assert.equal(restoredAppointment.body.answer,appointmentTurn.body.answer);
+    assert.ok(!('a2ui' in restoredAppointment.body),'No stale structured record replay');
+    assert.ok(!(await request('admin',oldOwner)).body.turns.some(t=>'a2ui' in t.response));
+    assert.ok(!('a2ui' in hello.body));
+    assert.ok(!('a2ui' in guessedCount.body));
+
     assert.equal((await request('admin', oldOwner, 'second-owner')).status, 409);
 });

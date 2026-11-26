@@ -387,6 +387,7 @@ final class AdminController extends BaseController {
                 return;
             }
             $response = ['answer' => $answer, 'missing' => $attachments['missing'],'response_mode'=>$trace->hasNativeToolAnswer()?'model_with_retrieval':'model_direct','sources'=>$trace->hasNativeToolAnswer()?$trace->sources():[]];
+            if ($response['response_mode']==='model_with_retrieval' && ($ui=$tools->observedUi($trace->id))!==null) $response['a2ui']=$ui;
             if ($turnId !== null) $chat->remember($turnId, $message, $response, $trace->id);
             $this->jsonResponse($response);
         } catch (\Throwable $e) {

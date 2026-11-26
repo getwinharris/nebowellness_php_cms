@@ -191,4 +191,5 @@ $ownerChat = new \App\Services\AgentConversation('admin');
 
 
 <script src="/assets/agent-conversation.js?v=<?= filemtime(__DIR__ . '/../../assets/agent-conversation.js') ?>" defer></script>
+<script src="/assets/a2ui-readonly.js?v=<?= filemtime(app_path('assets/a2ui-readonly.js')) ?>" defer></script>
 <script src="/assets/admin-agent.js?v=<?= filemtime(__DIR__ . '/../../assets/admin-agent.js') ?>" defer></script>
