@@ -59,6 +59,7 @@ final class AgentDraftService
      */
     public function draft(string $command, string $subject, string $attachments = ''): array
     {
+        if ($command !== 'create-blog') throw new \InvalidArgumentException('Retail drafting is retired in bapXcms.');
         $isBlog = $command === 'create-blog';
         $fields = $isBlog ? self::BLOG_FIELDS : $this->productFields();
         $values = [];

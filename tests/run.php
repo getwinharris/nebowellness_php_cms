@@ -155,17 +155,14 @@ function runAdminAgentFixture(string $mode, string $message): array {
     return [$response, $prompt];
 }
 
-$tests['admin agent product drafting follows the shop module'] = function (): void {
-    [$response, $prompt] = runAdminAgentFixture('off', '/add-product fixture product');
-    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
-    assertTrue(str_contains($data['error'] ?? '', 'Ecommerce is disabled'), 'Disabled shop must reject the product draft command');
-    assertSame('', $prompt, 'Disabled shop must not send a product draft prompt to the model');
-    assertTrue(!isset($data['draft']), 'Disabled shop must not provide a product form');
-
-    [$response, $prompt] = runAdminAgentFixture('on', '/add-product fixture product');
-    $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
-    assertTrue(str_contains($prompt, 'fixture product'), 'Enabled shop allows product draft generation');
-    assertSame('/admin/products/save', $data['draft']['action'] ?? '', 'Product draft still requires the ordinary save form');
+$tests['retired retail drafting cannot be re-enabled'] = function (): void {
+    foreach (['on','off'] as $mode) {
+        [$response,$prompt]=runAdminAgentFixture($mode,'/add-product fixture product');
+        $data=json_decode($response,true,512,JSON_THROW_ON_ERROR);
+        assertTrue(str_contains($data['error']??'','retired'),'Retail drafting remains unavailable');
+        assertSame('',$prompt,'No product draft provider request');
+        assertTrue(!isset($data['draft']),'No retired form');
+    }
 };
 
 $tests['admin unrelated question sends only bounded context to the model'] = function (): void {
@@ -173,8 +170,7 @@ $tests['admin unrelated question sends only bounded context to the model'] = fun
         [$response, $prompt] = runAdminAgentFixture($mode, 'What can you help me with?');
         assertTrue(str_contains($response, 'answer') && str_contains($prompt, 'What can you help me with?'), 'Unrelated question must reach the model boundary');
         assertTrue(!str_contains($prompt, 'private@example.test') && !str_contains($prompt, 'Private Person'), 'Model prompt must exclude customer identities');
-        if ($mode === 'off') assertTrue(str_contains($prompt, 'Ecommerce is disabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Disabled commerce must not enter the model prompt');
-        else assertTrue(str_contains($prompt, 'Ecommerce is enabled') && !str_contains($prompt, 'Fixture Product') && !str_contains($prompt, 'Total orders:'), 'Unrelated questions do not dump enabled-commerce records before the model asks for them');
+        assertTrue(str_contains($prompt,'Retail commerce is retired') && !str_contains($prompt,'Fixture Product') && !str_contains($prompt,'Total orders:'),'Retail data is never loaded into the service agent prompt');
     }
 };
 
@@ -281,11 +277,14 @@ $tests['project map grounds shared navigation in registered get routes'] = funct
     }
     assertSame([], $scan['gaps']['navigation_without_get_route'], 'Every internal shared navigation path should resolve to a registered GET route');
     assertTrue(str_contains(ProjectMapService::renderSystematicMermaid(), 'Navigation Paths'), 'Generated Mermaid should include shared navigation relationships');
-    $mustBeEmpty = ['missing_route_mappings','missing_controller_files','missing_service_files','missing_view_files','navigation_without_get_route','unwired_controllers','unwired_views'];
+    $mustBeEmpty = ['missing_route_mappings','missing_controller_files','missing_service_files','missing_view_files','navigation_without_get_route'];
     foreach ($mustBeEmpty as $kind) {
         if (!array_key_exists($kind, $scan['gaps'])) continue;
         assertSame([], $scan['gaps'][$kind], "Systematic map should not report unresolved {$kind} gaps");
     }
+    // Explicit temporary retirement inventory, not a blanket allowance.
+    assertSame(['CommerceController','ReviewController'],$scan['gaps']['unwired_controllers'],'Only retired controllers may remain unwired during archival cleanup');
+    assertSame(['admin/detail','admin/product-form','admin/tax-report','public/cart','public/categories','public/checkout','public/product','public/shop'],$scan['gaps']['unwired_views'],'Only known retired templates may remain unwired');
     foreach (['unwired_services', 'unwired_schema_collections', 'admin_mutations_without_audit'] as $kind) {
         if (!empty($scan['gaps'][$kind])) {
             $items = is_array($scan['gaps'][$kind]) ? $scan['gaps'][$kind] : [$scan['gaps'][$kind]];
@@ -404,7 +403,7 @@ $tests['knowledge index keeps type-qualified concepts collision-free'] = functio
             assertTrue(!str_starts_with($concept['filePath'], '.agents/REA/reference/'), 'Original REA reference skills are not executable guidance');
         }
     }
-    assertTrue(isset($concepts['route:get__shop']), 'Knowledge index should include type-qualified shop route');
+    assertTrue(!isset($concepts['route:get__shop'])&&isset($concepts['route:get__campaigns']), 'Index exposes services, not retail shop');
     assertTrue(isset($concepts['blog:your-first-nebo-consultation']), 'Knowledge index should include a type-qualified Nebo article');
     $brandImage = $concepts['image:assets/images/nebo-clinic-hero.webp'] ?? null;
     assertTrue(is_array($brandImage), 'Knowledge index should include the Nebo editorial hero image');
@@ -425,12 +424,12 @@ $tests['public and api routes cover spiritual and category pages without fallbac
     assertTrue(str_contains($index, "require __DIR__ . '/app/routes.php'") && str_contains($index, '$router->dispatch'), 'Router should dispatch /sri-panchami-spiritual to PHP');
     assertTrue(in_array('/sri-panchami-spiritual', $paths, true), 'Route registry should include /sri-panchami-spiritual');
     assertTrue(in_array('/spiritual', $paths, true), 'Route registry should include /spiritual or remove it from route detection');
-    assertTrue(in_array('/categories', $paths, true), 'API /api/categories should map through /categories route');
+    assertTrue(!in_array('/categories', $paths, true), 'Retail categories retired');
     assertTrue(in_array('/forgot-password', $paths, true), 'Login forgot-password link should have a GET route');
     assertTrue(in_array('/reset-password', $paths, true), 'Password reset page should have a GET route');
     assertTrue(in_array('/logout', $paths, true), 'Logout should dispatch through PHP routes so the session is actually destroyed');
     assertTrue(in_array('/consultation/initiate', $paths, true), 'Consultation POST actions should dispatch through PHP routes instead of SPA fallback');
-    assertTrue(in_array('/payment/verify', $paths, true), 'Payment verification POST actions should dispatch through PHP routes instead of SPA fallback');
+    assertTrue(!in_array('/payment/verify', $paths, true)&&in_array('/account/therapy/{id}/verify',$paths,true), 'Retail payment retired, service verification retained');
 };
 
 $tests['cart does not expose unfinished coupon placeholder ui'] = function (): void {
@@ -981,7 +980,7 @@ $tests['public consultation booking is retired while owner records remain availa
     $public = file_get_contents(app_path('app/Controllers/PublicController.php'));
     $account = file_get_contents(app_path('app/Controllers/AccountController.php'));
     $admin = file_get_contents(app_path('app/Controllers/AdminController.php'));
-    assertTrue(str_contains($public, "redirect('/shop')"), 'Retired public consultation URLs should redirect shoppers to the shop');
+    assertTrue(str_contains($public, "redirect('/contact')"), 'Retired public consultation URLs should redirect visitors to contact');
     assertTrue(str_contains($initiate, "redirect('/contact#contact-form')") && !str_contains($initiate, "'mode'=>'booking'"), 'The legacy initiation endpoint should not create a new booking');
     assertTrue(str_contains($account, "redirect('/account/dashboard/orders')"), 'Customer session history should no longer be surfaced in the account area');
     assertTrue(str_contains($admin, "public function appointments(): void{\$this->list('Sessions','appointments');}"), 'The owner should retain access to historical session records');
@@ -993,9 +992,9 @@ $tests['retired public consultant templates are removed'] = function (): void {
     }
 };
 
-$tests['legacy consultation urls redirect to the product shop'] = function (): void {
+$tests['legacy consultation urls redirect to service contact'] = function (): void {
     $controller = file_get_contents(app_path('app/Controllers/PublicController.php'));
-    assertTrue(substr_count($controller, "redirect('/shop')") >= 2, 'Both consultant directory and profile URLs should redirect to the shop');
+    assertTrue(substr_count($controller, "redirect('/contact')") >= 2, 'Both consultant directory and profile URLs should redirect to contact');
 };
 
 $tests['wallet and recharge routes are not customer facing'] = function (): void {
@@ -1174,7 +1173,7 @@ $tests['checkout and admin order pages wire customer email workflow'] = function
     $commerce = file_get_contents(app_path('app/Controllers/CommerceController.php'));
     $admin = file_get_contents(app_path('app/Controllers/AdminController.php'));
     $detailView = file_get_contents(app_path('views/admin/detail.php'));
-    routeExists('/admin/orders/{id}/status', 'Project map should include the admin order status save route');
+    routeMissing('/admin/orders/{id}/status', 'Retail order status mutation retired');
     assertTrue(str_contains($commerce, 'enqueuePaymentConfirmation'), 'Successful payment verification should queue payment confirmation email');
     assertTrue(str_contains($admin, 'saveOrderStatus'), 'Admin controller should expose order status updates');
     assertTrue(str_contains($detailView, 'name="status"'), 'Order detail should expose a status update form');
@@ -1195,7 +1194,7 @@ $tests['checkout payment verification preserves shipping contact details'] = fun
         assertTrue(str_contains($checkout, $needle), "Razorpay verification request should include {$needle}");
     }
     foreach (['/checkout/create-order', '/payment/verify', '/create-order', '/verify-payment'] as $path) {
-        routeExists($path, "Razorpay route should exist: {$path}");
+        routeMissing($path, "Retail checkout route retired: {$path}");
     }
     assertTrue(str_contains($checkout, '$hasPaymentGateway = $hasRazorpay || $hasStripe'), 'Checkout payment CTA should render when any supported gateway is configured');
     assertTrue(str_contains($checkout, '$defaultPaymentMethod = $hasRazorpay ? \'razorpay\' : \'stripe\''), 'Checkout should select Stripe when it is the only configured gateway');
@@ -1234,31 +1233,21 @@ $tests['cart quantity controls update progressively and remove at zero'] = funct
     assertTrue(str_contains($controller, 'if ($this->wantsJson()) $this->jsonResponse($this->cartState($slug));'), 'Add-to-cart should support progressive JSON updates');
 };
 
-$tests['bapXcms product media workflow is safe and mapped'] = function (): void {
+$tests['bapXcms has no retail product CLI entrypoints'] = function (): void {
     $cli = file_get_contents(app_path('cli/bapXcms'));
-    $reader = file_get_contents(app_path('cli/product-read.php'));
-    $importer = file_get_contents(app_path('cli/import-product-images.php'));
-    $map = file_get_contents(app_path('app/Services/ProjectMapService.php'));
-    assertTrue(str_contains($cli, 'product:images'), 'CLI should expose the product image import command');
-    assertTrue(str_contains($cli, 'cmd_db_hosted_sql'), 'CLI should support direct hosted MySQL operations without an application mutation token');
-    assertTrue(!is_file(app_path('cli/pma-client.php')), 'Browser-driven phpMyAdmin client should be removed');
-    assertTrue(str_contains($cli, 'file_get_contents("php://stdin")'), 'DB output should parse JSON from stdin instead of interpolating content into PHP code');
-    assertTrue(str_contains($reader, "require_once \$root . '/app/bootstrap.php'"), 'Product reader should bootstrap application helpers');
-    assertTrue(str_contains($reader, "new App\\Services\\DatabaseService()"), 'Product reader should use the shared local/remote database boundary');
-    foreach (['--dry-run', 'image_url', 'image_urls', 'ZipArchive', 'ImageOptimizerService'] as $needle) {
-        assertTrue(str_contains($importer, $needle), "Product image importer should include {$needle}");
-    }
-    assertTrue(str_contains($map, "toolId('import-product-images')"), 'Project map should connect product image import tooling');
+    assertTrue(str_contains($cli,'Retail product operations are retired in bapXcms.'),'Legacy CLI names fail explicitly');
+    foreach (['product-read.php','product-write.php','import-product-images.php'] as $name) assertTrue(!file_exists(app_path('cli/'.$name)),'Retired executable removed: '.$name);
+    assertTrue(str_contains($cli,'cmd_db_hosted_sql'),'Operator database access preserved');
+    assertTrue(!is_file(app_path('cli/pma-client.php')),'No browser-driven phpMyAdmin client');
 };
 
-$tests['account pages expose product reviews only after a shipped order is due'] = function (): void {
-    assertTrue(!is_file(app_path('views/account/bookings.php')), 'Retired customer session history should not expose reviews');
-    $ordersView = file_get_contents(app_path('views/account/orders.php'));
-    assertTrue(str_contains($ordersView, 'name="target_type" value="product"'), 'Shipped product orders should expose product review form');
-    assertTrue(str_contains($ordersView, 'review_request_after_at'), 'Product review form should wait until the post-shipment review date');
-    assertTrue(str_contains($ordersView, 'star-rating-input'), 'Product review form should show a five-star input');
-    assertTrue(str_contains($ordersView, 'Delivery Address'), 'User orders should show delivery address');
-    assertTrue(str_contains($ordersView, 'Shipped At'), 'User orders should show shipped time or processing detail');
+$tests['historical receipts remain read-only and owner scoped'] = function (): void {
+    $ordersView=file_get_contents(app_path('views/account/orders.php'));
+    assertTrue(!str_contains($ordersView,'/reviews/product')&&!str_contains($ordersView,'/shop'),'Historical receipts have no retired actions');
+    assertTrue(str_contains($ordersView,'View Invoice'),'Historical invoices remain available');
+    assertTrue(str_contains($ordersView,'Delivery Address')&&str_contains($ordersView,'Shipped At'),'Historical delivery facts retained');
+    routeExists('/account/orders/{orderId}/invoice','Authorized invoice route preserved');
+    routeMissing('/reviews/product','Retail review mutations retired');
 };
 
 $tests['authenticated navigation separates global and internal account menus'] = function (): void {
@@ -1282,7 +1271,7 @@ $tests['legacy account session urls redirect into orders and are not in agent co
     $account = file_get_contents(app_path('app/Controllers/AccountController.php'));
     assertTrue(str_contains($account, '/account/dashboard/orders'), 'Legacy account session URL should redirect into the available dashboard area');
     $context = file_get_contents(app_path('app/Services/AgentContextService.php'));
-    assertTrue(str_contains($context, '/account/dashboard/orders'), 'Agent context should expose the orders dashboard URL');
+    assertTrue(str_contains($context, '/account/therapy'), 'Agent context exposes service-request navigation');
     assertTrue(!str_contains($context, '/account/dashboard/sessions'), 'Agent context should not expose retired session URLs');
 };
 
@@ -1448,18 +1437,9 @@ $tests['the admin agent attaches documents and drafts into a form it cannot save
         assertTrue(in_array($needed, $names, true), "A blog draft should ask for {$needed}");
     }
 
-    // Price and tax are the owner's to set — a model guessing a price puts a wrong
-    // number in front of a shopper.
-    $product = (new \App\Services\AgentDraftService())->draft('add-product', '');
-    $hinted = [];
-    foreach ($product['fields'] as $field) {
-        if (isset($field['hint'])) $hinted[] = $field['name'];
-    }
-    foreach (['price', 'hsn_code', 'gst_rate', 'image_url'] as $ownerOnly) {
-        assertTrue(in_array($ownerOnly, $hinted, true), "{$ownerOnly} should be marked for the owner to set");
-    }
-    $service = file_get_contents(app_path('app/Services/AgentDraftService.php'));
-    assertTrue(str_contains($service, 'Never invent a price'), 'The prompt must forbid inventing a price');
+    $denied=false;
+    try { (new \App\Services\AgentDraftService())->draft('add-product',''); } catch (\InvalidArgumentException) { $denied=true; }
+    assertTrue($denied,'Retired product drafting fails before model invocation');
 
     // The chat can upload, and an upload anywhere in the admin joins the media library.
     $view = file_get_contents(app_path('views/admin/agent.php'));
@@ -1571,7 +1551,8 @@ $tests['every module toggle in the code refers to a module that exists'] = funct
     // moduleEnabled() returns its `?? true` default for an unknown key, so a typo does
     // not fail — it silently reads as "switched on" whatever the owner set. That is how
     // the support bot kept offering cart and checkout help for a disabled shop.
-    $known = array_keys(\App\Services\SettingsService::MODULES);
+    $known = [...array_keys(\App\Services\SettingsService::MODULES),'shop'];
+    assertTrue(!array_key_exists('shop',\App\Services\SettingsService::MODULES)&&!(new \App\Services\SettingsService())->moduleEnabled('shop'),'Retired shop flag is permanently false');
     $used = [];
     foreach ([app_path('app'), app_path('views')] as $dir) {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
@@ -1592,11 +1573,12 @@ $tests['every module toggle in the code refers to a module that exists'] = funct
 $tests['the admin agent can look things up instead of guessing'] = function (): void {
     $registry = new \App\Services\AgentToolRegistry(modules: ['shop'=>true,'blog'=>true,'campaigns'=>true]);
     $names = array_column($registry->declarations(), 'name');
-    foreach (['find_order', 'product_status', 'sales_summary', 'coupon_status', 'appointment_summary', 'recent_orders', 'catalog_categories'] as $tool) {
+    foreach (['owner_dashboard_summary','appointment_summary','support_enquiries','campaign_pages','therapy_enquiry_summary'] as $tool) {
         assertTrue(in_array($tool, $names, true), "The agent should be able to call {$tool}");
         assertTrue($registry->has($tool), "{$tool} should be recognised");
     }
     assertTrue(!$registry->has('delete_everything'), 'An unknown tool is not recognised');
+    foreach (['find_order','product_status','sales_summary','coupon_status','recent_orders','catalog_categories'] as $name) assertTrue(!$registry->has($name),'Retired even under stale module flags: '.$name);
     $clinicOnly = new \App\Services\AgentToolRegistry(modules: ['shop'=>false,'blog'=>true,'campaigns'=>false]);
     assertTrue(!$clinicOnly->has('find_order') && !$clinicOnly->has('product_status'), 'Disabled ecommerce removes commerce tools from the admin agent');
     assertTrue(!$clinicOnly->has('campaign_pages'), 'Disabled campaigns remove the campaign tool from the admin agent');
@@ -1716,7 +1698,7 @@ $tests['a product can be hidden without deleting it, and an offer expires'] = fu
         && !str_contains($commerce, "foreach (\$db->read('products') as \$p)"),
         'Checkout must not read the products table around the visibility rule');
     $agent = file_get_contents(app_path('app/Services/AgentContextService.php'));
-    assertTrue(str_contains($agent, '->visible()'), 'The support agent must not offer a hidden product');
+    assertTrue(!str_contains($agent, 'new ProductService('), 'The support agent must not read the retired product catalogue');
 
     // A hidden product must not stay buyable through its URL. Asserted against the
     // source rather than by calling findBySlug(), which reads the database — a test
@@ -1919,7 +1901,7 @@ $tests['an unpaid checkout never registers an order'] = function (): void {
 $tests['Stripe return verifies and lands on the order confirmation'] = function (): void {
     $commerce = file_get_contents(app_path('app/Controllers/CommerceController.php'));
     $routes = routePaths();
-    assertTrue(in_array('/payment/stripe/return', $routes, true), 'Stripe should have a dedicated hosted-checkout return route');
+    assertTrue(!in_array('/payment/stripe/return', $routes, true), 'Retail Stripe return route retired');
     assertTrue(str_contains($commerce, "['payment_status'] ?? '') === 'paid'"), 'Stripe return should require a paid session');
     assertTrue(str_contains($commerce, "['amount_total'] ?? 0) === \$expected"), 'Stripe return should verify the paid amount');
     assertTrue(str_contains($commerce, "['currency'] ?? '')) === 'inr'"), 'Stripe return should verify INR');
@@ -2243,7 +2225,7 @@ $tests['local smoke tool source covers key routes and CSRF protection'] = functi
     foreach (['/shop', '/checkout', '/consult', '/temples', '/payment/verify', '/support/ask', '/api/categories', '/unknown-spa-route'] as $path) {
         assertTrue(str_contains($source, $path), "Local smoke tool should cover {$path}");
     }
-    assertTrue(str_contains($source, 'CSRF protected'), 'Local smoke should verify payment CSRF protection');
+    assertTrue(str_contains($source,'Retail payment verification must be unreachable')&&str_contains($source,'/consultation/initiate'),'Smoke proves retired payment absent and service initiation protected');
     assertTrue(str_contains($source, "'BAPX_TEST_MODE' => '1'"), 'Local smoke should not depend on the production database or network');
     assertTrue(str_contains(file_get_contents(app_path('app/Services/DatabaseService.php')), "getenv('BAPX_TEST_MODE') === '1'"), 'Database service should expose an explicit smoke-test boundary');
     assertTrue(str_contains($source, 'PASS local smoke'), 'Local smoke should provide an authoritative success signal');
@@ -2531,10 +2513,7 @@ $tests['support product questions retain public specifications and reject unrela
     assertTrue(!str_contains($sourceBot,'function fallbackReply(') && !str_contains($sourceBot,'function publicGuestReply('),'No canned answer methods remain');
     assertTrue(str_contains($sourceBot,'completeWithTools') && str_contains($sourceBot,'acceptsEvidence'),'Conversation requires genuine inference; business facts require observed evidence');
     $source = file_get_contents(app_path('app/Services/AgentContextService.php'));
-    foreach (['description', 'highlights', 'description_points', 'specifications'] as $field) {
-        assertTrue(str_contains($source, "'" . $field . "' =>"), 'Public product details must reach model context');
-        assertTrue(in_array($field, (new App\Services\SchemaService())->agentContextFields('products'), true), 'Product detail must be allowlisted by schema');
-    }
+    assertTrue(!str_contains($source,'new ProductService('),'Service agent must never retrieve retired product data');
 };
 
 $tests['smtp encodes long unicode HTML into bounded transport safe MIME lines'] = function (): void {
@@ -2645,7 +2624,7 @@ $tests['campaign custom forms and module controls are wired through schema and U
     $adminController = file_get_contents(app_path('app/Controllers/AdminController.php'));
     assertTrue(str_contains($adminController, "requireModule('campaigns')"), 'Campaign admin routes respect the module toggle');
     assertTrue(str_contains($adminController, "'shopEnabled'=>module_on('shop')"), 'Admin agent UI receives the ecommerce module state');
-    assertTrue(str_contains($adminController, "Ecommerce is disabled. Enable it in Site Settings"), 'Admin agent rejects product drafts while ecommerce is disabled');
+    assertTrue(str_contains($adminController, "Retail product drafting is retired in bapXcms."), 'Admin agent rejects product drafts while ecommerce is disabled');
 };
 
 $tests['rate limiter reloads shared counts and rejects storage failure'] = function (): void {
@@ -2964,7 +2943,7 @@ $tests['agents reject persona echoes and require observed tools and inference'] 
     $owner=new \App\Services\AgentToolRegistry(modules:['shop'=>true,'blog'=>true,'campaigns'=>true]);
     assertSame([['support_enquiries']],$owner->requiredEvidence('How many support enquiries are open?'),'An appointment tool is not support inbox evidence');
     assertSame([['therapy_enquiry_summary']],$owner->requiredEvidence('How many therapy enquiries are open?'),'Therapy enquiries do not require an unrelated support inbox call');
-    assertSame([['sales_summary']],$owner->requiredEvidence('Current revenue this month?'),'Stock data cannot substantiate revenue');
+    assertTrue(!in_array(['sales_summary'],$owner->requiredEvidence('Current revenue this month?'),true),'Retired sales tool is never required');
     assertSame([], $owner->requiredEvidence('Draft a blog explaining registration in general.'),'General creative writing does not require clinic credentials');
     $trace->beginInferenceAttempt();
     $trace->provider('google','fixture',200,0,microtime(true),true);

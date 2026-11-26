@@ -59,11 +59,11 @@ final class PublicController extends BaseController {
     }
     
     public function consult(): void {
-        $this->redirect('/shop');
+        $this->redirect('/contact');
     }
     
     public function consultant(string $slug): void {
-        $this->redirect('/shop');
+        $this->redirect('/contact');
     }
     
     public function temples(): void { 
@@ -511,7 +511,7 @@ final class PublicController extends BaseController {
         $slug = preg_replace('/[^a-z0-9-]/', '', strtolower($slug));
         $replacements = [
             'create-account' => '/register',
-            'order-products' => '/shop',
+            'order-products' => '/contact',
             'payments-and-orders' => '/blog/category/help',
             'book-consultant' => '/contact',
         ];

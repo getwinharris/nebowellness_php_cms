@@ -3,7 +3,7 @@
     "source": "App\\Services\\ProjectMapService::scan()",
     "note": "Authoritative inventory of what exists. If it is not here, it does not exist — do not assume, add it first.",
     "summary": {
-        "routes": 137,
+        "routes": 106,
         "controllers": 14,
         "services": 69,
         "views": 55,
@@ -238,7 +238,6 @@
                 "A2uiCatalogService",
                 "AbilitySchema",
                 "OwnerAbilityService",
-                "CommerceAbilityService",
                 "AgentRunTrace",
                 "AiReplyCleaner",
                 "AiClient",
@@ -417,41 +416,6 @@
         },
         {
             "method": "GET",
-            "path": "/admin/categories",
-            "name": "admin.categories",
-            "controller": "AdminController@categories",
-            "view": "admin/resource",
-            "services": [
-                "CategoryService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/categories/delete",
-            "name": "admin.categories.delete",
-            "controller": "AdminController@deleteCategory",
-            "view": "admin/resource",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/categories/save",
-            "name": "admin.categories.save",
-            "controller": "AdminController@saveCategory",
-            "view": "admin/resource",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
             "path": "/admin/consultants",
             "name": "admin.consultants",
             "controller": "AdminController@consultants",
@@ -525,41 +489,6 @@
             "path": "/admin/contact_submissions/save",
             "name": "admin.contact-submissions.save",
             "controller": "AdminController@saveContactSubmission",
-            "view": "admin/resource",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/admin/coupons",
-            "name": "admin.coupons",
-            "controller": "AdminController@coupons",
-            "view": "admin/resource",
-            "services": [
-                "CouponService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/coupons/delete",
-            "name": "admin.coupons.delete",
-            "controller": "AdminController@deleteCoupon",
-            "view": "admin/resource",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/coupons/save",
-            "name": "admin.coupons.save",
-            "controller": "AdminController@saveCoupon",
             "view": "admin/resource",
             "services": [
                 "ResourceService",
@@ -690,78 +619,6 @@
         },
         {
             "method": "GET",
-            "path": "/admin/orders",
-            "name": "admin.orders",
-            "controller": "AdminController@orders",
-            "view": "admin/list",
-            "services": [
-                "OrderService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/admin/orders/{id}",
-            "name": "admin.order.show",
-            "controller": "AdminController@order",
-            "view": "admin/detail",
-            "services": [
-                "OrderService",
-                "ShippingService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/orders/{id}/status",
-            "name": "admin.order.status",
-            "controller": "AdminController@saveOrderStatus",
-            "view": "admin/detail",
-            "services": [
-                "OrderService",
-                "MailQueueService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/admin/products",
-            "name": "admin.products",
-            "controller": "AdminController@products",
-            "view": "admin/product-form",
-            "services": [
-                "ProductService",
-                "SchemaService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/products/delete",
-            "name": "admin.products.delete",
-            "controller": "AdminController@deleteProduct",
-            "view": "admin/product-form",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/admin/products/save",
-            "name": "admin.products.save",
-            "controller": "AdminController@saveProduct",
-            "view": "admin/product-form",
-            "services": [
-                "ResourceService",
-                "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
             "path": "/admin/search-performance",
             "name": "admin.search-performance",
             "controller": "AdminController@searchPerformance",
@@ -811,18 +668,6 @@
         },
         {
             "method": "GET",
-            "path": "/admin/shipping",
-            "name": "admin.shipping",
-            "controller": "AdminController@shipping",
-            "view": "admin/settings",
-            "services": [
-                "ShippingService",
-                "SettingsService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
             "path": "/admin/support-tickets",
             "name": "admin.support-tickets",
             "controller": "AdminController@supportTickets",
@@ -844,18 +689,6 @@
             "services": [
                 "SupportTicketService",
                 "AuditLogService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/admin/tax-report",
-            "name": "admin.tax-report",
-            "controller": "AdminController@taxReport",
-            "view": "admin/tax-report",
-            "services": [
-                "OrderService",
-                "TaxService",
                 "AuthService"
             ]
         },
@@ -893,16 +726,6 @@
             "services": []
         },
         {
-            "method": "GET",
-            "path": "/api/categories",
-            "name": "api.categories",
-            "controller": "ApiController@categories",
-            "view": "public/404",
-            "services": [
-                "CategoryService"
-            ]
-        },
-        {
             "method": "POST",
             "path": "/api/consultations/{id}/status",
             "name": "api.consultation.status",
@@ -911,27 +734,6 @@
             "services": [
                 "AuthService",
                 "ConsultationService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/api/product/{slug}",
-            "name": "api.product",
-            "controller": "ApiController@product",
-            "view": "public/404",
-            "services": [
-                "ProductService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/api/shop",
-            "name": "api.shop",
-            "controller": "ApiController@shop",
-            "view": "public/404",
-            "services": [
-                "ProductService",
-                "CategoryService"
             ]
         },
         {
@@ -1034,87 +836,10 @@
         },
         {
             "method": "GET",
-            "path": "/cart",
-            "name": "cart",
-            "controller": "PublicController@cart",
-            "view": "public/cart",
-            "services": [
-                "CartService",
-                "ProductService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/cart/add",
-            "name": "cart.add",
-            "controller": "CommerceController@addToCart",
-            "view": "public/cart",
-            "services": [
-                "CartService",
-                "ProductService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/cart/remove",
-            "name": "cart.remove",
-            "controller": "CommerceController@removeFromCart",
-            "view": "public/cart",
-            "services": [
-                "CartService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/cart/update",
-            "name": "cart.update",
-            "controller": "CommerceController@updateCart",
-            "view": "public/cart",
-            "services": [
-                "CartService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/categories",
-            "name": "categories",
-            "controller": "PublicController@categories",
-            "view": "public/categories",
-            "services": [
-                "CategoryService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/checkout",
-            "name": "checkout",
-            "controller": "PublicController@checkout",
-            "view": "public/checkout",
-            "services": [
-                "CartService",
-                "ProductService",
-                "SecretService",
-                "AddressService",
-                "SettingsService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/checkout/create-order",
-            "name": "checkout.create-order",
-            "controller": "CommerceController@createOrder",
-            "view": "public/checkout",
-            "services": [
-                "SecretService",
-                "PaymentService"
-            ]
-        },
-        {
-            "method": "GET",
             "path": "/consult",
             "name": "consult",
             "controller": "PublicController@consult",
-            "view": "public/shop",
+            "view": "public/contact",
             "services": []
         },
         {
@@ -1122,7 +847,7 @@
             "path": "/consult/{slug}",
             "name": "consult.show",
             "controller": "PublicController@consultant",
-            "view": "public/shop",
+            "view": "public/contact",
             "services": []
         },
         {
@@ -1155,17 +880,6 @@
             "services": [
                 "ContactService",
                 "ConsultationFeeService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/create-order",
-            "name": "api.checkout.create-order",
-            "controller": "CommerceController@createOrder",
-            "view": "public/checkout",
-            "services": [
-                "SecretService",
-                "PaymentService"
             ]
         },
         {
@@ -1372,20 +1086,6 @@
             ]
         },
         {
-            "method": "GET",
-            "path": "/payment/stripe/return",
-            "name": "payment.stripe.return",
-            "controller": "CommerceController@completeStripe",
-            "view": "account/order",
-            "services": [
-                "SecretService",
-                "DatabaseService",
-                "TaxService",
-                "SettingsService",
-                "MailQueueService"
-            ]
-        },
-        {
             "method": "POST",
             "path": "/payment/therapy/webhook/{mode}",
             "name": "therapy.webhook",
@@ -1397,36 +1097,12 @@
             ]
         },
         {
-            "method": "POST",
-            "path": "/payment/verify",
-            "name": "payment.verify",
-            "controller": "CommerceController@verifyPayment",
-            "view": "public/checkout",
-            "services": [
-                "SecretService",
-                "PaymentService",
-                "DatabaseService",
-                "TaxService",
-                "SettingsService"
-            ]
-        },
-        {
             "method": "GET",
             "path": "/privacy",
             "name": "privacy",
             "controller": "PublicController@privacy",
             "view": "public/privacy",
             "services": []
-        },
-        {
-            "method": "GET",
-            "path": "/product/{slug}",
-            "name": "product.show",
-            "controller": "PublicController@product",
-            "view": "public/product",
-            "services": [
-                "ProductService"
-            ]
         },
         {
             "method": "GET",
@@ -1475,28 +1151,6 @@
             "view": "public/reset-password",
             "services": [
                 "PasswordResetService"
-            ]
-        },
-        {
-            "method": "POST",
-            "path": "/reviews/product",
-            "name": "reviews.product",
-            "controller": "ReviewController@saveProduct",
-            "view": "account/orders",
-            "services": [
-                "ReviewService",
-                "AuthService"
-            ]
-        },
-        {
-            "method": "GET",
-            "path": "/shop",
-            "name": "shop",
-            "controller": "PublicController@shop",
-            "view": "public/shop",
-            "services": [
-                "ProductService",
-                "CategoryService"
             ]
         },
         {
@@ -1588,20 +1242,6 @@
             "controller": "PublicController@terms",
             "view": "public/terms",
             "services": []
-        },
-        {
-            "method": "POST",
-            "path": "/verify-payment",
-            "name": "api.payment.verify",
-            "controller": "CommerceController@verifyPayment",
-            "view": "public/checkout",
-            "services": [
-                "SecretService",
-                "PaymentService",
-                "DatabaseService",
-                "TaxService",
-                "SettingsService"
-            ]
         }
     ],
     "controllers": [
@@ -1789,14 +1429,32 @@
         "missing_service_files": [],
         "missing_view_files": [],
         "navigation_without_get_route": [],
-        "unwired_controllers": [],
+        "unwired_controllers": [
+            "CommerceController",
+            "ReviewController"
+        ],
         "unwired_services": [
+            "AddressService",
+            "CartService",
+            "CategoryService",
+            "CommerceAbilityService",
+            "CouponService",
             "CourierService",
             "ModelToolSet",
             "ProjectMapService",
+            "ShippingService",
             "StoragePermissionService"
         ],
-        "unwired_views": [],
+        "unwired_views": [
+            "admin/detail",
+            "admin/product-form",
+            "admin/tax-report",
+            "public/cart",
+            "public/categories",
+            "public/checkout",
+            "public/product",
+            "public/shop"
+        ],
         "admin_mutations_without_audit": [
             {
                 "method": "POST",
