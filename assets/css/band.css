@@ -6680,6 +6680,7 @@ main:has(> :is(.campaign-index, .campaign-page)) { padding-block-start: 0; paddi
    Media effects use the actual viewport position, not a timed substitute.
    Text, captions, controls and layout boxes remain stationary and readable. */
 .campaign-outline[hidden] { display: none; }
+.campaign-outline:not([hidden]) { display: block; }
 .campaign-outline {
     padding-block: 22px;
     border-block-end: 1px solid var(--brand-rule);
