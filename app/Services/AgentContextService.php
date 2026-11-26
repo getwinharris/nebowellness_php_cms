@@ -4,15 +4,42 @@ namespace App\Services;
 final class AgentContextService {
     public function __construct(private DatabaseService $store = new DatabaseService(), private SchemaService $schema = new SchemaService()) {}
 
-    public function forUserEmail(string $email): array {
-        $email = strtolower(trim($email));
-        if ($email === '') return ['user'=>null, 'orders'=>[], 'settings'=>$this->publicSettings(), 'site'=>$this->siteContext()];
-        return [
-            'user' => $this->firstOwned('users', 'email', $email),
-            'orders' => $this->owned('orders', 'customer_email', $email),
-            'settings' => $this->publicSettings(),
-            'site' => $this->siteContext(),
-        ];
+    /**
+     * The authenticated actor and question intent come only from the support
+     * request. No model-controlled identity, address or raw account object.
+     */
+    public function supportContext(?array $user,bool $accountQuestion,array $sessionCart): array {
+        $modules=(new SettingsService($this->store))->strictModules();
+        $shop=!empty($modules['shop']);
+        $email=is_string($user['email']??null)?trim($user['email']):'';
+        $signedIn=filter_var($email,FILTER_VALIDATE_EMAIL)!==false;
+        $customer=$signedIn&&($user['role']??null)==='customer';
+        $accountAccess=$shop&&$customer&&$accountQuestion;
+        $context=['signed_in'=>$signedIn,'account_access'=>$accountAccess,'shop_enabled'=>$shop,
+            'orders'=>$accountAccess?$this->sessionOwnedOrders($email):[],
+            'cart'=>[],'articles'=>[],'site'=>$this->siteContext($modules,$customer)];
+        if ($shop) foreach (array_slice(array_values($sessionCart),0,20) as $item) {
+            if (!is_array($item)) throw new \DomainException('Invalid cart item.');
+            $slug=self::slug($item['slug']??null);
+            $qty=filter_var($item['qty']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1,'max_range'=>10000]]);
+            if ($qty===false) throw new \DomainException('Invalid cart quantity.');
+            $context['cart'][]=['slug'=>$slug,'name'=>self::text($item['name']??'',200),'qty'=>$qty];
+        }
+        if (!empty($modules['blog'])) foreach (array_slice((new BlogService())->all(false,$modules),0,12) as $post) {
+            $context['articles'][]=['title'=>self::text($post['title']??null,200,true),'url'=>'/blog/'.self::slug($post['slug']??null)];
+        }
+        $settings=$this->store->find('settings',SettingsService::SETTINGS_ID)??[];
+        $context['contact_channels']=ClinicContactService::channelsFromSettings($settings);
+        // Shop policy inputs are a separate, explicit projection of canonical settings.
+        if ($shop) {
+            $safe=[];
+            foreach (['currency'=>3,'timezone'=>80,'shipping_mode'=>40] as $key=>$limit) {
+                if (isset($settings[$key])) $safe[$key]=self::text($settings[$key],$limit,true);
+            }
+            if (isset($settings['flat_rate'])) $safe['flat_rate_minor']=OwnerAbilityService::minor($settings['flat_rate']);
+            if ($safe!==[]) $context['settings']=$safe;
+        }
+        return $context;
     }
 
     /** Bounded aggregate summary for the authenticated owner; never includes customer identities. */
@@ -82,53 +109,85 @@ final class AgentContextService {
                 . "Customer identities are not included in this summary.";
     }
 
-    private function owned(string $collection, string $field, string $email): array {
-        $records = array_values(array_filter($this->store->read($collection), fn($item) => strtolower((string)($item[$field] ?? '')) === $email));
-        $fields = $this->schema->agentContextFields($collection);
-        return $fields ? array_map(fn($item) => array_intersect_key($item, array_flip($fields)), $records) : $records;
+    private static function text(mixed $value,int $max,bool $required=false): string {
+        if ($value===null&&!$required) return '';
+        if (!is_string($value)||!mb_check_encoding($value,'UTF-8')||
+            ($required&&trim($value)==='')||preg_match('/[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]/u',$value)) {
+            throw new \DomainException('Invalid context source field.');
+        }
+        return mb_substr($value,0,$max);
     }
 
-    private function firstOwned(string $collection, string $field, string $email): ?array {
-        $records = $this->owned($collection, $field, $email);
-        return $records[0] ?? null;
+    private static function slug(mixed $value): string {
+        if (!is_string($value)||strlen($value)>120||!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D',$value)) throw new \DomainException('Invalid context source slug.');
+        return $value;
     }
 
-    private function publicSettings(): array {
-        $settings = $this->store->read('settings')[0] ?? [];
-        return array_intersect_key($settings, array_flip(['currency', 'timezone', 'shipping_mode', 'flat_rate']));
+    private static function textList(mixed $value): array {
+        if (!is_array($value)||!array_is_list($value)) throw new \DomainException('Invalid public list.');
+        return array_map(static fn($item)=>self::text($item,160),array_slice($value,0,6));
     }
 
-    private function siteContext(): array {
-        $modules = (new SettingsService($this->store))->strictModules();
-        $campaigns = empty($modules['campaigns']) ? [] : array_map(static fn(array $page): array => [
-            'title' => $page['title'],
-            'summary' => mb_substr((string)($page['summary'] ?? ''), 0, 400),
-            'url' => '/campaigns/' . $page['slug'],
-        ], array_slice((new CampaignPageService($this->store))->published(), 0, 12));
-        $products = empty($modules['shop']) ? [] : array_map(fn($item) => [
-            'name' => $item['name'] ?? '',
-            'slug' => $item['slug'] ?? '',
-            'url' => '/product/' . ($item['slug'] ?? ''),
-            'price' => $item['offer_price'] ?? $item['price'] ?? null,
-            'stock_status' => $item['stock_status'] ?? '',
-            'description' => mb_substr(strip_tags((string)($item['description'] ?? '')), 0, 2000),
-            'highlights' => $item['highlights'] ?? [],
-            'description_points' => $item['description_points'] ?? [],
-            'specifications' => $item['specifications'] ?? [],
-        // Visible only, and priced through the offer window: the support bot must never
-        // recommend a product the shopper cannot buy, or quote an offer that has ended.
-        ], array_slice((new ProductService($this->store))->visible(), 0, 20));
-        $pages = ['contact' => '/contact'];
-        if (!empty($modules['shop'])) $pages += ['shop'=>'/shop','cart'=>'/cart','checkout'=>'/checkout','orders'=>'/account/dashboard/orders'];
-        if (!empty($modules['campaigns'])) $pages['campaigns'] = '/campaigns';
-        if (!empty($modules['blog'])) $pages['blog'] = '/blog';
-        return [
-            'pages' => $pages,
-            'campaigns' => $campaigns,
-            'practitioners'=>(new ClinicKnowledgeService($this->store))->practitioners(),
-            'programmes'=>(new ClinicKnowledgeService($this->store))->programmes(),
-            'products' => $products,
-            'support_scope' => 'Use only permitted public and session-scoped customer tools; no admin data or other users.',
-        ];
+    private static function specifications(mixed $value): array {
+        if (!is_array($value)) throw new \DomainException('Invalid public specifications.');
+        $out=[];
+        foreach (array_slice($value,0,6,true) as $key=>$item) {
+            if (!is_string($key)) throw new \DomainException('Invalid public specification name.');
+            $out[]=['name'=>self::text($key,100,true),'value'=>self::text($item,200)];
+        }
+        return $out;
+    }
+
+    private function sessionOwnedOrders(string $email): array {
+        $fields=array_flip($this->schema->agentContextFields('orders'));
+        foreach (['id','status','total'] as $required) if (!isset($fields[$required])) throw new \DomainException('Order projection is unavailable.');
+        $out=[];
+        foreach ($this->store->read('orders') as $row) {
+            if (!is_string($row['customer_email']??null)||strcasecmp(trim($row['customer_email']),$email)!==0) continue;
+            $safe=array_intersect_key($row,$fields);
+            $status=$safe['status']??null;
+            $out[]=['id'=>self::text($safe['id']??null,120,true),
+                'status'=>is_string($status)&&in_array($status,OwnerAbilityService::ORDER_STATES,true)?$status:'other',
+                'total_minor'=>OwnerAbilityService::orderMinor($safe+['currency'=>$row['currency']??'INR']),
+                'currency'=>'INR',
+                'shipped_at'=>self::text($safe['shipped_at']??null,80),
+                'invoice_number'=>self::text($safe['invoice_number']??null,120),
+                'invoice_date'=>self::text($safe['invoice_date']??null,80)];
+            if (count($out)>=10) break;
+        }
+        return $out;
+    }
+
+    private function siteContext(array $modules,bool $customer): array {
+        $campaigns=[];
+        if (!empty($modules['campaigns'])) foreach (array_slice((new CampaignPageService($this->store))->published(),0,12) as $page) {
+            $campaigns[]=['title'=>self::text($page['title']??null,200,true),
+                'summary'=>self::text($page['summary']??null,400),'url'=>'/campaigns/'.self::slug($page['slug']??null)];
+        }
+        $products=[];
+        if (!empty($modules['shop'])) foreach (array_slice((new ProductService($this->store))->visible(),0,10) as $item) {
+            $slug=self::slug($item['slug']??null);
+            $products[]=[
+                'name'=>self::text($item['name']??null,200,true),'slug'=>$slug,'url'=>'/product/'.$slug,
+                'price_minor'=>OwnerAbilityService::minor($item['offer_price']??$item['price']??null),'currency'=>'INR',
+                'stock_status'=>self::text($item['stock_status']??null,80),
+                'description' => strip_tags(self::text($item['description']??null,600)),
+                'highlights' => self::textList($item['highlights']??[]),
+                'description_points' => self::textList($item['description_points']??[]),
+                'specifications' => self::specifications($item['specifications']??[]),
+            ];
+        }
+        $pages=['contact'=>'/contact'];
+        if (!empty($modules['shop'])) {
+            $pages+=['shop'=>'/shop','cart'=>'/cart','checkout'=>'/checkout'];
+            if ($customer) $pages['orders']='/account/dashboard/orders';
+        }
+        if (!empty($modules['campaigns'])) $pages['campaigns']='/campaigns';
+        if (!empty($modules['blog'])) $pages['blog']='/blog';
+        if ($customer) $pages['therapy requests']='/account/therapy';
+        return ['pages'=>$pages,'campaigns'=>$campaigns,
+            'programmes'=>array_map(static fn(array $row):array=>array_intersect_key($row,array_flip(['title','duration','url'])),
+                (new ClinicKnowledgeService($this->store))->programmes()),
+            'products'=>$products,'support_scope'=>'Use only permitted public and session-scoped customer tools; no admin data or other users.'];
     }
 }

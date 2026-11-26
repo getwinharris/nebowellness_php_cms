@@ -6,13 +6,14 @@ use App\Services\{AgentRunTrace, AgentToolRegistry, AiClient, AuditLogService};
 if (PHP_SAPI !== 'cli' || getenv('BAPX_TEST_MODE') !== '1') exit(2);
 require __DIR__ . '/../../app/bootstrap.php';
 
+require __DIR__.'/native-session-context.php';
 $surface = $argv[1];
 $trace = new AgentRunTrace();
 $started = microtime(true);
 $client = new AiClient(routingScope: $surface, trace: $trace);
 $prompt = 'Synthetic confidential question';
 $tools=new AgentToolRegistry(modules:['shop'=>false,'blog'=>true,'campaigns'=>true],scope:$surface,
-    contextLoader:static fn()=>['fixture'=>'Public synthetic data']);
+    contextLoader:static fn()=>nativeSessionFixture());
 if ($argv[2]==='short-deadline') {
     // Exercise the real HTTP transport with less time than retry backoff requires.
     $post=new ReflectionMethod(AiClient::class,'post');
