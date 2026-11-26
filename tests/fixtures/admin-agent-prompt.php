@@ -21,11 +21,9 @@ namespace App\Services {
             file_put_contents($GLOBALS['fixtureOutput'], $prompt);
             return null;
         }
-        public function completeWithTools(string $prompt, AgentToolRegistry $tools): string {
+        public function completeWithTools(string $prompt, AgentToolRegistry $tools, bool $requireTool = true): string {
             file_put_contents($GLOBALS['fixtureOutput'], $prompt);
             if (str_contains($prompt, 'fixture empty response')) return '';
-            $this->trace?->provider('openai','fixture',200,0,microtime(true),true);
-            $this->trace?->tool('owner_dashboard_summary','ok',microtime(true),'model','fixture-call');
             $this->trace?->provider('openai','fixture',200,0,microtime(true),true);
             return 'The fixture has no further information.';
         }

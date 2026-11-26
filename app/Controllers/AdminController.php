@@ -354,36 +354,29 @@ final class AdminController extends BaseController {
             $secrets = new SecretService();
             $modelConfig = $secrets->getModelConfig();
             $tools=new \App\Services\AgentToolRegistry(question:$message);
-            $retrieved=$tools->retrieve('owner_dashboard_summary',[],$trace);
-            if (isset($retrieved['error'])) {
-                (new AuditLogService())->agentRun('admin','error',$startedAt,$trace);
-                $this->jsonResponse(['error'=>'Owner records are unavailable.'],503);
-            }
-            $context=(string)$retrieved['summary'];
-            $lookups=[];
-            if (preg_match('/\b(support|tickets?|enquiries)\b/i',$message)) $lookups['support_enquiries']=$tools->retrieve('support_enquiries',[],$trace);
-            if (\App\Services\ConsultationFeeService::isFeeQuestion($message)) $lookups['published_consultation_fees']=$tools->retrieve('published_consultation_fees',[],$trace);
-            if ($message===\App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT) $lookups['appointment_summary']=$tools->retrieve('appointment_summary',[],$trace);
-            if ($message===\App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT && $tools->has('therapy_enquiry_summary')) $lookups['therapy_enquiry_summary']=$tools->retrieve('therapy_enquiry_summary',['days'=>30],$trace);
-            $context.="\nRetrieved tool evidence: ".json_encode($lookups,JSON_INVALID_UTF8_SUBSTITUTE|JSON_UNESCAPED_UNICODE);
-
+            $context=module_on('shop')?'Ecommerce is enabled.':'Ecommerce is disabled.';
+            $context.="\nUse an authorized tool for current operational records. Do not load unrelated data for ordinary writing or conversation.";
             if ($attachments['context'] !== '') {
                 $context .= "\n\nDocuments the owner attached with @:" . $attachments['context'];
             }
             if (!empty($modelConfig['apiKey'])) {
                 if ($turnId !== null) $context .= $chat->promptContext();
-                $answer = $this->callAiApi($modelConfig, $message, $context, $trace);
+                $answer = $this->callAiApi($modelConfig, $message, $context, $trace, $tools);
             } else {
                 $answer = "AI model not configured. Go to Admin → Integrations and set api_endpoint, ai_api_key, and agent_model.";
             }
-            $requiredTool = \App\Services\ConsultationFeeService::isFeeQuestion($message) ? 'published_consultation_fees' : ($message===\App\Services\AgentToolRegistry::SUPPORT_INBOX_PROMPT ? 'support_enquiries' : ($message===\App\Services\AgentToolRegistry::THERAPY_SUMMARY_PROMPT ? 'therapy_enquiry_summary' : ($message===\App\Services\AgentToolRegistry::APPOINTMENTS_PROMPT ? 'appointment_summary' : null)));
-            $failed = !\App\Services\ConsultationFeeService::matchesNamedPrice($message,$answer,$lookups['published_consultation_fees']??[]) || ($requiredTool!==null&&!$trace->usedNativeTool([$requiredTool])) || empty($modelConfig['apiKey']) || \App\Services\AiClient::isError($answer) || !(new \App\Services\AiReplyCleaner())->usableAnswer($answer,$message) || !$trace->hasNativeToolAnswer();
+            $evidence=$tools->modelResults();
+            $failed = empty($modelConfig['apiKey']) || \App\Services\AiClient::isError($answer)
+                || !(new \App\Services\AiReplyCleaner())->usableAnswer($answer,$message)
+                || !$tools->acceptsEvidence($message,$answer,$trace)
+                || !\App\Services\SupportBotService::matchesRetrievedFacts($message,$answer,$evidence);
+            if ($failed) $trace->markProviderResponseUnusable();
             (new AuditLogService())->agentRun('admin', $failed ? 'error' : 'model', $startedAt, $trace);
             if ($failed) {
                 $this->jsonResponse(['error'=>'The model could not answer. Try again or use a clinic workflow from the sidebar.', 'missing'=>$attachments['missing']],502);
                 return;
             }
-            $response = ['answer' => $answer, 'missing' => $attachments['missing'],'response_mode'=>'model_with_retrieval','sources'=>$trace->sources()];
+            $response = ['answer' => $answer, 'missing' => $attachments['missing'],'response_mode'=>$trace->hasNativeToolAnswer()?'model_with_retrieval':'model_direct','sources'=>$trace->hasNativeToolAnswer()?$trace->sources():[]];
             if ($turnId !== null) $chat->remember($turnId, $message, $response, $trace->id);
             $this->jsonResponse($response);
         } catch (\Throwable $e) {
@@ -417,15 +410,15 @@ final class AdminController extends BaseController {
      * admin had configured here. This method keeps the admin's prompt and its
      * error-to-screen behaviour.
      */
-    private function callAiApi(array $config, string $message, string $context, ?\App\Services\AgentRunTrace $trace = null): string {
+    private function callAiApi(array $config, string $message, string $context, ?\App\Services\AgentRunTrace $trace = null, ?\App\Services\AgentToolRegistry $tools = null): string {
         // "Answer directly / give only the final answer" produced a bare "5" for
         // "how many enquiries came for orders" — and that 5 was the order count from
         // the statistics blob, not enquiries, of which there are none. A number with no
         // stated source is unverifiable, so the persona now asks for the figure, how it
         // was arrived at, and what was checked.
-        $tools = new \App\Services\AgentToolRegistry(question:$message);
+        $tools ??= new \App\Services\AgentToolRegistry(question:$message);
         $prompt = $tools->instructions($message) . "\nYou are the admin analyst for Nebo Lifestyle Clinic, talking to its owner. "
-            . "Be brief and concrete: two to five sentences, or a short Markdown list.\n"
+            . "For operational questions be brief and concrete. For drafting, rewriting or explanations, follow the requested format and length.\n"
             . "When you give a number, say what it counts, where it came from, and any judgement you made "
             . "to arrive at it. If a word in the question is open to interpretation, say how you read it.\n"
             . "If the data shows none of something, say so plainly. Never substitute a different number that "
@@ -441,7 +434,7 @@ final class AdminController extends BaseController {
         // With tools the agent can answer "where is order 9426" — the data was always
         // there, but nothing let the model ask for it.
         $client = new \App\Services\AiClient(trace: $trace);
-        $answer = $client->completeWithTools($prompt, $tools);
+        $answer = $client->completeWithTools($prompt, $tools, requireTool:false);
         if (\App\Services\AiClient::isError($answer)) return $answer;
 
         // A bare unsupported figure is unusable; don't launch a second full loop

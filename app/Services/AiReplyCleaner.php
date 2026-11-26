@@ -29,7 +29,7 @@ final class AiReplyCleaner
         'the data shows', 'the data lists', 'explain that', 'mention the', 'mention that',
         'allowed help', 'requirement', 'requirements', 'note to self',
         'as an ai', 'maintain the persona', 'maintain a persona', 'answer only',
-        'list the', 'step 1', 'step 2', 'first, i', 'so, the answer',
+        'first, i', 'so, the answer',
     ];
 
     /** Bare style reminders the model echoes back. */
@@ -64,7 +64,7 @@ final class AiReplyCleaner
 
             if ($this->isScaffold($bare)) continue;
 
-            $kept[] = $bare;
+            $kept[] = $line;
         }
 
         $text = trim(preg_replace('/\n{3,}/', "\n\n", implode("\n", $kept)) ?? '');
@@ -73,11 +73,6 @@ final class AiReplyCleaner
         // so sweep sentences too. Only applied to long single lines, where the risk of
         // splitting genuine prose mid-thought is lowest.
         $text = $this->stripScaffoldSentences($text);
-
-        // A model that answered only inside quotes: take the longest quoted span.
-        if ($text === '' && preg_match_all('/"([^"]{20,700})"/', $reply, $matches) && !empty($matches[1])) {
-            $text = trim(end($matches[1]));
-        }
 
         return $text !== '' ? $text : $fallback;
     }
@@ -92,7 +87,8 @@ final class AiReplyCleaner
     /** Reject persona echoes, generic deflections and leaked instructions, not just empty text. */
     public function usableAnswer(string $reply, string $question): bool {
         if (trim($reply)==='' || $this->looksInternal($reply)) return false;
-        if (preg_match('/^\s*(?:i am|i.m|as)\s+(?:the |an? )?(?:nebo[^.\n]*?(?:bot|assistant)|(?:ai|support|clinic) (?:bot|assistant))\b/i',$reply)) return false;
+        $identity=(bool)preg_match('/^\s*(?:who are you|what are you|what can you do|what is your role)[?.! ]*$/i',$question);
+        if (!$identity && preg_match('/^\s*(?:i am|i.m|as)\s+(?:the |an? )?(?:nebo[^.\n]*?(?:bot|assistant)|(?:ai|support|clinic) (?:bot|assistant))\b/i',$reply)) return false;
         if (!preg_match('/^\s*(?:hi|hello|hey|who are you|what can you do)[?.! ]*$/i',$question)
             && preg_match('/^\s*(?:i (?:can|am here to) help (?:you )?with|you can find more information about our services at \/blog)\b/i',$reply)) return false;
         return true;
