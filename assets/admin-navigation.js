@@ -6,10 +6,12 @@
     const groups = Array.from(sidebar.querySelectorAll('.admin-nav-toggle'));
     const close = sidebar.querySelector('[data-admin-menu-close]');
     const main = document.getElementById('main-content');
-    function setGroup(button, expanded) {
+    function setGroup(button, expanded, animate = false) {
         const submenu = document.getElementById(button.getAttribute('aria-controls'));
         if (!submenu) return;
+        if (!expanded && submenu.contains(document.activeElement)) button.focus();
         button.setAttribute('aria-expanded', String(expanded));
+        submenu.classList.toggle('admin-submenu-entered', expanded && animate);
         submenu.hidden = !expanded;
     }
     function adaptGroups() {
@@ -23,12 +25,13 @@
         sidebar.classList.toggle('open', open);
         toggle.setAttribute('aria-expanded', String(open));
         main.inert = open;
+        sidebar.inert = mobile.matches && !open;
         if (open) (sidebar.querySelector('a.active') || close).focus();
         else if (mobile.matches && hadFocus) toggle.focus();
     }
 
     groups.forEach((button) => {
-        button.addEventListener('click', () => setGroup(button, button.getAttribute('aria-expanded') !== 'true'));
+        button.addEventListener('click', () => setGroup(button, button.getAttribute('aria-expanded') !== 'true', true));
     });
     sidebar.querySelectorAll('a.active').forEach((link) => link.setAttribute('aria-current', 'page'));
     toggle.addEventListener('click', () => setOpen(true));
@@ -61,5 +64,6 @@
         adaptGroups();
     });
     adaptGroups();
+    sidebar.inert = mobile.matches;
     toggle.hidden = false;
 })();

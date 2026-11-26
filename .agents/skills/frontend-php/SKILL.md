@@ -64,3 +64,5 @@ Run `./bapXphp ci` before review.
 ## Keeping this skill current
 
 When work changes a layout contract or reveals a reusable UI check, update this skill and the affected part of `Design.md` in the same PR. Store one-off measurements and screenshots in the issue. Public pages are gated by `module_on()`; re-check affected conditional layouts with the module on and off.
+
+- For shared page motion, use the existing stack observer on Home and the bounded site-motion observer on internal pages. Keep content readable before intersection, verify single entrance, reverse native scrolling, keyboard focus and reduced motion. Do not animate a whole page or add a scroll hijacker.

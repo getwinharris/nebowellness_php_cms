@@ -39,7 +39,14 @@
         secondary.hidden = true;
         drawer.removeAttribute('data-branch-open');
         currentBranch = null;
-        if (restoreFocus) button.focus();
+        if (restoreFocus) {
+            button.focus();
+            if (drawer.open && window.matchMedia('(max-width: 743px)').matches) {
+                primary.classList.remove('nav-returned');
+                // Restart just the returning panel's entrance, not the dialog.
+                requestAnimationFrame(() => { if (drawer.open && !currentBranch) primary.classList.add('nav-returned'); });
+            }
+        }
     }
 
     nav.querySelectorAll('.nav-branch').forEach(details => {
@@ -63,11 +70,12 @@
             }
             clearBranch();
             currentBranch = { button, links };
-            heading.textContent = label.firstChild.textContent.trim();
+            heading.textContent = (label.querySelector('.nav-item__label') || label).textContent.trim().replace(/›$/, '').trim();
             links.hidden = false;
             secondary.hidden = false;
             drawer.setAttribute('data-branch-open', '');
             button.setAttribute('aria-expanded', 'true');
+            primary.classList.remove('nav-returned');
             secondary.scrollTop = 0;
             back.focus({ preventScroll: true });
         });

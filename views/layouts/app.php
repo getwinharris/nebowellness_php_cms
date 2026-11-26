@@ -51,6 +51,7 @@ $__faviconMime = str_contains($__favicon,'.svg') ? 'image/svg+xml' : 'image/png'
 <script src="/assets/therapy-media.js?v=<?= filemtime(__DIR__ . '/../../assets/therapy-media.js') ?>" defer></script>
 <?php endif; ?>
 <script src="/assets/mobile-nav.js?v=<?= filemtime(__DIR__ . '/../../assets/mobile-nav.js') ?>" defer></script>
+<script src="/assets/site-motion.js?v=<?= filemtime(app_path('assets/site-motion.js')) ?>" defer></script>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
 <script src="/assets/public-shell.js?v=<?= filemtime(app_path('assets/public-shell.js')) ?>" defer></script>
 <?php if (in_array(basename($viewFile ?? ''), ['shop.php', 'product.php'], true)): ?>
@@ -116,7 +117,7 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
             <div class="navigation-drawer__primary">
                 <p class="nav-section-label">Explore Nebo</p>
                 <details class="nav-branch">
-                    <summary class="nav-item">Programs <span aria-hidden="true">›</span></summary>
+                    <summary class="nav-item"><span class="nav-item__label"><?php $careIcon='program'; require __DIR__.'/../partials/care-icon.php'; ?> Programs</span> <span aria-hidden="true">›</span></summary>
                     <div class="nav-branch__links" id="menu-programs">
                         <a class="nav-item" href="/#programs" data-programs-nav>Our Programs</a>
                         <?php
@@ -131,14 +132,14 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
                         <?php endforeach; ?>
                     </div>
                 </details>
-                <a class="nav-item" href="/#focus-areas">Our Focus Areas</a>
-                <?php if ($__modules['campaigns']): ?><a class="nav-item" href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>>Services</a><?php endif; ?>
-                <a class="nav-item" href="/#movement-and-sound">Workplace wellness</a>
-                <a class="nav-item" href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>>About Nebo</a>
+                <a class="nav-item" href="/#focus-areas"><span class="nav-item__label"><?php $careIcon='focus'; require __DIR__.'/../partials/care-icon.php'; ?> Our Focus Areas</span></a>
+                <?php if ($__modules['campaigns']): ?><a class="nav-item" href="/campaigns"<?= ($currentPath === '/campaigns' || str_starts_with($currentPath, '/campaigns/')) ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='clinician'; require __DIR__.'/../partials/care-icon.php'; ?> Services</span></a><?php endif; ?>
+                <a class="nav-item" href="/#movement-and-sound"><span class="nav-item__label"><?php $careIcon='workplace'; require __DIR__.'/../partials/care-icon.php'; ?> Workplace wellness</span></a>
+                <a class="nav-item" href="/about"<?= str_starts_with($currentPath, '/about') ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='leaf'; require __DIR__.'/../partials/care-icon.php'; ?> About Nebo</span></a>
                 <?php if ($__modules['blog']): ?>
                 <?php if ($__blogCats !== []): ?>
                 <details class="nav-branch">
-                    <summary class="nav-item">Blog <span aria-hidden="true">›</span></summary>
+                    <summary class="nav-item"><span class="nav-item__label"><?php $careIcon='program'; require __DIR__.'/../partials/care-icon.php'; ?> Blog</span> <span aria-hidden="true">›</span></summary>
                     <div class="nav-branch__links" id="menu-blog">
                         <a class="nav-item" href="/blog"<?= $currentPath === '/blog' ? ' aria-current="page"' : '' ?>>All blog articles</a>
                         <?php foreach ($__blogCats as $__cat): ?>
@@ -147,22 +148,22 @@ if (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) === '/' && preg_matc
                     </div>
                 </details>
                 <?php else: ?>
-                <a class="nav-item" href="/blog"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>>Blog</a>
+                <a class="nav-item" href="/blog"<?= str_starts_with($currentPath, '/blog') ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='program'; require __DIR__.'/../partials/care-icon.php'; ?> Blog</span></a>
                 <?php endif; ?>
                 <?php endif; ?>
                 <?php if ($__modules['shop']): ?>
-                <a class="nav-item" href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>>Shop</a>
+                <a class="nav-item" href="/shop"<?= str_starts_with($currentPath, '/shop') ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='bag'; require __DIR__.'/../partials/care-icon.php'; ?> Shop</span></a>
                 <?php endif; ?>
                 <div class="navigation-drawer__utility">
-                    <a class="nav-item" href="/contact"<?= $currentPath === '/contact' ? ' aria-current="page"' : '' ?>>Contact</a>
+                    <a class="nav-item" href="/contact"<?= $currentPath === '/contact' ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='phone'; require __DIR__.'/../partials/care-icon.php'; ?> Contact</span></a>
                     <?php if(!empty($_SESSION['user'])): ?>
-                        <a class="nav-item" href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>>Dashboard</a>
+                        <a class="nav-item" href="/account/dashboard"<?= str_starts_with($currentPath, '/account/dashboard') ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='chart'; require __DIR__.'/../partials/care-icon.php'; ?> Dashboard</span></a>
                         <?php if (($_SESSION['user']['role'] ?? '') === 'customer'): ?>
-                            <a class="nav-item" href="/account/therapy"<?= $currentPath === '/account/therapy' ? ' aria-current="page"' : '' ?>>Therapy requests</a>
+                            <a class="nav-item" href="/account/therapy"<?= $currentPath === '/account/therapy' ? ' aria-current="page"' : '' ?>><span class="nav-item__label"><?php $careIcon='calendar'; require __DIR__.'/../partials/care-icon.php'; ?> Therapy requests</span></a>
                         <?php endif; ?>
                         <a class="nav-item" href="/logout">Logout</a>
                     <?php else: ?>
-                        <a class="nav-item" href="/login">Login</a>
+                        <a class="nav-item" href="/login"><span class="nav-item__label"><?php $careIcon='lock'; require __DIR__.'/../partials/care-icon.php'; ?> Login</span></a>
                     <?php endif; ?>
                 </div>
             </div>

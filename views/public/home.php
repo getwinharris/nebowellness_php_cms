@@ -226,14 +226,14 @@ $consultationSteps = [
             <article class="nebo-care-mosaic__card nebo-care-mosaic__card--photo nebo-care-mosaic__card--lead">
                 <img src="/assets/images/editorial/nebo-daily-practice.webp" alt="" width="1280" height="854" loading="lazy" decoding="async">
                 <div class="nebo-care-mosaic__copy">
-                    <h3>Gut Health</h3>
+                    <h3 class="nebo-icon-heading"><?php $careIcon='digestive'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Gut Health</span></h3>
                     <p>Support for digestive concerns such as bloating and IBS, with practical guidance on food, daily habits and tracking symptoms.</p>
                     <a class="focus-program-link" href="<?= e($programAreaHref('gut')) ?>"><?= isset($programAreas['gut']) && $programsEnabled ? 'Explore gut health programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card">
                 <div class="nebo-care-mosaic__copy">
-                    <h3>Metabolic Diseases</h3>
+                    <h3 class="nebo-icon-heading"><?php $careIcon='metabolic'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Metabolic Diseases</span></h3>
                     <p>Lifestyle support for concerns such as insulin resistance, PCOS, thyroid conditions and weight management alongside your existing medical care.</p>
                     <a class="focus-program-link" href="<?= e($programAreaHref('metabolic')) ?>"><?= isset($programAreas['metabolic']) && $programsEnabled ? 'Explore metabolic health programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
@@ -242,14 +242,14 @@ $consultationSteps = [
                 <img src="/assets/images/nebo-garden.webp" alt="" width="1672" height="941" loading="lazy" decoding="async">
                 <span class="nebo-editorial-art-label">Illustrative scene</span>
                 <div class="nebo-care-mosaic__copy">
-                    <h3>Lifestyle Transformation</h3>
+                    <h3 class="nebo-icon-heading"><?php $careIcon='habits'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Lifestyle Transformation</span></h3>
                     <p>Build routines you can keep with personalised nutrition, stress management and movement suited to your life stage.</p>
                     <a class="focus-program-link" href="<?= e($programAreaHref('lifestyle')) ?>"><?= isset($programAreas['lifestyle']) && $programsEnabled ? 'Explore lifestyle programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card">
                 <div class="nebo-care-mosaic__copy">
-                    <h3>Maternal &amp; Fertility Wellness</h3>
+                    <h3 class="nebo-icon-heading"><?php $careIcon='maternal'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Maternal &amp; Fertility Wellness</span></h3>
                     <p>Support for preconception, pregnancy and postpartum recovery, with nutrition and lifestyle guidance coordinated with your maternity care.</p>
                     <a class="focus-program-link" href="<?= e($programAreaHref('fertility')) ?>"><?= isset($programAreas['fertility']) && $programsEnabled ? 'Explore fertility and maternal programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
@@ -257,7 +257,7 @@ $consultationSteps = [
         </div>
         <section class="nebo-practice-gallery" id="movement-and-sound" aria-labelledby="nebo-practice-title">
             <div class="nebo-practice-gallery__heading">
-                <h3 id="nebo-practice-title">Workplace wellness</h3>
+                <h3 id="nebo-practice-title" class="nebo-icon-heading"><?php $careIcon='workplace'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Workplace wellness</span></h3>
                 <p>Bring guided yoga and sound sessions to your employee wellness plans.</p>
             </div>
             <div class="nebo-practice-gallery__images">
@@ -301,8 +301,9 @@ $consultationSteps = [
         require __DIR__ . '/../partials/home-figures.php';
         ?>
         <div class="value-strip">
-            <?php foreach ($whyChooseNebo as [$title, $description]): ?>
+            <?php foreach ($whyChooseNebo as [$title, $description, $careIcon]): ?>
                 <article class="value-card">
+                    <?php require __DIR__.'/../partials/care-icon.php'; ?>
                     <h3><?= e($title) ?></h3>
                     <p><?= e($description) ?></p>
                 </article>
@@ -349,14 +350,14 @@ $consultationSteps = [
             <div class="nebo-resource-split__copy">
                 <h2 class="section-title">Resources</h2>
                 <ul class="nebo-resource-split__links">
-                    <li><a href="/about">The clinic and Foundation <span aria-hidden="true">↗</span></a></li>
-                    <li><a href="#focus-areas">Our Focus Areas <span aria-hidden="true">↗</span></a></li>
+                    <li><a href="/about"><span class="nebo-resource-label"><?php $careIcon='leaf'; require __DIR__.'/../partials/care-icon.php'; ?> <span>The clinic and Foundation</span></span> <span aria-hidden="true">↗</span></a></li>
+                    <li><a href="#focus-areas"><span class="nebo-resource-label"><?php $careIcon='focus'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Our Focus Areas</span></span> <span aria-hidden="true">↗</span></a></li>
                     <?php if (module_on('blog')): ?>
-                        <li><a href="/blog">Wellness Blog <span aria-hidden="true">↗</span></a></li>
-                        <li><a href="/blog/category/help">Free website guides <span aria-hidden="true">↗</span></a></li>
+                        <li><a href="/blog"><span class="nebo-resource-label"><?php $careIcon='program'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Wellness Blog</span></span> <span aria-hidden="true">↗</span></a></li>
+                        <li><a href="/blog/category/help"><span class="nebo-resource-label"><?php $careIcon='program'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Free website guides</span></span> <span aria-hidden="true">↗</span></a></li>
                     <?php endif; ?>
-                    <li><a href="/contact#contact-form">Ask about webinars <span aria-hidden="true">↗</span></a></li>
-                    <li><a href="/contact">Contact and directions <span aria-hidden="true">↗</span></a></li>
+                    <li><a href="/contact#contact-form"><span class="nebo-resource-label"><?php $careIcon='calendar'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Ask about webinars</span></span> <span aria-hidden="true">↗</span></a></li>
+                    <li><a href="/contact"><span class="nebo-resource-label"><?php $careIcon='pin'; require __DIR__.'/../partials/care-icon.php'; ?> <span>Contact and directions</span></span> <span aria-hidden="true">↗</span></a></li>
                 </ul>
             </div>
             <figure class="nebo-resource-split__media">

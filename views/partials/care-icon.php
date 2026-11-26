@@ -10,6 +10,15 @@ $careIconMarkup = match ($careIcon ?? '') {
     'phone' => '<path d="M6 3H3v2c0 9 7 16 16 16h2v-3l-5-3-2 2a12 12 0 0 1-7-7l2-2z"/>',
     'message' => '<path d="M21 11.5a9 9 0 0 1-9 9 10 10 0 0 1-3.5-.7L3 21l1.2-5A9 9 0 1 1 21 11.5Z"/><path d="M8 9h8m-8 4h5"/>',
     'mail' => '<rect x="3" y="5" width="18" height="14" rx="1"/><path d="m3 6 9 7 9-7"/>',
+    'maternal' => '<path d="M12 21C8 17 3 13.5 3 8.7A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 9 1.7c0 4.8-5 8.3-9 12.3Z"/><path d="M9 13h6m-3-3v6"/>',
+    'workplace' => '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12h18m-11 0v2h4v-2"/>',
+    'leaf' => '<path d="M20 4C11 4 5 8 5 14a6 6 0 0 0 6 6c6 0 10-6 9-16ZM4 21 16 9"/>',
+    'calendar' => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18m-13 5h3m3 0h3"/>',
+    'image' => '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 6-6 4 4 3-3 5 5"/>',
+    'lock' => '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/>',
+    'bag' => '<path d="M4 8h16l1 13H3L4 8Zm4 0V6a4 4 0 0 1 8 0v2"/>',
+    'chart' => '<path d="M4 3v17h17M8 16v-5m5 5V6m5 10V9"/>',
+    'pin' => '<path d="M20 10c0 6-8 11-8 11S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
     default => '',
 };
 if ($careIconMarkup !== ''): ?>

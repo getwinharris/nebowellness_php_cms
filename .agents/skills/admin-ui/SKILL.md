@@ -61,3 +61,5 @@ before review.
 ## Keeping this skill current
 
 Update when an admin route, sidebar group, or CRUD form contract changes. The sidebar is gated by `SettingsService::modules()`; re-check both the on and off states.
+
+- Keep admin motion brief and limited to workspace section arrival, mobile sidebar and user-expanded groups. Do not animate status values, rows or inputs; change hidden/expanded semantics immediately and preserve focus and reduced motion.

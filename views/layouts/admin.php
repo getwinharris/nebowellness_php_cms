@@ -15,6 +15,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
 <link rel="apple-touch-icon" href="/assets/images/nebo-symbol.png">
 <link rel="stylesheet" href="/assets/css/band.css?v=<?= filemtime(__DIR__.'/../../assets/css/band.css') ?>">
 <script src="/assets/admin-tables.js?v=<?= filemtime(__DIR__ . '/../../assets/admin-tables.js') ?>" defer></script>
+<script src="/assets/site-motion.js?v=<?= filemtime(app_path('assets/site-motion.js')) ?>" defer></script>
 <script src="/assets/site-feedback.js?v=<?= filemtime(__DIR__ . '/../../assets/site-feedback.js') ?>" defer></script>
 <script src="/assets/page-finder.js?v=<?= filemtime(__DIR__ . '/../../assets/page-finder.js') ?>" defer></script>
 <script src="/assets/agent-status.js?v=<?= filemtime(__DIR__.'/../../assets/agent-status.js') ?>" defer></script>
@@ -46,7 +47,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 <a href="/admin/consultation-analytics" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/consultation-analytics') === 0 ? 'active' : '') ?>">Analytics</a>
             </div>
             <?php if ($__modules['blog'] || $__modules['campaigns']): ?>
-            <button type="button" class="admin-nav-toggle" aria-controls="menu-content" aria-expanded="true">Content <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button type="button" class="admin-nav-toggle" aria-controls="menu-content" aria-expanded="true"><?php $careIcon='program'; require __DIR__.'/../partials/care-icon.php'; ?> Content <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
             <div class="admin-submenu" id="menu-content"><?php if ($__modules['blog']): ?><a href="/admin/blog" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/blog') === 0 ? 'active' : '') ?>">Blog</a><?php endif; ?><?php if ($__modules['campaigns']): ?><a href="/admin/campaigns" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/campaigns') === 0 ? 'active' : '') ?>">Campaign Pages</a><?php endif; ?></div>
             <?php endif; ?>
             <?php if ($__modules['shop']): ?><button type="button" class="admin-nav-toggle" aria-controls="menu-commerce" aria-expanded="true">
@@ -63,7 +64,7 @@ $__modules = (new \App\Services\SettingsService())->modules(); ?>
                 <a href="/admin/tax-report" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/tax-report') === 0 ? 'active' : '') ?>">Tax Report</a>
             </div>
             <?php endif; ?>
-            <button type="button" class="admin-nav-toggle" aria-controls="menu-enquiries" aria-expanded="true">Enquiries <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+            <button type="button" class="admin-nav-toggle" aria-controls="menu-enquiries" aria-expanded="true"><?php $careIcon='message'; require __DIR__.'/../partials/care-icon.php'; ?> Enquiries <svg class="admin-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
             <div class="admin-submenu" id="menu-enquiries"><a href="/admin/contact-submissions" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/contact-submissions') === 0 ? 'active' : '') ?>">Contacts</a><a href="/admin/therapy" class="<?= str_starts_with($_SERVER['REQUEST_URI'], '/admin/therapy') ? 'active' : '' ?>">Therapy requests</a><a href="/admin/support-tickets" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/support-tickets') === 0 ? 'active' : '') ?>">Support</a><a href="/admin/email-inbox" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/email-inbox') === 0 ? 'active' : '') ?>">Email Inbox</a><a href="/admin/email-outbox" class="<?= (strpos($_SERVER['REQUEST_URI'], '/admin/email-outbox') === 0 ? 'active' : '') ?>">Email Outbox</a></div>
             <button type="button" class="admin-nav-toggle" aria-controls="menu-appearance" aria-expanded="true">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>

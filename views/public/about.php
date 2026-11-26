@@ -42,8 +42,9 @@
             <h2 class="section-title">Why Choose Nebo?</h2>
         </div>
         <div class="value-strip">
-            <?php foreach ($whyChooseNebo as [$title, $description]): ?>
+            <?php foreach ($whyChooseNebo as [$title, $description, $careIcon]): ?>
                 <article class="value-card reveal">
+                    <?php require __DIR__.'/../partials/care-icon.php'; ?>
                     <h3><?= e($title) ?></h3>
                     <p><?= e($description) ?></p>
                 </article>

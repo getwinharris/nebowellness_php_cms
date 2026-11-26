@@ -3656,6 +3656,11 @@ body { background: var(--color-bg); }
 }
 #primary-nav button.nav-item { cursor: pointer; }
 #primary-nav .nav-item span { font-size: 1.45em; font-weight: 300; line-height: 1; }
+#primary-nav .nav-item .nav-item__label { display: inline-flex; align-items: center; gap: 13px; min-width: 0; font-size: inherit; font-weight: inherit; line-height: inherit; }
+#primary-nav .nav-item__label .nebo-care-icon { width: 21px; height: 21px; opacity: .78; }
+#primary-nav .navigation-drawer__utility .nav-item__label { gap: 7px; }
+#primary-nav .navigation-drawer__utility .nebo-care-icon { width: 16px; height: 16px; }
+
 #primary-nav .nav-item:hover,
 #primary-nav .nav-item:is([aria-current], [aria-expanded="true"]) { color: var(--brand-action); }
 #primary-nav .nav-item[aria-current] { font-weight: 600; }
@@ -3748,8 +3753,17 @@ body.navigation-drawer-open :is(.mobile-cart-tray, .support-fab, .support-panel)
     .navigation-drawer__footer { padding-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right)); }
 }
 @media (prefers-reduced-motion: no-preference) {
-    .navigation-drawer[open] .navigation-drawer__panel { animation: menu-arrive .28s cubic-bezier(.22,.71,.36,1) both; }
-    .navigation-drawer__secondary:not([hidden]) { animation: menu-fade-in .24s ease-out both; }
+    .navigation-drawer[open] .navigation-drawer__panel { animation: menu-arrive .38s cubic-bezier(.22,.71,.36,1) both; }
+    .navigation-drawer__secondary:not([hidden]) { animation: menu-branch-arrive .32s cubic-bezier(.22,.71,.36,1) both; }
+    .navigation-drawer[open] .navigation-drawer__primary > :is(.nav-item, .nav-branch, .navigation-drawer__utility) {
+        animation: menu-item-arrive .36s cubic-bezier(.22,.71,.36,1) backwards;
+    }
+    .navigation-drawer[open] .navigation-drawer__primary > :nth-child(3) { animation-delay: 30ms; }
+    .navigation-drawer[open] .navigation-drawer__primary > :nth-child(4) { animation-delay: 60ms; }
+    .navigation-drawer[open] .navigation-drawer__primary > :nth-child(n+5) { animation-delay: 90ms; }
+    .navigation-drawer .navigation-drawer__primary.nav-returned { animation: menu-return .30s cubic-bezier(.22,.71,.36,1) both; }
+    .navigation-drawer :is(.nav-item, .nav-back):focus-visible { animation: none !important; }
+    @media (hover: hover) { #primary-nav .nav-item__label { transition: translate .22s ease-out; } #primary-nav .nav-item:hover .nav-item__label { translate: 3px 0; } }
     .navigation-drawer[open]::backdrop { animation: menu-fade-in .22s ease-out both; }
     @media (max-width: 743px) {
         .navigation-drawer__secondary:not([hidden]) { animation-name: menu-branch-arrive; }
@@ -3774,9 +3788,11 @@ body.navigation-drawer-open :is(.mobile-cart-tray, .support-fab, .support-panel)
     }
 }
 @keyframes menu-arrive {
-    from { transform: translateX(-32px); }
-    to { transform: none; }
+    from { transform: translateX(-18%); opacity: .55; }
+    to { transform: none; opacity: 1; }
 }
+@keyframes menu-return { from { translate: -18px 0; } to { translate: 0 0; } }
+@keyframes menu-item-arrive { from { translate: -7px 0; opacity: .8; } to { translate: 0 0; opacity: 1; } }
 @keyframes menu-branch-arrive {
     from { transform: translateX(24px); opacity: .4; }
     to { transform: none; opacity: 1; }
@@ -4587,7 +4603,11 @@ body { overflow-x: clip; }
     .editorial-stack > .chapter-arrived .consultation-invitation__copy > :is(p, a) { animation-delay: 110ms; }
 
     .editorial-stack .chapter-item-arrived {
-        animation: nebo-card-arrival .72s cubic-bezier(.22,1,.36,1) var(--chapter-delay, 0ms) backwards;
+        animation: nebo-card-arrival .82s cubic-bezier(.22,1,.36,1) var(--chapter-delay, 0ms) backwards;
+    }
+    .editorial-stack :is(.nebo-home-figures > div, .nebo-pillar-list > li, .nebo-resource-split__links > li).chapter-item-arrived {
+        animation-duration: .66s;
+        animation-name: nebo-detail-arrival;
     }
     #program-rail > .chapter-item-arrived:not(:focus-within),
     .team-rail > .chapter-item-arrived:not(:focus-within) {
@@ -4606,7 +4626,8 @@ body { overflow-x: clip; }
 }
 @keyframes nebo-chapter-arrival { from { translate: 0 10px; } to { translate: 0 0; } }
 @keyframes nebo-card-arrival { from { translate: 0 clamp(16px, 3vw, 40px); opacity: .78; } to { translate: 0 0; opacity: 1; } }
-@keyframes nebo-rail-item-arrival { from { opacity: .9; } to { opacity: 1; } }
+@keyframes nebo-rail-item-arrival { from { opacity: .86; } to { opacity: 1; } }
+@keyframes nebo-detail-arrival { from { translate: 0 14px; opacity: .82; } to { translate: 0 0; opacity: 1; } }
 
 .analytics-overview { display: grid; gap: var(--space-lg); }
 .analytics-summary { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,2fr); gap: var(--space-lg); }
@@ -6600,4 +6621,57 @@ main:has(> :is(.campaign-index, .campaign-page)) { padding-block-start: 0; paddi
     .nebo-pillar-list .nebo-care-icon { width: 1.8rem; height: 1.8rem; }
     .nebo-home-figures { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     [data-nebo-chapter="confidence"] .nebo-home-figures > :nth-child(3):last-child { grid-column: 1 / -1; }
+}
+
+/* Shared motion and icon system: editorial surfaces, menu, and owner workspace.
+   Never animate form inputs, table rows, status figures, or the page's fixed shell. */
+.nebo-icon-heading { display: flex; align-items: flex-start; gap: .6em; }
+.nebo-icon-heading > span { min-width: 0; }
+.nebo-icon-heading .nebo-care-icon { width: 1.18em; height: 1.18em; margin-top: .08em; }
+.nebo-resource-label { display: inline-flex; align-items: center; gap: 10px; min-width: 0; }
+.nebo-resource-label .nebo-care-icon { width: 20px; height: 20px; }
+.value-card > .nebo-care-icon { width: 34px; height: 34px; margin-block-end: 14px; color: var(--brand-deep-blue); }
+.admin-nav-toggle > .nebo-care-icon { width: 18px; height: 18px; }
+@media (max-width: 768px) {
+    .admin-shell:has(.admin-sidebar.open)::before {
+        content: ""; position: fixed; inset: 0; z-index: 999;
+        background: rgb(25 31 34 / .38);
+    }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .site-motion-entered {
+        animation: nebo-page-enter .64s cubic-bezier(.22,1,.36,1) var(--site-motion-delay, 0ms) backwards;
+    }
+    .admin-main .site-motion-entered {
+        animation: nebo-workspace-enter .25s cubic-bezier(.22,1,.36,1) var(--site-motion-delay, 0ms) backwards;
+    }
+    .site-motion-entered:focus-within { animation: none; }
+    .admin-submenu-entered > a { animation: nebo-admin-nav-enter .2s ease-out backwards; }
+    .admin-submenu-entered > a:nth-child(2) { animation-delay: 20ms; }
+    .admin-submenu-entered > a:nth-child(n+3) { animation-delay: 40ms; }
+    .admin-submenu-entered > a:focus-visible { animation: none; }
+    .support-panel:not([hidden]) { animation: nebo-panel-enter .24s cubic-bezier(.22,1,.36,1) both; }
+    @media (max-width: 768px) {
+        .admin-sidebar.open { animation: nebo-admin-drawer-enter .28s cubic-bezier(.22,1,.36,1) both; }
+        .admin-shell:has(.admin-sidebar.open)::before { animation: menu-fade-in .2s ease-out both; }
+        @supports (transition-behavior: allow-discrete) {
+            .admin-sidebar { translate: -100% 0; opacity: 0; pointer-events: none; transition: translate .28s cubic-bezier(.22,1,.36,1), opacity .2s ease, display .28s allow-discrete; }
+            .admin-sidebar:is(.open, :target) { translate: 0 0; opacity: 1; pointer-events: auto; animation: none; }
+            @starting-style { .admin-sidebar.open { translate: -100% 0; opacity: 0; } }
+        }
+    }
+    @media (hover: hover) {
+        .nebo-care-mosaic__card--photo > img { transition: scale .7s cubic-bezier(.22,1,.36,1); }
+        .nebo-care-mosaic__card--photo:hover > img { scale: 1.035; }
+        .nebo-resource-split__links a > span:last-child { transition: translate .2s ease-out; }
+        .nebo-resource-split__links a:hover > span:last-child { translate: 3px -2px; }
+    }
+}
+@keyframes nebo-page-enter { from { translate: 0 18px; opacity: .83; } to { translate: 0 0; opacity: 1; } }
+@keyframes nebo-workspace-enter { from { translate: 0 5px; opacity: .94; } to { translate: 0 0; opacity: 1; } }
+@keyframes nebo-admin-nav-enter { from { translate: -5px 0; opacity: .85; } to { translate: 0 0; opacity: 1; } }
+@keyframes nebo-admin-drawer-enter { from { translate: -100% 0; } to { translate: 0 0; } }
+@keyframes nebo-panel-enter { from { translate: 0 8px; opacity: .85; } to { translate: 0 0; opacity: 1; } }
+@media print {
+    .site-motion-entered, .admin-main .site-motion-entered { animation: none !important; translate: none !important; opacity: 1 !important; }
 }
