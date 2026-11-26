@@ -91,7 +91,54 @@ final class AdminController extends BaseController {
     public function consultants(): void{
         $this->render('admin/consultant-form',['pageTitle'=>'Consultants','title'=>'Consultants','collection'=>'consultants','items'=>(new ResourceService('consultants'))->all(),'mediaFiles'=>$this->mediaFor('consultants')]);
     }
-    public function saveConsultant(): void{$this->save('consultants');}
+    public function saveConsultant(): void {
+        $resource = new ResourceService('consultants');
+        $id = is_string($_POST['id'] ?? null) ? trim($_POST['id']) : '';
+        $revision = is_string($_POST['revision'] ?? null) ? $_POST['revision'] : '';
+        $current = null;
+        foreach ($resource->all() as $row) {
+            if ($id !== '' && ($row['id'] ?? '') === $id) $current = $row;
+        }
+        if ($id !== '' && ($current === null || !hash_equals(ResourceService::revision($current), $revision))) {
+            $this->flash('This profile changed. Reload the latest version.', 'error');
+            $this->redirect('/admin/consultants');
+        }
+        $data = $current ?? [];
+        try {
+            foreach (['name','slug','credentials','speciality','description','gender','status','experience_years','display_order','registration_number','languages','photo_url','photo_urls'] as $field) {
+                if (!array_key_exists($field, $_POST)) continue;
+                if (!is_string($_POST[$field])) throw new \InvalidArgumentException('Invalid profile field.');
+                $data[$field] = trim($_POST[$field]);
+            }
+            if (array_key_exists('registration_number', $_POST)) $data['registration_number'] = \App\Services\ConsultantService::registrationNumber($_POST['registration_number']);
+            if (empty($data['name'])) throw new \InvalidArgumentException('Enter a name before saving.');
+            $slug = trim((string)($data['slug'] ?? ''));
+            if ($slug === '') $slug = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $data['name']) ?? '', '-'));
+            if (!preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $slug)) throw new \InvalidArgumentException('Enter a valid profile URL slug.');
+            foreach ($resource->all() as $row) {
+                if (($row['slug'] ?? '') === $slug && ($row['id'] ?? '') !== $id) throw new \InvalidArgumentException('That profile slug already exists.');
+            }
+            $data['slug'] = $slug;
+            if (!in_array($data['status'] ?? 'visible', ['visible','hidden'], true)) throw new \InvalidArgumentException('Choose a valid visibility.');
+            if (isset($data['languages']) && is_string($data['languages'])) $data['languages'] = $this->splitList($data['languages']);
+            $gallery = $data['photo_urls'] ?? [];
+            $photos = is_array($gallery) ? $gallery : $this->splitList($gallery);
+            if (!empty($data['photo_url'])) array_unshift($photos, (string)$data['photo_url']);
+            $uploaded = $this->uploadedMedia('consultants');
+            $photos = array_values(array_unique(array_filter(array_merge($photos, array_column($uploaded, 'url')))));
+            $data['photo_urls'] = $photos;
+            $data['photo_url'] = $photos[0] ?? '';
+            if ($id !== '') $data['id'] = $id;
+            $record = $resource->save($data, $id !== '' ? $revision : null);
+        } catch (\InvalidArgumentException | \DomainException $error) {
+            $this->flash($error->getMessage(), 'error');
+            $this->redirect('/admin/consultants');
+        }
+        if ($uploaded) (new MediaService())->recordUsage($uploaded, 'consultants', (string)$record['id'], (string)$record['name']);
+        (new AuditLogService())->record('save','consultants',(string)$record['id'],['fields'=>array_keys($data),'uploaded_media'=>count($uploaded)]);
+        $this->flash('Consultant profile saved.', 'success');
+        $this->redirect('/admin/consultants');
+    }
     public function deleteConsultant(): void{
         $id=(string)($_POST['id']??'');
         (new ResourceService('consultants'))->delete($id); (new AuditLogService())->record('delete','consultants',$id); $this->flash('Deleted.','info'); $this->redirect('/admin/consultants');
@@ -786,16 +833,6 @@ final class AdminController extends BaseController {
         if(isset($data['modes']))$data['modes']=$this->splitList($data['modes']);
         if(isset($data['languages']))$data['languages']=$this->splitList($data['languages']);
         $uploaded=$this->uploadedMedia($collection);
-        if ($collection === 'consultants') {
-            $photos=$this->splitList((string)($data['photo_urls'] ?? ''));
-            if (!empty($data['photo_url'])) array_unshift($photos, (string)$data['photo_url']);
-            $uploadedPaths=array_column($uploaded, 'url');
-            $photos=array_values(array_unique(array_filter(array_merge($photos, $uploadedPaths))));
-            if (!empty($photos)) {
-                $data['photo_url']=$photos[0];
-                $data['photo_urls']=$photos;
-            }
-        }
         $record=(new ResourceService($collection))->save($data);
         $entityName = (string)($record['name'] ?? $record['slug'] ?? '');
         if ($uploaded) (new MediaService())->recordUsage($uploaded, $collection, (string)($record['id'] ?? ''), $entityName);

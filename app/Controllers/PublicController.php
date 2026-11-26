@@ -13,9 +13,12 @@ final class PublicController extends BaseController {
         }
         $this->seoKey = 'home';
         $consultants = [];
+        $teamUnavailable = false;
         try { $consultants = (new ConsultantService())->all(); }
-        catch (\Throwable $error) { error_log('Home consultant profiles unavailable: ' . $error->getMessage()); }
-        $consultants = $this->withPublicTeamCredentials($consultants);
+        catch (\Throwable $error) {
+            $teamUnavailable = true;
+            error_log('Home consultant profiles unavailable: ' . $error->getMessage());
+        }
         $therapyProducts = [];
         $programs = [];
         $programsUnavailable = false;
@@ -30,48 +33,9 @@ final class PublicController extends BaseController {
                 error_log('Home programmes unavailable: ' . $error->getMessage());
             }
         }
-        $this->render('public/home', ['consultants' => $consultants, 'therapyProducts' => $therapyProducts, 'programs' => $programs, 'programsUnavailable' => $programsUnavailable, 'programsEnabled' => $programsEnabled]);
+        $this->render('public/home', ['consultants' => $consultants, 'teamUnavailable' => $teamUnavailable, 'therapyProducts' => $therapyProducts, 'programs' => $programs, 'programsUnavailable' => $programsUnavailable, 'programsEnabled' => $programsEnabled]);
     }
 
-    private function withPublicTeamCredentials(array $consultants): array {
-        $approvedProfiles = $this->defaultConsultants();
-        if ($consultants === []) return $approvedProfiles;
-
-        $profilesBySlug = array_column($approvedProfiles, null, 'slug');
-        $profilesByName = array_column($approvedProfiles, null, 'name');
-        foreach ($consultants as &$profile) {
-            $approved = $profilesBySlug[$profile['slug'] ?? ''] ?? $profilesByName[$profile['name'] ?? ''] ?? null;
-            $credentials = trim((string)($profile['credentials'] ?? ''));
-            $role = trim((string)($profile['speciality'] ?? ''));
-            if ($approved !== null) {
-                $credentials = $credentials === '' ? $approved['credentials'] : $credentials;
-                $role = $role === '' ? $approved['speciality'] : $role;
-            }
-            if ($credentials !== '') {
-                // Older entries combined the qualification and role in one field.
-                $role = preg_replace('/^' . preg_quote($credentials, '/') . '(?:\s*[·–—-]\s*|\s+|$)/iu', '', $role) ?? $role;
-            }
-            if (($approved['slug'] ?? '') === 'dr-padmashree' && strcasecmp($role, 'Maternity Wellness Consultant') === 0) {
-                $role = $approved['speciality'];
-            }
-            $profile['credentials'] = $credentials;
-            $profile['speciality'] = $role;
-        }
-        unset($profile);
-
-        return $consultants;
-    }
-
-    private function defaultConsultants(): array {
-        return [
-            ['slug' => 'dr-bablin-torah', 'name' => 'Dr Bablin Torah', 'credentials' => 'MD', 'speciality' => 'Naturopathic Consultant', 'description' => 'Integrative naturopathy and personalised lifestyle guidance.'],
-            ['slug' => 'dr-sathyajothi', 'name' => 'Dr Sathyajothi', 'credentials' => 'BNYS', 'speciality' => 'Yoga Mentor & Guide', 'description' => 'Therapeutic yoga and practical movement guidance for sustainable wellbeing.'],
-            ['slug' => 'dr-berslin-fency', 'name' => 'Dr Berslin Fency', 'credentials' => 'BNYS', 'speciality' => 'Consultant Physician', 'description' => 'Root-cause assessment and evidence-informed naturopathic care.'],
-            ['slug' => 'dr-karthik-raj', 'name' => 'Dr Karthik Raj', 'credentials' => 'BNYS', 'speciality' => 'Lifestyle Physician', 'description' => 'Personalised nutrition, movement, sleep and metabolic health planning.'],
-            ['slug' => 'dr-padmashree', 'name' => 'Dr Padmashree', 'credentials' => 'BNYS, FFAC, CCBE', 'speciality' => 'Childbirth Educator & Maternity Wellness Consultant', 'description' => 'Preconception, pregnancy and postpartum wellness support.'],
-        ];
-    }
-    
     public function about(): void { 
         $this->detectApiRequest();
         $this->seoKey = 'about';

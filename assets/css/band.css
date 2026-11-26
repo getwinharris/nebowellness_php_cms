@@ -4370,6 +4370,7 @@ body.navigation-drawer-open :is(.mobile-cart-tray, .support-fab, .support-panel)
 .team-slide__body { display: grid; grid-template-rows: auto auto 1fr auto; align-content: stretch; gap: .7rem; min-height: 280px; padding: 1.5rem; }
 .team-slide:not(.is-rail-current) .team-slide__body { display: none; }
 .team-slide__credentials { font-weight: 650; }
+.team-slide__registration { overflow-wrap: anywhere; }
 .team-slide__role { font-weight: 500; color: var(--color-primary) !important; }
 
 .site-header .brand { flex-direction: column; gap: 1px; line-height: 1; }

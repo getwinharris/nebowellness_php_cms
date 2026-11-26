@@ -586,22 +586,32 @@ $tests['public pages expose general enquiry ctas'] = function (): void {
     assertTrue(str_contains($css, '.page-cta-card.reveal.revealed:hover'), 'Shared CTA hover animation should win after scroll reveal');
 };
 
-$tests['homepage team presents approved credentials without overwriting CMS profiles'] = function (): void {
-    $controller = new \App\Controllers\PublicController();
-    $resolve = new ReflectionMethod($controller, 'withPublicTeamCredentials');
-    $fallback = $resolve->invoke($controller, []);
-    assertSame(['MD', 'BNYS', 'BNYS', 'BNYS', 'BNYS, FFAC, CCBE'], array_column($fallback, 'credentials'), 'The fallback shows all client-supplied qualifications');
+$tests['homepage team is sourced only from visible owner-managed profiles'] = function (): void {
+    $source = fileRead('app/Controllers/PublicController.php');
+    assertTrue(str_contains($source, '(new ConsultantService())->all()'), 'Home must use the authoritative consultant service');
+    assertTrue(!str_contains($source, 'defaultConsultants') && !str_contains($source, 'withPublicTeamCredentials'), 'No named profile defaults may override owner content');
+    fileContains('app/Services/ConsultantService.php', "=== 'visible'");
+    fileContains('views/public/home.php', 'elseif ($consultants !== [])');
+    fileContains('views/public/home.php', 'teamUnavailable');
+    fileContains('views/public/home.php', 'if (empty($teamUnavailable))');
+};
 
-    $profiles = $resolve->invoke($controller, [
-        ['slug' => 'dr-bablin-torah', 'speciality' => 'MD Naturopathic Consultant', 'photo_url' => '/media/bablin.webp'],
-        ['slug' => 'dr-padmashree', 'speciality' => 'Maternity Wellness Consultant'],
-        ['slug' => 'another-practitioner', 'speciality' => 'Clinic Practitioner', 'credentials' => 'Existing qualification'],
-    ]);
-    assertSame('MD', $profiles[0]['credentials'], 'A missing credential is filled from the client brief');
-    assertSame('Naturopathic Consultant', $profiles[0]['speciality'], 'The legacy role does not repeat its qualification');
-    assertSame('/media/bablin.webp', $profiles[0]['photo_url'], 'The configured portrait is retained');
-    assertSame('Childbirth Educator & Maternity Wellness Consultant', $profiles[1]['speciality'], 'The legacy shortened role uses the supplied correction');
-    assertSame('Existing qualification', $profiles[2]['credentials'], 'Unrelated CMS credentials pass through');
+$tests['practitioner registration is optional, owner-editable and escaped'] = function (): void {
+    $service = \App\Services\ConsultantService::class;
+    assertSame('005441-A', $service::registrationNumber(' 005441-A '), 'Preserve leading zeroes and letters');
+    assertSame('', $service::registrationNumber(''), 'Allow explicit clearing');
+    foreach ([['invalid'], str_repeat('a', 81), "<script>", "one\ntwo"] as $invalid) {
+        $rejected = false;
+        try { $service::registrationNumber($invalid); } catch (\InvalidArgumentException) { $rejected = true; }
+        assertTrue($rejected, 'Reject invalid registration input');
+    }
+    assertTrue(in_array('registration_number', (new \App\Services\SchemaService())->adminFields('consultants'), true), 'Registration is a canonical admin field');
+    fileContains('views/admin/consultant-form.php', 'name="registration_number"');
+    fileContains('views/admin/consultant-form.php', "item.registration_number");
+    fileContains('views/public/home.php', "e(\$consultant['registration_number'])");
+    fileContains('app/Controllers/AdminController.php', "array_key_exists('registration_number', \$_POST)");
+    fileContains('views/admin/consultant-form.php', 'name="revision"');
+    fileContains('app/Controllers/AdminController.php', '$resource->save($data, $id !==');
 };
 
 $tests['public anchor scrolling respects reduced motion before and after styles load'] = function (): void {
