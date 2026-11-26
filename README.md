@@ -20,6 +20,7 @@ blog posts, and file-based images. There is no SPA or frontend build step.
 | Where is a blog or image? | `index.yaml` narrow concept/filename search | returned Markdown/image path |
 | What is the database shape? | `storage/schema/collections.php` | owning service/admin form |
 | What is a live editable value? | hosted MySQL through `DatabaseService` | lowercase `/remotedb` fallback |
+| What remains from REA research? | docs/research/rea/progress.md | canonical register, pinned evidence and acceptance tests |
 | What controls UI? | `Design.md` | `assets/css/band.css` and PHP view |
 
 Do not read all of `index.yaml`. Read its discovery header, copy the applicable narrow
@@ -95,7 +96,8 @@ the fixed customer test ID are in ignored `.env.test-user`; never print or commi
 ./bapXphp blog:image <slug> <image> [options]
 ./bapXphp dev:user --dry-run
 ./bapXphp logs --limit 20
-./bapXphp update                 # regenerate maps and indexes
+./bapXphp rea status             # computed component progress
+./bapXphp update                 # regenerate REA progress, maps and indexes
 ./bapXphp ci                     # lint, tests, drift validation, smoke
 ```
 

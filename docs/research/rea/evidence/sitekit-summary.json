@@ -1,0 +1,97 @@
+{
+  "schema": "HistoricalSourceSummary",
+  "authority": "historical-reference",
+  "root_alias": "$REFERENCE_ROOT",
+  "manifest": {
+    "schema": "HistoricalSourceManifest",
+    "authority": "historical-reference",
+    "manifest_id": "hsm_9108e847e98165c2ecb752b9e4026fbe57653ce7eced0a557ea059ae02ca2061",
+    "graph_sha256": "ca98670133b6373f25ee3b9775cc2024096ca540416bb36e5d55296345e9bcd3",
+    "root_sha256": "fe13c6630145b760c00578ca87366d7157aed99275dadab716582f2bda312811",
+    "inventory_state": "partial",
+    "entry_count": 98,
+    "relationship_count": 0
+  },
+  "inventory_state": "partial",
+  "provenance": {
+    "importer": "rea-agents",
+    "importer_version": "6.8.0",
+    "caller": "rea-cli"
+  },
+  "vcs": {
+    "kind": "none",
+    "head": null,
+    "dirty": null
+  },
+  "languages": [
+    "PHP"
+  ],
+  "manifests": [],
+  "counts": {
+    "entries": 98,
+    "files": 90,
+    "directories": 8,
+    "symlinks": 0,
+    "unknown": 0,
+    "relationships": 0,
+    "parse_failures": 0,
+    "exclusions": 0
+  },
+  "file_content_states": {
+    "hashed": 90,
+    "redacted-secret": 0,
+    "excluded": 0,
+    "unreadable": 0,
+    "unknown": 0
+  },
+  "directory_tree_states": {
+    "enumerated": 8,
+    "partial": 0,
+    "excluded": 0,
+    "unreadable": 0,
+    "unknown": 0
+  },
+  "file_sizes": {
+    "known_bytes": "611046",
+    "unknown_file_count": 0
+  },
+  "exclusions": [],
+  "limitations": [
+    "Path identity is revalidated around operations; Node lacks portable descriptor-relative openat traversal, so a syscall-boundary pathname race remains."
+  ],
+  "outline": {
+    "depth": 2,
+    "entries": [
+      {
+        "path": "google-site-kit.php",
+        "kind": "file",
+        "language": "PHP",
+        "size": 3903,
+        "content_state": "hashed",
+        "classifications": [
+          "source"
+        ],
+        "limitations": []
+      },
+      {
+        "path": "includes",
+        "classifications": [
+          "unknown"
+        ],
+        "limitations": [],
+        "kind": "directory",
+        "tree_state": "enumerated"
+      },
+      {
+        "path": "includes/Core",
+        "classifications": [
+          "unknown"
+        ],
+        "limitations": [],
+        "kind": "directory",
+        "tree_state": "enumerated"
+      }
+    ],
+    "omitted_entry_count": 95
+  }
+}

@@ -43,6 +43,12 @@ Use the route record's controller, services, and view to open the original code.
 Check [release history](changelog.md) for shipped scope and the [release guide](releases.md)
 for tagging and production verification.
 
+## REA capability research and delivery
+
+- [Research workflow and engineering contract](research/rea/README.md)
+- [Generated implementation and production-observation progress](research/rea/progress.md)
+- [Canonical register](research/rea/capabilities.json) and [evidence manifest](research/rea/evidence/manifest.json)
+
 ## Maintainer guides
 
 - [`architecture.md`](architecture.md)

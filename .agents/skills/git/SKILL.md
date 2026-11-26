@@ -82,6 +82,11 @@ commands are recovery and diagnosis tools only.
   a safe release with an explicit tested failure state is permitted; do not claim
   that capability is working.
 
+- Before a runtime PR, review the affected REA capability IDs and append a
+  unique issue-scoped review in the register, including a reason for no coverage
+  change. Scope changes require explicit version/rationale; the PR impact gate
+  enforces the review. Record actual live evidence separately after deployment.
+
 ## Testing
 
 `./bapXphp ci` before pushing. Branch, push, open a PR; never commit straight to `main`.

@@ -41,12 +41,12 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 319
-  relationships: 306
+  concepts: 322
+  relationships: 307
   by_type:
     blog: 5
     controller: 13
-    doc: 39
+    doc: 42
     image: 40
     route: 129
     schema: 25
@@ -417,6 +417,14 @@ concepts:
       - "module"
     filename: "gst-commerce.md"
     header_image: ""
+  - id: "doc:historical-agent-audit"
+    type: "doc"
+    title: "historical-agent-audit"
+    description: ""
+    resource: "docs/research/rea/evidence/historical-agent-audit.md"
+    tags: []
+    filename: "historical-agent-audit.md"
+    header_image: ""
   - id: "doc:home"
     type: "doc"
     title: "Home Page"
@@ -462,6 +470,15 @@ concepts:
       - "docs"
     filename: "product-list.md"
     header_image: ""
+  - id: "doc:progress"
+    type: "doc"
+    title: "REA capability progress (generated)"
+    description: "Evidence-based scope and progress across native CMS, agents, MCP, A2UI and integrations."
+    resource: "docs/research/rea/progress.md"
+    tags:
+      - "docs"
+    filename: "progress.md"
+    header_image: ""
   - id: "doc:pwa"
     type: "doc"
     title: "PWA Support"
@@ -479,6 +496,15 @@ concepts:
     tags:
       - "module"
     filename: "razorpay.md"
+    header_image: ""
+  - id: "doc:rea/README"
+    type: "doc"
+    title: "REA research and capability delivery workflow"
+    description: "Reference provenance, scoped reconstruction, completion criteria and mandatory PR review."
+    resource: "docs/research/rea/README.md"
+    tags:
+      - "docs"
+    filename: "README.md"
     header_image: ""
   - id: "doc:releases"
     type: "doc"
@@ -4169,6 +4195,9 @@ relationships:
   - from: "controller:TherapyController"
     to: "service:TherapySessionService"
     relation: "uses"
+  - from: "doc:progress"
+    to: "doc:historical-agent-audit"
+    relation: "references"
   - from: "doc:releases"
     to: "doc:changelog"
     relation: "references"

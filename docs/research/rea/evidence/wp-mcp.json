@@ -1,0 +1,1046 @@
+{
+  "schema": "HistoricalSourceGraph",
+  "authority": "historical-reference",
+  "root_alias": "$REFERENCE_ROOT",
+  "root_sha256": "6334251f77bd6eb58bab1d62c1c8d6cc2c570794df242fda22db479086995508",
+  "inventory_state": "partial",
+  "entries": [
+    {
+      "path": "Abilities",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Abilities/AbilityNameSuggester.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "c8d8fce48f9502624f1fb51fd21ab166199fea8285b4782bbcdf1c75846127cb",
+      "size": 7717,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Abilities/DiscoverAbilitiesAbility.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "0c4de588848b3e386626ca7a9c3b5916aaf9724fccfad18585da15cee546af49",
+      "size": 4698,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Abilities/ExecuteAbilityAbility.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "52dea643c13d24450286003fc833b828f69e1ce1b8a65e0c79453ac006393dd3",
+      "size": 7396,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Abilities/GetAbilityInfoAbility.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "52033ca3ca5dd72da65daf66ee2c910a9b0cb4d868afbe5357432d4b2d5034d0",
+      "size": 5991,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Abilities/McpAbilityExposure.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "df7b7dc39a0519ff9dcc21764c45dc1e472ba75eea0c76959333a6ca6766d0d7",
+      "size": 1941,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Abilities/McpAbilityHelperTrait.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "72e6198f3768dd4924c9cccef1a9a99204ab53e97db3aaa179a7330b7dbc3300",
+      "size": 4031,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Autoloader.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "4f9d9f549e951018f03e6b1d8d780250e057a29e56210af3774fb9bb15f4e8a1",
+      "size": 4978,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Cli",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Cli/McpCommand.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "aac020b4e06a24214602dc259f8a25f634f265a4e05a777a06bc9774c4ea811f",
+      "size": 5313,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Cli/StdioServerBridge.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "311bd6f20a2bbe2571fa374b692ddaf177c53b9557518724b687850828b7b644",
+      "size": 6150,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Core",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Core/McpAdapter.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1e20553c7874cda293322f5ed6e3182bb09c18fad7ef6295f8feaf88f8a3e9c7",
+      "size": 12731,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Core/McpComponentRegistry.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6461cabd43e8d9c03b88d2689486cf6e790d4bb47bae2fe3a6fd9da72c06d2c9",
+      "size": 21719,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Core/McpRequestContext.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "d9344a18419db1a9bdb69951bf06a7c4094791d8a142a7f6ea6b67e5d67772f2",
+      "size": 4985,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Core/McpServer.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "d4287d82fa58fa601c802d1033f6c94f92f62c3e536348fe79558a7ea030faaf",
+      "size": 14113,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Core/McpTransportFactory.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "b9579036f6b8b39342cb3cbbe18d66c96a18d3483b4e3af1ef90baf2a41896f8",
+      "size": 4013,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Core/McpVersionNegotiator.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "46fbf823c825c0c9fb5cb8f5033bd925ee7926eaf072679ddca98c4613d27c44",
+      "size": 5191,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Domain/Contracts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Domain/Contracts/McpComponentInterface.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "126d3d3ca53501e72bbaf832ef4f1067c5e6425c00310d9a9a92f82ca80741f6",
+      "size": 3022,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Prompts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Domain/Prompts/Contracts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Domain/Prompts/Contracts/McpPromptBuilderInterface.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "515c73c17d07f0e132e20823a11e83d4acc5bc8cfec487a939105006ecf85338",
+      "size": 1547,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Prompts/McpPrompt.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "bd723c3dcbbc4be1aafab298295d3ecaa2a80af5d15fc38c7470ee9a88eb9573",
+      "size": 11094,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Prompts/McpPromptBuilder.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "da9fa4ca3ce79818c1ab10d0d85a69409ce3ff5a0e1a3468a0ea86634abf12f3",
+      "size": 8571,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Prompts/RegisterAbilityAsMcpPrompt.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6f336fcc79c20a6f0967ca28b50524a0878b25e3eb6a77c7130e3ae1d0372bc5",
+      "size": 10723,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Resources",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Domain/Resources/McpResource.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "2f5872ea5a1e6917b8bd3d2224ee8e95de46617d9f8f41cc72870074e2a5dc5a",
+      "size": 9376,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Resources/RegisterAbilityAsMcpResource.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "c47cbf67514ba54f0201937846d82f9167115ba2a3d55052670f7ad36e32e96e",
+      "size": 11477,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Tools",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Domain/Tools/McpInputRequired.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "90cc358acae55a2c2e602bad0d5caca69300bbe9f176cb6aff839f4a2db5708b",
+      "size": 1463,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Tools/McpTool.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "56be1e8fdacd15765b7ac69219b27cc57e123b18b7be3623efc9da57f0d27bb6",
+      "size": 14909,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Tools/McpToolCallContext.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1e2108d87a7894227f3cb0a4022a96adccf6763eef7620c19418718ee0abd266",
+      "size": 3533,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Tools/RegisterAbilityAsMcpTool.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "7343f925ba937a61b9df515218861336993e9d23432f572d8728171cf484213c",
+      "size": 6478,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Domain/Utils/AbilityArgumentNormalizer.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "ae8c9fcdec9eee095a433700106080a5653d6fedab61a8e99d8cd94e36410328",
+      "size": 4471,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/AbilityPermissionChecker.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "8cb7c02abd18a6f3a214151fd3b19e4fac2910cba493f285e1276f91d42282b2",
+      "size": 1135,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/ContentBlockHelper.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6d3d5ae1f91cfb500cdf3d2ea99c1c04ea1e8595d7bbf4d8998ac554a2cd6380",
+      "size": 4266,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/McpAbilityMeta.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "c5fa7dabc82ae5d98541f4a503771d297d13f0036acd3dba6cf5d561c6f874b3",
+      "size": 1420,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/McpAnnotationMapper.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "7dcb2e53ee95e77d634e24b08b5070cf305352ac096e5961109629b08ca17c6d",
+      "size": 4597,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/McpNameSanitizer.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "33e98ecdb6f14016ea25b2217300480348eca7ce666ca5acdb1bded16a1bca02",
+      "size": 2989,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/McpValidator.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "45f04b51d1ab26cc86e711da22aaecee79d12401768d511e8b248436afe71d98",
+      "size": 5908,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/RevisionProjectionTrait.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "5b9ee994c31055257ede5fb2b05f9250a8e723a927ab04b8abc0df8018cb0b01",
+      "size": 3763,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/SchemaTransformer.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "eba29a2fb8906557cbd8004e8503e1bced0cbfd4343e2274f5824d2fd1f78cb4",
+      "size": 4046,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Domain/Utils/ThrowableGuardTrait.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "d1ab46276aa25983a76bd68c347b1b694d2ba6a47c3961ef1669b742ea531b12",
+      "size": 1154,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Handlers",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Handlers/HandlerHelperTrait.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "b7b33de98350a72acf205906595457bdfc9268562d4a7bba1afe7e0a459537c3",
+      "size": 2508,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Handlers/Initialize",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Handlers/Initialize/InitializeHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "5e99b811fd7546f56e67647504fa643d10099d106ba34fb95d3ee9e167d7cbfe",
+      "size": 2548,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Handlers/Prompts",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Handlers/Prompts/PromptsHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "08eeeae23438bc43955735730abec9b45c2d91231c341d55c7b07336a95310a9",
+      "size": 9447,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Handlers/Resources",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Handlers/Resources/ResourcesHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "dafde9eb1dfbf4973d0e9bd7f5381d97f5eee97973985139e4e369beeba3ee21",
+      "size": 11048,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Handlers/System",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Handlers/System/SystemHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "87a26b73c6da9c505a5843a1cf0e87e29c597ee8097a2c355b6b38b2f0e7a201",
+      "size": 713,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Handlers/Tools",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Handlers/Tools/ToolsHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "bea3f568f01adb4ca0df5eb892c0abacfc77f6fe796fd77554064b3b9c7de697",
+      "size": 15256,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Infrastructure/ErrorHandling",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Infrastructure/ErrorHandling/Contracts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Infrastructure/ErrorHandling/Contracts/McpErrorHandlerInterface.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "cccf961c652f8d68d60e65860f32a0c91e4c84f2ffc2a662cb6bd9e25b320f12",
+      "size": 759,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/ErrorHandling/ErrorLogMcpErrorHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "790ddc781ef0bb122913fbfaf54de504a862e5d17789bd5482bc1c1efc31b277",
+      "size": 1110,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/ErrorHandling/McpErrorFactory.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6f3636190381ff9d1810fe79d9495ca347937b001e0265f7710be2e557b3e920",
+      "size": 13629,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/ErrorHandling/NullMcpErrorHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "68a0ade031644d532f38385d88c61bd3ef931e89e541104a8f3dde798e485964",
+      "size": 878,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/Observability",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Infrastructure/Observability/ConsoleObservabilityHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a7801be9802b87c7d7141144be0f51cfbfa8adc3abe6f536bbf8b7aa4f8c8521",
+      "size": 1626,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/Observability/Contracts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Infrastructure/Observability/Contracts/McpObservabilityHandlerInterface.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "7f5c73d9e132d2adcc05915ee1a44f7be83496ad45f473aafb6e3f22331b8363",
+      "size": 945,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/Observability/ErrorLogMcpObservabilityHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3aa48d6bb7d23e77541f620504da229c4a2e9f0da88430cbb8e6ff5bf2ef47b2",
+      "size": 2096,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/Observability/FailureReason.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "59e78cf51bc2de80f57953945a71efe0309feefce725b92180edd236e8782d30",
+      "size": 5847,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/Observability/McpObservabilityHelperTrait.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "9ee1479e3cbcf711abe8f71fd9192f6181c791cbe1071835fa482fca9de2446f",
+      "size": 5960,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Infrastructure/Observability/NullMcpObservabilityHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "cde7fa44796f06293cb488235d868ed1891a6c5e2c931323e9c0d7447e4ecbde",
+      "size": 1050,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Plugin.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "16b5065c7149bb33b18d0d133d1c4e7b27ab25a1c43a4214ca54ec2c720e8301",
+      "size": 2071,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Servers",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Servers/DefaultServerFactory.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "3b562a64af3019180d36c5f2ab2d6afb85332fd122204861524f50388d7c7553",
+      "size": 5907,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Transport/Contracts",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Transport/Contracts/McpRestTransportInterface.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "6e17145cd78428213966ab92bd3c15825b6d844d30f5285186216b5afa89a9f6",
+      "size": 1056,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Contracts/McpTransportInterface.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "54d3ac6b86a14bab2bce608867e759d50d9d4d1380f530b1120c14449a49821a",
+      "size": 996,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/HttpTransport.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "12c4b340bc88db9be23dbaee92e7db8d17599873ca4f11b4adef9a4871ea74a3",
+      "size": 5486,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "Transport/Infrastructure/HttpRequestContext.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "388c63ef0f8c9fbe3131a52978fe2710fcf9a375fec381e50865effc70d64b64",
+      "size": 2675,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/HttpRequestHandler.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "1edad6a7ba4ec13b0b057a1d7c675122b600f365035a7ff450ff5abab9b27f8f",
+      "size": 8004,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/HttpSessionValidator.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "e85453dbb5d1f90e8fbf15a32ec27b6ddd6af5fd18349d168461d12554945772",
+      "size": 7135,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/JsonRpcRequestDecoder.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "7a9af11564f3bf1e84224b68ed3365c6fe96a182c3864c77cf6a50d8cd96b7c5",
+      "size": 6294,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/McpTransportContext.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "92c30179c5b4156a6004c175538c6a42ae9fcd9a2268f52b4695754bd91b2982",
+      "size": 6437,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/McpTransportHelperTrait.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "db5fa331749baab9f7b6adc2854df761a941334dc212ca8dc96efd8395f73b6a",
+      "size": 1041,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/McpWireOrchestrator.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "9dc2a6178a881a745960c13fe9b381f154305b96181a439cddde761b880286db",
+      "size": 44269,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/RequestRouter.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "a4f1b49ac452c1843a4fe1eb8b86c9f7dde3a73b91a558e63fef43cce5a072c2",
+      "size": 19858,
+      "content_state": "hashed"
+    },
+    {
+      "path": "Transport/Infrastructure/SessionManager.php",
+      "classifications": [
+        "source"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "PHP",
+      "sha256": "2650166288e635f4045b034b2de86711e3f4d82afd5a0384a04f0fb817da6670",
+      "size": 20369,
+      "content_state": "hashed"
+    }
+  ],
+  "relationships": [],
+  "parse_failures": [],
+  "exclusions": [],
+  "languages": [
+    "PHP"
+  ],
+  "manifests": [],
+  "vcs": {
+    "kind": "git",
+    "head": "f778ba25c166ddfbb17dba2a349f7e23e9008614",
+    "dirty": null
+  },
+  "provenance": {
+    "importer": "rea-agents",
+    "importer_version": "6.8.0",
+    "caller": "rea-cli"
+  },
+  "limitations": [
+    "Path identity is revalidated around operations; Node lacks portable descriptor-relative openat traversal, so a syscall-boundary pathname race remains."
+  ]
+}

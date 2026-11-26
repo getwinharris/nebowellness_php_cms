@@ -20,6 +20,11 @@ description: Use when editing README, docs, project-map docs, or agent-facing in
 - Keep durable docs concise and aligned with the PHP/MySQL shared-hosting architecture and Markdown-file blog boundary.
 - Follow the guidance improvement section in `AGENTS.md` when implementation exposes a gap. Update the canonical contract and its relevant project skill in the same PR, and keep task-specific evidence in the issue or PR.
 
+- For tracked runtime changes, follow docs/research/rea/README.md. Update the
+  canonical register and append the issue-scoped impact review. Keep static reference,
+  implemented/tested behavior and production observations separate. Regenerate
+  progress; never hand-edit percentages or count excluded WooCommerce features.
+
 ## Testing
 
 `./bapXphp update` to regenerate maps, then `./bapXphp ci`. Map validation alone is not enough: for each affected map path, open the real route, controller, service and rendered page.

@@ -1,0 +1,22 @@
+[
+  {
+    "archive": "$HOME/Downloads/wordpress-7.1.4.zip",
+    "sha256": "a147146c159362778ecbbbfb07bb20ddf4e85b130f971c824e656a8f938c5f87",
+    "members": 4250,
+    "expanded_bytes": 110113049,
+    "paths_safe": true,
+    "symlinks": 0,
+    "executed": false,
+    "php_files": 1512
+  },
+  {
+    "archive": "$HOME/Downloads/woocommerce.11.3.0.zip",
+    "sha256": "d9eb1e46df8309eb37b6f7f3fba51480f2a9a00e7feb10b1487592fde39accc6",
+    "members": 6349,
+    "expanded_bytes": 56489851,
+    "paths_safe": true,
+    "symlinks": 0,
+    "executed": false,
+    "php_files": 3658
+  }
+]

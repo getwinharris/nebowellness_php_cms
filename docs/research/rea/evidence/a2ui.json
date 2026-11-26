@@ -1,0 +1,621 @@
+{
+  "schema": "HistoricalSourceGraph",
+  "authority": "historical-reference",
+  "root_alias": "$REFERENCE_ROOT",
+  "root_sha256": "8425e88c27ecef56c6b7b1bcad287e461a4c0830220cbc138bd2d0171437e110",
+  "inventory_state": "partial",
+  "entries": [
+    {
+      "path": "README.md",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "4cb70dd5cb53e2e0c931a40faee249c3ef7c62d606cfb898e3762edb902494b6",
+      "size": 1251,
+      "content_state": "hashed"
+    },
+    {
+      "path": "docs",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "docs/a2ui_custom_functions.md",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "bf5f5dbbdc4f103cfc3e52fa37610ca4218276d70d1258b3d83c0b9bb4594347",
+      "size": 4454,
+      "content_state": "hashed"
+    },
+    {
+      "path": "docs/a2ui_protocol.md",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "50ce0de21a807456500aeda94532e85254954b0ab2f8ebafac92ef81266d6bd6",
+      "size": 107848,
+      "content_state": "hashed"
+    },
+    {
+      "path": "docs/evolution_guide.md",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "fb8ad5be1846578a234be189e37b5a22f5fdef0e284a83c3b6f858fec1e40fe2",
+      "size": 28877,
+      "content_state": "hashed"
+    },
+    {
+      "path": "docs/sdks_spec.md",
+      "classifications": [
+        "documentation",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "0026e8bffe623e4af6e7dedc292f361a3b6ad866516e115512a53f38650b5898",
+      "size": 4318,
+      "content_state": "hashed"
+    },
+    {
+      "path": "extensions",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "extensions/a2a",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "extensions/a2a/docs",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "extensions/a2a/docs/a2ui_extension_specification.md",
+      "classifications": [
+        "documentation"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "20edcde54f549942d673e988a2c4843f1965df974c1e2ee4db02b036c8fcd13c",
+      "size": 10026,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json",
+      "classifications": [
+        "unknown"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "json/agent_capabilities.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "6a4282dfb26af95a73d960572a31b91c5d5c89d1f9e54cbb8d24c599afcbc3a2",
+      "size": 1260,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/agent_to_renderer.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "2f575f783fdda0e4d175fe5d331661655e4a4901613262322792dae7e823761d",
+      "size": 8968,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/agent_to_renderer_list.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "3d3fef882fe5cc22932d3a91713defaeeb329126200954c06bf9f2c56df51c56",
+      "size": 368,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/agent_to_renderer_list_wrapper.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "e306af2521e731db673415115d55b3d0e66453945c071e34298b4cb1dff88014",
+      "size": 549,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/catalog_definition.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "836a48b2deb7ae76c3b68cb4e79c2faa24cba36d4d5396474894796797364d44",
+      "size": 9997,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/common_types.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "c4e78305be1de73eecb37f8179ba169730250611703683af291b18135a6430dc",
+      "size": 13111,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/renderer_capabilities.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "3ebd2889764d892df16d034643ecd9e3a3fc02f298fa05577b95d9e287e703de",
+      "size": 1349,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/renderer_data_model.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "16f7d6a9aa31fed6fd3a1deb924db14a759ff6514bfe386a0dca8c48389cdbc8",
+      "size": 803,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/renderer_to_agent.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "58ecde02101f0f37566b5e238dc6ef6af628c3ff312fce0e17ab7670b7215465",
+      "size": 5653,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/renderer_to_agent_list.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "98899d7d16222207af3bfd9aab12aa7b8f68dc8b5267dcf76d867236235ec5d8",
+      "size": 368,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/renderer_to_agent_list_wrapper.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "a0dbcaf2340def4485c287c19888aa81041ddee75e5717129457d4a39fbcc593",
+      "size": 549,
+      "content_state": "hashed"
+    },
+    {
+      "path": "json/sample.json",
+      "classifications": [
+        "config"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "7df58a955dfcd5241bfd5631df8fd291eb02d66f2f9a12304d5395517d64202f",
+      "size": 753,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test",
+      "classifications": [
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "test/README.md",
+      "classifications": [
+        "documentation",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Markdown",
+      "sha256": "7ce26a551ac4326a30f600c160f4ad547d6b2501a60cd26b9edd18fb772efda0",
+      "size": 1095,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases",
+      "classifications": [
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "directory",
+      "tree_state": "enumerated"
+    },
+    {
+      "path": "test/cases/agent_capabilities.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "9154ec096b868e627a00df2ef9178a261a06b9ec1c1776a2120abba46c60de31",
+      "size": 823,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/button_checks.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "1fafaab78eaca43beab1c2b5193a6378dc0c5098b37b2f4b5145867e7ccc752d",
+      "size": 8097,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/call_agent_function_message.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "dc752cda346a64cfd48bdeb850c954721132e94b39e61f4ddc303482ee463573",
+      "size": 1945,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/call_function_message.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "9854d2b3c75638f228d398cd77ff1fd4a837889dedb2ce333818569bc36e9fba",
+      "size": 3727,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/catalog_schema_relaxation.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "071692c76e2c21e8b11bdd4208b95a7896ec46359a5e7a7ec6c767a7eb2170be",
+      "size": 8083,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/checkable_components.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "ac34b896ba215368a528d6ca37adaae19795dcbf872bb0b33e2df0348bd667d2",
+      "size": 15012,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/composition_constraints.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "469ede847664c349d2801ae19e09a5f417b53f96c4a165804e8c4a8b5b7b05a4",
+      "size": 2542,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/contact_form_example.jsonl",
+      "classifications": [
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": null,
+      "sha256": "3aebbac244c539bfd2c2c80ef657e215a86bd6338f793996766c5b52b9165e04",
+      "size": 4031,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/contact_form_example_test.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "212c4ba0d21b7747c91470749b70df5d21e21bbaec638d287c50b0c3d550da82",
+      "size": 4359,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/dynamic_value_validation.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "7b6ebaae9257c66b624cc5c79312f88154bd3c8b2b1e8af512556fc6a58ad065",
+      "size": 5719,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/function_catalog_validation.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "aa340b56e0aa97e941b52d7f06ed558d0eef8a60588899bee2db5b6f0d75b51b",
+      "size": 31858,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/function_definitions.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "c19223bf12c88bbd46eeb53d3298f235611265146e74b4b4422ba86284e9f288",
+      "size": 6462,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/function_response.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "d3784912a406e5626530583d5a1698b1ec265e33bc3d6965df5933710c99131d",
+      "size": 3182,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/icon_checks.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "1c26b1f353212fec66e9482c0f9a17db9051edf19f63237bc29fc829dbe3d58f",
+      "size": 2937,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/initial_state_validation.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "5f5daeaf0dafeafc1d6f1fb54905256d5b85f9a8205488461f7b9a5383323e1e",
+      "size": 11122,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/renderer_messages.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "a5947e13e6b9fd99a33d5c8e4dd1410aa11bc2b0df4e29d9df22a074a54365ac",
+      "size": 4599,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/tabs_checks.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "390e42fab63f9c2918f094177b32d88c2d50661d71737abe77a03969618f451b",
+      "size": 1072,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/cases/text_variants.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "c104f9ffd0ea02225d247ee50fd77f2b9b00eeb9c297e69a82d297237f39bf80",
+      "size": 1345,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/package.json",
+      "classifications": [
+        "manifest",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "88af2f8e4d2ac6a1617231a5f9c482c788642e1cd62cf7199f60417807a210d5",
+      "size": 587,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/run_tests.py",
+      "classifications": [
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "Python",
+      "sha256": "55ef512eee9cc3c9034ebfd3c730adcff3ede7538affdce2bc696c36da79f260",
+      "size": 27787,
+      "content_state": "hashed"
+    },
+    {
+      "path": "test/testing_catalog.json",
+      "classifications": [
+        "config",
+        "source",
+        "test"
+      ],
+      "limitations": [],
+      "kind": "file",
+      "language": "JSON",
+      "sha256": "12a5f4dc96b7973596035f92ab5af2d6cd6be1045d32a71a72e55426a4d54807",
+      "size": 2241,
+      "content_state": "hashed"
+    }
+  ],
+  "relationships": [],
+  "parse_failures": [],
+  "exclusions": [],
+  "languages": [
+    "JSON",
+    "Markdown",
+    "Python"
+  ],
+  "manifests": [
+    "test/package.json"
+  ],
+  "vcs": {
+    "kind": "git",
+    "head": "36725eee042da90c526f469f94246f96e16fdc35",
+    "dirty": null
+  },
+  "provenance": {
+    "importer": "rea-agents",
+    "importer_version": "6.8.0",
+    "caller": "rea-cli"
+  },
+  "limitations": [
+    "Path identity is revalidated around operations; Node lacks portable descriptor-relative openat traversal, so a syscall-boundary pathname race remains."
+  ]
+}
