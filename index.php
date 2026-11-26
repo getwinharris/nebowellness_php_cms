@@ -1,7 +1,7 @@
 <?php
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 // Match production's developer-only REA boundary in the local PHP server.
-if (preg_match('#^/\.agents(?:/|$)#i',rawurldecode((string)$uri))) {
+if (preg_match('#^/(?:\.agents|cli|bapXcms)(?:/|$)#i',rawurldecode((string)$uri))) {
     http_response_code(403);
     exit;
 }

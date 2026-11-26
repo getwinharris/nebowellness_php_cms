@@ -10,35 +10,16 @@ final class AgentContextService {
      */
     public function supportContext(?array $user,bool $accountQuestion,array $sessionCart): array {
         $modules=(new SettingsService($this->store))->strictModules();
-        $shop=!empty($modules['shop']);
         $email=is_string($user['email']??null)?trim($user['email']):'';
         $signedIn=filter_var($email,FILTER_VALIDATE_EMAIL)!==false;
         $customer=$signedIn&&($user['role']??null)==='customer';
-        $accountAccess=$shop&&$customer&&$accountQuestion;
-        $context=['signed_in'=>$signedIn,'account_access'=>$accountAccess,'shop_enabled'=>$shop,
-            'orders'=>$accountAccess?$this->sessionOwnedOrders($email):[],
-            'cart'=>[],'articles'=>[],'site'=>$this->siteContext($modules,$customer)];
-        if ($shop) foreach (array_slice(array_values($sessionCart),0,20) as $item) {
-            if (!is_array($item)) throw new \DomainException('Invalid cart item.');
-            $slug=self::slug($item['slug']??null);
-            $qty=filter_var($item['qty']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1,'max_range'=>10000]]);
-            if ($qty===false) throw new \DomainException('Invalid cart quantity.');
-            $context['cart'][]=['slug'=>$slug,'name'=>self::text($item['name']??'',200),'qty'=>$qty];
-        }
+        $context=['signed_in'=>$signedIn,'account_access'=>false,'shop_enabled'=>false,
+            'orders'=>[],'cart'=>[],'articles'=>[],'site'=>$this->siteContext($modules,$customer)];
         if (!empty($modules['blog'])) foreach (array_slice((new BlogService())->all(false,$modules),0,12) as $post) {
             $context['articles'][]=['title'=>self::text($post['title']??null,200,true),'url'=>'/blog/'.self::slug($post['slug']??null)];
         }
         $settings=$this->store->find('settings',SettingsService::SETTINGS_ID)??[];
         $context['contact_channels']=ClinicContactService::channelsFromSettings($settings);
-        // Shop policy inputs are a separate, explicit projection of canonical settings.
-        if ($shop) {
-            $safe=[];
-            foreach (['currency'=>3,'timezone'=>80,'shipping_mode'=>40] as $key=>$limit) {
-                if (isset($settings[$key])) $safe[$key]=self::text($settings[$key],$limit,true);
-            }
-            if (isset($settings['flat_rate'])) $safe['flat_rate_minor']=OwnerAbilityService::minor($settings['flat_rate']);
-            if ($safe!==[]) $context['settings']=$safe;
-        }
         return $context;
     }
 
@@ -165,23 +146,7 @@ final class AgentContextService {
                 'summary'=>self::text($page['summary']??null,400),'url'=>'/campaigns/'.self::slug($page['slug']??null)];
         }
         $products=[];
-        if (!empty($modules['shop'])) foreach (array_slice((new ProductService($this->store))->visible(),0,10) as $item) {
-            $slug=self::slug($item['slug']??null);
-            $products[]=[
-                'name'=>self::text($item['name']??null,200,true),'slug'=>$slug,'url'=>'/product/'.$slug,
-                'price_minor'=>OwnerAbilityService::minor($item['offer_price']??$item['price']??null),'currency'=>'INR',
-                'stock_status'=>self::text($item['stock_status']??null,80),
-                'description' => strip_tags(self::text($item['description']??null,600)),
-                'highlights' => self::textList($item['highlights']??[]),
-                'description_points' => self::textList($item['description_points']??[]),
-                'specifications' => self::specifications($item['specifications']??[]),
-            ];
-        }
         $pages=['contact'=>'/contact'];
-        if (!empty($modules['shop'])) {
-            $pages+=['shop'=>'/shop','cart'=>'/cart','checkout'=>'/checkout'];
-            if ($customer) $pages['orders']='/account/dashboard/orders';
-        }
         if (!empty($modules['campaigns'])) $pages['campaigns']='/campaigns';
         if (!empty($modules['blog'])) $pages['blog']='/blog';
         if ($customer) $pages['therapy requests']='/account/therapy';

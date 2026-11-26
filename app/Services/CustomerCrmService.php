@@ -8,7 +8,6 @@ final class CustomerCrmService {
     private const SOURCES = [
         'users'=>['email','Account'], 'contact_submissions'=>['email','Contact enquiry'],
         'support_tickets'=>['customer_email','Support ticket'], 'therapy_sessions'=>['user_id','Therapy request'],
-        'orders'=>['customer_email','Order'],
     ];
 
     private function records(string $table, ?string $email = null, array $accounts = []): array {
@@ -43,7 +42,7 @@ final class CustomerCrmService {
     }
 
     private function sources(): array {
-        return array_filter(array_keys(self::SOURCES), static fn(string $name): bool => $name !== 'orders' || module_on('shop'));
+        return array_keys(self::SOURCES);
     }
 
     private function accounts(?string $email = null): array {

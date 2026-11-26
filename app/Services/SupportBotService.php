@@ -171,7 +171,7 @@ final class SupportBotService {
             ."Use the returned tool evidence, do not introduce yourself or cite an unrelated article. "
             ."No diagnoses, promised results, or invented prices. If the requested data is missing, say so. "
             ."Use actual returned source paths.\n"
-            .(module_on('shop')?'Commerce is enabled.':'Commerce is disabled.')
+            .'Retail commerce is retired. Help with service requests, published information and contact support.'
             ."\nCustomer context JSON: ".json_encode(['signed_in'=>$context['signed_in']??false,'campaigns'=>module_on('campaigns'),'blog'=>module_on('blog')],JSON_THROW_ON_ERROR)
             .$previous."\nCustomer question: ".AgentSessionService::redact($message);
         $reply=(new AiClient($this->secrets, routingScope: 'support', trace: $this->trace))->completeWithTools($prompt,$tools,700,0.2,4,requireTool:false);

@@ -49,21 +49,8 @@ final class OwnerAbilityService
         $out=['registered_users'=>count($this->store->read('users')),
             'consultants'=>count($this->store->read('consultants')),
             'historical_appointments'=>count($this->store->read('appointments')),
-            'support_tickets'=>$tickets['total'],'shop_enabled'=>$shopEnabled,
+            'support_tickets'=>$tickets['total'],'shop_enabled'=>false,
             'scope'=>'Current stored operational counts; not a time-filtered report.'];
-        if ($shopEnabled) {
-            $orders=(new OrderService($this->store))->all();
-            $counts=array_fill_keys(self::ORDER_STATES,0);$confirmed=0;$pending=0;
-            foreach ($orders as $row) {
-                $status=self::state($row['status']??null,self::ORDER_STATES);
-                $counts[$status]++;
-                if (in_array($status,self::CONFIRMED_ORDER_STATES,true)) $confirmed+=self::orderMinor($row);
-                if ($status==='pending') $pending+=self::orderMinor($row);
-            }
-            $out['commerce']=['orders'=>count($orders),'products'=>count($this->store->read('products')),
-                'by_status'=>$counts,'confirmed_order_total_minor'=>$confirmed,'pending_order_total_minor'=>$pending,
-                'currency'=>'INR','scope'=>'Stored order totals by status, not verified captured-payment revenue.'];
-        }
         return $out;
     }
 

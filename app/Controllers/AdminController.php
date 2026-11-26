@@ -342,8 +342,8 @@ final class AdminController extends BaseController {
                     $this->jsonResponse(['error'=>'Blog is disabled. Enable it in Site Settings before drafting an article.'],409);
                     return;
                 }
-                if ($command === 'add-product' && !module_on('shop')) {
-                    $this->jsonResponse(['error'=>'Ecommerce is disabled. Enable it in Site Settings before drafting a product.'],409);
+                if ($command === 'add-product') {
+                    $this->jsonResponse(['error'=>'Retail product drafting is retired in bapXcms.'],409);
                     return;
                 }
                 $draft = (new \App\Services\AgentDraftService(ai: new \App\Services\AiClient(trace: $trace)))->draft(
@@ -364,7 +364,7 @@ final class AdminController extends BaseController {
             $secrets = new SecretService();
             $modelConfig = $secrets->getModelConfig();
             $tools=new \App\Services\AgentToolRegistry(question:$message);
-            $context=module_on('shop')?'Ecommerce is enabled.':'Ecommerce is disabled.';
+            $context='Retail commerce is retired. Use service, CMS and CRM abilities only.';
             $context.="\nUse an authorized tool for current operational records. Do not load unrelated data for ordinary writing or conversation.";
             if ($attachments['context'] !== '') {
                 $context .= "\n\nDocuments the owner attached with @:" . $attachments['context'];
@@ -432,9 +432,9 @@ final class AdminController extends BaseController {
             . "End with the single most useful next step, when there is one.\n"
             . "Do not restate your role, the context, the constraints or the question. Do not show your reasoning "
             . "or a plan.\n"
-            . "You can look things up. Use the tools for anything about a specific order, product, coupon, "
-            . "support enquiry, article or campaign page, or for sales over a period, instead of saying you do not have the "
-            . "information. Only report what a tool returned; never invent an order id, a tracking number or a "
+            . "You can look things up. Use the tools for current service operations, "
+            . "support enquiry, article or campaign page, instead of saying you do not have the "
+            . "information. Only report what a tool returned; never invent a booking, payment or a "
             . "figure.\n"
             . "\n" . \App\Services\AgentSessionService::redact($context) . "\n\nQuestion: " . \App\Services\AgentSessionService::redact($message);
         // With tools the agent can answer "where is order 9426" — the data was always

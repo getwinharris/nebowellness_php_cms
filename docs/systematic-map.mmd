@@ -7,14 +7,14 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 137 routes, 14 controllers, 68 services, 55 views, 0 data files, 24 tools"]
-    arch_routes["> Routes: 137 (Public + Auth + Payment + Admin + Support)"]:::arch
+  subgraph ARCH["Architecture Overview — 106 routes, 14 controllers, 68 services, 55 views, 0 data files, 21 tools"]
+    arch_routes["> Routes: 106 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 14"]:::arch
     arch_svc["> Services: 68"]:::arch
     arch_views["> Views: 55"]:::arch
     arch_data["> Collections: 26 schema | 0 files"]:::arch
-    arch_tools["> Tools: 24"]:::arch
-    arch_gaps["> Gaps: 6"]:::arch
+    arch_tools["> Tools: 21"]:::arch
+    arch_gaps["> Gaps: 22"]:::arch
     arch_routes -.-> arch_ctrl -.-> arch_svc -.-> arch_data
     arch_ctrl -.-> arch_views
   end
@@ -33,9 +33,6 @@ flowchart LR
     route_get_campaigns["GET /campaigns — Published wellness campaign index"]:::route
     route_get_campaigns_slug["GET /campaigns/{slug} — Published wellness campaign landing page"]:::route
     route_post_campaigns_slug_enquire["POST /campaigns/{slug}/enquire"]:::route
-    route_get_shop["GET /shop — Product shop — grid with pill actions"]:::route
-    route_get_categories["GET /categories — Products filtered by category"]:::route
-    route_get_product_slug["GET /product/{slug} — Product detail — gallery, add-to-cart, buy-now"]:::route
     route_post_mcp["POST /mcp"]:::route
     route_get_mcp["GET /mcp"]:::route
     route_delete_mcp["DELETE /mcp"]:::route
@@ -45,9 +42,6 @@ flowchart LR
     route_head_mcp["HEAD /mcp"]:::route
     route_get_is_sha_valid["GET /is-sha-valid"]:::route
     route_get_api["GET /api"]:::route
-    route_get_api_shop["GET /api/shop"]:::route
-    route_get_api_categories["GET /api/categories"]:::route
-    route_get_api_product_slug["GET /api/product/{slug}"]:::route
     route_get_api_temples["GET /api/temples"]:::route
     route_get_openapi_json["GET /openapi.json"]:::route
     route_get_sitemap_xml["GET /sitemap.xml"]:::route
@@ -67,7 +61,6 @@ flowchart LR
     route_get_account_bookings["GET /account/bookings — Legacy account booking URL — redirects to orders"]:::route
     route_post_api_consultations_id_status["POST /api/consultations/{id}/status — API — update appointment status"]:::route
     route_post_consultation_initiate["POST /consultation/initiate — Retired consultation submission — redirects to contact"]:::route
-    route_post_reviews_product["POST /reviews/product — Submit product review"]:::route
     route_get_docs["GET /docs — Documentation landing — blog categories overview"]:::route
     route_get_help_slug["GET /help/{slug}"]:::route
     route_post_remotedb["POST /remotedb — Remote DB query endpoint — proxies SQL to production MySQL"]:::route
@@ -91,17 +84,7 @@ flowchart LR
   end
 
   subgraph ROUTES_PAYMENT["PAYMENT Routes"]
-    route_get_cart["GET /cart — Cart page — items, qty, totals"]:::route
-    route_get_checkout["GET /checkout — Checkout page — address, Razorpay payment"]:::route
     route_post_payment_therapy_webhook_mode["POST /payment/therapy/webhook/{mode}"]:::route
-    route_post_cart_add["POST /cart/add — Cart — add item"]:::route
-    route_post_cart_remove["POST /cart/remove — Cart — remove item"]:::route
-    route_post_cart_update["POST /cart/update — Cart — update quantity"]:::route
-    route_post_checkout_create_order["POST /checkout/create-order — Checkout — create Razorpay order"]:::route
-    route_post_payment_verify["POST /payment/verify — Checkout — verify payment, create order"]:::route
-    route_get_payment_stripe_return["GET /payment/stripe/return — Checkout — verify Stripe session, create order, show confirmation"]:::route
-    route_post_create_order["POST /create-order — API checkout — Razorpay order"]:::route
-    route_post_verify_payment["POST /verify-payment — API checkout — verify payment"]:::route
   end
 
   subgraph ROUTES_SUPPORT["SUPPORT Routes"]
@@ -113,17 +96,9 @@ flowchart LR
     route_get_admin_therapy["GET /admin/therapy"]:::route
     route_post_admin_therapy_id["POST /admin/therapy/{id}"]:::route
     route_get_admin["GET /admin — Admin dashboard — counts overview"]:::route
-    route_get_admin_products["GET /admin/products — Admin — manage products"]:::route
-    route_get_admin_categories["GET /admin/categories — Admin — manage categories"]:::route
-    route_get_admin_coupons["GET /admin/coupons — Admin — manage coupons"]:::route
-    route_get_admin_orders["GET /admin/orders — Admin — order list"]:::route
-    route_get_admin_orders_id["GET /admin/orders/{id} — Admin — order detail, status update"]:::route
-    route_post_admin_orders_id_status["POST /admin/orders/{id}/status — Admin — update order status + email"]:::route
-    route_get_admin_shipping["GET /admin/shipping — Admin — shipping settings"]:::route
     route_get_admin_consultants["GET /admin/consultants — Admin — manage consultants"]:::route
     route_get_admin_appointments["GET /admin/appointments — Admin — session list"]:::route
     route_get_admin_consultation_analytics["GET /admin/consultation-analytics — Admin — consultation metrics"]:::route
-    route_get_admin_tax_report["GET /admin/tax-report"]:::route
     route_get_admin_campaigns["GET /admin/campaigns — Admin — manage campaign landing pages"]:::route
     route_get_admin_settings["GET /admin/settings — Admin — site settings"]:::route
     route_post_admin_settings_save["POST /admin/settings/save — Admin — save settings"]:::route
@@ -148,12 +123,6 @@ flowchart LR
     route_get_admin_media["GET /admin/media — Admin — media library"]:::route
     route_post_admin_media_archive["POST /admin/media/archive"]:::route
     route_post_admin_media_upload["POST /admin/media/upload — Admin — upload media"]:::route
-    route_post_admin_products_save["POST /admin/products/save — Admin — create/update product"]:::route
-    route_post_admin_products_delete["POST /admin/products/delete — Admin — delete product"]:::route
-    route_post_admin_categories_save["POST /admin/categories/save — Admin — create/update category"]:::route
-    route_post_admin_categories_delete["POST /admin/categories/delete — Admin — delete category"]:::route
-    route_post_admin_coupons_save["POST /admin/coupons/save — Admin — create/update coupon"]:::route
-    route_post_admin_coupons_delete["POST /admin/coupons/delete — Admin — delete coupon"]:::route
     route_post_admin_consultants_save["POST /admin/consultants/save — Admin — create/update consultant"]:::route
     route_post_admin_consultants_delete["POST /admin/consultants/delete — Admin — delete consultant"]:::route
     route_post_admin_campaign_pages_save["POST /admin/campaign_pages/save — Admin — create/update campaign page"]:::route
@@ -374,11 +343,8 @@ flowchart LR
     tool_generate_okf_bundle["generate-okf-bundle"]:::tool
     tool_generate_project_index["generate-project-index"]:::tool
     tool_generate_project_map["generate-project-map"]:::tool
-    tool_import_product_images["import-product-images"]:::tool
     tool_mcp_grants["mcp-grants"]:::tool
     tool_optimize_images["optimize-images"]:::tool
-    tool_product_read["product-read"]:::tool
-    tool_product_write["product-write"]:::tool
     tool_rea_progress["rea-progress"]:::tool
     tool_rea_skills["rea-skills"]:::tool
     tool_release_identity["release-identity"]:::tool
@@ -390,10 +356,26 @@ flowchart LR
   end
 
   subgraph GAPS["Gaps & Missing Links"]
-    gap_652f833397["unwired_services: CourierService"]:::gap
-    gap_a43d5d3bd1["unwired_services: ModelToolSet"]:::gap
-    gap_d35c2ce4d6["unwired_services: ProjectMapService"]:::gap
-    gap_95525e3d98["unwired_services: StoragePermissionService"]:::gap
+    gap_2ea982598f["unwired_controllers: CommerceController"]:::gap
+    gap_c448d15303["unwired_controllers: ReviewController"]:::gap
+    gap_96196f34b3["unwired_services: AddressService"]:::gap
+    gap_ca6a98d604["unwired_services: CartService"]:::gap
+    gap_fc16775597["unwired_services: CategoryService"]:::gap
+    gap_a50cd11376["unwired_services: CommerceAbilityService"]:::gap
+    gap_8b1efa38ac["unwired_services: CouponService"]:::gap
+    gap_ea6b7935a9["unwired_services: CourierService"]:::gap
+    gap_547effc131["unwired_services: ModelToolSet"]:::gap
+    gap_5d426dbdeb["unwired_services: ProjectMapService"]:::gap
+    gap_9088e23b38["unwired_services: ShippingService"]:::gap
+    gap_95dfc6c8f4["unwired_services: StoragePermissionService"]:::gap
+    gap_30d2d52070["unwired_views: admin/detail"]:::gap
+    gap_86596c91ae["unwired_views: admin/product-form"]:::gap
+    gap_62746f5111["unwired_views: admin/tax-report"]:::gap
+    gap_f4aa72968f["unwired_views: public/cart"]:::gap
+    gap_8c83071050["unwired_views: public/categories"]:::gap
+    gap_5b1494d576["unwired_views: public/checkout"]:::gap
+    gap_b600ad70a3["unwired_views: public/product"]:::gap
+    gap_883362ca47["unwired_views: public/shop"]:::gap
     gap_6b9c2b4b5a["POST /admin/blog/enhance-title — missing AuditLogService"]:::gap
     gap_b4217badec["POST /admin/blog/enhance-content — missing AuditLogService"]:::gap
   end
@@ -417,9 +399,9 @@ flowchart LR
   route_get_privacy --> controller_publiccontroller
   controller_publiccontroller -. renders .-> view_public_privacy
   route_get_consult --> controller_publiccontroller
-  controller_publiccontroller -. renders .-> view_public_shop
+  controller_publiccontroller -. renders .-> view_public_contact
   route_get_consult_slug --> controller_publiccontroller
-  controller_publiccontroller -. renders .-> view_public_shop
+  controller_publiccontroller -. renders .-> view_public_contact
   route_get_temples --> controller_publiccontroller
   controller_publiccontroller -. renders .-> view_public_about
   route_get_temples_slug --> controller_publiccontroller
@@ -437,16 +419,6 @@ flowchart LR
   controller_publiccontroller --> service_contactservice
   controller_publiccontroller --> service_mailqueueservice
   controller_publiccontroller -. renders .-> view_public_campaign
-  route_get_shop --> controller_publiccontroller
-  controller_publiccontroller --> service_productservice
-  controller_publiccontroller --> service_categoryservice
-  controller_publiccontroller -. renders .-> view_public_shop
-  route_get_categories --> controller_publiccontroller
-  controller_publiccontroller --> service_categoryservice
-  controller_publiccontroller -. renders .-> view_public_categories
-  route_get_product_slug --> controller_publiccontroller
-  controller_publiccontroller --> service_productservice
-  controller_publiccontroller -. renders .-> view_public_product
   route_post_mcp --> controller_mcpcontroller
   controller_mcpcontroller --> service_mcpreadservice
   controller_mcpcontroller --> service_mcpgrantservice
@@ -508,29 +480,8 @@ flowchart LR
   controller_apicontroller -. renders .-> view_public_404
   route_get_api --> controller_apicontroller
   controller_apicontroller -. renders .-> view_public_404
-  route_get_api_shop --> controller_apicontroller
-  controller_apicontroller --> service_productservice
-  controller_apicontroller --> service_categoryservice
-  controller_apicontroller -. renders .-> view_public_404
-  route_get_api_categories --> controller_apicontroller
-  controller_apicontroller --> service_categoryservice
-  controller_apicontroller -. renders .-> view_public_404
-  route_get_api_product_slug --> controller_apicontroller
-  controller_apicontroller --> service_productservice
-  controller_apicontroller -. renders .-> view_public_404
   route_get_api_temples --> controller_apicontroller
   controller_apicontroller -. renders .-> view_public_404
-  route_get_cart --> controller_publiccontroller
-  controller_publiccontroller --> service_cartservice
-  controller_publiccontroller --> service_productservice
-  controller_publiccontroller -. renders .-> view_public_cart
-  route_get_checkout --> controller_publiccontroller
-  controller_publiccontroller --> service_cartservice
-  controller_publiccontroller --> service_productservice
-  controller_publiccontroller --> service_secretservice
-  controller_publiccontroller --> service_addressservice
-  controller_publiccontroller --> service_settingsservice
-  controller_publiccontroller -. renders .-> view_public_checkout
   route_get_openapi_json --> controller_publiccontroller
   controller_publiccontroller --> service_seoservice
   controller_publiccontroller -. renders .-> view_public_openapi
@@ -658,39 +609,6 @@ flowchart LR
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_dashboard
-  route_get_admin_products --> controller_admincontroller
-  controller_admincontroller --> service_productservice
-  controller_admincontroller --> service_schemaservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_product_form
-  route_get_admin_categories --> controller_admincontroller
-  controller_admincontroller --> service_categoryservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_resource
-  route_get_admin_coupons --> controller_admincontroller
-  controller_admincontroller --> service_couponservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_resource
-  route_get_admin_orders --> controller_admincontroller
-  controller_admincontroller --> service_orderservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_list
-  route_get_admin_orders_id --> controller_admincontroller
-  controller_admincontroller --> service_orderservice
-  controller_admincontroller --> service_shippingservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_detail
-  route_post_admin_orders_id_status --> controller_admincontroller
-  controller_admincontroller --> service_orderservice
-  controller_admincontroller --> service_mailqueueservice
-  controller_admincontroller --> service_auditlogservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_detail
-  route_get_admin_shipping --> controller_admincontroller
-  controller_admincontroller --> service_shippingservice
-  controller_admincontroller --> service_settingsservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_settings
   route_get_admin_consultants --> controller_admincontroller
   controller_admincontroller --> service_consultantservice
   controller_admincontroller --> service_schemaservice
@@ -704,11 +622,6 @@ flowchart LR
   controller_admincontroller --> service_consultationservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_consultation_analytics
-  route_get_admin_tax_report --> controller_admincontroller
-  controller_admincontroller --> service_orderservice
-  controller_admincontroller --> service_taxservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_tax_report
   route_get_admin_campaigns --> controller_admincontroller
   controller_admincontroller --> service_resourceservice
   controller_admincontroller --> service_schemaservice
@@ -764,7 +677,6 @@ flowchart LR
   controller_admincontroller --> service_nativeabilityregistry
   controller_admincontroller --> service_abilityschema
   controller_admincontroller --> service_ownerabilityservice
-  controller_admincontroller --> service_commerceabilityservice
   controller_admincontroller --> service_agentruntrace
   controller_admincontroller --> service_aireplycleaner
   controller_admincontroller --> service_aiclient
@@ -846,36 +758,6 @@ flowchart LR
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_media
-  route_post_admin_products_save --> controller_admincontroller
-  controller_admincontroller --> service_resourceservice
-  controller_admincontroller --> service_auditlogservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_product_form
-  route_post_admin_products_delete --> controller_admincontroller
-  controller_admincontroller --> service_resourceservice
-  controller_admincontroller --> service_auditlogservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_product_form
-  route_post_admin_categories_save --> controller_admincontroller
-  controller_admincontroller --> service_resourceservice
-  controller_admincontroller --> service_auditlogservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_resource
-  route_post_admin_categories_delete --> controller_admincontroller
-  controller_admincontroller --> service_resourceservice
-  controller_admincontroller --> service_auditlogservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_resource
-  route_post_admin_coupons_save --> controller_admincontroller
-  controller_admincontroller --> service_resourceservice
-  controller_admincontroller --> service_auditlogservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_resource
-  route_post_admin_coupons_delete --> controller_admincontroller
-  controller_admincontroller --> service_resourceservice
-  controller_admincontroller --> service_auditlogservice
-  controller_admincontroller --> service_authservice
-  controller_admincontroller -. renders .-> view_admin_resource
   route_post_admin_consultants_save --> controller_admincontroller
   controller_admincontroller --> service_resourceservice
   controller_admincontroller --> service_auditlogservice
@@ -915,52 +797,9 @@ flowchart LR
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_integrations
-  route_post_cart_add --> controller_commercecontroller
-  controller_commercecontroller --> service_cartservice
-  controller_commercecontroller --> service_productservice
-  controller_commercecontroller -. renders .-> view_public_cart
-  route_post_cart_remove --> controller_commercecontroller
-  controller_commercecontroller --> service_cartservice
-  controller_commercecontroller -. renders .-> view_public_cart
-  route_post_cart_update --> controller_commercecontroller
-  controller_commercecontroller --> service_cartservice
-  controller_commercecontroller -. renders .-> view_public_cart
-  route_post_checkout_create_order --> controller_commercecontroller
-  controller_commercecontroller --> service_secretservice
-  controller_commercecontroller --> service_paymentservice
-  controller_commercecontroller -. renders .-> view_public_checkout
-  route_post_payment_verify --> controller_commercecontroller
-  controller_commercecontroller --> service_secretservice
-  controller_commercecontroller --> service_paymentservice
-  controller_commercecontroller --> service_databaseservice
-  controller_commercecontroller --> service_taxservice
-  controller_commercecontroller --> service_settingsservice
-  controller_commercecontroller -. renders .-> view_public_checkout
-  route_get_payment_stripe_return --> controller_commercecontroller
-  controller_commercecontroller --> service_secretservice
-  controller_commercecontroller --> service_databaseservice
-  controller_commercecontroller --> service_taxservice
-  controller_commercecontroller --> service_settingsservice
-  controller_commercecontroller --> service_mailqueueservice
-  controller_commercecontroller -. renders .-> view_account_order
-  route_post_create_order --> controller_commercecontroller
-  controller_commercecontroller --> service_secretservice
-  controller_commercecontroller --> service_paymentservice
-  controller_commercecontroller -. renders .-> view_public_checkout
-  route_post_verify_payment --> controller_commercecontroller
-  controller_commercecontroller --> service_secretservice
-  controller_commercecontroller --> service_paymentservice
-  controller_commercecontroller --> service_databaseservice
-  controller_commercecontroller --> service_taxservice
-  controller_commercecontroller --> service_settingsservice
-  controller_commercecontroller -. renders .-> view_public_checkout
   route_post_consultation_initiate --> controller_consultationcontroller
   controller_consultationcontroller --> service_authservice
   controller_consultationcontroller -. renders .-> view_public_contact
-  route_post_reviews_product --> controller_reviewcontroller
-  controller_reviewcontroller --> service_reviewservice
-  controller_reviewcontroller --> service_authservice
-  controller_reviewcontroller -. renders .-> view_account_orders
   route_get_support --> controller_supportcontroller
   controller_supportcontroller --> service_seoservice
   controller_supportcontroller -. renders .-> view_public_support
@@ -1064,9 +903,6 @@ flowchart LR
   controller_supportcontroller --> controller_basecontroller
   controller_therapycontroller --> controller_basecontroller
   controller_basecontroller --> service_seoservice
-  tool_import_product_images --> service_imageoptimizerservice
-  tool_import_product_images --> service_databaseservice
-  tool_import_product_images --> collection_products
   service_addressservice --> collection_addresses
   service_agentcontextservice --> collection_settings
   service_agentcontextservice --> collection_users
@@ -1098,11 +934,11 @@ flowchart LR
   service_ownerabilityservice --> collection_users
   service_ownerabilityservice --> collection_consultants
   service_ownerabilityservice --> collection_appointments
-  service_ownerabilityservice --> collection_products
   service_ownerabilityservice --> collection_campaign_pages
   service_ownerabilityservice --> collection_contact_submissions
   service_ownerabilityservice --> collection_support_tickets
   service_ownerabilityservice --> collection_orders
+  service_ownerabilityservice --> collection_products
   service_passwordresetservice --> collection_users
   service_productservice --> collection_products
   service_reviewservice --> collection_reviews
@@ -1141,18 +977,8 @@ flowchart LR
   service_databaseservice --> collection_mail_inbox
   service_databaseservice --> collection_mail_outbox
   service_databaseservice --> collection_contact_submissions
-  service_paymentservice --> integration_razorpayclient
-  service_paymentservice --> integration_stripeclient
   controller_authcontroller --> integration_googleoauthclient
   controller_authcontroller --> integration_googleoauthclient
-  service_paymentservice --> integration_razorpayclient
-  service_paymentservice --> integration_stripeclient
-  service_paymentservice --> integration_razorpayclient
-  service_paymentservice --> integration_stripeclient
-  service_paymentservice --> integration_razorpayclient
-  service_paymentservice --> integration_stripeclient
-  service_paymentservice --> integration_razorpayclient
-  service_paymentservice --> integration_stripeclient
   service_paymentservice --> integration_razorpayclient
   service_paymentservice --> integration_stripeclient
   controller_admincontroller --> integration_googlesitekitclient
@@ -1160,9 +986,25 @@ flowchart LR
   tool_validate_project_map --> systematic_map
   tool_smoke_local --> ROUTES_PUBLIC
   tool_smoke_local --> ROUTES_ADMIN
-  gap_652f833397 -. missing .-> service_courierservice
-  gap_a43d5d3bd1 -. missing .-> service_modeltoolset
-  gap_d35c2ce4d6 -. missing .-> service_projectmapservice
-  gap_95525e3d98 -. missing .-> service_storagepermissionservice
+  gap_2ea982598f -. missing .-> controller_commercecontroller
+  gap_c448d15303 -. missing .-> controller_reviewcontroller
+  gap_96196f34b3 -. missing .-> service_addressservice
+  gap_ca6a98d604 -. missing .-> service_cartservice
+  gap_fc16775597 -. missing .-> service_categoryservice
+  gap_a50cd11376 -. missing .-> service_commerceabilityservice
+  gap_8b1efa38ac -. missing .-> service_couponservice
+  gap_ea6b7935a9 -. missing .-> service_courierservice
+  gap_547effc131 -. missing .-> service_modeltoolset
+  gap_5d426dbdeb -. missing .-> service_projectmapservice
+  gap_9088e23b38 -. missing .-> service_shippingservice
+  gap_95dfc6c8f4 -. missing .-> service_storagepermissionservice
+  gap_30d2d52070 -. missing .-> view_admin_detail
+  gap_86596c91ae -. missing .-> view_admin_product_form
+  gap_62746f5111 -. missing .-> view_admin_tax_report
+  gap_f4aa72968f -. missing .-> view_public_cart
+  gap_8c83071050 -. missing .-> view_public_categories
+  gap_5b1494d576 -. missing .-> view_public_checkout
+  gap_b600ad70a3 -. missing .-> view_public_product
+  gap_883362ca47 -. missing .-> view_public_shop
   gap_6b9c2b4b5a -. missing .-> controller_admincontroller
   gap_b4217badec -. missing .-> controller_admincontroller

@@ -6,7 +6,6 @@ final class SettingsService {
 
     /** Modules that can be switched off from Admin → Site Settings. */
     public const MODULES = [
-        'shop'    => 'Ecommerce',
         'blog'    => 'Blog',
         'campaigns' => 'Campaign landing pages',
     ];
@@ -46,7 +45,7 @@ final class SettingsService {
      */
     public function modules(): array {
         $settings = $this->load();
-        $modules = [];
+        $modules = ['shop'=>false]; // Retired compatibility flag; never owner-enableable.
         foreach (array_keys(self::MODULES) as $key) {
             $modules[$key] = (string)($settings['module_' . $key] ?? '1') !== '0';
         }
@@ -58,13 +57,13 @@ final class SettingsService {
         $rows=$this->store->read('settings');
         $settings=$rows[0]??[];
         foreach ($rows as $row) if (($row['id']??'')===self::SETTINGS_ID) { $settings=$row; break; }
-        $modules=[];
+        $modules=['shop'=>false];
         foreach (array_keys(self::MODULES) as $key) $modules[$key]=(string)($settings['module_'.$key]??'1')!=='0';
         return $modules;
     }
 
     public function moduleEnabled(string $key): bool {
-        return $this->modules()[$key] ?? true;
+        return $this->modules()[$key] ?? false;
     }
 
     /** Owner-supplied minimum customer figure. Empty means do not publish it. */
@@ -97,6 +96,7 @@ final class SettingsService {
         self::flushCache();
     }
     public function savePublic(array $settings): void {
+        unset($settings['module_shop'], $settings['shipping_mode'], $settings['flat_rate']);
         $settings['id'] = self::SETTINGS_ID;
         $this->store->upsert('settings', $settings, 'id');
         self::flushCache();

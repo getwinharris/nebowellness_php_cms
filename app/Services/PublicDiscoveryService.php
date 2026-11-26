@@ -27,7 +27,6 @@ final class PublicDiscoveryService {
         $links = ['Our Programs' => '/#programs', 'Our Focus Areas' => '/#focus-areas', 'About the clinic' => '/about', 'Contact the clinic' => '/contact'];
         if ($modules['campaigns']) $links['Therapy services'] = '/campaigns';
         if ($modules['blog']) $links['Wellness journal'] = '/blog';
-        if ($modules['shop']) $links['Wellness shop'] = '/shop';
         $links['Public sitemap'] = '/sitemap.xml';
         $links['Public discovery API (OpenAPI)'] = '/openapi.json';
         echo "# Nebo Lifestyle Clinic\n\nNaturopathy, functional medicine, and maternal and fertility wellness in Kanyakumari, Tamil Nadu. Nebo offers personalised care for gut health, metabolic diseases, and sustainable lifestyle transformation.\n\n";

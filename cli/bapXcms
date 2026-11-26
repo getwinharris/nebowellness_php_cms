@@ -74,8 +74,6 @@ set -euo pipefail
 # ── Mail & Images ───────────────────────────────────────────────
 #   bapXcms mail:process            — process pending mail queue
 #   bapXcms images:optimize         — convert/resize images to WebP
-#   bapXcms product:images <source> [--dry-run|--assets-only|--database-only]
-#                                   — import ordered product galleries from a ZIP/folder
 #   bapXcms blog:image <slug> <image> [--source-url /path] [--alt text] [--dry-run]
 #                                   — crop a screenshot/image and attach it to a blog post
 #
@@ -136,8 +134,6 @@ set -euo pipefail
 #   bapXcms write blog [slug]       — create/edit blog post with auto-slug/date/URL
 #   bapXcms read docs [slug]        — read customer guide (list all if no slug)
 #   bapXcms write docs [slug]       — create/edit customer guide
-#   bapXcms read product [slug]     — read product (list all if no slug)
-#   bapXcms write product [slug]    — create/edit product interactively
 #
 # ── Generic File Operations (no direct shell/edit/write) ─────────
 #   bapXcms read file <path>        — read arbitrary file with line numbers
@@ -1231,27 +1227,17 @@ cmd_okfgen() {
   echo "Done. → .agents/index.yaml"
 }
 
-cmd_product_images() {
-  require_php
-  local source="${1:-}"
-  [ -z "$source" ] && die "Usage: bapXcms product:images <archive.zip|folder> [--dry-run|--assets-only|--database-only]"
-  shift
-  php "$ROOT/cli/import-product-images.php" "$ROOT" "$source" "$@"
-}
-
 cmd_blog_image() {
   require_php
   php "$ROOT/cli/blog-image.php" "$ROOT" "$@"
 }
 
 # ═══════════════════════════════════════════════════════════════
-# Read / Write Commands — CRUD for blog posts and products
+# Read / Write Commands — CRUD for blog posts and documents
 # ═══════════════════════════════════════════════════════════════
 
 # ── read blog <slug> — Read a blog post ────────────────────────
-# ── read product <slug> — Read a product ───────────────────────
 # ── read blog — List all blog posts ────────────────────────────
-# ── read product — List all products ───────────────────────────
 cmd_read() {
   require_php
   local type="${1:-}" slug="${2:-}"
@@ -1261,7 +1247,7 @@ cmd_read() {
     docs|doc)
       php "$ROOT/cli/doc-read.php" "$ROOT" "$slug" ;;
     product|products)
-      php "$ROOT/cli/product-read.php" "$ROOT" "$slug" ;;
+      die "Retail product operations are retired in bapXcms." ;;
     file)
       [ -z "$slug" ] && die "Usage: bapXcms read file <path>"
       [ -f "$slug" ] || die "File not found: $slug"
@@ -1271,14 +1257,12 @@ cmd_read() {
     *)
       echo "Usage: bapXcms read blog <slug>"
       echo "       bapXcms read docs <slug>"
-      echo "       bapXcms read product <slug>"
       echo "       bapXcms read file <path>"
       exit 1 ;;
   esac
 }
 
 # ── write blog [slug] — Create or edit a blog post ─────────────
-# ── write product [slug] — Create or edit a product ────────────
 cmd_write() {
   require_php
   local type="${1:-}" slug="${2:-}"
@@ -1288,7 +1272,7 @@ cmd_write() {
     docs|doc)
       php "$ROOT/cli/doc-write.php" "$ROOT" "$slug" ;;
     product|products)
-      php "$ROOT/cli/product-write.php" "$ROOT" "$slug" ;;
+      die "Retail product operations are retired in bapXcms." ;;
     file)
       [ -z "$slug" ] && die "Usage: bapXcms write file <path>  (provide content via stdin)"
       local tmpdir dir
@@ -1302,7 +1286,6 @@ cmd_write() {
     *)
       echo "Usage: bapXcms write blog [slug]     (create new or edit existing)"
       echo "       bapXcms write docs [slug]     (create new or edit existing)"
-      echo "       bapXcms write product [slug]  (create new or edit existing)"
       echo "       bapXcms write file <path>     (write file, pipe content via stdin)"
       exit 1 ;;
   esac
@@ -2056,7 +2039,7 @@ main() {
     images:optimize|images-optimize|imgopt)
       cmd_images_optimize ;;
     product:images|product-images)
-      shift; cmd_product_images "$@" ;;
+      die "Retail product operations are retired in bapXcms." ;;
     blog:image|blog-image)
       shift; cmd_blog_image "$@" ;;
     db)

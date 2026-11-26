@@ -55,24 +55,24 @@ final class NativeAbilityRegistry
         $money=['type'=>'integer','minimum'=>0];$currency=self::string(3,3)+['const'=>'INR'];
         $bool=['type'=>'boolean'];$phone=self::string(16,9)+['pattern'=>'^\\+[1-9][0-9]{7,14}$'];
         $fields=[
-            'signed_in'=>$bool,'account_access'=>$bool,'shop_enabled'=>$bool,
+            'signed_in'=>$bool,'account_access'=>$bool+['const'=>false],'shop_enabled'=>$bool+['const'=>false],
             'orders'=>self::listOf(self::object(['id'=>self::string(120,1),'status'=>self::string(30,1)+['enum'=>OwnerAbilityService::ORDER_STATES],
-                'total_minor'=>$money,'currency'=>$currency,'shipped_at'=>self::string(80),'invoice_number'=>self::string(120),'invoice_date'=>self::string(80)]),10),
-            'cart'=>self::listOf(self::object(['slug'=>$slug,'name'=>self::string(200),'qty'=>['type'=>'integer','minimum'=>1,'maximum'=>10000]]),20),
+                'total_minor'=>$money,'currency'=>$currency,'shipped_at'=>self::string(80),'invoice_number'=>self::string(120),'invoice_date'=>self::string(80)]),0),
+            'cart'=>self::listOf(self::object(['slug'=>$slug,'name'=>self::string(200),'qty'=>['type'=>'integer','minimum'=>1,'maximum'=>10000]]),0),
             'articles'=>self::listOf(self::object(['title'=>self::string(200,1),'url'=>$path('blog')]),12),
             'site'=>self::object(['pages'=>self::object($pages,['contact']),
                 'campaigns'=>self::listOf(self::object(['title'=>self::string(200,1),'summary'=>self::string(400),'url'=>$path('campaigns')]),12),
                 'programmes'=>self::listOf(self::object(['title'=>self::string(200,1),'duration'=>self::string(80),'url'=>$path('campaigns')]),30),
                 'products'=>self::listOf(self::object(['name'=>self::string(200,1),'slug'=>$slug,'url'=>$path('product'),'price_minor'=>$money,'currency'=>$currency,
                     'stock_status'=>self::string(80),'description'=>self::string(600),'highlights'=>self::listOf(self::string(160),6),
-                    'description_points'=>self::listOf(self::string(160),6),'specifications'=>self::listOf(self::object(['name'=>self::string(100,1),'value'=>self::string(200)]),6)]),10),
+                    'description_points'=>self::listOf(self::string(160),6),'specifications'=>self::listOf(self::object(['name'=>self::string(100,1),'value'=>self::string(200)]),6)]),0),
                 'support_scope'=>self::string(160,1)]),
             'contact_channels'=>self::object(['phones'=>self::listOf($phone,4),'whatsapp'=>self::listOf($phone,4)]),
             'policies'=>self::object(array_fill_keys(['delivery_within_india','delivery_outside_india','shipping_cost','payment_methods','tracking','returns_or_problems'],self::string(400,1))),
             'settings'=>self::object(['currency'=>self::string(3,3),'timezone'=>self::string(80,1),'shipping_mode'=>self::string(40,1),'flat_rate_minor'=>$money],[]),
         ];
         return array_replace(self::definition(
-            'Retrieve permitted public clinic navigation and shop facts, plus the current customer session cart or explicitly requested owned order summaries only. No caller-selected identity; amounts are INR minor units.',
+            'Retrieve permitted public clinic and service navigation. Only the authenticated customer may receive their service-request navigation link. Retail records are never exposed.',
             self::object($fields,array_values(array_diff(array_keys($fields),['settings','policies'])))
         ),['category'=>'session-context','scopes'=>['support']]);
     }
@@ -103,18 +103,8 @@ final class NativeAbilityRegistry
         $topicWords=self::object(array_fill_keys($topicKeys,self::listOf(self::string(40,1),20)));
         $slug=self::string(120,1)+['pattern'=>'^[a-z0-9]+(?:-[a-z0-9]+)*$'];
         $campaignUrl=self::string(131,1)+['pattern'=>'^/campaigns/[a-z0-9]+(?:-[a-z0-9]+)*$'];
-        $money=['type'=>'integer','minimum'=>0];
-        $currency=self::string(3,3)+['const'=>'INR'];
-        $order=['id'=>self::string(120,1),'status'=>self::string(30,1)+['enum'=>OwnerAbilityService::ORDER_STATES],
-            'total_minor'=>$money,'currency'=>$currency,'created_at'=>array_replace(self::string(80,1),['type'=>['string','null']])];
-        $orderDetails=self::object($order+['courier'=>self::string(160),'tracking_id'=>self::string(160),
-            'items'=>self::listOf(self::object(['name'=>self::string(200,1),'qty'=>['type'=>'integer','minimum'=>1],
-                'line_total_minor'=>array_replace($money,['type'=>['integer','null']])]),50),'item_count'=>$count]);
         $dashboard=['registered_users'=>$count,'consultants'=>$count,'historical_appointments'=>$count,
-            'support_tickets'=>$count,'shop_enabled'=>['type'=>'boolean'],'scope'=>self::string(120,1),
-            'commerce'=>self::object(['orders'=>$count,'products'=>$count,'by_status'=>self::counts(OwnerAbilityService::ORDER_STATES),
-                'confirmed_order_total_minor'=>$count,'pending_order_total_minor'=>$count,'currency'=>self::string(3,3)+['const'=>'INR'],
-                'scope'=>self::string(120,1)])];
+            'support_tickets'=>$count,'shop_enabled'=>['type'=>'boolean','const'=>false],'scope'=>self::string(120,1)];
         return [
             'published_consultation_fees'=>self::definition(
                 'Read current published online consultation fees, currency, duration and included services. Display prices only, not programme package prices, payment offers or confirmed bookings.',
@@ -157,8 +147,8 @@ final class NativeAbilityRegistry
             ),
             'clinic_context'=>self::sessionContextDefinition(),
             'owner_dashboard_summary'=>self::owner(
-                'Read current owner-only operational counts. If shop enabled, report stored confirmed and pending order totals separately, not captured revenue.',
-                self::object($dashboard,array_values(array_diff(array_keys($dashboard),['commerce'])))
+                'Read current owner-only service and CRM operational counts.',
+                self::object($dashboard)
             ),
             'appointment_summary'=>self::owner(
                 'Count historical appointments by status. These are not current bookings or therapy enquiries.',
@@ -186,33 +176,6 @@ final class NativeAbilityRegistry
                 ['days'=>['type'=>'integer','minimum'=>1,'maximum'=>90,'description'=>'Rolling days, defaults to 30.'],
                     'slug'=>$slug+['description'=>'Optional exact campaign slug.']],'campaigns',[]
             ),
-            'recent_orders'=>self::owner('List up to 10 recent stored orders, status, INR minor units and creation date; no customer identity.',
-                self::object(['orders'=>self::listOf(self::object($order),10)]),[],'shop'),
-            'catalog_categories'=>self::owner('List up to 15 existing shop categories by name and slug.',
-                self::object(['categories'=>self::listOf(self::object(['name'=>self::string(200,1),'slug'=>$slug]),15)]),[],'shop'),
-            'find_order'=>self::owner('Look up stored order references by ID prefix or customer email; no customer identity or address in output. Totals are INR minor units.',
-                self::object(['found'=>$count,'orders'=>self::listOf($orderDetails,10)]),
-                ['order_id'=>self::string(120,3)+['pattern'=>'^[A-Za-z0-9_-]+$','description'=>'Optional full or partial order reference, minimum three characters.'],
-                    'customer_email'=>self::string(254,3)+['pattern'=>'\S','description'=>'Optional exact customer email filter.']],'shop',[]),
-            'product_status'=>self::owner('Read current product stock, INR minor-unit price and active offer, including hidden products for owner only.',
-                self::object(['found'=>$count,'products'=>self::listOf(self::object(['slug'=>$slug,'name'=>self::string(200,1),'price_minor'=>$money,
-                    'offer_price_minor'=>array_replace($money,['type'=>['integer','null']]),'currency'=>$currency,
-                    'stock_status'=>self::string(80),'hidden_from_shop'=>['type'=>'boolean']]),10)]),
-                ['slug'=>self::string(120,1)+['pattern'=>'\S','description'=>'Optional slug or part of the product name.']],'shop',[]),
-            'sales_summary'=>self::owner('Summarize last 1–366 rolling days of stored order totals, confirmed/pending status and confirmed units. Not captured-payment revenue.',
-                self::object(['days'=>['type'=>'integer','minimum'=>1,'maximum'=>366],'orders'=>$count,
-                    'orders_by_status'=>self::counts(OwnerAbilityService::ORDER_STATES),'confirmed_order_total_minor'=>$money,
-                    'pending_order_total_minor'=>$money,'currency'=>$currency,
-                    'best_sellers'=>self::listOf(self::object(['name'=>self::string(200,1),'units'=>$count]),5),'scope'=>self::string(140,1)]),
-                ['days'=>['type'=>'integer','minimum'=>1,'maximum'=>366,'description'=>'Rolling days, defaults to 30.']],'shop',[]),
-            'coupon_status'=>self::owner('Read coupon rules and actual eligibility under supplied cart total and customer usage. Null usable_now means insufficient context.',
-                self::object(['found'=>['type'=>'boolean'],'code'=>self::string(120),'discount_type'=>self::string(40),
-                    'discount_value'=>['type'=>['number','null'],'minimum'=>0],'starts_at'=>self::string(80),'ends_at'=>self::string(80),
-                    'times_used'=>$count,'usable_now'=>['type'=>['boolean','null']],'why_not'=>self::string(400),
-                    'cart_total_minor'=>array_replace($money,['type'=>['integer','null']]),'customer_usage_checked'=>['type'=>'boolean']]),
-                ['code'=>self::string(120,1)+['pattern'=>'\S','description'=>'Coupon code.'],
-                    'cart_total_minor'=>$money+['maximum'=>999999999999,'description'=>'Actual pre-discount cart total in INR paise, optional.'],
-                    'customer_email'=>self::string(254,3)+['pattern'=>'\S','description'=>'Optional exact customer email for usage-limit check.']],'shop',['code']),
         ];
     }
 
@@ -258,8 +221,6 @@ final class NativeAbilityRegistry
             if ($value===null&&isset(((array)$definition['input_schema']['properties'])[$key])&&!in_array($key,$definition['input_schema']['required'],true)) unset($args[$key]);
         }
         if (!AbilitySchema::valid($args,$definition['input_schema'])) return null;
-        if ($name==='find_order'&&empty($args['order_id'])&&empty($args['customer_email'])) return null;
-        if (in_array($name,['find_order','coupon_status'],true)&&isset($args['customer_email'])&&!filter_var(trim($args['customer_email']),FILTER_VALIDATE_EMAIL)) return null;
         return $args;
     }
 
@@ -281,17 +242,11 @@ final class NativeAbilityRegistry
                 'search_clinic_knowledge'=>(new ClinicKnowledgeService($this->store))->search($args['query']),
                 'search_articles'=>(new ClinicKnowledgeService($this->store))->searchArticles($args['query']),
                 'clinic_context'=>($this->contextLoader)(),
-                'owner_dashboard_summary'=>(new OwnerAbilityService($this->store))->dashboard(!empty($this->modules['shop'])&&!empty((new SettingsService($this->store))->strictModules()['shop'])),
+                'owner_dashboard_summary'=>(new OwnerAbilityService($this->store))->dashboard(false),
                 'appointment_summary'=>(new OwnerAbilityService($this->store))->appointments(),
                 'support_enquiries'=>(new OwnerAbilityService($this->store))->supportEnquiries($args),
                 'campaign_pages'=>(new OwnerAbilityService($this->store))->campaigns($args),
                 'therapy_enquiry_summary'=>(new OwnerAbilityService($this->store))->therapyEnquiries($args),
-                'recent_orders'=>(new CommerceAbilityService($this->store))->recentOrders(),
-                'catalog_categories'=>(new CommerceAbilityService($this->store))->categories(),
-                'find_order'=>(new CommerceAbilityService($this->store))->findOrder($args),
-                'product_status'=>(new CommerceAbilityService($this->store))->products($args),
-                'sales_summary'=>(new CommerceAbilityService($this->store))->sales($args),
-                'coupon_status'=>(new CommerceAbilityService($this->store))->coupon($args),
                 default=>throw new \LogicException('Unmapped native ability.'),
             };
             if ($result===null) return self::error('ability_not_found','Published programme not found.');

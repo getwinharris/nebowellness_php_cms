@@ -12,11 +12,10 @@ final class AccountController extends BaseController {
     // record of a completed purchase, and login lands here. New shopping flows
     // (shop, cart, checkout) remain gated in PublicController/CommerceController.
     public function dashboard(): void {
-        $therapyFirst = ($_SESSION['user']['role'] ?? '') === 'customer' && !module_on('shop');
-        $this->redirect($therapyFirst ? '/account/therapy' : '/account/dashboard/orders');
+        $this->redirect(($_SESSION['user']['role'] ?? '') === 'customer' ? '/account/therapy' : '/admin');
     }
     public function legacyOrders(): void { $this->redirect('/account/dashboard/orders'); }
-    public function legacyBookings(): void { $this->redirect('/account/dashboard/orders'); }
+    public function legacyBookings(): void { $this->redirect('/account/therapy'); }
 
     public function orders(): void {
         $userEmail = $_SESSION['user']['email'] ?? '';
@@ -26,10 +25,9 @@ final class AccountController extends BaseController {
         } else {
             $orders = [];
         }
-        $reviewService = new ReviewService();
-        $this->render('account/orders', compact('orders', 'reviewService'));
+        $this->render('account/orders', compact('orders'));
     }
-    public function bookings(): void { $this->redirect('/account/dashboard/orders'); }
+    public function bookings(): void { $this->redirect('/account/therapy'); }
 
     public function install(): void {
         $this->render('account/install');
@@ -46,7 +44,7 @@ final class AccountController extends BaseController {
     public function order(string $orderId): void {
         $order = $this->ownedOrder($orderId);
         if (!$order) { $this->renderNotFound(); return; }
-        $justPlaced = isset($_GET['placed']);
+        $justPlaced = false; // Historical detail is not a new payment confirmation.
         $settings = (new SettingsService())->public();
         $this->render('account/order', compact('order', 'justPlaced', 'settings'));
     }
@@ -63,6 +61,7 @@ final class AccountController extends BaseController {
 
     public function invoice(string $orderId): void {
         $userEmail = $_SESSION['user']['email'] ?? '';
+        if ($userEmail === '') { http_response_code(404); echo 'Invoice not found.'; return; }
         $orders = (new OrderService())->all();
         $order = null;
         foreach ($orders as $o) {

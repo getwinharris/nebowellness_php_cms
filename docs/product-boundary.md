@@ -71,3 +71,7 @@ remains under .agents/. GitHub issues, not this contract, are the live backlog.
 Renaming is independent of actual retirement; the latter must be proven with
 route/permission, API, agent and browser regressions, including preserved
 service payment/booking/CRM behavior and exact deployed-source verification.
+
+## Retail runtime retirement (#165)
+
+The service application now registers 106 routes, down from 137. Retail public/API/admin routes, product drafting, product CLI executables and six retail abilities are removed from the active surface. A legacy shop setting is always false and is not configurable. The remaining twelve typed internal abilities and the six published MCP reads remain available according to their existing permission and module gates. Historic receipt access stays owner-scoped and read-only. Historical source files and schema collections remain for separately reviewed archival cleanup; no production table, credential or record is deleted by this change.
