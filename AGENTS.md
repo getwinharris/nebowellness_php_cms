@@ -12,6 +12,13 @@ Repository instructions for coding agents.
   `.agents/hooks/`. Activate them with `./bapXphp hooks install`. GitHub Actions
   workflows live in `.github/workflows/`.
 - The product has exactly two PHP agent surfaces: customer support and owner/admin chat.
+- For local development on the project owner's Mac, use the existing canonical checkout
+  `~/Documents/nebo`. Do not create another Documents project folder or redundant
+  Git worktree for each agent, issue, or review. Use branches in the same checkout
+  and coordinate edits. If a tool automatically creates a worktree, reconcile its
+  changes and branch with main, preserve unique work and ignored local evidence,
+  then remove it only after confirming it is idle. Never remove the common Git
+  directory or discard uncommitted work.
 
 ## Work order
 
@@ -42,7 +49,12 @@ absence as a finding.
    Use root `index.yaml` to query original project concepts and relationships,
    including blogs, images and hosted `/remotedb` collections. Read its `discovery`
    section first and query narrowly; never load the entire generated file into context.
-4. Search GitHub for an issue with the same scope. Update a match or open an
+4. Before planning or editing, read the relevant open and closed GitHub issues,
+   their comments, merged/open PRs, review findings, and previous acceptance
+   evidence. Compare the current source and local branch/worktree history with
+   that record; patch-equivalent or squash-merged work is already integrated.
+   Reuse verified capabilities instead of rebuilding or replaying old patches.
+   Search GitHub for an issue with the same scope. Update a match or open an
    evidence-backed issue with reproduction steps, affected paths, suspected cause,
    and acceptance checks. Skip issue changes for read-only diagnosis or when the
    user declines tracking. One agent owns the issue for each scope and rechecks
