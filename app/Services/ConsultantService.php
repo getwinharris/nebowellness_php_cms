@@ -10,6 +10,14 @@ final class ConsultantService {
         return $items;
     }
 
+    /** Optional owner-published professional identifier; never a login credential. */
+    public static function registrationNumber(mixed $value): string {
+        if (!is_string($value) || !mb_check_encoding($value, 'UTF-8')) throw new \InvalidArgumentException('Enter a valid registration number.');
+        $value = trim($value);
+        if (mb_strlen($value) > 80 || preg_match('/[\x00-\x1f\x7f<>]/u', $value)) throw new \InvalidArgumentException('Use plain text up to 80 characters for the registration number.');
+        return $value;
+    }
+
     public function findBySlug(string $slug): ?array {
         foreach ($this->all() as $item) if (($item['slug'] ?? '') === $slug) return $item;
         return null;

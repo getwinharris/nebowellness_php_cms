@@ -135,6 +135,9 @@ $consultationSteps = [
 </section>
 
 <!-- Team -->
+<?php if (!empty($teamUnavailable)): ?>
+<section class="section section--alt"><div class="container"><h2 class="section-title">Meet Our Team</h2><p>Practitioner profiles are temporarily unavailable. <a href="/contact#contact-form">Contact our team</a> for assistance.</p></div></section>
+<?php elseif ($consultants !== []): ?>
 <section class="editorial-stack-card section section--alt" style="--stack-order:4" data-stack-card data-nebo-chapter="team">
     <div class="container home-rail-section">
         <div class="home-rail-heading">
@@ -175,6 +178,9 @@ $consultationSteps = [
                         <p class="team-slide__credentials"><?= e($consultant['credentials']) ?></p>
                     <?php endif; ?>
                     <p class="team-slide__role"><?= e($consultant['speciality'] ?? '') ?></p>
+                    <?php if (trim((string)($consultant['registration_number'] ?? '')) !== ''): ?>
+                        <p class="team-slide__registration">Reg No: <?= e($consultant['registration_number']) ?></p>
+                    <?php endif; ?>
                     <?php if (!empty($consultant['description'])): ?><p><?= e($consultant['description']) ?></p><?php endif; ?>
                     <a href="/contact?consultant=<?= rawurlencode((string)($consultant['name'] ?? '')) ?>#contact-form" class="program-slide__link">Request a consultation <span aria-hidden="true">↗</span></a>
                 </div>
@@ -187,6 +193,8 @@ $consultationSteps = [
     </div>
 </section>
 <script src="/assets/team-showcase.js?v=<?= filemtime(app_path('assets/team-showcase.js')) ?>" defer></script>
+
+<?php endif; ?>
 
 <!-- Client-provided testimonials -->
 <section class="editorial-stack-card section" style="--stack-order:5" data-stack-card data-nebo-chapter="stories">
@@ -293,10 +301,11 @@ $consultationSteps = [
             <h2 class="section-title">Why Choose Nebo?</h2>
         </div>
         <?php
-        $homeFigures = [
-            [count($consultants), 'Practitioner profiles', 'Meet the team and see their specialities.'],
-            [count($consultationSteps), 'Consultation steps', 'From sharing your goals to planning care.'],
-        ];
+        $homeFigures = [];
+        if (empty($teamUnavailable)) {
+            $homeFigures[] = [count($consultants), 'Practitioner profiles', 'Meet the team and see their specialities.'];
+        }
+        $homeFigures[] = [count($consultationSteps), 'Consultation steps', 'From sharing your goals to planning care.'];
         if (!empty($therapyProducts)) {
             $homeFigures[] = [count($therapyProducts), 'Featured services', 'Clinic-led options to explore.'];
         }

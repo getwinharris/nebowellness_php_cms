@@ -8,7 +8,7 @@ category: docs
 
 Use the dashboard to manage products, categories, coupons, orders, practitioner profiles, campaign landing pages, historical service records, shipping, integrations, backups, audit logs, blog content, and the developer project map.
 
-Public visitors send consultation enquiries through the contact form. Practitioner profiles and their temporary images are editable under Consultants. Historical appointment records remain under Sessions, and Consultation Analytics summarizes those retained records.
+Public visitors send consultation enquiries through the contact form. Practitioner profiles, credentials, optional professional registration numbers, visibility, display order and images are editable under Consultants. Leave the registration field blank if no approved number is supplied; clearing it removes it from the public profile. Only visible MySQL profiles appear on the homepage. An intentionally empty visible collection hides the Team section; no named hardcoded practitioner is substituted. Historical appointment records remain under Sessions, and Consultation Analytics summarizes those retained records.
 
 ## Agent operations
 
