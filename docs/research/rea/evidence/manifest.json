@@ -196,6 +196,15 @@
       "scope": "Supplemental static member hashes for original source locators missing from selected REA graphs.",
       "artifact": "docs/research/rea/evidence/archive-source-addendum.json",
       "artifact_sha256": "35cad05a283a912e412db5177701fef41f56b944c570f69c2fbcd8557b35a017"
+    },
+    {
+      "id": "bapx-provider-diagnostics",
+      "label": "bapX provider diagnostic reference at pinned revision",
+      "url": "https://github.com/bapxmediahub/bapXphpAiBackend/tree/17aa4c632b39e80b52c82b30170bc2e84d52a71b",
+      "revision": "17aa4c632b39e80b52c82b30170bc2e84d52a71b",
+      "scope": "Selected exact source hashes; native diagnostic contract and separate provider-health boundaries; static evidence only.",
+      "artifact": "docs/research/rea/evidence/bapx-provider-diagnostics-reference.json",
+      "artifact_sha256": "0c118750fc72a7fa9f01c64001d78ab6f5ee91a357c750e960afdf297c7012b7"
     }
   ],
   "policy": "Only sanitized historical findings, hashes, selected static source graphs and public documentation pointers. No vendor runtime, archives, secret values, raw customer traces or production exports. Originals retained in local research folders; artifact digest refers to normalized repository copy."

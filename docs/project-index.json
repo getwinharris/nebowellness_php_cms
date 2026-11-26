@@ -5,7 +5,7 @@
     "summary": {
         "routes": 130,
         "controllers": 13,
-        "services": 60,
+        "services": 62,
         "views": 55,
         "collections": 25
     },
@@ -630,7 +630,7 @@
             "services": [
                 "SecretService",
                 "AiClient",
-                "AiModelRouter",
+                "ProviderProbeTools",
                 "AuditLogService",
                 "AuthService"
             ]
@@ -1545,11 +1545,13 @@
         "MailStorageService",
         "MarkdownRenderer",
         "MediaService",
+        "ModelToolSet",
         "OrderService",
         "PasswordResetService",
         "PaymentService",
         "ProductService",
         "ProjectMapService",
+        "ProviderProbeTools",
         "PublicDiscoveryService",
         "RateLimiter",
         "ReleaseIdentityService",
@@ -1667,6 +1669,7 @@
         "unwired_controllers": [],
         "unwired_services": [
             "CourierService",
+            "ModelToolSet",
             "ProjectMapService",
             "StoragePermissionService"
         ],

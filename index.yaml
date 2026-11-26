@@ -41,16 +41,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 325
-  relationships: 309
+  concepts: 328
+  relationships: 310
   by_type:
     blog: 5
     controller: 13
-    doc: 43
+    doc: 44
     image: 40
     route: 130
     schema: 25
-    service: 60
+    service: 62
     skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -478,6 +478,15 @@ concepts:
     tags:
       - "docs"
     filename: "progress.md"
+    header_image: ""
+  - id: "doc:provider-diagnostics"
+    type: "doc"
+    title: "Pinned provider diagnostic contract"
+    description: "Native text and function round-trip checks derived from reference implementation and provider wire contracts."
+    resource: "docs/research/rea/contracts/provider-diagnostics.md"
+    tags:
+      - "docs"
+    filename: "provider-diagnostics.md"
     header_image: ""
   - id: "doc:pwa"
     type: "doc"
@@ -2626,7 +2635,7 @@ concepts:
     services:
       - "SecretService"
       - "AiClient"
-      - "AiModelRouter"
+      - "ProviderProbeTools"
       - "AuditLogService"
       - "AuthService"
     view: "admin/integrations"
@@ -3669,6 +3678,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:ModelToolSet"
+    type: "service"
+    title: "ModelToolSet"
+    description: "Service: ModelToolSet"
+    resource: "app/Services/ModelToolSet.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:OrderService"
     type: "service"
     title: "OrderService"
@@ -3706,6 +3723,14 @@ concepts:
     title: "ProjectMapService"
     description: "Service: ProjectMapService"
     resource: "app/Services/ProjectMapService.php"
+    tags:
+      - "code"
+      - "service"
+  - id: "service:ProviderProbeTools"
+    type: "service"
+    title: "ProviderProbeTools"
+    description: "Service: ProviderProbeTools"
+    resource: "app/Services/ProviderProbeTools.php"
     tags:
       - "code"
       - "service"
@@ -4020,6 +4045,9 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:ProductService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:ProviderProbeTools"
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:ResourceService"

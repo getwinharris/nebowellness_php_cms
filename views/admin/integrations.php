@@ -233,30 +233,52 @@ $configuredCredentials = array_filter($credentialFields, static fn(string $key):
 </div>
 
 <?php
-// Both agents fall back to a canned reply when the provider rejects a call, which is
-// right for a customer but left the owner with no way to tell "the model is off" from
-// "the model is broken". This asks the provider one real question and prints exactly
-// what came back.
 $aiTest = $_SESSION['ai_test_result'] ?? null;
 unset($_SESSION['ai_test_result']);
 ?>
-<div class="admin-card" style="margin-top:var(--space-lg);">
-    <h2 style="font-size:1.1rem; margin:0 0 var(--space-sm);">Test the AI connection</h2>
-    <p style="color:var(--color-text-muted); margin:0 0 var(--space-md); font-size:0.9rem;">
-        Sends one short question to the configured model. Both the support bot and this admin
-        assistant use these settings, so if this fails they are both falling back to fixed replies.
-    </p>
-    <?php if ($aiTest): ?>
-        <div style="margin-bottom:var(--space-md); padding:var(--space-sm) var(--space-md); border-radius:var(--radius-sm); border:1px solid <?= $aiTest['ok'] ? 'var(--color-success, #15803d)' : 'var(--color-error, #b91c1c)' ?>; background:<?= $aiTest['ok'] ? 'rgba(21,128,61,0.08)' : 'rgba(185,28,28,0.08)' ?>;">
-            <strong><?= $aiTest['ok'] ? 'The model answered' : 'The model did not answer' ?></strong>
-            <div style="margin-top:var(--space-2xs); font-size:0.82rem; color:var(--color-text-muted);">
-                <?= e((string)($aiTest['model'] ?? '')) ?> · <?= e((string)($aiTest['endpoint'] ?? '')) ?>
-            </div>
-            <div style="margin-top:var(--space-2xs); font-size:0.85rem; white-space:pre-wrap;"><?= e((string)$aiTest['message']) ?></div>
+<div class="admin-card ai-probe-card">
+    <h2>Verify the AI connection</h2>
+    <p class="ai-probe-copy">Run an independent diagnostic on a saved model. Text mode verifies a fresh challenge; tool mode requires a real synthetic function call and its exact returned value. Neither test reads customer records, changes routing state, nor verifies all agent workflows.</p>
+    <?php if (is_array($aiTest)): ?>
+        <div class="ai-probe-result <?= !empty($aiTest['ok']) ? 'is-verified' : 'is-unverified' ?>" role="status">
+            <strong><?= !empty($aiTest['ok']) ? 'Diagnostic verified' : 'Diagnostic not verified' ?></strong>
+            <p><?= e((string)($aiTest['message'] ?? 'No diagnostic result.')) ?></p>
+            <dl class="ai-probe-meta">
+                <div><dt>Model</dt><dd><?= e((string)($aiTest['model'] ?? 'Unavailable')) ?></dd></div>
+                <div><dt>Mode</dt><dd><?= e((string)($aiTest['mode'] ?? 'Unknown')) ?></dd></div>
+                <div><dt>Elapsed</dt><dd><?= isset($aiTest['duration_ms']) ? e((string)$aiTest['duration_ms']).' ms' : 'Unavailable' ?></dd></div>
+                <div><dt>Tool calls</dt><dd><?= e((string)($aiTest['tool_calls'] ?? 0)) ?></dd></div>
+            </dl>
+            <?php if (!empty($aiTest['trace_id'])): ?>
+                <p class="ai-probe-copy">Trace: <code><?= e((string)$aiTest['trace_id']) ?></code></p>
+            <?php endif; ?>
+            <?php if (!empty($aiTest['steps']) && is_array($aiTest['steps'])): ?>
+                <div class="table-responsive"><table class="admin-table">
+                    <thead><tr><th>Step</th><th>Outcome</th><th>HTTP</th><th>Time</th></tr></thead>
+                    <tbody><?php foreach ($aiTest['steps'] as $step): ?>
+                        <tr><td><?= e((string)($step['kind']??'')) ?> · <?= e((string)($step['name']??'')) ?></td>
+                            <td><?= e((string)($step['outcome']??'')) ?></td><td><?= isset($step['status']) ? e((string)$step['status']) : '—' ?></td>
+                            <td><?= e((string)($step['duration_ms']??0)) ?> ms</td></tr>
+                    <?php endforeach; ?></tbody>
+                </table></div>
+            <?php endif; ?>
         </div>
     <?php endif; ?>
     <form class="admin-form" method="post" action="/admin/integrations/test-ai">
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
-        <button class="btn btn-secondary">Test AI Connection</button>
+        <div class="admin-form__row">
+            <label>Saved model
+                <select name="probe_model">
+                    <?php if (empty($probeTargets)): ?><option value="">Configured model</option><?php endif; ?>
+                    <?php foreach (($probeTargets??[]) as $target): ?>
+                        <option value="<?= e((string)$target) ?>"><?= e((string)$target) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label>Diagnostic
+                <select name="probe_mode"><option value="text">Text response</option><option value="tools">Native tool round trip</option></select>
+            </label>
+        </div>
+        <button class="btn btn-secondary" type="submit">Run diagnostic</button>
     </form>
 </div>

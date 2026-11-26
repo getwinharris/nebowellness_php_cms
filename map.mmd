@@ -7,14 +7,14 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 60 services, 55 views, 0 data files, 21 tools"]
+  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 62 services, 55 views, 0 data files, 22 tools"]
     arch_routes["> Routes: 130 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 13"]:::arch
-    arch_svc["> Services: 60"]:::arch
+    arch_svc["> Services: 62"]:::arch
     arch_views["> Views: 55"]:::arch
     arch_data["> Collections: 25 schema | 0 files"]:::arch
-    arch_tools["> Tools: 21"]:::arch
-    arch_gaps["> Gaps: 5"]:::arch
+    arch_tools["> Tools: 22"]:::arch
+    arch_gaps["> Gaps: 6"]:::arch
     arch_routes -.-> arch_ctrl -.-> arch_svc -.-> arch_data
     arch_ctrl -.-> arch_views
   end
@@ -228,11 +228,13 @@ flowchart LR
     service_mailstorageservice["MailStorageService"]:::code
     service_markdownrenderer["MarkdownRenderer"]:::code
     service_mediaservice["MediaService"]:::code
+    service_modeltoolset["ModelToolSet"]:::code
     service_orderservice["OrderService"]:::code
     service_passwordresetservice["PasswordResetService"]:::code
     service_paymentservice["PaymentService"]:::code
     service_productservice["ProductService"]:::code
     service_projectmapservice["ProjectMapService"]:::code
+    service_providerprobetools["ProviderProbeTools"]:::code
     service_publicdiscoveryservice["PublicDiscoveryService"]:::code
     service_ratelimiter["RateLimiter"]:::code
     service_releaseidentityservice["ReleaseIdentityService"]:::code
@@ -346,6 +348,7 @@ flowchart LR
   end
 
   subgraph TOOLS["Tools"]
+    tool_ai_probe["ai-probe"]:::tool
     tool_blog_image["blog-image"]:::tool
     tool_blog_read["blog-read"]:::tool
     tool_blog_write["blog-write"]:::tool
@@ -371,8 +374,9 @@ flowchart LR
 
   subgraph GAPS["Gaps & Missing Links"]
     gap_652f833397["unwired_services: CourierService"]:::gap
-    gap_2001143d96["unwired_services: ProjectMapService"]:::gap
-    gap_54bf9b88d4["unwired_services: StoragePermissionService"]:::gap
+    gap_a43d5d3bd1["unwired_services: ModelToolSet"]:::gap
+    gap_d35c2ce4d6["unwired_services: ProjectMapService"]:::gap
+    gap_95525e3d98["unwired_services: StoragePermissionService"]:::gap
     gap_6b9c2b4b5a["POST /admin/blog/enhance-title — missing AuditLogService"]:::gap
     gap_b4217badec["POST /admin/blog/enhance-content — missing AuditLogService"]:::gap
   end
@@ -825,7 +829,7 @@ flowchart LR
   route_post_admin_integrations_test_ai --> controller_admincontroller
   controller_admincontroller --> service_secretservice
   controller_admincontroller --> service_aiclient
-  controller_admincontroller --> service_aimodelrouter
+  controller_admincontroller --> service_providerprobetools
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_integrations
@@ -1067,7 +1071,8 @@ flowchart LR
   tool_smoke_local --> ROUTES_PUBLIC
   tool_smoke_local --> ROUTES_ADMIN
   gap_652f833397 -. missing .-> service_courierservice
-  gap_2001143d96 -. missing .-> service_projectmapservice
-  gap_54bf9b88d4 -. missing .-> service_storagepermissionservice
+  gap_a43d5d3bd1 -. missing .-> service_modeltoolset
+  gap_d35c2ce4d6 -. missing .-> service_projectmapservice
+  gap_95525e3d98 -. missing .-> service_storagepermissionservice
   gap_6b9c2b4b5a -. missing .-> controller_admincontroller
   gap_b4217badec -. missing .-> controller_admincontroller

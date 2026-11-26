@@ -20,9 +20,9 @@ Implementation coverage counts only complete scoped components with source and t
 | Google Site Kit | 3 / 7 | 42.9% | 2 | 2 | 0 / 7 | 0.0% |
 | WordPress Abilities and MCP | 0 / 6 | 0.0% | 3 | 3 | 0 / 6 | 0.0% |
 | A2UI v1.0 | 0 / 6 | 0.0% | 2 | 4 | 0 / 6 | 0.0% |
-| OpenAI-compatible Chat Completions | 5 / 9 | 55.6% | 3 | 1 | 0 / 9 | 0.0% |
+| OpenAI-compatible Chat Completions | 6 / 9 | 66.7% | 2 | 1 | 0 / 9 | 0.0% |
 | DeepSeek Harness | 4 / 10 | 40.0% | 6 | 0 | 1 / 10 | 10.0% |
-| **Total** | 22 / 61 | 36.1% | 27 | 12 | 3 / 61 | 4.9% |
+| **Total** | 23 / 61 | 37.7% | 26 | 12 | 3 / 61 | 4.9% |
 
 ## Explicit exclusions
 
@@ -122,7 +122,7 @@ Genuine model inference and protocol-correct tool loop.
 | completion-05 | Provider capability profiles | partial | Configure model-supported parameters, refusal/finish states and verified transport. — Native Google REST and compatible loop; profile routing incomplete. | [#82](https://github.com/getwinharris/nebowellness_php_cms/issues/82), [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 | completion-06 | Retry, deadline and provider health | partial | Bounded retries, quota-aware routing and truthful failures. — PR #137 transient retry; generalized provider health pending. | [#82](https://github.com/getwinharris/nebowellness_php_cms/issues/82) |
 | completion-07 | Validated editorial generation | implemented | Real draft/rewrite with review, original preserved on invalid/truncated result. — Real provider-backed blog editor draft/title/body suggestions and Enterprise draft forms; explicit Apply review, stale-response protection, preserved links/images and owner-only fields, stop-reason validation on Google and compatible endpoints. Synthetic route and isolated Chrome fixtures pass; live authenticated acceptance remains open. | [#140](https://github.com/getwinharris/nebowellness_php_cms/issues/140) |
-| completion-08 | Real provider diagnostics | partial | Independent genuine text and tool round-trip probes for configured compatible models. — Existing integration test/probe, real compatible model acceptance pending. | [#82](https://github.com/getwinharris/nebowellness_php_cms/issues/82), [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
+| completion-08 | Real provider diagnostics | implemented | Independent genuine text and tool round-trip probes for configured compatible models. — Pinned real text and isolated native tool challenges share the production transport; exact completed output, scoped targets, truthful failures and bounded trace. CLI and owner route fixtures pass; external provider and authenticated production UI acceptance remain separate. | [#82](https://github.com/getwinharris/nebowellness_php_cms/issues/82), [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 | completion-09 | Streaming and cancellation | missing | Visible deltas, bounded incremental arguments, terminal states and usage. — Current web agent is non-streaming. | [#128](https://github.com/getwinharris/nebowellness_php_cms/issues/128) |
 
 ## DeepSeek Harness
@@ -172,9 +172,11 @@ Native retrieval, execution, sessions, observability and recovery.
 - **sitekit-doc** — [Site Kit supported services](https://sitekit.withgoogle.com/documentation/supported-services/) · `reviewed-2026-11-26`. Native analytics, reporting and measurement patterns
 - **bapx-reference** — [bapXphpAiBackend read-only reference](https://github.com/bapxmediahub/bapXphpAiBackend/tree/c460fe574f8a1c435fd8d7faa3f500200e79c78a) · `c460fe574f8a1c435fd8d7faa3f500200e79c78a`. Reference product, not an upstream remote or evidence of Nebo implementation
 - **archive-addendum** — [Exact archive source addendum](https://developer.wordpress.org/) · `2026-11-26` · [archived evidence](evidence/archive-source-addendum.json). Supplemental static member hashes for original source locators missing from selected REA graphs.
+- **bapx-provider-diagnostics** — [bapX provider diagnostic reference at pinned revision](https://github.com/bapxmediahub/bapXphpAiBackend/tree/17aa4c632b39e80b52c82b30170bc2e84d52a71b) · `17aa4c632b39e80b52c82b30170bc2e84d52a71b` · [archived evidence](evidence/bapx-provider-diagnostics-reference.json). Selected exact source hashes; native diagnostic contract and separate provider-health boundaries; static evidence only.
 
 ## Scope reviews and updates
 
+- 2026-11-26 · `82-pinned-provider-diagnostics` — Read exact reference provider diagnostic source and preserved hashes. Replaced false HTTP/nonempty success with pinned text and synthetic native tool challenges; shared provider transport, no business access or routing mutations. Red/green loopback CLI and owner POST fixtures, isolated Chrome desktop/mobile passed. External model and live authenticated acceptance remain separate; no provider capability or cooldown claims.
 - 2026-11-26 · `138-release-identity` — Inspected original WordPress Site Health source against archived REA digest; recorded concrete native contract. Implemented bounded deployed-source fingerprint and optional Git metadata, local CLI verification, red/green and actual HTTP fixtures. cms-13 stays partial because scheduler and complete system health are not implemented. Production evidence remains separate.
 - 2026-11-26 · `140-editorial` — Reproduced static draft endpoint with zero provider calls, replaced it with actual completed model responses and reviewed proposals. Loopback route tests cover compatible and Google finish states, auth/CSRF, outage, links/images, Enterprise fields; Chrome synthetic UI at 1440/375/390 verifies apply/discard and stale edit protection. Live owner acceptance remains separate.
 - 2026-11-26 · `141-baseline` — Initial source-backed baseline after PR #139; archived REA evidence and read-only bapX reference. Partial/missing count zero. General commerce parity excluded.

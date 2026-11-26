@@ -1,0 +1,28 @@
+{
+  "kind": "selected-static-reference",
+  "revision": "17aa4c632b39e80b52c82b30170bc2e84d52a71b",
+  "files": [
+    {
+      "path": "app/Services/AiClient.php",
+      "sha256": "de33c42526207ef46ad6870ed9c33b9b2c458543def4d873b73266aeb11f986f",
+      "symbols": [
+        "probeTargets",
+        "probePlan",
+        "probeSucceeded",
+        "probe",
+        "route"
+      ]
+    },
+    {
+      "path": "app/Services/AiProviderHealthService.php",
+      "sha256": "74cbeda3afa176020abc92b2227c32397aea748c76fe9dc3dc4106eb7450b540",
+      "symbols": [
+        "cooldownSeconds",
+        "availablePlan",
+        "providerHoldRemainingMs",
+        "record"
+      ]
+    }
+  ],
+  "limitations": "Exact Git tree and selected source hashes; read-only static source inspection, no executed reference runtime or remote capability evidence."
+}

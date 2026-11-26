@@ -33,6 +33,8 @@ admin-editable values.
 ./bapXphp test
 ./bapXphp rea status
 ./bapXphp release:identity
+./bapXphp ai:probe text
+./bapXphp ai:probe tools
 ./bapXphp release:verify https://nebowellness.com
 ./bapXphp rea check
 ./bapXphp update

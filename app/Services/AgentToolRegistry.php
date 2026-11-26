@@ -21,7 +21,7 @@ namespace App\Services;
  * Customer email addresses may be supplied as a search filter, but are not included
  * in tool results returned to the model.
  */
-final class AgentToolRegistry
+final class AgentToolRegistry implements ModelToolSet
 {
     public const THERAPY_SUMMARY_PROMPT = 'Summarise therapy session requests in the last 30 days';
     public const APPOINTMENTS_PROMPT = 'Summarise historical appointments';
