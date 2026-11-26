@@ -7,13 +7,13 @@ flowchart LR
   classDef arch fill:#f1f5f9,stroke:#475569,color:#1e293b
   classDef nav fill:#fff7ed,stroke:#c2410c,color:#7c2d12
 
-  subgraph ARCH["Architecture Overview — 129 routes, 13 controllers, 59 services, 55 views, 0 data files, 20 tools"]
-    arch_routes["> Routes: 129 (Public + Auth + Payment + Admin + Support)"]:::arch
+  subgraph ARCH["Architecture Overview — 130 routes, 13 controllers, 60 services, 55 views, 0 data files, 21 tools"]
+    arch_routes["> Routes: 130 (Public + Auth + Payment + Admin + Support)"]:::arch
     arch_ctrl["> Controllers: 13"]:::arch
-    arch_svc["> Services: 59"]:::arch
+    arch_svc["> Services: 60"]:::arch
     arch_views["> Views: 55"]:::arch
     arch_data["> Collections: 25 schema | 0 files"]:::arch
-    arch_tools["> Tools: 20"]:::arch
+    arch_tools["> Tools: 21"]:::arch
     arch_gaps["> Gaps: 5"]:::arch
     arch_routes -.-> arch_ctrl -.-> arch_svc -.-> arch_data
     arch_ctrl -.-> arch_views
@@ -36,6 +36,7 @@ flowchart LR
     route_get_shop["GET /shop — Product shop — grid with pill actions"]:::route
     route_get_categories["GET /categories — Products filtered by category"]:::route
     route_get_product_slug["GET /product/{slug} — Product detail — gallery, add-to-cart, buy-now"]:::route
+    route_get_is_sha_valid["GET /is-sha-valid"]:::route
     route_get_api["GET /api"]:::route
     route_get_api_shop["GET /api/shop"]:::route
     route_get_api_categories["GET /api/categories"]:::route
@@ -234,6 +235,7 @@ flowchart LR
     service_projectmapservice["ProjectMapService"]:::code
     service_publicdiscoveryservice["PublicDiscoveryService"]:::code
     service_ratelimiter["RateLimiter"]:::code
+    service_releaseidentityservice["ReleaseIdentityService"]:::code
     service_resourceservice["ResourceService"]:::code
     service_reviewservice["ReviewService"]:::code
     service_schemaservice["SchemaService"]:::code
@@ -359,6 +361,7 @@ flowchart LR
     tool_product_read["product-read"]:::tool
     tool_product_write["product-write"]:::tool
     tool_rea_progress["rea-progress"]:::tool
+    tool_release_identity["release-identity"]:::tool
     tool_smoke_local["smoke-local"]:::tool
     tool_test_race["test_race"]:::tool
     tool_validate_docs_map["validate-docs-map"]:::tool
@@ -423,6 +426,9 @@ flowchart LR
   route_get_product_slug --> controller_publiccontroller
   controller_publiccontroller --> service_productservice
   controller_publiccontroller -. renders .-> view_public_product
+  route_get_is_sha_valid --> controller_apicontroller
+  controller_apicontroller --> service_releaseidentityservice
+  controller_apicontroller -. renders .-> view_public_404
   route_get_api --> controller_apicontroller
   controller_apicontroller -. renders .-> view_public_404
   route_get_api_shop --> controller_apicontroller

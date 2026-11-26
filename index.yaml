@@ -41,16 +41,16 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 322
-  relationships: 307
+  concepts: 325
+  relationships: 309
   by_type:
     blog: 5
     controller: 13
-    doc: 42
+    doc: 43
     image: 40
-    route: 129
+    route: 130
     schema: 25
-    service: 59
+    service: 60
     skill: 9
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -505,6 +505,15 @@ concepts:
     tags:
       - "docs"
     filename: "README.md"
+    header_image: ""
+  - id: "doc:release-identity"
+    type: "doc"
+    title: "Deployed-source identity and site health contract"
+    description: "Source-derived health-check boundaries, native implementation, and observable acceptance."
+    resource: "docs/research/rea/contracts/release-identity.md"
+    tags:
+      - "docs"
+    filename: "release-identity.md"
     header_image: ""
   - id: "doc:releases"
     type: "doc"
@@ -1979,6 +1988,20 @@ concepts:
     controller: "PublicController@doc"
     services: []
     view: "public/blog-post"
+  - id: "route:get__is_sha_valid"
+    type: "route"
+    title: "GET /is-sha-valid"
+    description: "release.identity"
+    resource: "app/routes.php"
+    tags:
+      - "code"
+      - "route"
+    method: "GET"
+    path: "/is-sha-valid"
+    controller: "ApiController@releaseIdentity"
+    services:
+      - "ReleaseIdentityService"
+    view: "public/404"
   - id: "route:get__login"
     type: "route"
     title: "GET /login"
@@ -3702,6 +3725,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:ReleaseIdentityService"
+    type: "service"
+    title: "ReleaseIdentityService"
+    description: "Service: ReleaseIdentityService"
+    resource: "app/Services/ReleaseIdentityService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:ResourceService"
     type: "service"
     title: "ResourceService"
@@ -4019,6 +4050,9 @@ relationships:
     relation: "uses"
   - from: "controller:ApiController"
     to: "service:ProductService"
+    relation: "uses"
+  - from: "controller:ApiController"
+    to: "service:ReleaseIdentityService"
     relation: "uses"
   - from: "controller:AuthController"
     to: "service:AuthService"
@@ -4382,6 +4416,9 @@ relationships:
     relation: "handled_by"
   - from: "route:get__help__slug"
     to: "controller:PublicController"
+    relation: "handled_by"
+  - from: "route:get__is_sha_valid"
+    to: "controller:ApiController"
     relation: "handled_by"
   - from: "route:get__login"
     to: "controller:PublicController"

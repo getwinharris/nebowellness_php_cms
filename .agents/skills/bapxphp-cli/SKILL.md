@@ -32,6 +32,8 @@ admin-editable values.
 ./bapXphp lint path/to/changed.php
 ./bapXphp test
 ./bapXphp rea status
+./bapXphp release:identity
+./bapXphp release:verify https://nebowellness.com
 ./bapXphp rea check
 ./bapXphp update
 ./bapXphp ci

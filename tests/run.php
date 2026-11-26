@@ -59,6 +59,74 @@ function assertMinCount(int $min, array $items, string $msg): void {
 $failures = [];
 $tests = [];
 
+$tests['release identity proves runtime code separately from optional Git metadata'] = function (): void {
+    $root = sys_get_temp_dir() . '/nebo-release-' . bin2hex(random_bytes(8));
+    $directories = ['app', 'api', 'views', 'integrations', 'config', 'storage/schema', 'assets/css', 'assets/pwa', 'assets/images', '.git/refs/heads'];
+    foreach ($directories as $dir) mkdir($root . '/' . $dir, 0700, true);
+    try {
+        file_put_contents($root . '/index.php', '<?php echo "fixture";');
+        file_put_contents($root . '/.htaccess', 'Options -Indexes');
+        file_put_contents($root . '/app/Example.php', '<?php echo "first";');
+        file_put_contents($root . '/storage/schema/collections.php', '<?php return [];');
+        file_put_contents($root . '/assets/css/band.css', '.example { color: red; }');
+        file_put_contents($root . '/.env', 'SECRET=synthetic-private');
+        file_put_contents($root . '/assets/images/upload.webp', 'synthetic-private-image');
+        $sha = str_repeat('a',40);
+        file_put_contents($root . '/.git/HEAD', "ref: refs/heads/main\n");
+        file_put_contents($root . '/.git/refs/heads/main', $sha . "\n");
+        $identity = new \App\Services\ReleaseIdentityService($root);
+        [$status,$data] = $identity->inspect();
+        assertSame(200,$status,'Known runtime can be inspected');
+        assertSame($sha,$data['revision'],'Loose Git ref identifies revision');
+        assertTrue((bool)preg_match('/^[0-9a-f]{64}$/D',$data['fingerprint']),'Runtime fingerprint is SHA-256');
+        $digest = $data['fingerprint'];
+        assertSame(200,$identity->inspect($sha,$digest)[0],'Both correct expectations match');
+        assertSame(409,$identity->inspect(str_repeat('b',40),$digest)[0],'Wrong SHA must not pass');
+        assertSame(409,$identity->inspect(null,str_repeat('b',64))[0],'Wrong digest must not pass');
+        assertSame(422,$identity->inspect(['invalid'],null)[0],'Malformed expectations fail closed');
+        file_put_contents($root . '/.env','SECRET=changed');
+        file_put_contents($root . '/assets/images/upload.webp','different-image');
+        assertSame($digest,$identity->inspect()[1]['fingerprint'],'Dynamic uploads and secret configuration are excluded');
+        file_put_contents($root . '/app/Example.php','<?php echo "changed";');
+        assertSame(409,$identity->inspect(null,$digest)[0],'Runtime source drift changes proof');
+        unlink($root . '/.git/refs/heads/main');
+        file_put_contents($root . '/.git/packed-refs', "# pack-refs with: peeled\n" . $sha . " refs/heads/main\n");
+        assertSame($sha,$identity->inspect()[1]['revision'],'Packed refs work');
+        file_put_contents($root . '/.git/HEAD', $sha . "\n");
+        assertSame($sha,$identity->inspect()[1]['revision'],'Detached HEAD works');
+        file_put_contents($root . '/.git/HEAD', "ref: refs/heads/../../.env\n");
+        [$unknown,$metadata] = $identity->inspect($sha);
+        assertSame(503,$unknown,'Unknown revision never claims match');
+        assertSame(null,$metadata['revision'],'Unsafe ref is not read');
+        assertSame(null,$metadata['revision_match'],'Unverifiable revision is not false proof');
+        assertSame(200,$identity->inspect(null,$metadata['fingerprint'])[0],'Independent runtime proof still works without Git');
+        assertTrue(!str_contains(json_encode($metadata),'synthetic-private'),'Response reveals no source contents or secrets');
+        file_put_contents($root . '/config/database.php','<?php // synthetic installation secret');
+        assertSame($metadata['fingerprint'],$identity->inspect()[1]['fingerprint'],'Installation-specific database configuration is excluded');
+        file_put_contents($root . '/assets/feature.js','console.log("fixture");');
+        assertSame(409,$identity->inspect(null,$metadata['fingerprint'])[0],'Root JavaScript files are included');
+        $digest=$identity->inspect()[1]['fingerprint'];
+        file_put_contents($root . '/config/agent-instructions.php','<?php return [];');
+        assertSame(409,$identity->inspect(null,$digest)[0],'Allowlisted instruction code is included');
+        if (function_exists('symlink')) {
+            symlink($root.'/.env',$root.'/app/Unsafe.php');
+            assertSame(503,$identity->inspect()[0],'Symlinked code is never read');
+            unlink($root.'/app/Unsafe.php');
+            symlink($root.'/.env',$root.'/.git/refs/heads/unsafe');
+            file_put_contents($root.'/.git/HEAD',"ref: refs/heads/unsafe\n");
+            assertSame(null,$identity->inspect()[1]['revision'],'Symlinked ref is not trusted');
+            unlink($root.'/.git/refs/heads/unsafe');
+        }
+        unlink($root.'/index.php');
+        assertSame(503,$identity->inspect()[0],'Required source missing is unavailable, never a success');
+
+    } finally {
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root,FilesystemIterator::SKIP_DOTS),RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($it as $item) { if ($item->isDir()&&!$item->isLink()) rmdir($item->getPathname()); else unlink($item->getPathname()); }
+        rmdir($root);
+    }
+};
+
 $tests['uncaught CLI errors fail the command without emitting a web error page'] = function (): void {
     $process = proc_open([PHP_BINARY], [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
     if (!is_resource($process)) throw new RuntimeException('Could not start the CLI fixture.');

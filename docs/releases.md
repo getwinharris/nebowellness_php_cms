@@ -27,7 +27,9 @@ category: docs
    exact head, runs `./bapXphp update` and `./bapXphp ci`, checks GitHub validation
    and resolves actual review findings. Optional review bots are not required.
    Merge through the normal PR workflow without waiting for another person.
-3. Verify that Hostinger deployed the intended main commit and check affected
+3. Run ./bapXphp release:verify https://nebowellness.com from synchronized
+   main. Distinguish a known revision match, a source-only match with unknown
+   Git metadata, mismatch and unavailable. Check affected
    production flows in the built-in Browser. Record the tested commit and results.
    If deployment or verification fails, keep the entries under Unreleased and
    resolve the failure before proceeding.
