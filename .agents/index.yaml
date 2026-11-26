@@ -42,8 +42,8 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' .agents/index.yaml"
   - "rg -n '<term>' docs/project-index.json .agents/map.mmd .agents/index.yaml"
 summary:
-  concepts: 354
-  relationships: 316
+  concepts: 355
+  relationships: 322
   by_type:
     blog: 5
     controller: 13
@@ -51,7 +51,7 @@ summary:
     image: 40
     route: 130
     schema: 25
-    service: 64
+    service: 65
     skill: 32
 concepts:
   - id: "blog:gut-friendly-meals"
@@ -2303,6 +2303,7 @@ concepts:
       - "AgentToolRegistry"
       - "NativeAbilityRegistry"
       - "AbilitySchema"
+      - "OwnerAbilityService"
       - "AgentRunTrace"
       - "AiReplyCleaner"
       - "AiClient"
@@ -3725,6 +3726,14 @@ concepts:
     tags:
       - "code"
       - "service"
+  - id: "service:OwnerAbilityService"
+    type: "service"
+    title: "OwnerAbilityService"
+    description: "Service: OwnerAbilityService"
+    resource: "app/Services/OwnerAbilityService.php"
+    tags:
+      - "code"
+      - "service"
   - id: "service:PasswordResetService"
     type: "service"
     title: "PasswordResetService"
@@ -4237,6 +4246,9 @@ relationships:
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:OrderService"
+    relation: "uses"
+  - from: "controller:AdminController"
+    to: "service:OwnerAbilityService"
     relation: "uses"
   - from: "controller:AdminController"
     to: "service:PaymentService"
@@ -4896,16 +4908,7 @@ relationships:
     to: "schema:agent_sessions"
     relation: "stores"
   - from: "service:AgentToolRegistry"
-    to: "schema:appointments"
-    relation: "stores"
-  - from: "service:AgentToolRegistry"
-    to: "schema:campaign_pages"
-    relation: "stores"
-  - from: "service:AgentToolRegistry"
     to: "schema:categories"
-    relation: "stores"
-  - from: "service:AgentToolRegistry"
-    to: "schema:contact_submissions"
     relation: "stores"
   - from: "service:AiModelRouter"
     to: "schema:ai_model_state"
@@ -5020,6 +5023,30 @@ relationships:
     relation: "stores"
   - from: "service:OrderService"
     to: "schema:orders"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:appointments"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:campaign_pages"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:consultants"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:contact_submissions"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:orders"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:products"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:support_tickets"
+    relation: "stores"
+  - from: "service:OwnerAbilityService"
+    to: "schema:users"
     relation: "stores"
   - from: "service:PasswordResetService"
     to: "schema:users"

@@ -746,7 +746,7 @@ $tests['therapy enquiry tool returns only bounded aggregate counts'] = function 
         ['campaign_slug'=>'gut','status'=>'new','created_at'=>'2026-08-01T10:00:00Z'],
         ['status'=>'new','created_at'=>'2026-11-10T10:00:00Z'],
     ];
-    $result = \App\Services\AgentToolRegistry::summariseTherapyEnquiries($rows, ['days'=>7,'slug'=>'gut'], $now);
+    $result = \App\Services\OwnerAbilityService::summariseTherapyEnquiries($rows, ['days'=>7,'slug'=>'gut'], $now);
     assertSame(['days'=>7,'request_count'=>2,'inbox_status'=>['new'=>1,'read'=>0,'closed'=>1,'other'=>0],'admin_url'=>'/admin/contact-submissions'], $result, 'Only matching requests contribute, and no customer fields leave the tool');
     $disabled = new \App\Services\AgentToolRegistry(modules: ['campaigns'=>false]);
     assertTrue(!$disabled->has('therapy_enquiry_summary'), 'Disabled campaigns remove therapy enquiry access');
@@ -1528,12 +1528,12 @@ $tests['the admin agent grounds a count instead of returning the nearest number'
     }
     assertTrue(isset($registry->run('search_articles', [])['error']), 'search_articles needs a query');
 
-    $source = file_get_contents(app_path('app/Services/AgentToolRegistry.php'));
+    $source = file_get_contents(app_path('app/Services/OwnerAbilityService.php'));
     assertTrue(str_contains($source, "\$ticket['message']"),
         'A record holding nothing but an id is not an enquiry and must not be counted');
     assertTrue(str_contains($source, 'No customer support enquiries have been recorded yet'),
         'Zero enquiries should be stated plainly, not left for the model to phrase');
-    assertTrue(str_contains($source, "'topic_words_used' => self::ENQUIRY_TOPICS"),
+    assertTrue(str_contains($source, "'topic_words_used'=>self::ENQUIRY_TOPICS"),
         'The words behind an interpretation should travel with the count');
     $knowledge = file_get_contents(app_path('app/Services/ClinicKnowledgeService.php'));
     assertTrue(str_contains($knowledge, '->all(false,$modules)'),

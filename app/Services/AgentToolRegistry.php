@@ -107,8 +107,6 @@ final class AgentToolRegistry implements ModelToolSet
     {
         $tools = [
             ['name'=>'clinic_context','description'=>'Retrieve the current permitted clinic and account information for this session. No other customer records are available.','parameters'=>['type'=>'object']],
-            ['name'=>'owner_dashboard_summary','description'=>'Retrieve the current owner-only operational summary.','parameters'=>['type'=>'object']],
-            ['name' => 'appointment_summary', 'description' => 'Count historical appointment records by status. These are not current bookings or therapy campaign requests.', 'parameters' => ['type' => 'object']],
             ['name' => 'recent_orders', 'description' => 'List up to 10 recent orders: reference, date, status and total. No customer details.', 'parameters' => ['type' => 'object']],
             ['name' => 'catalog_categories', 'description' => 'List up to 15 ecommerce categories by name and slug.', 'parameters' => ['type' => 'object']],
             [
@@ -141,42 +139,6 @@ final class AgentToolRegistry implements ModelToolSet
                     'type' => 'object',
                     'properties' => [
                         'days' => ['type' => 'integer', 'description' => 'How many days back to include. Defaults to 30.'],
-                    ],
-                ],
-            ],
-            [
-                'name' => 'support_enquiries',
-                'description' => 'Customer support enquiries: how many there are, their status split, and how many '
-                    . 'concern orders, delivery, payment or refunds. Use this for any question about enquiries, '
-                    . 'tickets or what customers are asking. Says plainly when there are none.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'topic' => [
-                            'type' => 'string',
-                            'description' => 'Narrow to a topic: orders, delivery, payment, refund, product. Omit for all.',
-                        ],
-                    ],
-                ],
-            ],
-            [
-                'name' => 'campaign_pages',
-                'description' => 'List clinic campaign landing pages, including drafts, their publication status and public paths. Read only.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'slug' => ['type' => 'string', 'description' => 'Optional campaign slug to narrow the result.'],
-                    ],
-                ],
-            ],
-            [
-                'name' => 'therapy_enquiry_summary',
-                'description' => 'Count therapy session requests by inbox status over a recent period. Requests are not confirmed bookings. Returns aggregate counts only.',
-                'parameters' => [
-                    'type' => 'object',
-                    'properties' => [
-                        'days' => ['type' => 'integer', 'description' => 'Days to include, from 1 to 90. Defaults to 30.'],
-                        'slug' => ['type' => 'string', 'description' => 'Optional exact therapy campaign slug.'],
                     ],
                 ],
             ],
@@ -344,16 +306,11 @@ final class AgentToolRegistry implements ModelToolSet
         try {
             return match ($name) {
                 'clinic_context' => $this->contextLoader !== null ? ($this->contextLoader)() : ['error'=>'Context unavailable.'],
-                'owner_dashboard_summary'=>['summary'=>(new AgentContextService($this->store))->forAdmin(!empty($this->modules['shop']))],
-                'appointment_summary' => self::summariseAppointments($this->store->read('appointments')),
                 'recent_orders' => $this->recentOrders(),
                 'catalog_categories' => ['categories' => array_map(static fn(array $row): array => array_intersect_key($row, ['name' => true, 'slug' => true]), array_slice($this->store->read('categories'), 0, 15))],
                 'find_order' => $this->findOrder($args),
                 'product_status' => $this->productStatus($args),
                 'sales_summary' => $this->salesSummary($args),
-                'support_enquiries' => $this->supportEnquiries($args),
-                'campaign_pages' => $this->campaignPages($args),
-                'therapy_enquiry_summary' => self::summariseTherapyEnquiries($this->store->read('contact_submissions'), $args),
                 'coupon_status' => $this->couponStatus($args),
                 default => ['error' => 'No such tool: ' . $name],
             };
@@ -370,18 +327,6 @@ final class AgentToolRegistry implements ModelToolSet
         return $result;
     }
 
-    public static function summariseAppointments(array $rows): array
-    {
-        $counts = [];
-        foreach ($rows as $row) {
-            $status = $row['status'] ?? '';
-            if (!in_array($status, ['requested', 'queued', 'accepted', 'active', 'completed', 'declined', 'cancelled'], true)) $status = 'other';
-            $counts[$status] = ($counts[$status] ?? 0) + 1;
-        }
-        ksort($counts);
-        return ['total' => count($rows), 'by_status' => $counts, 'scope' => 'Historical appointments only'];
-    }
-
     private function recentOrders(): array
     {
         $rows = $this->orders->all();
@@ -389,45 +334,6 @@ final class AgentToolRegistry implements ModelToolSet
         return ['orders' => array_map(static fn(array $row): array => array_intersect_key($row, [
             'id' => true, 'status' => true, 'total' => true, 'created_at' => true,
         ]), array_slice($rows, 0, 10))];
-    }
-
-    public static function summariseTherapyEnquiries(array $rows, array $args, ?int $now = null): array
-    {
-        $now ??= time();
-        $days = max(1, min(90, is_numeric($args['days'] ?? null) ? (int)$args['days'] : 30));
-        $slug = is_string($args['slug'] ?? null) ? strtolower(trim($args['slug'])) : '';
-        if ($slug !== '' && (strlen($slug) > 120 || !preg_match('/^[a-z0-9]+(?:-[a-z0-9]+)*$/D', $slug))) {
-            return ['error' => 'Provide a valid therapy campaign slug.'];
-        }
-        $statuses = ['new' => 0, 'read' => 0, 'closed' => 0, 'other' => 0];
-        foreach ($rows as $row) {
-            $campaign = trim((string)($row['campaign_slug'] ?? ''));
-            if ($campaign === '' || ($slug !== '' && $slug !== $campaign)) continue;
-            $rawCreated = trim((string)($row['created_at'] ?? ''));
-            $created = ctype_digit($rawCreated) ? (int) $rawCreated : strtotime($rawCreated);
-            if ($created === false || $created < $now - $days * 86400 || $created > $now) continue;
-            $status = $row['status'] ?? 'new';
-            $statuses[is_string($status) && isset($statuses[$status]) ? $status : 'other']++;
-        }
-        return ['days' => $days, 'request_count' => array_sum($statuses), 'inbox_status' => $statuses, 'admin_url' => '/admin/contact-submissions'];
-    }
-
-    private function campaignPages(array $args): array
-    {
-        $slug = strtolower(trim((string)($args['slug'] ?? '')));
-        $out = [];
-        foreach ($this->store->read('campaign_pages') as $page) {
-            if ($slug !== '' && strtolower((string)($page['slug'] ?? '')) !== $slug) continue;
-            $out[] = [
-                'title' => (string)($page['title'] ?? ''),
-                'slug' => (string)($page['slug'] ?? ''),
-                'status' => (string)($page['status'] ?? 'draft'),
-                'public_url' => ($page['status'] ?? '') === 'published' ? '/campaigns/' . (string)($page['slug'] ?? '') : null,
-                'summary' => mb_substr((string)($page['summary'] ?? ''), 0, 300),
-            ];
-            if (count($out) >= 20) break;
-        }
-        return ['found' => count($out), 'campaigns' => $out];
     }
 
     private function findOrder(array $args): array
@@ -529,76 +435,6 @@ final class AgentToolRegistry implements ModelToolSet
             'currency' => 'INR',
             'best_sellers' => array_slice($units, 0, 5, true),
         ];
-    }
-
-    /** Words that mark an enquiry as being about a topic. */
-    private const ENQUIRY_TOPICS = [
-        'orders'   => ['order', 'ordered', 'purchase', 'invoice'],
-        'delivery' => ['deliver', 'delivery', 'shipping', 'shipment', 'shipped', 'courier', 'track', 'tracking', 'parcel'],
-        'payment'  => ['payment', 'paid', 'card', 'upi', 'razorpay', 'charge'],
-        'refund'   => ['refund', 'cancel', 'cancellation', 'return', 'money back'],
-        'product'  => ['product', 'pendant', 'ring', 'stock', 'size', 'item'],
-    ];
-
-    /**
-     * Support enquiries, counted and grouped.
-     *
-     * "How many enquiries came for orders" previously answered 5 — which was the order
-     * count from the statistics blob, not enquiries at all. There were none to count.
-     * This returns the real figure, says so when it is zero, and states the words it
-     * matched on, because "order-related" is an interpretation and the owner should be
-     * able to see which one was used.
-     */
-    private function supportEnquiries(array $args): array
-    {
-        $topic = strtolower(trim((string)($args['topic'] ?? '')));
-        $tickets = [];
-        foreach ((new SupportTicketService($this->store))->all() as $ticket) {
-            // A record holding nothing but an id is not an enquiry. Production has one,
-            // and counting it would overstate a number the owner acts on.
-            if (trim((string)($ticket['message']??''))==='') continue;
-            $tickets[] = $ticket;
-        }
-
-        if ($tickets === []) {
-            return [
-                'total' => 0,
-                'message' => 'No customer support enquiries have been recorded yet.',
-            ];
-        }
-
-        $byStatus = [];
-        $byTopic = array_fill_keys(array_keys(self::ENQUIRY_TOPICS), 0);
-        $unanswered = 0;
-        $matched = [];
-        foreach ($tickets as $ticket) {
-            $status = (string)($ticket['status'] ?? 'open');
-            $byStatus[$status] = ($byStatus[$status] ?? 0) + 1;
-            if (trim((string)($ticket['reply'] ?? '')) === '') $unanswered++;
-            $blob = strtolower(trim((string)($ticket['message'] ?? '') . ' ' . (string)($ticket['reply'] ?? '')));
-            foreach (self::ENQUIRY_TOPICS as $name => $words) {
-                foreach ($words as $word) {
-                    if (!str_contains($blob, $word)) continue;
-                    $byTopic[$name]++;
-                    if ($name === $topic || $topic === '') $matched[] = ['id' => (string)($ticket['id'] ?? ''), 'status' => $status];
-                    break;
-                }
-            }
-        }
-
-        $out = [
-            'total' => count($tickets),
-            'by_status' => $byStatus,
-            'by_topic' => $byTopic,
-            'awaiting_reply' => $unanswered,
-            'topic_words_used' => self::ENQUIRY_TOPICS,
-        ];
-        if ($topic !== '') {
-            $out['topic'] = $topic;
-            $out['matching'] = $byTopic[$topic] ?? 0;
-            $out['matching_tickets'] = array_slice($matched, 0, 20);
-        }
-        return $out;
     }
 
     private function couponStatus(array $args): array

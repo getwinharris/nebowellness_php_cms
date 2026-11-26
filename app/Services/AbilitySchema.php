@@ -7,16 +7,26 @@ final class AbilitySchema
 {
     public static function valid(mixed $value,array $schema,int $depth=0): bool {
         if ($depth>12) return false;
-        $type=$schema['type']??null;
+        if (array_key_exists('description',$schema)) {
+            if (!is_string($schema['description'])||mb_strlen($schema['description'])>500) return false;
+            unset($schema['description']);
+        }
+        $type=$schema['type']??null;$nullable=false;
+        // Only the explicit nullable scalar union used by native projections.
+        if (is_array($type)) {
+            if (count($type)!==2||$type[1]!=='null'||!in_array($type[0],['string','integer','number','boolean'],true)) return false;
+            $type=$type[0];$nullable=true;
+        }
         $allowed=match($type) {
             'object'=>['type','properties','required','additionalProperties'],
             'array'=>['type','items','maxItems','minItems'],
             'string'=>['type','minLength','maxLength','pattern','enum','const'],
-            'integer'=>['type','minimum','maximum','enum','const'],
+            'integer','number'=>['type','minimum','maximum','enum','const'],
             'boolean'=>['type','const'],
             default=>[],
         };
         if (!$allowed||array_diff(array_keys($schema),$allowed)) return false;
+        if ($value===null&&$nullable) return !array_key_exists('const',$schema)&&!array_key_exists('enum',$schema);
         if (array_key_exists('const',$schema)&&$value!==$schema['const']) return false;
         if (isset($schema['enum'])&&(!is_array($schema['enum'])||!in_array($value,$schema['enum'],true))) return false;
         switch($type) {
@@ -37,6 +47,8 @@ final class AbilitySchema
                 return !isset($schema['pattern'])||preg_match('~'.str_replace('~','\~',$schema['pattern']).'~uD',$value)===1;
             case 'integer':
                 return is_int($value)&&$value>=($schema['minimum']??PHP_INT_MIN)&&$value<=($schema['maximum']??PHP_INT_MAX);
+            case 'number':
+                return (is_int($value)||is_float($value))&&is_finite((float)$value)&&$value>=($schema['minimum']??-PHP_FLOAT_MAX)&&$value<=($schema['maximum']??PHP_FLOAT_MAX);
             case 'boolean':
                 return is_bool($value);
         }
