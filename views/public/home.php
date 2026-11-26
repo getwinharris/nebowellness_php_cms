@@ -84,6 +84,9 @@ $consultationSteps = [
                 <h2 class="section-title">Our Programs</h2>
                 <p class="lede">Personalised, practitioner-led pathways designed around your health goals.</p>
             </div>
+            <?php if ($programsEnabled && $programs !== []): ?>
+                <a class="nebo-editorial-action" href="/campaigns">All programs <span aria-hidden="true">↗</span></a>
+            <?php endif; ?>
         </div>
         <?php if ($programs === []): ?>
             <p><?= !$programsEnabled || !empty($programsUnavailable) ? 'Programmes are temporarily unavailable.' : 'No programmes are currently published.' ?> <a href="/contact#contact-form">Contact our team</a>.</p>
@@ -108,6 +111,12 @@ $consultationSteps = [
                 <a class="program-slide__card-link" href="/campaigns/<?= e($program['slug']) ?>" aria-label="Explore <?= e($program['title']) ?>">
                     <div class="program-slide__media">
                         <img src="<?= e($image) ?>" alt="" width="<?= $width ?>" height="<?= $height ?>" loading="lazy" decoding="async">
+                        <span class="program-slide__cover" aria-hidden="true">
+                            <?php $careIcon = match ($program['area']) {
+                                'gut' => 'digestive', 'metabolic' => 'metabolic',
+                                'fertility' => 'maternal', 'lifestyle' => 'habits', default => 'focus',
+                            }; require __DIR__ . '/../partials/care-icon.php'; ?>
+                        </span>
                     </div>
                     <div class="program-slide__body">
                         <?php if ($program['duration'] !== ''): ?><span class="program-slide__meta"><?= e($program['duration']) ?></span><?php endif; ?>
@@ -133,10 +142,6 @@ $consultationSteps = [
             <div>
                 <h2 class="section-title">Meet Our Team</h2>
                 <p class="lede">A multidisciplinary team of naturopathy and wellness practitioners.</p>
-            </div>
-            <div class="rail-controls" aria-label="Team slides" data-team-controls hidden>
-                <button type="button" class="rail-control" data-rail-prev="team-rail" aria-controls="team-detail" aria-label="Previous team members">←</button>
-                <button type="button" class="rail-control" data-rail-next="team-rail" aria-controls="team-detail" aria-label="Next team members">→</button>
             </div>
         </div>
         <div class="team-showcase" data-team-showcase>
@@ -178,6 +183,18 @@ $consultationSteps = [
         </div>
         <div class="team-detail" id="team-detail"></div>
         <span class="sr-only" role="status" data-team-status></span>
+        </div>
+        <div class="rail-controls team-pagination" aria-label="Team slides" data-team-controls hidden>
+            <div class="team-pagination__dots" role="group" aria-label="Select a practitioner">
+                <?php foreach ($consultants as $index => $consultant): ?>
+                    <button class="team-pagination__dot" type="button" data-team-index="<?= $index ?>" aria-controls="team-detail" aria-pressed="<?= $index === 0 ? 'true' : 'false' ?>" aria-label="View <?= e((string)($consultant['name'] ?? 'practitioner')) ?>"></button>
+                <?php endforeach; ?>
+            </div>
+            <div class="team-pagination__arrows">
+                <span class="team-pagination__count" data-team-position aria-hidden="true"></span>
+                <button type="button" class="rail-control" data-rail-prev="team-rail" aria-controls="team-detail" aria-label="Previous team members">←</button>
+                <button type="button" class="rail-control" data-rail-next="team-rail" aria-controls="team-detail" aria-label="Next team members">→</button>
+            </div>
         </div>
     </div>
 </section>

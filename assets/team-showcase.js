@@ -12,6 +12,8 @@
     const portraits = cards.map(card => card.querySelector('button'));
     const biographies = cards.map(card => card.querySelector('.team-slide__body'));
     const status = showcase.querySelector('[data-team-status]');
+    const dots = Array.from(controls.querySelectorAll('[data-team-index]'));
+    const positionLabel = controls.querySelector('[data-team-position]');
     let selected = 0;
 
     function select(index) {
@@ -25,6 +27,8 @@
             portraits[position].tabIndex = active ? 0 : -1;
             biographies[position].classList.toggle('is-team-current', active);
         });
+        dots.forEach((dot, position) => dot.setAttribute('aria-pressed', String(selected === position)));
+        if (positionLabel) positionLabel.textContent = String(selected + 1).padStart(2, '0') + ' / ' + String(cards.length).padStart(2, '0');
         status.textContent = portraits[selected].querySelector('.team-preview-name').textContent;
         rail.scrollLeft = 0;
         const focused = document.activeElement;
@@ -38,6 +42,7 @@
         button.disabled = false;
         button.addEventListener('click', () => select(index));
     });
+    dots.forEach((dot, index) => dot.addEventListener('click', () => select(index)));
     previous.addEventListener('click', () => select(selected - 1));
     next.addEventListener('click', () => select(selected + 1));
     rail.addEventListener('keydown', event => {
@@ -50,6 +55,7 @@
     });
 
     detail.append(...biographies);
+    showcase.dataset.teamCount = String(Math.min(cards.length, 3));
     showcase.classList.add('team-enhanced');
     controls.hidden = cards.length < 2;
     select(0);
