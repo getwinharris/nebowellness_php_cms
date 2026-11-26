@@ -145,7 +145,7 @@ final class MediaService {
     /** Only uploads created by this service may be archived. Legacy catalogues can include bundled files. */
     public static function isManagedUpload(array $record): bool {
         return ($record['source'] ?? '') === 'upload' && is_string($record['url'] ?? null)
-            && preg_match('~^/assets/images/media/uploads/[0-9]{4}/(?:0[1-9]|1[0-2])/[a-z0-9-]+-[0-9a-f]{8}\.(?:png|webp|jpg|jpeg|gif)$~D', $record['url'] ?? '') === 1;
+            && (BrandAssetService::isManagedUrl($record['url']) || preg_match('~^/assets/images/media/uploads/[0-9]{4}/(?:0[1-9]|1[0-2])/[a-z0-9-]+-[0-9a-f]{8}\.(?:png|webp|jpg|jpeg|gif)$~D', $record['url'] ?? '') === 1);
     }
 
     public function library(bool $archived): array {
@@ -218,6 +218,8 @@ final class MediaService {
         } elseif (is_string($value)) {
             preg_match_all('~(?:^|/|\b)(assets/images/media/uploads/[0-9]{4}/[0-9]{2}/[a-z0-9-]+\.(?:png|webp|jpe?g|gif))~i', rawurldecode($value), $matches);
             foreach ($matches[1] as $path) $references['/' . $path][$collection][$id] = true;
+            preg_match_all('~(?:^|/|\b)(assets/images/brand/(?:logo|favicon)-[0-9a-f]{32}\.(?:png|jpg|ico))~',rawurldecode($value),$brand);
+            foreach ($brand[1] as $path) $references['/'.$path][$collection][$id]=true;
         }
     }
 

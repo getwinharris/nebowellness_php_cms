@@ -86,7 +86,8 @@ final class EnvService {
     }
 
     public function saveAdminCredentials(array $data): void {
-        $settings = (new SettingsService())->public();
+        // Do not replay an unrelated, potentially stale settings snapshot.
+        $settings = [];
         foreach (['admin_username', 'admin_email'] as $key) {
             $value = trim((string)($data[$key] ?? ''));
             if ($value !== '') $settings[$key] = $value;

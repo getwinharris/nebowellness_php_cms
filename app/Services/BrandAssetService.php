@@ -29,18 +29,32 @@ final class BrandAssetService
         $type=is_array($image)?($image[2]??0):0;
         $allowed=self::TYPES[$kind][$type]??null;
         $mime=function_exists('mime_content_type')?@mime_content_type($file):false;
+        if ($mime===false&&class_exists(\finfo::class)) $mime=(new \finfo(FILEINFO_MIME_TYPE))->file($file);
+        if ($mime===false) $mime=$image['mime']??false; // Server-detected image type, never client metadata.
         if (!$allowed||!in_array($mime,$allowed[1],true)) throw new \InvalidArgumentException(ucfirst($kind).' must be a supported raster image.');
         if (($image[0]??0)<1||($image[1]??0)<1||$image[0]>$dimension||$image[1]>$dimension) {
             throw new \InvalidArgumentException(ucfirst($kind).' exceeds the allowed dimensions.');
         }
+        if (!function_exists('imagecreatefromstring')) throw new \RuntimeException('Image decoding is unavailable on this host. Existing artwork is unchanged.');
         if ($type===IMAGETYPE_ICO) self::validateIconDirectory($file,$size,$dimension);
-        // Decode PNG/JPEG as an additional check when the existing optional GD
-        // extension is available. Hostings without GD retain the bounded type check.
-        if ($type!==IMAGETYPE_ICO&&function_exists('imagecreatefromstring')) {
+        else {
             $bytes=file_get_contents($file);
-            if ($bytes===false||!@imagecreatefromstring($bytes)) throw new \InvalidArgumentException(ucfirst($kind).' image could not be decoded.');
+            if ($bytes===false) throw new \InvalidArgumentException('Unreadable image.');
+            self::decodeRaster($bytes,$type,$image[0],$image[1]);
         }
         return $allowed[0];
+    }
+
+    private static function decodeRaster(string $bytes,int $type,int $width,int $height): void {
+        $info=@getimagesizefromstring($bytes);
+        if (!$info||$info[2]!==$type||$info[0]!==$width||$info[1]!==$height) {
+            throw new \InvalidArgumentException('Invalid image payload dimensions.');
+        }
+        // Some decoders return a partial image while reporting warnings. Reject those too.
+        $warning=false;
+        set_error_handler(static function() use (&$warning): bool {$warning=true;return true;});
+        try {$decoded=imagecreatefromstring($bytes);} finally {restore_error_handler();}
+        if (!$decoded||$warning) throw new \InvalidArgumentException('Image payload could not be decoded.');
     }
 
     /** Bound every icon directory entry, not only the first frame. */
@@ -60,6 +74,8 @@ final class BrandAssetService
                 $entry['reserved']!==0||$entry['length']<1||$entry['offset']<$end||$entry['offset']>$size||$entry['length']>$size-$entry['offset']) {
                 throw new \InvalidArgumentException('Invalid favicon frame.');
             }
+            // Accept PNG-compressed ICO frames only; reject opaque DIB payloads.
+            self::decodeRaster(substr($bytes,$entry['offset'],$entry['length']),IMAGETYPE_PNG,$entry['width'],$entry['height']);
         }
     }
 
@@ -83,11 +99,66 @@ final class BrandAssetService
         $ext=self::inspect($kind,$tmp);
         if (($pending['extension']??null)!==$ext) throw new \InvalidArgumentException('Upload changed.');
         $dir=$this->directory??app_path('assets/images/brand');
-        if (is_link($dir)||(!is_dir($dir)&&!@mkdir($dir,0775,true))||!is_dir($dir)) throw new \RuntimeException('Brand asset storage unavailable.');
+        if (!is_dir($dir)) @mkdir($dir,0775,true);
+        if (is_link($dir)||!is_dir($dir)) throw new \RuntimeException('Brand asset storage unavailable.');
         $filename=$kind.'-'.bin2hex(random_bytes(16)).'.'.$ext;
         $dest=$dir.'/'.$filename;
         if (file_exists($dest)||!move_uploaded_file($tmp,$dest)) throw new \RuntimeException('Brand asset could not be stored.');
         return '/assets/images/brand/'.$filename;
+    }
+
+    public static function isManagedUrl(string $url,?string $kind=null): bool {
+        $types=[
+            'logo'=>'~^/assets/images/brand/logo-[0-9a-f]{32}\.(?:png|jpg)$~D',
+            'favicon'=>'~^/assets/images/brand/favicon-[0-9a-f]{32}\.(?:png|ico)$~D',
+        ];
+        if ($kind!==null) return isset($types[$kind])&&preg_match($types[$kind],$url)===1;
+        return preg_match($types['logo'],$url)===1||preg_match($types['favicon'],$url)===1;
+    }
+
+    /** Both uploads and palette input must pass validation before storing either file. */
+    public static function prepare(array $settings,array $input,array $files): array {
+        if (isset($input['reset_palette'])&&$input['reset_palette']!=='1') throw new \InvalidArgumentException('Invalid palette reset selection.');
+        $patch=self::palettePatch($settings,$input);
+        $pending=[];
+        foreach (['logo','favicon'] as $kind) {
+            if (isset($input[$kind.'_remove'])&&$input[$kind.'_remove']!=='1') throw new \InvalidArgumentException('Invalid restore-default selection.');
+            $upload=self::pending($kind,$files[$kind.'_file']??null);
+            if ($upload!==null&&!empty($input[$kind.'_remove'])) throw new \InvalidArgumentException('Choose either a new '.$kind.' or restore the default.');
+            if ($upload!==null) $pending[$kind]=$upload;
+            if (!empty($input[$kind.'_remove'])) $patch[$kind.'_url']='';
+        }
+        return ['patch'=>$patch,'pending'=>$pending];
+    }
+
+    /** Roll back only new files from this batch if storage fails before database writes. */
+    public function storeBatch(array $pending): array {
+        $created=[];
+        try {
+            foreach ($pending as $kind=>$upload) $created[$kind.'_url']=$this->store($kind,$upload);
+            return $created;
+        } catch (\Throwable $error) {
+            foreach ($created as $url) {
+                $file=($this->directory??app_path('assets/images/brand')).'/'.basename($url);
+                if (self::isManagedUrl($url)&&is_file($file)&&!is_link($file)&&!@unlink($file)) {
+                    error_log('Brand staging cleanup failed');
+                }
+            }
+            throw $error;
+        }
+    }
+
+    /** Record immutable asset provenance before publishing its settings reference. */
+    public static function mediaRecord(string $url): array {
+        if (!self::isManagedUrl($url)) throw new \InvalidArgumentException('Invalid brand asset URL.');
+        $filename=basename($url);
+        $kind=str_starts_with($filename,'logo-')?'logo':'favicon';
+        $id=substr($filename,strlen($kind)+1,32);
+        return ['id'=>$id,'filename'=>$filename,'original_name'=>ucfirst($kind),'url'=>$url,
+            'description'=>'Brand '.$kind,'context'=>'brand','mime'=>match(pathinfo($filename,PATHINFO_EXTENSION)){
+                'png'=>'image/png','jpg'=>'image/jpeg','ico'=>'image/x-icon',
+            },'source'=>'upload','used_in'=>[['type'=>'settings','id'=>SettingsService::SETTINGS_ID,'name'=>'Appearance']],
+            'created_at'=>date('c')];
     }
 
     public static function hex(mixed $value): ?string

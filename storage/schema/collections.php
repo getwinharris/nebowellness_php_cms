@@ -473,7 +473,7 @@
                 'original_name' => ['type' => 'string'],
                 'url' => ['type' => 'local_or_remote_path'],
                 'description' => ['type' => 'text'],
-                'context' => ['type' => 'enum', 'values' => ['shared', 'products', 'campaigns', 'consultants', 'blog']],
+                'context' => ['type' => 'enum', 'values' => ['shared', 'products', 'campaigns', 'consultants', 'blog', 'brand']],
                 'source' => ['type' => 'string'],
                 'archived_at' => ['type' => 'datetime'],
                 'mime' => ['type' => 'string'],

@@ -263,12 +263,21 @@ final class AdminController extends BaseController {
             $settings[$field] = ((string)$_POST[$field] === '1') ? '1' : '0';
             $changedModules[] = $field;
         }
-        $service->savePublic($settings);
+        try {$service->savePublic($settings);}
+        catch (\DomainException $error) {$this->flash($error->getMessage(),'error');$this->redirect('/admin/settings');}
+        catch (\Throwable) {$this->flash('Could not save site settings.','error');$this->redirect('/admin/settings');}
         (new AuditLogService())->record('save','settings','public',['fields'=>array_merge(array_values(array_intersect(['shipping_mode','flat_rate','currency','timezone','gstin'], array_keys($_POST))), $changedModules)]);
         $this->flash('Settings saved.','success');
         $this->redirect('/admin/settings');
     }
-    public function saveAdminCredentials(): void{(new EnvService())->saveAdminCredentials($_POST); (new AuditLogService())->record('save','admin-credentials','env'); $this->flash('Admin credentials saved.','success'); $this->redirect('/admin/settings');}
+    public function saveAdminCredentials(): void{
+        try {(new EnvService())->saveAdminCredentials($_POST);}
+        catch (\DomainException $error) {$this->flash($error->getMessage(),'error');$this->redirect('/admin/settings');}
+        catch (\Throwable) {$this->flash('Could not save administrator settings.','error');$this->redirect('/admin/settings');}
+        (new AuditLogService())->record('save','admin-credentials','env');
+        $this->flash('Admin credentials saved.','success');
+        $this->redirect('/admin/settings');
+    }
     public function integrations(): void {
         $secrets=new SecretService();
         $config=$secrets->getModelConfig();
@@ -469,39 +478,39 @@ final class AdminController extends BaseController {
         );
     }
     public function appearance(): void{
-        $s=(new SettingsService())->public();
-        $this->render('admin/appearance',['pageTitle'=>'Logo & Favicon','logo_url'=>$s['logo_url']??'','favicon_url'=>$s['favicon_url']??'']+\App\Services\BrandAssetService::effectivePalette($s));
+        $service=new SettingsService();
+        $revision='';$appearanceError='';
+        try {$s=$service->appearanceRecord();$revision=ResourceService::revision($s);}
+        catch (\DomainException $error) {$s=$service->public();$appearanceError=$error->getMessage();}
+        catch (\Throwable) {$s=$service->public();$appearanceError='Site settings are unavailable. Reload before editing.';}
+        $this->render('admin/appearance',['pageTitle'=>'Logo & Favicon','logo_url'=>$s['logo_url']??'','favicon_url'=>$s['favicon_url']??'','appearance_revision'=>$revision,'appearance_error'=>$appearanceError]+\App\Services\BrandAssetService::effectivePalette($s));
     }
     public function saveAppearance(): void{
         $service=new SettingsService();
         $assets=new \App\Services\BrandAssetService();
         try {
-            // Validate the complete submitted operation before moving any file or changing settings.
-            $patch=\App\Services\BrandAssetService::palettePatch($service->public(),$_POST);
-            $pending=[];
-            foreach (['logo','favicon'] as $kind) {
-                if (isset($_POST[$kind.'_remove'])&&$_POST[$kind.'_remove']!=='1') throw new \InvalidArgumentException('Invalid restore-default selection.');
-                $pending[$kind]=\App\Services\BrandAssetService::pending($kind,$_FILES[$kind.'_file']??null);
-                if (($pending[$kind]!==null)&&!empty($_POST[$kind.'_remove'])) {
-                    throw new \InvalidArgumentException('Choose either a new '. $kind .' or restore the default.');
-                }
-                if (!empty($_POST[$kind.'_remove'])) $patch[$kind.'_url']='';
-            }
-            foreach ($pending as $kind=>$upload) {
-                if ($upload!==null) $patch[$kind.'_url']=$assets->store($kind,$upload);
-            }
-            if ($patch!==[]) {
-                // Only appearance fields; never replay the complete settings record.
-                $service->savePublic($patch);
-                (new AuditLogService())->record('save','appearance','brand',['changed_fields'=>array_keys($patch),'reset'=>!empty($_POST['reset_palette'])]);
-            }
+            $revision=is_string($_POST['appearance_revision']??null)?$_POST['appearance_revision']:'';
+            $current=$service->appearanceForRevision($revision);
+            $prepared=\App\Services\BrandAssetService::prepare($current,$_POST,$_FILES);
+            $created=$assets->storeBatch($prepared['pending']);
+            $patch=array_replace($prepared['patch'],$created);
+            // Keep immutable assets and inventory records after any uncertain DB outcome.
+            $store=new \App\Services\DatabaseService();
+            foreach ($created as $url) $store->upsert('media_files',\App\Services\BrandAssetService::mediaRecord($url));
+            $service->saveAppearancePatch($patch,$revision);
             $this->flash($patch===[]?'No appearance changes.':'Appearance saved.','success');
-        } catch (\InvalidArgumentException $error) {
+        } catch (\InvalidArgumentException | \DomainException $error) {
             $this->flash($error->getMessage(),'error');
+            $this->redirect('/admin/appearance');
         } catch (\Throwable $error) {
             error_log('Appearance update failed: '.get_class($error));
-            // Unique safe files are intentionally not deleted after an uncertain database outcome.
             $this->flash('Appearance could not be confirmed. Reload the settings before trying again.','error');
+            $this->redirect('/admin/appearance');
+        }
+        // Keep any unexpected audit failure separate from the confirmed persistence outcome.
+        if ($patch!==[]) {
+            try {(new AuditLogService())->record('save','appearance','brand',['changed_fields'=>array_keys($patch),'reset'=>!empty($_POST['reset_palette'])]);}
+            catch (\Throwable) {error_log('Appearance audit unavailable after successful save');}
         }
         $this->redirect('/admin/appearance');
     }

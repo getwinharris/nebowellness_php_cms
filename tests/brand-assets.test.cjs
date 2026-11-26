@@ -39,7 +39,7 @@ test('published palette is bounded, partial patches preserve other settings, res
     assert.equal(result.invalid,true);assert.equal(result.badContrast,true);
     assert.ok(!('clinic_phones' in result.patch));
 });
-test('real multipart upload uses server-selected image names and validates all inputs before storing',async t=>{
+test('real multipart helper uses server-selected image names and validates all inputs before storing',async t=>{
     const dir=await mkdtemp(path.join(os.tmpdir(),'nebo-brand-fixture-'));
     const listener=net.createServer();await new Promise(resolve=>listener.listen(0,'127.0.0.1',resolve));
     const port=listener.address().port;await new Promise(resolve=>listener.close(resolve));
@@ -63,6 +63,9 @@ test('real multipart upload uses server-selected image names and validates all i
         {logo_file:{bytes:Buffer.alloc(102401)}},
         {favicon_file:{bytes:Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"></svg>'),filename:'fixture.svg',type:'image/svg+xml'}},
         {logo_file:{bytes:image},favicon_file:{bytes:Buffer.from('bad')}},
+        {logo_file:{bytes:image.subarray(0,33)}},
+        {favicon_file:{bytes:Buffer.concat([ico(16,16).subarray(0,22),Buffer.alloc(ico(16,16).length-22)])}},
+
     ]){
         const r=await send(files);assert.equal(r.status,422,JSON.stringify(r));
         assert.deepEqual(await readdir(dir),[]);

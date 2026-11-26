@@ -746,6 +746,7 @@ flowchart LR
   route_post_admin_appearance_save --> controller_admincontroller
   controller_admincontroller --> service_settingsservice
   controller_admincontroller --> service_brandassetservice
+  controller_admincontroller --> service_databaseservice
   controller_admincontroller --> service_auditlogservice
   controller_admincontroller --> service_authservice
   controller_admincontroller -. renders .-> view_admin_appearance

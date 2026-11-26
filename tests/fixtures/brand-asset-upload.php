@@ -8,10 +8,8 @@ try {
     $dir=getenv('BRAND_FIXTURE_DIRECTORY');
     if (!is_string($dir)||!is_dir($dir)) throw new RuntimeException('Fixture storage unavailable.');
     $service=new App\Services\BrandAssetService($dir);
-    $patch=App\Services\BrandAssetService::palettePatch([], $_POST);
-    $pending=[];
-    foreach (['logo','favicon'] as $kind) $pending[$kind]=App\Services\BrandAssetService::pending($kind,$_FILES[$kind.'_file']??null);
-    foreach ($pending as $kind=>$upload) if ($upload!==null) $patch[$kind.'_url']=$service->store($kind,$upload);
+    $prepared=App\Services\BrandAssetService::prepare([], $_POST,$_FILES);
+    $patch=array_replace($prepared['patch'],$service->storeBatch($prepared['pending']));
     echo json_encode(['patch'=>$patch],JSON_THROW_ON_ERROR);
 } catch (InvalidArgumentException $error) {
     http_response_code(422);

@@ -266,6 +266,7 @@
             "services": [
                 "SettingsService",
                 "BrandAssetService",
+                "DatabaseService",
                 "AuditLogService",
                 "AuthService"
             ]

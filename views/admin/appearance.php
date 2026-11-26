@@ -3,9 +3,13 @@
     <p style="margin:0 0 var(--space-lg); color:var(--color-text-muted); font-size:0.9rem;">Upload your brand assets. Files are saved to <code>assets/images/brand/</code> and applied site-wide.</p>
 </div>
 
+<?php if (!empty($appearance_error)): ?>
+    <div class="flash flash--error" role="alert"><?= e($appearance_error) ?></div>
+<?php endif; ?>
 <div class="admin-card">
     <form method="post" action="/admin/appearance/save" class="admin-form" enctype="multipart/form-data">
         <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
+        <input type="hidden" name="appearance_revision" value="<?= e($appearance_revision ?? '') ?>">
         <h3 style="font-size:1rem; margin:0 0 var(--space-md);">Site Logo</h3>
         <div class="admin-form__row" style="gap:var(--space-xl); align-items:start;">
             <div>
@@ -36,7 +40,7 @@
                 <label>Upload Favicon</label>
                 <div style="background:var(--color-bg-alt); border:2px dashed var(--color-border); border-radius:var(--radius-md); padding:var(--space-lg); text-align:center; margin-bottom:var(--space-sm);">
                     <input type="file" name="favicon_file" accept="image/png,image/x-icon,image/vnd.microsoft.icon" style="margin:0 auto var(--space-sm); display:block;">
-                    <p style="margin:0; font-size:0.8rem; color:var(--color-text-muted);"><strong>Maximum:</strong> 64×64 px · Max 50 KB · PNG or ICO</p>
+                    <p style="margin:0; font-size:0.8rem; color:var(--color-text-muted);"><strong>Maximum:</strong> 64×64 px · Max 50 KB · PNG or PNG-compressed ICO</p>
                 </div>
                 <label style="flex-direction:row; align-items:center; gap:var(--space-xs); font-weight:400; font-size:0.85rem;">
                     <input type="checkbox" name="favicon_remove" value="1"> Restore default favicon
@@ -102,8 +106,8 @@
         <?php endif; ?>
 
         <div class="admin-card__actions" style="gap:var(--space-md); margin-top:var(--space-lg);">
-            <button class="btn btn-primary">Save Appearance</button>
-            <button type="submit" name="reset_palette" value="1" class="btn btn-ghost">Reset to Defaults</button>
+            <button class="btn btn-primary" <?= empty($appearance_revision) ? 'disabled' : '' ?>>Save Appearance</button>
+            <button type="submit" name="reset_palette" value="1" class="btn btn-ghost" <?= empty($appearance_revision) ? 'disabled' : '' ?>>Reset to Defaults</button>
         </div>
     </form>
 </div>

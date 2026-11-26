@@ -37,7 +37,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          extensions: curl, json, mbstring, pdo_mysql, dom, libxml
+          extensions: curl, json, mbstring, pdo_mysql, dom, libxml, gd, fileinfo
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -72,3 +72,4 @@ jobs:
           php tests/native-commerce-ability-integration.php
           php tests/native-session-ability-integration.php
           php tests/mcp-read-integration.php
+          node tests/brand-appearance-integration.cjs

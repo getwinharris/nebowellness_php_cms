@@ -1,30 +1,41 @@
 # Native appearance upload boundary
 
-Issue #170, part of #125/#121. The owner-only CSRF-protected appearance
-route validates the entire submitted operation before storing new files or
-patching the canonical settings record.
+Issue #170, part of #125/#121. Owner-only, CSRF-protected appearance edits
+require the revision of the canonical settings record. A legacy-only or
+unavailable record disables editing rather than creating a partial canonical
+row. All ordinary settings patches merge under a row lock; stale appearance
+edits fail without replacing other settings. Administrator credential edits
+patch only submitted credential fields.
 
 - Logo: PNG or JPEG, maximum 512 pixels per axis and 100 KiB.
-- Favicon: PNG or ICO, maximum 64 pixels per axis and 50 KiB. ICO directory
-  entries must all be bounded. New SVG uploads are not supported; existing
-  published artwork is not deleted or replaced.
-- The original filename, reported MIME and reported file size are not
-  authoritative. The server checks actual file size, image metadata and
-  file MIME; existing optional GD additionally decodes PNG/JPEG when available.
-  Storage accepts only real HTTP uploads and generates an immutable image name.
-  The brand directory's public route boundary allows simple image filenames.
-- All submitted color values must be hex. Persist only changed appearance
-  fields, validate text/link contrast when relevant fields change, and make
-  an explicit reset persist safe defaults rather than unsetting merge keys.
-  Existing valid colors are not silently recolored. Revalidate stored colors
-  before emitting CSS.
-- Report validation or uncertain persistence failures truthfully. Existing
-  records and artwork are not deleted; a failed save may leave an
-  unreferenced, safe, uniquely named asset for later owner-managed cleanup.
+- Favicon: PNG or PNG-compressed ICO, maximum 64 pixels per axis and 50 KiB.
+  Every ICO directory entry and embedded PNG must pass bounds and decoding
+  checks. New SVG and opaque DIB icon uploads are unsupported; existing
+  published artwork is preserved.
+- Client filenames, MIME and sizes are not authoritative. Inspect actual
+  size, format and dimensions, then decode every accepted raster payload.
+  New uploads require PHP GD decoding; if unavailable, fail closed without
+  changing the previous artwork. MIME detection falls back to server-side
+  image metadata. Store only real HTTP uploads under immutable server-selected
+  names. Public brand routes accept simple image filenames.
+- Validate all inputs before moving either file. If a later file move fails,
+  remove only files staged by that operation. Register each successfully
+  staged asset in MySQL media_files before publishing the settings reference.
+  After an uncertain database outcome, retain the uniquely named safe files
+  and any inventory entries; do not risk deleting a published asset.
+- Persist only changed appearance fields. Validate hex colors and text/link
+  contrast against the revision-checked palette; explicit reset persists
+  safe defaults. Revalidate stored colors before emitting CSS.
+- Separate persistence success from audit logging. Never delete replaced
+  artwork automatically; managed brand files share the media archive workflow
+  and its live reference protection. Archive preserves the original URL.
 
-Synthetic test: node --test tests/brand-assets.test.cjs exercises actual
-multipart uploads in a disposable loopback PHP server, invalid data and
-dimensions, immutable naming, no storage after invalid combined input,
-PNG/ICO and palette validation. Local route smoke tests enforce the brand
-path boundary. This is not an authenticated production upload test, nor the
-complete revision-safe site profile editor.
+Tests: node --test tests/brand-assets.test.cjs covers the palette and shared
+multipart helper with real uploads, corrupt and oversized images and
+immutable names. tests/brand-appearance-integration.cjs exercises the real
+admin routes with a disposable local MariaDB database, including role/CSRF
+gates, canonical and stale-revision rejection, unrelated settings preservation,
+media provenance, archive protection and concurrent settings patches.
+The integration suite runs in CI with a test-only local database. Neither
+fixture is production owner acceptance; a complete configurable site-profile
+editor is still pending.

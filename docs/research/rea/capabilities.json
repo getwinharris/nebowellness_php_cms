@@ -222,7 +222,7 @@
       "title": "Site profile and appearance",
       "status": "partial",
       "acceptance": "Single owner-managed identity, contacts, branding, policies and navigation.",
-      "finding": "Existing appearance workflow hardened with bounded image/MIME/dimension validation, canonical immutable brand filenames, explicit palette patches and validated CSS output. Existing assets preserved; general site identity/navigation/profile editor and revision-safe publishing remain pending.",
+      "finding": "Appearance hardened with complete bounded raster decoding, immutable media inventory, canonical settings revision checks, row-locked partial saves, palette validation and preserved legacy artwork. General site identity/navigation/profile editor and draft/preview publishing remain pending.",
       "issues": [
         121,
         125,
@@ -251,7 +251,11 @@
       "tests": [
         {
           "path": "tests/brand-assets.test.cjs",
-          "anchor": "real multipart upload uses server-selected image names"
+          "anchor": "real multipart helper uses server-selected image names"
+        },
+        {
+          "path": "tests/brand-appearance-integration.cjs",
+          "anchor": "PASS real admin appearance routes"
         }
       ],
       "production": null
@@ -2654,6 +2658,19 @@
         "cms-07"
       ],
       "summary": "Harden existing appearance editing before reusable CMS profile work. Validate actual bounded raster uploads before storage, immutable image names, local/public path restrictions, stored color validation, contrast-safe explicit reset, narrow settings patch. New SVG uploads intentionally unsupported; existing artwork remains unchanged. Synthetic real multipart and palette tests; no production mutation or coverage increase."
+    },
+    {
+      "id": "170-review-revision-safe-appearance",
+      "date": "2026-11-26",
+      "issues": [
+        170,
+        125,
+        121
+      ],
+      "components": [
+        "cms-07"
+      ],
+      "summary": "Address PR #171 review findings: canonical revision guard, row-locked settings patches, full image decoding including each accepted ICO frame, transactional staging cleanup, media inventory and reference-aware archive, accurate persistence feedback, and real-route disposable database integration. Preserve old files by design; reject new SVG/DIB and fail closed without GD. No capability completion claim."
     }
   ]
 }
