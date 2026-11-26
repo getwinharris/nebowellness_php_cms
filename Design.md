@@ -463,3 +463,9 @@ hero scrolls in normal flow. Programs uses a stationary anchor so the menu can j
 ### Homepage hero, services and footer
 
 Use the illustrative veranda as a wide backdrop on desktop and carry it behind the heading on phones. Frame the crop around the people and keep the headline and actions readable over the charcoal scrim. The optional Services block places the featured image on the left and additional image-led service cards on the right at desktop widths. On phones the feature comes first and the additional cards can be swiped or reached with arrows. Keep the campaign links and the section anchor. The charcoal footer begins with a contact action and groups clinic, reading, and contact links, with legal links last.
+
+
+### Shared page and workspace motion
+- Extend the native homepage chapter observer for individual proof figures, pillars, focus cards, workplace galleries and resource links. Keep the existing reversible statement and practitioner selection. Do not add scroll hijacking, automatic rail playback or an external animation runtime.
+- Public internal pages use one bounded intersection observer on semantic headings, media and selected editorial cards. Entries remain readable before observation; apply short individual translate/opacity entrance only after intersection. The authenticated workspace uses much shorter, smaller movement, never animating values, input controls or table rows.
+- Primary menu uses consistent labelled line icons, a left slide with staggered entry, a distinct mobile secondary/return panel and the existing native dialog focus/close contract. Admin group openings and mobile sidebar have a brief entrance; hidden and expanded semantics change immediately. No motion under reduced motion or while focus is within animated content.

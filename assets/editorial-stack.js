@@ -118,6 +118,11 @@
         '.value-strip > .value-card', '.therapy-feature', '.therapy-product',
         '.editorial-rail > .program-slide', '.team-rail .team-slide', '.team-detail',
         '.nebo-testimonials > figure', '.consultation-invitation__steps > li', '.footer-grid > div',
+        '.nebo-intro-section .nebo-home-figures > div', '.nebo-pillar-list > li',
+        '.nebo-care-mosaic__card', '.nebo-practice-gallery__images > figure',
+        '[data-nebo-chapter="confidence"] .nebo-home-figures > div',
+        '.nebo-resource-split__links > li',
+        '.nebo-resource-split__media',
     ].join(', ');
     for (const card of cards) {
         chapterObserver.observe(card.querySelector('h1, h2') || card);

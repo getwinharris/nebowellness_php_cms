@@ -1188,7 +1188,7 @@ $tests['account pages expose product reviews only after a shipped order is due']
 $tests['authenticated navigation separates global and internal account menus'] = function (): void {
     $layout = file_get_contents(app_path('views/layouts/app.php'));
     $accountNav = file_get_contents(app_path('views/account/_nav.php'));
-    assertTrue(str_contains($layout, '>Dashboard</a>') && str_contains($layout, 'href="/logout"'), 'Authenticated global navigation should expose Dashboard and Logout');
+    assertTrue(preg_match('~href="/account/dashboard"[^>]*(?:<\?=.*?\?>[^>]*>?)?.*?Dashboard\s*</span>\s*</a>~s', $layout) === 1 && str_contains($layout, 'href="/logout"'), 'Authenticated global navigation should expose Dashboard and Logout, including labelled icon markup');
     assertTrue(!str_contains($layout, '>My Sessions</a>') && !str_contains($layout, '>Wallet</a>'), 'Authenticated global navigation should not duplicate internal account destinations');
     assertTrue(str_contains($layout, 'href="/account/dashboard"'), 'Global Dashboard should use the dashboard entry URL');
     foreach (['/account/dashboard/orders', 'Back to Home'] as $needle) {
@@ -2783,6 +2783,18 @@ $tests['owner-managed Foundation minimum figure preserves accessible suffix and 
     assertTrue(str_contains(file_get_contents(app_path('app/Services/SettingsService.php')), 'upsertIfRevision'), 'Owner edit uses revision guard');
     assertTrue(str_contains(file_get_contents(app_path('views/public/home.php')), 'isset($foundationCustomersMin)'), 'No fixed default historical count');
     assertTrue(str_contains(file_get_contents(app_path('views/public/contact.php')), 'https://wa.me/917200182025'), 'Contact provides the existing confirmed clinic WhatsApp action');
+};
+
+$tests['shared motion is scoped and never hides required page content'] = function (): void {
+    $script = file_get_contents(app_path('assets/site-motion.js'));
+    foreach (['IntersectionObserver','preference.matches','site-motion-entered','observer.unobserve',':focus-within','home ? []'] as $needle) assertTrue(str_contains($script,$needle), 'Scoped motion: '.$needle);
+    foreach (['views/layouts/app.php','views/layouts/admin.php'] as $view) assertTrue(str_contains(file_get_contents(app_path($view)), '/assets/site-motion.js'), 'Both layouts load shared enhancement');
+    $stack = file_get_contents(app_path('assets/editorial-stack.js'));
+    foreach (['.nebo-pillar-list > li','.nebo-care-mosaic__card','.nebo-practice-gallery__images > figure','.nebo-resource-split__links > li'] as $needle) assertTrue(str_contains($stack,$needle),'Homepage observes '.$needle);
+    $drawer=file_get_contents(app_path('assets/navigation-drawer.js'));
+    assertTrue(str_contains($drawer,'nav-item__label')&&str_contains($drawer,'nav-returned'),'Label and return transition preserved');
+    $admin=file_get_contents(app_path('assets/admin-navigation.js'));
+    assertTrue(str_contains($admin,'admin-submenu-entered')&&str_contains($admin,'submenu.hidden = !expanded'),'Admin expansion stays semantically immediate');
 };
 
 foreach ($tests as $name => $test) {

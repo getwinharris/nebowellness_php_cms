@@ -7,7 +7,7 @@ $foundationPillars = [
     ['Lifestyle Medicine & Sustainable Habit Change', 'Personalised plans for nutrition, movement, stress and everyday routines.', 'habits'],
 ];
 $whyChooseNebo = [
-    ['Root-cause, personalised care', 'We review your health history, relevant test results and goals to understand how digestion, hormones, metabolism and stress may relate to your concerns.'],
-    ['Expert-led care with measurable goals', 'Our naturopathy and functional medicine team sets goals with you and reviews changes in areas such as energy, digestion and relevant health markers.'],
-    ['Integrative care that fits your life', 'We combine naturopathy, nutrition and lifestyle medicine, with dedicated support for preconception, pregnancy and postpartum care. We build plans around your daily routines, preferences and cultural context.'],
+    ['Root-cause, personalised care', 'We review your health history, relevant test results and goals to understand how digestion, hormones, metabolism and stress may relate to your concerns.', 'focus'],
+    ['Expert-led care with measurable goals', 'Our naturopathy and functional medicine team sets goals with you and reviews changes in areas such as energy, digestion and relevant health markers.', 'chart'],
+    ['Integrative care that fits your life', 'We combine naturopathy, nutrition and lifestyle medicine, with dedicated support for preconception, pregnancy and postpartum care. We build plans around your daily routines, preferences and cultural context.', 'leaf'],
 ];
