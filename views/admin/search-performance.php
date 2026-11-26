@@ -1,5 +1,6 @@
 <header class="admin-card search-performance-prompt">
     <h2>Reporting period</h2>
+    <p><a href="/admin/pagespeed">PageSpeed Insights — mobile and desktop performance</a></p>
     <form method="get" action="/admin/search-performance" class="report-period">
         <label>Date range
             <select name="days">

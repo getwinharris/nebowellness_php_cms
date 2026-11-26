@@ -299,6 +299,31 @@ final class AdminController extends BaseController {
         $this->redirect('/admin/integrations');
     }
 
+    public function pageSpeed(): void {
+        $client=new \App\Integrations\GoogleSiteKit\PageSpeedClient();
+        $config=require app_path('config/database.php');
+        $origin=(string)($config['app_url']??'');
+        $key=(string)((new SecretService())->all()['google_pagespeed_key']??'');
+        $_SESSION['pagespeed_reports']??=[];
+        $reports=$client->results($origin,$key,$_SESSION['pagespeed_reports'],time());
+        $this->render('admin/pagespeed',['pageTitle'=>'PageSpeed Insights','reports'=>$reports,'origin'=>$origin,'keyConfigured'=>$key!=='']);
+    }
+    public function runPageSpeed(): void {
+        try {
+            $path=$_POST['path']??null;$strategy=$_POST['strategy']??null;
+            if (!is_string($path)||!is_string($strategy)) throw new \InvalidArgumentException('Select a public page and strategy.');
+            $config=require app_path('config/database.php');
+            $key=(string)((new SecretService())->all()['google_pagespeed_key']??'');
+            $_SESSION['pagespeed_reports']??=[];
+            $report=(new \App\Integrations\GoogleSiteKit\PageSpeedClient())->run((string)($config['app_url']??''),$path,$strategy,$key,$_SESSION['pagespeed_reports']);
+            $this->flash($report['state']==='ready'?'PageSpeed report available.':'Check the report status below.',$report['state']==='ready'?'success':'warning');
+            try {(new AuditLogService())->record('run','pagespeed',$strategy,['path'=>$path,'state'=>$report['state']]);}
+            catch (\Throwable) {error_log('PageSpeed audit unavailable');}
+        } catch (\InvalidArgumentException $error) {$this->flash($error->getMessage(),'error');}
+        catch (\Throwable) {$this->flash('PageSpeed could not complete.','error');}
+        $this->redirect('/admin/pagespeed');
+    }
+
     public function searchPerformance(): void {
         $this->seoOverrides['title'] = 'Search performance';
         $days = (int)($_GET['days'] ?? 28);

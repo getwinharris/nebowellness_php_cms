@@ -1032,11 +1032,12 @@
       "id": "sitekit-05",
       "track": "sitekit",
       "title": "PageSpeed Insights",
-      "status": "missing",
+      "status": "implemented",
       "acceptance": "Explicit mobile/desktop analysis; actual Lighthouse and CrUX availability.",
-      "finding": "No mapped native PageSpeed route/client.",
+      "finding": "Native owner-requested mobile/desktop PageSpeed v5 report with verified public target, bounded Lighthouse projection, explicit page/origin CrUX availability, private session cache and quota/access/error states. Synthetic provider, real denial route and responsive template tests; authenticated live Google report remains separate.",
       "issues": [
-        65
+        65,
+        188
       ],
       "references": [
         {
@@ -1048,8 +1049,34 @@
           "locator": "PageSpeed JS static analysis"
         }
       ],
-      "source": [],
-      "tests": [],
+      "source": [
+        {
+          "path": "integrations/google-site-kit/PageSpeedClient.php",
+          "anchor": "function normalize("
+        },
+        {
+          "path": "app/Controllers/AdminController.php",
+          "anchor": "function runPageSpeed("
+        },
+        {
+          "path": "views/admin/pagespeed.php",
+          "anchor": "Real-user data — page"
+        }
+      ],
+      "tests": [
+        {
+          "path": "tests/pagespeed.test.cjs",
+          "anchor": "PageSpeed uses explicit device strategy"
+        },
+        {
+          "path": "tests/pagespeed.test.cjs",
+          "anchor": "real owner PageSpeed route rejects"
+        },
+        {
+          "path": "tests/browser/pagespeed.cjs",
+          "anchor": "overflow:false"
+        }
+      ],
       "production": null
     },
     {
@@ -2920,6 +2947,19 @@
       ],
       "components": [],
       "summary": "Owner-directed storage/testing correction: existing remoteDB business records and JSON-compatible schemas remain authoritative; explicit remote-only development bypasses local SQL probe, rejects self endpoint and invalid remote row envelopes. Default CI no MariaDB container; disposable JSON loopback contract tests for client transport, canonical collection revision writes and native page lifecycle. Historic direct-engine tests retained but not rerun; engine-specific coverage not replaced or claimed. Private flat-file agent archive migration remains separate. No production migration or REA capability promotion."
+    },
+    {
+      "id": "188-native-pagespeed",
+      "date": "2026-11-27",
+      "issues": [
+        188,
+        65,
+        141
+      ],
+      "components": [
+        "sitekit-05"
+      ],
+      "summary": "Implement source-pinned PageSpeed native mobile/desktop read with fixed public targets, validated Lighthouse and separate real-user scope, explicit error/cache states and owner/CSRF. Synthetic provider and actual denial-route tests plus three responsive fixtures passed. No external paid dependency, new database engine, business schema or customer mutation. Live authorized Google result separate."
     }
   ]
 }

@@ -128,7 +128,7 @@ $__profile=(new \App\Services\SiteProfileService())->published(); ?>
             $__labelMap = [
                 'products'=>'Products','categories'=>'Categories','coupons'=>'Coupons',
                 'orders'=>'Orders','shipping'=>'Shipping','tax-report'=>'Tax Report','consultants'=>'Consultants',
-                'appointments'=>'Sessions','therapy'=>'Therapy requests','agent'=>'Enterprise Agent','search-performance'=>'Search performance',
+                'appointments'=>'Sessions','therapy'=>'Therapy requests','agent'=>'Enterprise Agent','search-performance'=>'Search performance','pagespeed'=>'PageSpeed Insights',
                 'consultation-analytics'=>'Analytics','campaigns'=>'Campaign Pages',
                 'settings'=>'Site Settings','integrations'=>'Integrations',
                 'backups'=>'Backups','audit-log'=>'Audit Log',

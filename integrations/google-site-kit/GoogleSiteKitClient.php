@@ -31,6 +31,7 @@ final class GoogleSiteKitClient {
             }
             $input['google_search_property'] = $site;
         }
+        if (array_key_exists('google_pagespeed_key',$input)) $input['google_pagespeed_key']=PageSpeedClient::apiKey($input['google_pagespeed_key']);
         $json = $input['google_reporting_key'] ?? '';
         unset($input['google_reporting_key']);
         if (!empty($input['disconnect_google_reports'])) {

@@ -5,7 +5,7 @@ final class SecretService {
         'razorpay_test_key_secret'=>'Razorpay test key secret', 'razorpay_live_key_secret'=>'Razorpay live key secret',
         'therapy_webhook_test'=>'Razorpay test webhook', 'therapy_webhook_live'=>'Razorpay live webhook',
         'stripe_secret_key'=>'Stripe secret key', 'google_client_secret'=>'Google sign-in secret',
-        'ai_api_key'=>'Agent provider key', 'turn_credential'=>'TURN credential', 'smtp_password'=>'SMTP password',
+        'google_pagespeed_key'=>'Google PageSpeed API key', 'ai_api_key'=>'Agent provider key', 'turn_credential'=>'TURN credential', 'smtp_password'=>'SMTP password',
     ];
 
     /** A blank write-only field leaves its saved value in place. Only named fields may be cleared. */

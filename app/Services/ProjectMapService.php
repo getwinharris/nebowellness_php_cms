@@ -78,6 +78,8 @@ final class ProjectMapService {
             ['method'=>'GET','path'=>'/admin/settings','name'=>'admin.settings','page'=>'admin/settings','controller'=>'AdminController@settings','services'=>['SettingsService','ConsultationFeeService']],
             ['method'=>'POST','path'=>'/admin/settings/save','name'=>'admin.settings.save','page'=>'admin/settings','controller'=>'AdminController@saveSettings','services'=>['ConsultationFeeService','ClinicContactService','SettingsService','AuditLogService']],
             ['method'=>'POST','path'=>'/admin/settings/admin-credentials','name'=>'admin.settings.admin-credentials','page'=>'admin/settings','controller'=>'AdminController@saveAdminCredentials','services'=>['EnvService','AuditLogService']],
+            ['method'=>'GET','path'=>'/admin/pagespeed','name'=>'admin.pagespeed','page'=>'admin/pagespeed','controller'=>'AdminController@pageSpeed','services'=>['SecretService']],
+            ['method'=>'POST','path'=>'/admin/pagespeed/run','name'=>'admin.pagespeed.run','page'=>'admin/pagespeed','controller'=>'AdminController@runPageSpeed','services'=>['SecretService','AuditLogService']],
             ['method'=>'GET','path'=>'/admin/search-performance','name'=>'admin.search-performance','page'=>'admin/search-performance','controller'=>'AdminController@searchPerformance','services'=>['SecretService']],
             ['method'=>'GET','path'=>'/admin/integrations','name'=>'admin.integrations','page'=>'admin/integrations','controller'=>'AdminController@integrations','services'=>['SettingsService','PaymentService','SecretService','GoogleCustomerAuthService']],
             ['method'=>'GET','path'=>'/admin/agent','name'=>'admin.agent','page'=>'admin/agent','controller'=>'AdminController@agent','services'=>['AgentConversation','SecretService','AgentAttachmentService','AuditLogService','DatabaseService']],
@@ -474,6 +476,7 @@ final class ProjectMapService {
             }
         }
         $lines[] = '  ' . self::controllerId('AdminController') . ' --> ' . self::integrationId('GoogleSiteKitClient');
+        $lines[] = '  ' . self::controllerId('AdminController') . ' --> ' . self::integrationId('PageSpeedClient');
         if (in_array('generate-project-map', $scan['tools'], true)) {
             $lines[] = '  ' . self::toolId('generate-project-map') . ' --> systematic_map["docs/systematic-map.mmd"]:::data';
         }
