@@ -125,7 +125,8 @@
             }
 
             function restoreFilter() {
-                const button = buttons.find(filter => filterFragment(filter) === location.hash);
+                const button = buttons.find(filter => filterFragment(filter) === location.hash)
+                    || (location.hash.startsWith('#programs-') ? buttons.find(filter => filter.dataset.railFilter === 'all') : null);
                 if (!button) return;
                 applyFilter(button);
                 revealCurrentFilter();

@@ -1,10 +1,9 @@
 <?php
 require app_path('config/nebo-foundation-copy.php');
-$programAreas = ['all' => 'All programs'];
 $programs = $programs ?? [];
-foreach ($programs as $program) {
-    $programAreas[$program['area']] ??= $program['area_label'];
-}
+$programAreas = ['all' => 'All programs'] + \App\Services\CampaignPageService::programAreas($programs);
+$programsEnabled = $programsEnabled ?? module_on('campaigns');
+$programAreaHref = static fn(string $area): string => isset($programAreas[$area]) && $programsEnabled ? '#programs-'.$area : '/contact#contact-form';
 $consultationSteps = [
     ['Tell us what matters', 'Let us know your goals and the support you are looking for.'],
     ['Connect with our team', 'Discuss the relevant program and what a consultation involves.'],
@@ -40,10 +39,11 @@ $consultationSteps = [
             <p class="lede"><?= e($foundationIntro) ?></p>
         </div>
         <?php
-        $homeFigures = [
-            [count($programs), 'Program pathways', 'Personalised options to explore before you enquire.'],
-            [count($programAreas) - 1, 'Focus areas', 'Explore the health needs our practitioners support.'],
-        ];
+        $homeFigures = [];
+        if ($programsEnabled && empty($programsUnavailable)) {
+            $homeFigures[] = [count($programs), 'Program pathways', 'Personalised options to explore before you enquire.'];
+        }
+        $homeFigures[] = [4, 'Focus areas', 'Explore the health needs our practitioners support.'];
         require __DIR__ . '/../partials/home-figures.php';
         ?>
         <div class="nebo-intro-copy">
@@ -77,7 +77,7 @@ $consultationSteps = [
             </div>
         </div>
         <?php if ($programs === []): ?>
-            <p><?= !empty($programsUnavailable) ? 'Programmes are temporarily unavailable.' : 'No programmes are currently published.' ?> <a href="/contact#contact-form">Contact our team</a>.</p>
+            <p><?= !$programsEnabled || !empty($programsUnavailable) ? 'Programmes are temporarily unavailable.' : 'No programmes are currently published.' ?> <a href="/contact#contact-form">Contact our team</a>.</p>
         <?php else: ?>
         <div class="program-toolbar">
             <div class="program-filters" role="group" aria-label="Filter programs by care area" data-rail-filters="program-rail" hidden>
@@ -101,7 +101,7 @@ $consultationSteps = [
                         <img src="<?= e($image) ?>" alt="" width="<?= $width ?>" height="<?= $height ?>" loading="lazy" decoding="async">
                     </div>
                     <div class="program-slide__body">
-                        <span class="program-slide__meta"><?= e($program['duration']) ?></span>
+                        <?php if ($program['duration'] !== ''): ?><span class="program-slide__meta"><?= e($program['duration']) ?></span><?php endif; ?>
                         <h3><?= e($program['title']) ?></h3>
                         <p><?= e($program['copy']) ?></p>
                         <span class="program-slide__link">Explore program <span aria-hidden="true">↗</span></span>
@@ -211,14 +211,14 @@ $consultationSteps = [
                 <div class="nebo-care-mosaic__copy">
                     <h3>Gut Health</h3>
                     <p>Support for digestive concerns such as bloating and IBS, with practical guidance on food, daily habits and tracking symptoms.</p>
-                    <a class="focus-program-link" href="#programs-gut">Explore gut health programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('gut')) ?>"><?= isset($programAreas['gut']) && $programsEnabled ? 'Explore gut health programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card">
                 <div class="nebo-care-mosaic__copy">
                     <h3>Metabolic Diseases</h3>
                     <p>Lifestyle support for concerns such as insulin resistance, PCOS, thyroid conditions and weight management alongside your existing medical care.</p>
-                    <a class="focus-program-link" href="#programs-metabolic">Explore metabolic health programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('metabolic')) ?>"><?= isset($programAreas['metabolic']) && $programsEnabled ? 'Explore metabolic health programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card nebo-care-mosaic__card--photo">
@@ -227,14 +227,14 @@ $consultationSteps = [
                 <div class="nebo-care-mosaic__copy">
                     <h3>Lifestyle Transformation</h3>
                     <p>Build routines you can keep with personalised nutrition, stress management and movement suited to your life stage.</p>
-                    <a class="focus-program-link" href="#programs-lifestyle">Explore lifestyle programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('lifestyle')) ?>"><?= isset($programAreas['lifestyle']) && $programsEnabled ? 'Explore lifestyle programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
             <article class="nebo-care-mosaic__card">
                 <div class="nebo-care-mosaic__copy">
                     <h3>Maternal &amp; Fertility Wellness</h3>
                     <p>Support for preconception, pregnancy and postpartum recovery, with nutrition and lifestyle guidance coordinated with your maternity care.</p>
-                    <a class="focus-program-link" href="#programs-fertility">Explore fertility and maternal programs <span aria-hidden="true">↗</span></a>
+                    <a class="focus-program-link" href="<?= e($programAreaHref('fertility')) ?>"><?= isset($programAreas['fertility']) && $programsEnabled ? 'Explore fertility and maternal programs' : 'Talk to our team' ?> <span aria-hidden="true">↗</span></a>
                 </div>
             </article>
         </div>

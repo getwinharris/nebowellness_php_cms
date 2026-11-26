@@ -75,6 +75,13 @@ final class CampaignPageService {
         return $cards;
     }
 
+    /** One category label per published key, using the first ordered programme. */
+    public static function programAreas(array $programs): array {
+        $areas = [];
+        foreach ($programs as $program) $areas[$program['area']] ??= $program['area_label'];
+        return $areas;
+    }
+
     /** Return normalized definitions and any validation errors indexed by editor row. */
     public static function validateFields(array $fields): array {
         $normalized = [];

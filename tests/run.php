@@ -2494,6 +2494,9 @@ $tests['homepage programmes are opt-in, published and owner ordered'] = function
     assertSame(['a','b'], array_column($cards, 'slug'), 'Only valid published opted-in cards are ordered');
     assertSame('Owner copy', $cards[0]['copy'], 'The public card uses the editable summary');
     assertSame([], $svc::homepagePrograms([]), 'No hardcoded programme fallback');
+    assertSame(['gut'=>'Gut health'], $svc::programAreas($cards), 'Menu and filter use one category per published key');
+    fileContains('views/layouts/app.php', 'CampaignPageService::programAreas');
+    fileContains('views/public/home.php', 'empty($programsUnavailable)');
     fileContains('views/public/home.php', 'href="/campaigns/');
     fileContains('app/Controllers/AdminController.php', 'CampaignPageService::programFields');
 };

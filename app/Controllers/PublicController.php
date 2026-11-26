@@ -19,7 +19,8 @@ final class PublicController extends BaseController {
         $therapyProducts = [];
         $programs = [];
         $programsUnavailable = false;
-        if (module_on('campaigns')) {
+        $programsEnabled = module_on('campaigns');
+        if ($programsEnabled) {
             try {
                 $pages = (new CampaignPageService())->newestPublished();
                 $programs = CampaignPageService::homepagePrograms($pages);
@@ -29,7 +30,7 @@ final class PublicController extends BaseController {
                 error_log('Home programmes unavailable: ' . $error->getMessage());
             }
         }
-        $this->render('public/home', ['consultants' => $consultants, 'therapyProducts' => $therapyProducts, 'programs' => $programs, 'programsUnavailable' => $programsUnavailable]);
+        $this->render('public/home', ['consultants' => $consultants, 'therapyProducts' => $therapyProducts, 'programs' => $programs, 'programsUnavailable' => $programsUnavailable, 'programsEnabled' => $programsEnabled]);
     }
 
     private function withPublicTeamCredentials(array $consultants): array {

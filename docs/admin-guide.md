@@ -39,4 +39,4 @@ The GA4 measurement ID configures visitor measurement separately from report acc
 
 ### Owner-managed programmes
 
-In Campaign pages, use the existing title, summary, body, image and enquiry settings. Enable Show in homepage programmes, enter a stable lowercase category key and label, optional duration, and numerical display order. Only published opted-in campaigns are included; the public cards lead to their own detail pages. Other campaigns remain separate. Draft or uncheck to remove a card.
+In Campaign pages, use the existing title, summary, body, image and enquiry settings. Enable Show in homepage programmes, enter a stable lowercase category key and label, optional duration, and numerical display order. Only published opted-in campaigns are included; the public cards lead to their own detail pages. Other campaigns remain separate. Draft or uncheck to remove a card. Category links in the menu and homepage filters come from published programmes. Legacy focus-area links fall back to Contact if their category no longer has a published programme.
