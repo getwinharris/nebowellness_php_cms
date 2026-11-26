@@ -67,3 +67,4 @@ jobs:
           php tests/agent-audit-integration.php
           php tests/crm-integration.php
           php tests/consultation-fee-integration.php
+          php tests/native-public-ability-integration.php
