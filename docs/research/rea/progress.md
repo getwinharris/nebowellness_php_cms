@@ -181,6 +181,7 @@ Native retrieval, execution, sessions, observability and recovery.
 
 ## Scope reviews and updates
 
+- 2026-11-26 · `165-preserve-owner-report-grounding` — Review correction: retain a service-only native evidence group for owner operational reports and dashboards. Direct guessed counts and unrelated retrieval cannot satisfy the report gate; no retail tools reintroduced. Synthetic trace and loopback route regressions. No capability coverage increase.
 - 2026-11-26 · `165-retire-retail-runtime` — Remove 31 retail routes, six internal retail ability definitions and retail-specific CLI entrypoints, permanently retire shop module flag, and retain verified service payment paths plus protected historical receipts. Regression fixtures verify stale flags cannot reactivate retail. Historical REA evidence and database collections remain; physical archival cleanup is separate.
 - 2026-11-26 · `164-standalone-cms-identity` — Rename the project-owned CLI, developer skill and all active generator/validation/workflow references to bapXcms. Record repository comparison and independent product boundary. Preserve archived source bytes, historical review entries, service payments and production data. Retail runtime retirement follows in a separate change; no coverage increase.
 - 2026-11-26 · `162-scoped-mcp-read-transport` — Add published-read-only external MCP transport and independently revocable expiring bearer grants. Modern pinned protocol subset; no legacy/OAuth/live-client acceptance claim. Existing registry owns tool schemas and execution.
