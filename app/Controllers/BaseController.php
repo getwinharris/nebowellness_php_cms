@@ -11,10 +11,12 @@ abstract class BaseController {
     protected function journalResponse(AgentConversation $chat, ?string $turnId, string $message, \App\Services\AgentRunTrace $trace, bool $archive): void {
         if ($turnId === null) return;
         $this->agentJournal = static function(array $data, int $status) use ($chat,$turnId,$message,$trace,$archive): array {
+            $snapshot=null;
             try {
                 $chat->recordEvent($turnId,$message,$data,$status,$trace);
                 if ($archive) {
-                    (new \App\Services\AgentSessionService())->persist($chat->journal());
+                    $snapshot=$chat->journal();
+                    (new \App\Services\AgentSessionService())->persist($snapshot);
                     $data['archive_status'] = 'saved';
                 }
             } catch (\Throwable) {
@@ -23,7 +25,7 @@ abstract class BaseController {
             }
             // The accepted answer was cached before archival. Preserve the
             // real outcome even when no subsequent model turn occurs.
-            if ($archive) $chat->rememberArchiveStatus($turnId,$data['archive_status']);
+            if ($archive) $chat->rememberArchiveStatus($turnId,$data['archive_status'],$snapshot);
             return $data;
         };
     }
@@ -115,9 +117,9 @@ abstract class BaseController {
             // Retry only a server-recorded failed, authorized archive. Do not
             // turn a previously unshared Support message into a shared one
             // merely because a replay supplies a different archive flag.
-            if (($response['archive_status']??null)==='unavailable') {
+            if (($response['archive_status']??null)==='unavailable'&&($snapshot=$chat->archiveRetrySnapshot($turnId))!==null) {
                 try {
-                    (new \App\Services\AgentSessionService())->persist($chat->journal());
+                    (new \App\Services\AgentSessionService())->persist($snapshot);
                     $response['archive_status']='saved';
                     $chat->rememberArchiveStatus($turnId,'saved');
                 } catch (\Throwable) {

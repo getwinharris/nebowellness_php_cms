@@ -178,12 +178,19 @@ test('both chat routes resume their own JSON session, reuse accepted requests an
             assert.equal(replay.body[key],first.body[key]);assert.equal(replay.body.archive_status,'unavailable');
             assert.equal(providerPrompts.length,calls);
         } finally {await chmod(archiveDir,0o700);}
+        let unsharedTurn=null;
+        if(surface==='support'){
+            unsharedTurn=randomBytes(16).toString('hex');
+            const later=await request(surface,{_csrf:'fixture-token',conversation:initial.conversation,turn_id:unsharedTurn,message:'Hello there, good morning — later unshared message'});
+            assert.equal(later.status,200);assert.ok(!('archive_status' in later.body));
+        }
         const calls=providerPrompts.length;
         const recovered=await request(surface,fields);
         assert.equal(recovered.body[key],first.body[key]);assert.equal(recovered.body.archive_status,'saved');
         assert.equal(providerPrompts.length,calls);
         const saved=JSON.parse(await readFile(file,'utf8'));
         assert.equal(saved.events.filter(e=>e.turn_id===fields.turn_id).length,1);
+        if(unsharedTurn)assert.ok(!saved.events.some(e=>e.turn_id===unsharedTurn),'Retry must never archive later unshared Support turns');
         assert.equal((await request(surface,fields)).body.archive_status,'saved');
         assert.deepEqual(JSON.parse(await readFile(file,'utf8')),saved);
     }

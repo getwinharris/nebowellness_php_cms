@@ -2344,7 +2344,7 @@
       "title": "Durable execution journal",
       "status": "partial",
       "acceptance": "Append start/step/call/result/end milestones and recover interrupted turns.",
-      "finding": "Versioned private JSON archive for new conversations, atomic append-preserving snapshots, correlated turn/trace replay deduplication and legacy v1 compatibility. Request-start/step checkpoints and interrupted inference recovery remain absent. Failed authorized archive retries on accepted-turn replay without repeating inference.",
+      "finding": "Versioned private JSON archive for new conversations, atomic append-preserving snapshots, correlated turn/trace replay deduplication and legacy v1 compatibility. Request-start/step checkpoints and interrupted inference recovery remain absent. Failed authorized v2 archive retries freeze the original event scope on accepted-turn replay, without repeating inference or including newer unshared messages.",
       "issues": [
         134,
         128,
@@ -3049,6 +3049,19 @@
         "harness-05"
       ],
       "summary": "Resolve PR #193 review: cached turns preserve archive status; authorized failed persistence retries on replay without provider calls or new sharing permission. Both real route fixtures reproduce unsafe directory mode, failed replay, restored permission, exactly one archived turn and stable saved replay. No new database or production mutation."
+    },
+    {
+      "id": "192-journal-replay-consent-fence",
+      "date": "2026-11-27",
+      "issues": [
+        192,
+        134
+      ],
+      "components": [
+        "harness-05",
+        "harness-08"
+      ],
+      "summary": "Self-review narrowed archive retry to the exact originally authorized v2 event references, retained within the bounded replay window. Later unshared Support turns cannot be archived by a failed older retry; v1 full-record retry is disabled to avoid overwriting subsequent remoteDB state. Existing failure status remains visible. Real chat route regression added."
     }
   ]
 }

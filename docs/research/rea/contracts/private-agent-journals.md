@@ -32,9 +32,12 @@ backups. The archive is not a clinical anonymization mechanism.
 
 A cached accepted answer retains its server-confirmed archive status.
 If the authorized archive failed, replay retries only persistence, not
-inference or a business action. It preserves unavailable until storage
-recovers and then reports saved. Changing the archive flag on a replay
-cannot newly authorize an originally unshared Support message.
+inference or a business action. The failed v2 write retains a bounded set
+of references to exactly the originally authorized events; newer unshared
+Support turns are never included by replay. It preserves unavailable until
+that snapshot can be saved. Older v1 archives keep the failure status rather
+than replay a stale remoteDB full-record write. Changing the archive flag on
+a replay cannot newly authorize an originally unshared Support message.
 
 Per-session JSON is validated, locked, staged and atomically replaced.
 A repeated event cannot change its recorded content or extend retention.
