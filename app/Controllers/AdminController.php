@@ -479,19 +479,28 @@ final class AdminController extends BaseController {
     }
     public function cmsPages(): void {
         $service=new \App\Services\CmsPageService();
-        $pages=[];$editor=null;$pageError='';
+        $pages=[];$editor=null;$pageError='';$schemaReady=null;
         try {
-            $pages=$service->listing();
-            if (isset($_GET['slug'])) $editor=$service->editor(\App\Services\CmsPageService::slug($_GET['slug']));
+            $schemaReady=$service->ready();
+            if ($schemaReady) $pages=$service->listing();
+            if ($schemaReady && isset($_GET['slug'])) $editor=$service->editor(\App\Services\CmsPageService::slug($_GET['slug']));
         } catch (\DomainException | \InvalidArgumentException $e) {$pageError=$e->getMessage();}
         catch (\Throwable $e) {$pageError='Page storage is unavailable. Reload before editing.';error_log('CMS pages: '.get_class($e));}
         header('Cache-Control: private, no-store');
-        $this->render('admin/cms-pages',['pageTitle'=>'Pages','pages'=>$pages,'editor'=>$editor,'pageError'=>$pageError]);
+        $this->render('admin/cms-pages',['pageTitle'=>'Pages','pages'=>$pages,'editor'=>$editor,'pageError'=>$pageError,'schemaReady'=>$schemaReady]);
     }
 
     public function saveCmsPage(): void {
         $target='/admin/pages';
         try {
+            if (($_POST['page_action']??null)==='initialize') {
+                if (($_POST['confirm']??null)!=='1') throw new \InvalidArgumentException('Confirm page storage initialization.');
+                (new \App\Services\CmsPageService())->initialize();
+                $this->flash('Page storage is ready.','success');
+                try {(new AuditLogService())->record('initialize','cms-page','cms_pages');}
+                catch (\Throwable $e) {error_log('CMS schema audit unavailable after confirmed initialization');}
+                $this->redirect($target);
+            }
             $slug=\App\Services\CmsPageService::slug($_POST['slug']??null);
             $target.='?slug='.rawurlencode($slug);
             $action=$_POST['page_action']??null;

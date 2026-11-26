@@ -18,7 +18,7 @@ $pageTitle='Reusable page fixture';$metaDescription='';$metaRobots='noindex';$se
 if($path==='/admin/pages'){
     $_SESSION['user']=['role'=>'admin','email'=>'fixture@example.test'];
     $pages=[['slug'=>'fixture','title'=>$r['draft']['title'],'published'=>true,'draft'=>true]];
-    $editor=['state'=>$r,'revision'=>App\Services\ResourceService::revision($r)];$pageError='';
+    $editor=['state'=>$r,'revision'=>App\Services\ResourceService::revision($r)];$pageError='';$schemaReady=true;
     $viewFile=app_path('views/admin/cms-pages.php');require app_path('views/layouts/admin.php');
 }else{
     $document=$service::publishedDocument($r);$viewFile=app_path('views/public/cms-page.php');require app_path('views/layouts/app.php');

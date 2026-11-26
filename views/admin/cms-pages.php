@@ -2,6 +2,15 @@
 <div class="admin-card">
     <h2>Native pages</h2><p>Create independent pages at <code>/pages/your-slug</code>. Saving or arranging sections changes a private draft only. The existing website and published pages stay unchanged until you publish.</p>
     <?php if ($pageError!==''): ?><p class="flash flash--error" role="alert"><?= e($pageError) ?></p><?php endif; ?>
+    <?php if ($schemaReady===false): ?>
+        <p role="status">Page storage is not yet initialized. Existing website content and media remain available. Initialize only the new page collection to enable authoring.</p>
+        <form class="cms-editor-form" method="post" action="/admin/pages/save">
+            <input type="hidden" name="_csrf" value="<?= e($csrf) ?>">
+            <input type="hidden" name="page_action" value="initialize">
+            <label class="cms-confirm"><input type="checkbox" name="confirm" value="1" required> Initialize native page storage without replacing existing records.</label>
+            <button class="btn btn-primary" type="submit">Initialize page storage</button>
+        </form>
+    <?php elseif ($schemaReady===true && $pageError===''): ?>
     <div class="cms-page-list">
     <?php foreach ($pages as $item): ?>
         <a href="/admin/pages?slug=<?= e($item['slug']) ?>"><?= e($item['title']) ?> <small><?= $item['published']?'Published':'Unpublished' ?><?= $item['draft']?' · Draft':'' ?></small></a>
@@ -13,6 +22,7 @@
         <div class="cms-editor-fields"><label>New page title<input name="title" maxlength="120" required></label><label>Permanent slug<input name="slug" maxlength="36" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></label></div>
         <button class="btn btn-primary" type="submit">Create draft</button>
     </form>
+    <?php endif; ?>
 </div>
 <?php if ($editor!==null): $state=$editor['state']; $values=CmsPageService::editDocument($state); ?>
 <div class="cms-page-workspace">
