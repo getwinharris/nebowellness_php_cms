@@ -205,6 +205,30 @@
       "scope": "Selected exact source hashes; native diagnostic contract and separate provider-health boundaries; static evidence only.",
       "artifact": "docs/research/rea/evidence/bapx-provider-diagnostics-reference.json",
       "artifact_sha256": "0c118750fc72a7fa9f01c64001d78ab6f5ee91a357c750e960afdf297c7012b7"
+    },
+    {
+      "id": "wp-native-extra",
+      "label": "WordPress 7.1.4 block, theme, interactivity and REST supplementary REA graph",
+      "url": "https://developer.wordpress.org/",
+      "revision": "sha256:a147146c159362778ecbbbfb07bb20ddf4e85b130f971c824e656a8f938c5f87",
+      "scope": "Nine exact selected PHP archive members; REA 6.8.0 historical-reference graph, static evidence only.",
+      "artifact": "docs/research/rea/evidence/wp-native-extra-rea.json",
+      "artifact_sha256": "73c4031ccdb8ba36dfa3022c4bc907555341c128493b25607f95519b79aee926",
+      "original_sha256": "73c4031ccdb8ba36dfa3022c4bc907555341c128493b25607f95519b79aee926"
+    },
+    {
+      "id": "wordpress-agent-skills",
+      "label": "WordPress/agent-skills pinned skill guidance",
+      "url": "https://github.com/WordPress/agent-skills/tree/32ea909f7d01be2e08fee6aff6ae449a42b9b34f",
+      "revision": "32ea909f7d01be2e08fee6aff6ae449a42b9b34f",
+      "scope": "GPL reference skills and companion documentation; original-byte inventory in .agents/REA/catalog.json. Inert helper source only; not runtime evidence."
+    },
+    {
+      "id": "woocommerce-agent-skills",
+      "label": "woocommerce/agent-skills pinned skill guidance",
+      "url": "https://github.com/woocommerce/agent-skills/tree/89cc969d2273ac9eb668c48b7284f77e0862bb21",
+      "revision": "89cc969d2273ac9eb668c48b7284f77e0862bb21",
+      "scope": "GPL reference skills and companion documentation; original-byte inventory in .agents/REA/catalog.json. Inert helper source only; not runtime evidence."
     }
   ],
   "policy": "Only sanitized historical findings, hashes, selected static source graphs and public documentation pointers. No vendor runtime, archives, secret values, raw customer traces or production exports. Originals retained in local research folders; artifact digest refers to normalized repository copy."

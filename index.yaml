@@ -41,8 +41,8 @@ query_examples:
   - "rg -n -B4 -A12 'type: \"skill\"' index.yaml"
   - "rg -n '<term>' docs/project-index.json map.mmd index.yaml"
 summary:
-  concepts: 328
-  relationships: 310
+  concepts: 329
+  relationships: 311
   by_type:
     blog: 5
     controller: 13
@@ -51,7 +51,7 @@ summary:
     route: 130
     schema: 25
     service: 62
-    skill: 9
+    skill: 10
 concepts:
   - id: "blog:gut-friendly-meals"
     type: "blog"
@@ -3911,6 +3911,13 @@ concepts:
     resource: ".agents/skills/git/SKILL.md"
     tags:
       - "skill"
+  - id: "skill:rea-reconstruction"
+    type: "skill"
+    title: "rea-reconstruction"
+    description: "Route native product engineering through the pinned REA skill library, source contracts and capability evidence; use for CMS, service workflows, abilities, MCP, A2UI, agents, analytics, deployment and regression review."
+    resource: ".agents/skills/rea-reconstruction/SKILL.md"
+    tags:
+      - "skill"
   - id: "skill:remotedb"
     type: "skill"
     title: "remotedb"
@@ -4264,6 +4271,9 @@ relationships:
     relation: "uses"
   - from: "doc:progress"
     to: "doc:historical-agent-audit"
+    relation: "references"
+  - from: "doc:rea/README"
+    to: "doc:README"
     relation: "references"
   - from: "doc:releases"
     to: "doc:changelog"

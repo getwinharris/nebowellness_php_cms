@@ -20,6 +20,7 @@ blog posts, and file-based images. There is no SPA or frontend build step.
 | Where is a blog or image? | `index.yaml` narrow concept/filename search | returned Markdown/image path |
 | What is the database shape? | `storage/schema/collections.php` | owning service/admin form |
 | What is a live editable value? | hosted MySQL through `DatabaseService` | lowercase `/remotedb` fallback |
+| Which REA skill should I use? | .agents/REA/README.md | ./bapXphp rea skills and native adaptation routing |
 | What remains from REA research? | docs/research/rea/progress.md | canonical register, pinned evidence and acceptance tests |
 | What controls UI? | `Design.md` | `assets/css/band.css` and PHP view |
 

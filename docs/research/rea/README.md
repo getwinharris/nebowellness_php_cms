@@ -11,6 +11,9 @@ This directory is the source-backed delivery contract for the reusable native ba
 
 ## Start here
 
+- [Native REA skill library](../../../.agents/REA/README.md): 22 individually
+  adapted guides, pinned official skill snapshots, source locator and
+  capability routing, license and digest inventory. Use ./bapXphp rea skills.
 - [Progress report](progress.md): generated per-track counts and remaining work.
 - [Canonical capability register](capabilities.json): stable IDs, status, acceptance criteria, source/test anchors, reference locators, issue links and production observations.
 - [Evidence manifest](evidence/manifest.json): archive/commit provenance, digests, analysis boundaries and public documentation.
@@ -18,7 +21,7 @@ This directory is the source-backed delivery contract for the reusable native ba
 
 REA 6.8.0 historical source graphs are partial static evidence. WordPress 7.1.4, WooCommerce 11.3.0, and Site Kit 1.192.0 use exact archive hashes. WordPress MCP and A2UI are pinned Git source trees. A2UI uses the current v1.0 specification in the pinned tree, not legacy v0.8/v0.9 message formats. Ten selected DeepSeek Harness files match commit 39163dd30f703a79079e2d2446545cff3c453738 byte-for-byte. The previously installed workspace is not itself proof of the harness source revision. OpenAI API references are public protocol documentation, not a reverse-engineered proprietary model. The supplemental archive member digest record covers paths not present in the earlier selected REA graph.
 
-The source archives, extracted vendor runtime, and larger REA raw graph/capture bundles remain in the owner's research folders. Only curated, normalized research findings and public-source digests are committed. Never commit private conversations, production data, credentials, runtime captures, or downloaded third-party executable code.
+The source archives, extracted vendor runtime, and larger REA raw graph/capture bundles remain in the owner's research folders. Curated research findings, public-source digests and pinned official skill guidance are committed. Imported skill helper code is archived as non-executable text under .agents/REA/reference/. Never commit private conversations, production data, credentials, runtime captures, or downloaded third-party executable code.
 
 ## Scope and measurement
 
@@ -89,7 +92,7 @@ additional reference paths only when the archived evidence is insufficient.
 
 ## Mandatory update workflow for every relevant PR
 
-1. Read AGENTS.md, this workflow, the current progress report, applicable capability IDs, reference evidence and matching project skill. Search open/closed issues and PR history; inspect exact current source and a relevant reference file/schema. Reuse existing capabilities; do not treat a historical gap as current.
+1. Read AGENTS.md, this workflow, the current progress report, applicable capability IDs, reference evidence and matching project skill. Select the native REA adaptation from ./bapXphp rea skills and record it in the issue/contract. Follow its explicit data/permission/state and verification obligations; use vendor originals only as evidence. Search open/closed issues and PR history; inspect exact current source and a relevant reference file/schema. Reuse existing capabilities; do not treat a historical gap as current.
 2. Identify the scope and issue, then reproduce the failing behavior using an actual boundary test. Record expected behavior and evidence. For newly researched scope, update the manifest with pinned version/hash and limitations; keep original evidence immutable and add a new record.
 3. Implement a focused change in the canonical checkout. Run the relevant real fixtures, local CI, self-review and production tests as applicable. Clearly separate static research, synthetic provider, isolated database, local browser, production browser and actual external provider results.
 4. Update the affected component rows in capabilities.json: status, remaining finding, precise source and test anchors, issue references, and separately dated production observation if actually observed. Append a unique updates entry with date, issue IDs, affected component IDs and concise reason/evidence. If a runtime change does not affect a tracked capability, still append a review entry with empty component list and explain why. Do not edit prior review entries to hide history. Scope changes require a higher scope_revision and a new review entry containing scope_change rationale.
@@ -98,6 +101,7 @@ additional reference paths only when the archived evidence is insufficient.
    ./bapXphp rea status
    ./bapXphp update
    ./bapXphp rea check
+   ./bapXphp rea skills-check
    ./bapXphp ci
    ```
    The update command regenerates the progress report before maps/indexes. The check validates reference digests, exact source/test anchors, stable IDs and report drift. PR CI also checks the base-to-head runtime change against a new register review. The tooling verifies record integrity, not semantic correctness of every acceptance claim: the implementing agent still owns evidence and release review.
